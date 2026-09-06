@@ -1,0 +1,16 @@
+---
+import Icon from "./Icon.astro";
+interface Props {
+  v: string | boolean;
+}
+const { v } = Astro.props;
+---
+{
+  v === true ? (
+    <span class="inline-flex items-center justify-center" aria-label="支持"><Icon name="check" size="1.05em" class="text-ok" /></span>
+  ) : v === false ? (
+    <span class="inline-flex items-center justify-center opacity-55" aria-label="不支持"><Icon name="x" size="1.05em" class="text-muted" /></span>
+  ) : (
+    <span class="font-mono text-[0.8rem]">{v}</span>
+  )
+}

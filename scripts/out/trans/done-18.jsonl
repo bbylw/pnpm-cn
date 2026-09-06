@@ -1,0 +1,89 @@
+{"b":"workspaces#3706","z":"pnpm 内置支持 monorepo（单体仓库，也称多包仓库、多项目仓库或单体仓库）。你可以创建一个工作区，将多个项目统一到单个仓库中。"}
+{"b":"workspaces#3707","z":"工作区的根目录必须有一个 [pnpm-workspace.yaml](/docs/settings) 文件。"}
+{"b":"workspaces#3708","z":"如果你在研究 monorepo 管理，也可以了解一下 [Bit](https://bit.dev/?utm_source=pnpm&utm_medium=workspace_page)。Bit 底层使用 pnpm，但能自动化许多在传统 pnpm/npm/Yarn 工作区中需要手动完成的事情。有一篇关于 `bit install` 的文章对此做了介绍：[用 Bit 实现无痛的 monorepo 依赖管理](https://bit.dev/blog/painless-monorepo-dependency-management-with-bit-l4f9fzyw?utm_source=pnpm&utm_medium=workspace_page)。"}
+{"b":"workspaces#3709","z":"工作区协议（workspace:）"}
+{"b":"workspaces#3710","z":"如果把 [linkWorkspacePackages](#linkworkspacepackages) 设为 `true`，当工作区中可用的包与声明的范围匹配时，pnpm 会链接这些包。例如，如果 `bar` 的 dependencies 中有 `\"foo\": \"^1.0.0\"`，并且工作区中存在 `foo@1.0.0`，那么 `foo@1.0.0` 会被链接进 `bar`。不过，如果 `bar` 的 dependencies 中有 `\"foo\": \"2.0.0\"`，而工作区中没有 `foo@2.0.0`，那么 `foo@2.0.0` 将从 registry 安装。这种行为会带来一些不确定性。"}
+{"b":"workspaces#3711","z":"好在 pnpm 支持 `workspace:` 协议。使用该协议时，pnpm 只会解析到本地工作区包，不会解析为其他内容。因此，如果你设置 `\"foo\": \"workspace:2.0.0\"`，这次安装就会失败，因为工作区中不存在 `\"foo@2.0.0\"`。"}
+{"b":"workspaces#3712","z":"当 [linkWorkspacePackages](#linkworkspacepackages) 选项设为 `false` 时，这个协议尤其有用。在这种情况下，只有使用了 `workspace:` 协议的包，pnpm 才会从工作区链接它们。"}
+{"b":"workspaces#3713","z":"通过别名引用工作区包"}
+{"b":"workspaces#3714","z":"假设工作区中有一个名为 `foo` 的包。通常你会写成 `\"foo\": \"workspace:*\"`。"}
+{"b":"workspaces#3715","z":"如果你想用另一个别名，下面的语法同样可行：`\"bar\": \"workspace:foo@*\"`。"}
+{"b":"workspaces#3716","z":"发布前，别名会被转换为普通的别名依赖。上面的示例会变成：`\"bar\": \"npm:foo@1.0.0\"`。"}
+{"b":"workspaces#3717","z":"通过相对路径引用工作区包"}
+{"b":"workspaces#3718","z":"在一个包含 2 个包的工作区中："}
+{"b":"workspaces#3719","z":"`bar` 可以在其依赖中把 `foo` 声明为 `\"foo\": \"workspace:../foo\"`。发布前，这些说明符会被转换为所有包管理器都支持的普通版本说明符。"}
+{"b":"workspaces#3720","z":"发布工作区包"}
+{"b":"workspaces#3721","z":"当工作区包被打包成归档文件时（无论是通过 `pnpm pack` 还是像 `pnpm publish` 这样的发布命令），我们会动态地替换任意 `workspace:` 依赖，替换为："}
+{"b":"workspaces#3722","z":"目标工作区中对应的版本（如果你使用 `workspace:`、`workspace:*`、`workspace:~` 或 `workspace:^`）"}
+{"b":"workspaces#3723","z":"关联的 semver 范围（对于其他任何范围类型）"}
+{"b":"workspaces#3724","z":"不带版本范围的裸 `workspace:` 会被视为 `workspace:*`。"}
+{"b":"workspaces#3725","z":"例如，如果工作区中有 `foo`、`bar`、`qar`、`zoo`，且它们都是 `1.5.0` 版本，那么下面这些："}
+{"b":"workspaces#3726","z":"会被转换为："}
+{"b":"workspaces#3727","z":"这个功能让你可以依赖本地工作区包，同时仍能把生成的包发布到远程 registry，而无需中间的发布步骤。你的使用方可以像使用任何其他包一样使用你发布的工作区，同时享受 semver 带来的保证。"}
+{"b":"workspaces#3728","z":"发布流程"}
+{"b":"workspaces#3729","z":"在工作区内为包做版本管理是一项复杂的任务，pnpm 目前并未提供内置的解决方案。不过，有 2 个经过充分测试的工具可以处理版本管理并支持 pnpm："}
+{"b":"workspaces#3730","z":"关于如何使用 Rush 搭建仓库，阅读[该页面](https://rushjs.io/pages/maintainer/setup_new_repo)。"}
+{"b":"workspaces#3731","z":"关于将 Changesets 与 pnpm 一起使用，阅读[本指南](/docs/using-changesets)。"}
+{"b":"workspaces#3732","z":"故障排查"}
+{"b":"workspaces#3733","z":"如果工作区依赖之间存在循环，pnpm 无法保证脚本按拓扑顺序运行。如果 pnpm 在安装期间检测到循环依赖，会发出警告。如果 pnpm 能找出是哪些依赖导致了循环，也会一并显示出来。"}
+{"b":"workspaces#3734","z":"如果你看到 `There are cyclic workspace dependencies` 这条消息，检查 `dependencies`、`optionalDependencies` 和 `devDependencies` 中声明的工作区依赖。"}
+{"b":"workspaces#3735","z":"用法示例"}
+{"b":"workspaces#3736","z":"以下是几个使用 pnpm 工作区功能的最受欢迎的开源项目："}
+{"b":"workspaces#3737","z":"配置"}
+{"b":"workspaces#3738","z":"linkWorkspacePackages"}
+{"b":"workspaces#3739","z":"默认值：**false**"}
+{"b":"workspaces#3740","z":"类型：**true**、**false**、**deep**"}
+{"b":"workspaces#3741","z":"启用后，本地可用的包会被链接到 `node_modules`，而不是从 registry 下载。这在 monorepo 中非常方便。如果你还需要把本地包链接到子依赖，可以使用 `deep` 设置。"}
+{"b":"workspaces#3742","z":"否则，包会从 registry 下载并安装。不过，仍然可以通过 `workspace:` 范围协议链接工作区包。"}
+{"b":"workspaces#3743","z":"只有当包的版本满足依赖范围时才会被链接。"}
+{"b":"workspaces#3744","z":"injectWorkspacePackages"}
+{"b":"workspaces#3745","z":"默认值：**false**"}
+{"b":"workspaces#3746","z":"类型：**Boolean**"}
+{"b":"workspaces#3747","z":"对所有本地工作区依赖启用硬链接，而不是符号链接。或者，也可以通过 [dependenciesMeta.injected](/docs/package_json#dependenciesmetainjected) 实现，它允许针对特定依赖选择性地启用硬链接。"}
+{"b":"workspaces#3748","z":"即使启用了这个设置，pnpm 仍会优先使用符号链接对注入的依赖去重，除非因对等依赖不匹配而需要多份依赖图。此行为由 `dedupeInjectedDeps` 设置控制。"}
+{"b":"workspaces#3749","z":"dedupeInjectedDeps"}
+{"b":"workspaces#3750","z":"默认值：**true**"}
+{"b":"workspaces#3751","z":"类型：**Boolean**"}
+{"b":"workspaces#3752","z":"启用此设置后，只要有可能，[被注入的依赖](/docs/package_json#dependenciesmetainjected)就会从工作区进行符号链接。如果依赖方项目和被注入的依赖引用了相同的对等依赖，就没必要把被注入的依赖物理复制到依赖方的 `node_modules` 中，符号链接就够了。"}
+{"b":"workspaces#3753","z":"syncInjectedDepsAfterScripts"}
+{"b":"workspaces#3754","z":"自 v10.5.0 起提供"}
+{"b":"workspaces#3755","z":"默认值：**undefined**"}
+{"b":"workspaces#3756","z":"类型：**String[]**"}
+{"b":"workspaces#3757","z":"注入的工作区依赖是一组硬链接，当源发生变化时不会添加或删除文件。这会在需要构建的包中引发问题（例如 TypeScript 项目）。"}
+{"b":"workspaces#3758","z":"此设置是一组脚本名称。当在工作区包中执行其中任意脚本时，`node_modules` 内被注入的依赖也会同步。"}
+{"b":"workspaces#3759","z":"preferWorkspacePackages"}
+{"b":"workspaces#3760","z":"默认值：**false**"}
+{"b":"workspaces#3761","z":"类型：**Boolean**"}
+{"b":"workspaces#3762","z":"启用后，会优先使用工作区中的本地包，而不是 registry 中的包，即使 registry 里有该包的更新版本。"}
+{"b":"workspaces#3763","z":"只有在工作区未使用 `saveWorkspaceProtocol` 时，此设置才有用。"}
+{"b":"workspaces#3764","z":"sharedWorkspaceLockfile"}
+{"b":"workspaces#3765","z":"默认值：**true**"}
+{"b":"workspaces#3766","z":"类型：**Boolean**"}
+{"b":"workspaces#3767","z":"启用后，pnpm 会在工作区根目录创建一个 `pnpm-lock.yaml` 文件。这也意味着工作区包的所有依赖都会放在一个 `node_modules` 中（并为 Node 的模块解析符号链接到各自包的 `node_modules` 目录）。"}
+{"b":"workspaces#3768","z":"此选项的优势："}
+{"b":"workspaces#3769","z":"每个依赖都是单例"}
+{"b":"workspaces#3770","z":"monorepo 中安装更快"}
+{"b":"workspaces#3771","z":"由于都在一个文件中，代码评审时的改动更少"}
+{"b":"workspaces#3772","z":"尽管所有依赖都会硬链接到根 `node_modules`，但每个包只能访问其 `package.json` 中声明的那些依赖，因此 pnpm 的严格性得以保留。这正是前面所说的符号链接带来的效果。"}
+{"b":"workspaces#3773","z":"saveWorkspaceProtocol"}
+{"b":"workspaces#3774","z":"默认值：**rolling**"}
+{"b":"workspaces#3775","z":"类型：**true**、**false**、**rolling**"}
+{"b":"workspaces#3776","z":"此设置控制从工作区链接的依赖如何被添加到 `package.json`。"}
+{"b":"workspaces#3777","z":"如果工作区中有 `foo@1.0.0`，而你在该工作区的另一个项目中运行 `pnpm add foo`，下面展示的是 `foo` 会被如何添加到 dependencies 字段。`savePrefix` 设置也会影响说明符的生成方式。"}
+{"b":"workspaces#3778","z":"includeWorkspaceRoot"}
+{"b":"workspaces#3779","z":"默认值：**false**"}
+{"b":"workspaces#3780","z":"类型：**Boolean**"}
+{"b":"workspaces#3781","z":"在工作区中递归执行命令时，也在根工作区项目上执行。"}
+{"b":"workspaces#3782","z":"ignoreWorkspaceCycles"}
+{"b":"workspaces#3783","z":"默认值：**false**"}
+{"b":"workspaces#3784","z":"类型：**Boolean**"}
+{"b":"workspaces#3785","z":"设为 `true` 时，不再打印工作区依赖循环的警告。它还会把递归运行中的 `ERR_PNPM_TASK_CYCLE` 降级为警告，该循环中的任务彼此之间不再有保证的执行顺序。另见[工作区任务编排](/docs/workspace-task-orchestration#cycles)。"}
+{"b":"workspaces#3786","z":"disallowWorkspaceCycles"}
+{"b":"workspaces#3787","z":"默认值：**false**"}
+{"b":"workspaces#3788","z":"类型：**Boolean**"}
+{"b":"workspaces#3789","z":"设为 `true` 时，如果工作区存在循环，安装就会失败。"}
+{"b":"workspaces#3790","z":"failIfNoMatch"}
+{"b":"workspaces#3791","z":"默认值：**false**"}
+{"b":"workspaces#3792","z":"类型：**Boolean**"}
+{"b":"workspaces#3793","z":"设为 `true` 时，如果没有包匹配所提供的过滤器，CLI 将以非零退出码退出。"}
+{"b":"workspaces#3794","z":"例如，下面的命令将以非零退出码退出，因为工作区中不存在 `bad-pkg-name`："}

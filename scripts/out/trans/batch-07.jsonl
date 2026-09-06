@@ -1,0 +1,236 @@
+{"p":"cli/version","b":"cli/version#1416","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/version","b":"cli/version#1417","k":"para","t":"Bump the package version."}
+{"p":"cli/version","b":"cli/version#1418","k":"para","t":"`<newversion>` can be any of the bump types above or an explicit semver version (e.g. `1.2.3`). Workspaces and the `workspace:` protocol are supported, so cross-references between workspace packages are updated correctly."}
+{"p":"cli/version","b":"cli/version#1419","k":"para","t":"When run inside a git repository, `pnpm version` creates a git commit and an annotated tag for the bump. The working tree must be clean (see `--no-git-checks` below) and commits/tags can be disabled with `--no-git-tag-version`. Git commits and tags are always skipped in recursive mode because multiple packages may be bumped to different versions in a single run."}
+{"p":"cli/version","b":"cli/version#1420","k":"heading","t":"Usage"}
+{"p":"cli/version","b":"cli/version#1421","k":"heading","t":"Recursive releases"}
+{"p":"cli/version","b":"cli/version#1422","k":"para","t":"Added in: v11.13.0"}
+{"p":"cli/version","b":"cli/version#1423","k":"para","t":"Run with `-r` and **no version argument** to consume the pending change intents recorded by [pnpm change](/docs/cli/change):"}
+{"p":"cli/version","b":"cli/version#1424","k":"para","t":"This assembles a release plan from the `.changeset/*.md` intent files and applies it: every package named by an intent is bumped, and so is every package that depends on it through a `workspace:` range. It then writes changelogs and records the consumed intents in `.changeset/ledger.yaml`."}
+{"p":"cli/version","b":"cli/version#1425","k":"para","t":"Preview the plan without touching anything:"}
+{"p":"cli/version","b":"cli/version#1426","k":"para","t":"Narrow it to part of the workspace with `--filter`. The selection is expanded until it settles, so fixed-group companions and dependents whose ranges the bump invalidates are pulled in automatically."}
+{"p":"cli/version","b":"cli/version#1427","k":"para","t":"The working tree must be clean unless `--dry-run` or `--no-git-checks` is passed. See [Release management](/docs/versioning) for the full workflow."}
+{"p":"cli/version","b":"cli/version#1428","k":"heading","t":"Options"}
+{"p":"cli/version","b":"cli/version#1429","k":"heading","t":"--preid <prerelease-id>"}
+{"p":"cli/version","b":"cli/version#1430","k":"para","t":"The \"prerelease identifier\" to use as a prefix for the prerelease part of a semver."}
+{"p":"cli/version","b":"cli/version#1431","k":"heading","t":"--message, -m <message>"}
+{"p":"cli/version","b":"cli/version#1432","k":"para","t":"Commit message. Any `%s` in the message is replaced with the new version. Defaults to `%s`."}
+{"p":"cli/version","b":"cli/version#1433","k":"heading","t":"--tag-version-prefix <prefix>"}
+{"p":"cli/version","b":"cli/version#1434","k":"para","t":"Prefix used when creating the git tag. Defaults to `v` (e.g. `v1.2.3`). Set to an empty string to drop the prefix entirely."}
+{"p":"cli/version","b":"cli/version#1435","k":"heading","t":"--no-git-tag-version"}
+{"p":"cli/version","b":"cli/version#1436","k":"para","t":"Do not create a git commit or tag for the version change."}
+{"p":"cli/version","b":"cli/version#1437","k":"heading","t":"--no-commit-hooks"}
+{"p":"cli/version","b":"cli/version#1438","k":"para","t":"Skip git commit hooks (`--no-verify`) when committing the version bump."}
+{"p":"cli/version","b":"cli/version#1439","k":"heading","t":"--sign-git-tag"}
+{"p":"cli/version","b":"cli/version#1440","k":"para","t":"Sign the generated git tag with GPG (`git tag -s`)."}
+{"p":"cli/version","b":"cli/version#1441","k":"heading","t":"--no-git-checks"}
+{"p":"cli/version","b":"cli/version#1442","k":"para","t":"Do not check whether the working tree is clean before bumping the version."}
+{"p":"cli/version","b":"cli/version#1443","k":"heading","t":"--allow-same-version"}
+{"p":"cli/version","b":"cli/version#1444","k":"para","t":"Allow setting the version to the current version. This can be useful for CI pipelines."}
+{"p":"cli/version","b":"cli/version#1445","k":"heading","t":"--recursive, -r"}
+{"p":"cli/version","b":"cli/version#1446","k":"para","t":"Apply the version bump to every package in the workspace (optionally narrowed with `--filter`). Git commit and tag creation are skipped in recursive mode."}
+{"p":"cli/version","b":"cli/version#1447","k":"heading","t":"--json"}
+{"p":"cli/version","b":"cli/version#1448","k":"para","t":"Output the list of bumped packages in JSON format."}
+{"p":"cli/version","b":"cli/version@title","k":"title","t":"pnpm version"}
+{"p":"cli/view","b":"cli/view#1449","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/view","b":"cli/view#1450","k":"para","t":"View package metadata from the registry."}
+{"p":"cli/view","b":"cli/view#1451","k":"heading","t":"Usage"}
+{"p":"cli/view","b":"cli/view#1452","k":"para","t":"Show all metadata for a package:"}
+{"p":"cli/view","b":"cli/view#1453","k":"para","t":"Show a specific field:"}
+{"p":"cli/view","b":"cli/view#1454","k":"para","t":"Show metadata for a specific version:"}
+{"p":"cli/view","b":"cli/view#1455","k":"para","t":"When no package name is provided, `pnpm view` searches upward for the nearest project manifest (`package.json`, `package.yaml`, or `package.json5`) and uses its `name` field. If the manifest exists but has no `name`, the command fails."}
+{"p":"cli/view","b":"cli/view#1456","k":"heading","t":"Options"}
+{"p":"cli/view","b":"cli/view#1457","k":"heading","t":"--json"}
+{"p":"cli/view","b":"cli/view#1458","k":"para","t":"Output the metadata in JSON format."}
+{"p":"cli/view","b":"cli/view@title","k":"title","t":"pnpm view"}
+{"p":"cli/whoami","b":"cli/whoami#1459","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/whoami","b":"cli/whoami#1460","k":"para","t":"Print the username associated with the current registry credentials."}
+{"p":"cli/whoami","b":"cli/whoami#1461","k":"para","t":"If you are not logged in, the command exits with an error. Use [pnpm login](/docs/cli/login) to authenticate first."}
+{"p":"cli/whoami","b":"cli/whoami#1462","k":"heading","t":"Options"}
+{"p":"cli/whoami","b":"cli/whoami#1463","k":"heading","t":"--registry <url>"}
+{"p":"cli/whoami","b":"cli/whoami#1464","k":"para","t":"The registry to check. Defaults to the configured default registry."}
+{"p":"cli/whoami","b":"cli/whoami@title","k":"title","t":"pnpm whoami"}
+{"p":"cli/why","b":"cli/why#1476","k":"para","t":"Shows all packages that depend on the specified package."}
+{"p":"cli/why","b":"cli/why#1477","k":"para","t":"The output is a reverse dependency tree: the searched package appears at the root, with its dependents as branches, walking back to workspace roots."}
+{"p":"cli/why","b":"cli/why#1478","k":"para","t":"Duplicate subtrees are deduplicated in the output and shown as \"deduped\"."}
+{"p":"cli/why","b":"cli/why#1479","k":"heading","t":"Options"}
+{"p":"cli/why","b":"cli/why#1480","k":"heading","t":"--recursive, -r"}
+{"p":"cli/why","b":"cli/why#1481","k":"para","t":"Show the dependency tree for the specified package on every package in subdirectories or on every workspace package when executed inside a workspace."}
+{"p":"cli/why","b":"cli/why#1482","k":"heading","t":"--json"}
+{"p":"cli/why","b":"cli/why#1483","k":"para","t":"Show information in JSON format."}
+{"p":"cli/why","b":"cli/why#1484","k":"heading","t":"--long"}
+{"p":"cli/why","b":"cli/why#1485","k":"para","t":"Show verbose output."}
+{"p":"cli/why","b":"cli/why#1486","k":"heading","t":"--parseable"}
+{"p":"cli/why","b":"cli/why#1487","k":"para","t":"Show parseable output instead of tree view."}
+{"p":"cli/why","b":"cli/why#1488","k":"heading","t":"--global, -g"}
+{"p":"cli/why","b":"cli/why#1489","k":"para","t":"List packages in the global install directory instead of in the current project."}
+{"p":"cli/why","b":"cli/why#1490","k":"heading","t":"--prod, -P"}
+{"p":"cli/why","b":"cli/why#1491","k":"para","t":"Only display the dependency tree for packages in `dependencies`."}
+{"p":"cli/why","b":"cli/why#1492","k":"heading","t":"--dev, -D"}
+{"p":"cli/why","b":"cli/why#1493","k":"para","t":"Only display the dependency tree for packages in `devDependencies`."}
+{"p":"cli/why","b":"cli/why#1494","k":"heading","t":"--depth <number>"}
+{"p":"cli/why","b":"cli/why#1495","k":"para","t":"Display only dependencies within a specific depth."}
+{"p":"cli/why","b":"cli/why#1496","k":"heading","t":"--only-projects"}
+{"p":"cli/why","b":"cli/why#1497","k":"para","t":"Display only dependencies that are also projects within the workspace."}
+{"p":"cli/why","b":"cli/why#1498","k":"heading","t":"--exclude-peers"}
+{"p":"cli/why","b":"cli/why#1499","k":"para","t":"Exclude peer dependencies from the results (but dependencies of peer dependencies are not ignored)."}
+{"p":"cli/why","b":"cli/why#1500","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/why","b":"cli/why#1501","k":"heading","t":"--find-by <finder_name>"}
+{"p":"cli/why","b":"cli/why#1502","k":"para","t":"Added in: v10.16.0"}
+{"p":"cli/why","b":"cli/why#1503","k":"para","t":"Use a [finder function](/docs/finders) defined in `.pnpmfile.mjs` to match dependencies by properties other than name."}
+{"p":"cli/why","b":"cli/why@title","k":"title","t":"pnpm why"}
+{"p":"cli/with","b":"cli/with#1465","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/with","b":"cli/with#1466","k":"para","t":"Run pnpm at a specific version (or the currently running one) for a single invocation, ignoring the `packageManager` and `devEngines.packageManager` fields of the project's manifest."}
+{"p":"cli/with","b":"cli/with#1467","k":"para","t":"The downloaded pnpm is installed using the same mechanism as [pnpm self-update](/docs/cli/self-update) and cached in the global virtual store for reuse on subsequent runs."}
+{"p":"cli/with","b":"cli/with#1468","k":"heading","t":"Examples"}
+{"p":"cli/with","b":"cli/with#1469","k":"para","t":"Run the globally installed pnpm, ignoring the version pinned in the manifest:"}
+{"p":"cli/with","b":"cli/with#1470","k":"para","t":"Run a specific version:"}
+{"p":"cli/with","b":"cli/with#1471","k":"para","t":"Use a dist-tag:"}
+{"p":"cli/with","b":"cli/with#1472","k":"heading","t":"Related settings"}
+{"p":"cli/with","b":"cli/with#1473","k":"heading","t":"pmOnFail"}
+{"p":"cli/with","b":"cli/with#1474","k":"para","t":"If you want to permanently skip the `packageManager` / `devEngines.packageManager` check (for example, because version management is handled by asdf, mise, Volta, or a similar tool), set the [pmOnFail](/docs/settings/cli#pmonfail) setting to `ignore` instead of running every command through `pnpm with`:"}
+{"p":"cli/with","b":"cli/with#1475","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"cli/with","b":"cli/with@title","k":"title","t":"pnpm with"}
+{"p":"completion","b":"completion#1504","k":"para","t":"Completion for pnpm v9+ is incompatible with completion for older pnpm versions. If you have already installed pnpm completion for a version older than v9, you must uninstall it first to ensure that completion for v9+ works properly. You can do this by removing the section of code that contains `__tabtab` in your dot files."}
+{"p":"completion","b":"completion#1505","k":"para","t":"Unlike other popular package managers, which usually require plugins, pnpm supports command line tab-completion for Bash, Zsh, Fish, and similar shells."}
+{"p":"completion","b":"completion#1506","k":"para","t":"To setup autocompletion for Bash, run:"}
+{"p":"completion","b":"completion#1507","k":"para","t":"To setup autocompletion for Fish, run:"}
+{"p":"completion","b":"completion#1508","k":"heading","t":"g-plane/pnpm-shell-completion"}
+{"p":"completion","b":"completion#1509","k":"para","t":"[pnpm-shell-completion](https://github.com/g-plane/pnpm-shell-completion) is a shell plugin maintained by Pig Fang on Github."}
+{"p":"completion","b":"completion#1510","k":"li","t":"Provide completion for `pnpm --filter <package>`."}
+{"p":"completion","b":"completion#1511","k":"li","t":"Provide completion for `pnpm remove` command, even in workspace's packages (by specifying `--filter` option)."}
+{"p":"completion","b":"completion#1512","k":"li","t":"Provide completion for scripts in `package.json`."}
+{"p":"completion","b":"completion@title","k":"title","t":"Command line tab-completion"}
+{"p":"config-dependencies","b":"config-dependencies#1513","k":"para","t":"Config dependencies allow you to share and centralize configuration files, settings, and hooks across multiple projects. They are installed before all regular dependencies (\"dependencies\", \"devDependencies\", \"optionalDependencies\"), making them ideal for setting up custom hooks, patches, and catalog entries."}
+{"p":"config-dependencies","b":"config-dependencies#1514","k":"para","t":"Config dependencies help you keep all the hooks, settings, patches, overrides, catalogs, rules in a single place and use them across multiple repositories."}
+{"p":"config-dependencies","b":"config-dependencies#1515","k":"para","t":"If your config dependency is named following the `pnpm-plugin-*`, `@*/pnpm-plugin-*`, or `@pnpm/plugin-*` pattern, pnpm will automatically load its `pnpmfile.mjs` (falling back to `pnpmfile.cjs`) from the package root."}
+{"p":"config-dependencies","b":"config-dependencies#1516","k":"heading","t":"How to Add a Config Dependency"}
+{"p":"config-dependencies","b":"config-dependencies#1517","k":"para","t":"Config dependencies are defined in your `pnpm-workspace.yaml`. Their integrity checksums are stored in `pnpm-lock.yaml` (in a dedicated [env lockfile document](/docs/lockfile))."}
+{"p":"config-dependencies","b":"config-dependencies#1518","k":"para","t":"For example, running `pnpm add --config my-configs` will add this entry to your `pnpm-workspace.yaml`:"}
+{"p":"config-dependencies","b":"config-dependencies#1519","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"config-dependencies","b":"config-dependencies#1520","k":"li","t":"Config dependencies **cannot** have their own regular `dependencies`. They **can** declare `optionalDependencies`, but only one level deep — `optionalDependencies` of `optionalDependencies` are ignored."}
+{"p":"config-dependencies","b":"config-dependencies#1521","k":"li","t":"Config dependencies **cannot** define lifecycle scripts (like `preinstall`, `postinstall`, etc.)."}
+{"p":"config-dependencies","b":"config-dependencies#1522","k":"heading","t":"Platform-specific binaries via `optionalDependencies`"}
+{"p":"config-dependencies","b":"config-dependencies#1523","k":"para","t":"A config dependency may ship platform-specific binaries via `optionalDependencies`, the same pattern used by tools like esbuild and swc. Each platform-binary package declares its supported platform with `os`, `cpu`, and/or `libc` fields, and pnpm installs only the variant that matches the current host. The matching binary is symlinked next to the parent config dependency in the global virtual store, so `require('my-config-platform-arch')` from inside the config dependency resolves at runtime."}
+{"p":"config-dependencies","b":"config-dependencies#1524","k":"para","t":"The env lockfile records all platform variants regardless of host platform, so the lockfile stays portable across machines."}
+{"p":"config-dependencies","b":"config-dependencies#1525","k":"para","t":"Each entry in `optionalDependencies` must be declared with an **exact** version (e.g. `\"1.2.3\"`) — ranges (`\"^1.0.0\"`, `\"~1.0.0\"`) and tags (`\"latest\"`) are rejected. This keeps config-dep installs reproducible: the resolved subdep can't drift between machines for a parent that's pinned by integrity."}
+{"p":"config-dependencies","b":"config-dependencies#1526","k":"heading","t":"Usage"}
+{"p":"config-dependencies","b":"config-dependencies#1527","k":"heading","t":"Installing Dependencies Used in Hooks"}
+{"p":"config-dependencies","b":"config-dependencies#1528","k":"para","t":"Config dependencies are installed **before** hooks from your [.pnpmfile.mjs](/docs/pnpmfile) are loaded, allowing you to import logic from config packages."}
+{"p":"config-dependencies","b":"config-dependencies#1529","k":"para","t":".pnpmfile.mjs"}
+{"p":"config-dependencies","b":"config-dependencies#1530","k":"heading","t":"Updating pnpm Settings Dynamically"}
+{"p":"config-dependencies","b":"config-dependencies#1531","k":"para","t":"Using the [updateConfig](/docs/pnpmfile#hooksupdateconfigconfig-config--promiseconfig) hook, you can dynamically update pnpm’s settings using config dependencies."}
+{"p":"config-dependencies","b":"config-dependencies#1532","k":"para","t":"For example, the following `pnpmfile` adds a new [catalog](/docs/catalogs) entry to pnpm's configuration:"}
+{"p":"config-dependencies","b":"config-dependencies#1533","k":"para","t":"@myorg/pnpm-plugin-my-catalogs/pnpmfile.mjs"}
+{"p":"config-dependencies","b":"config-dependencies#1534","k":"para","t":"If you install it as config dependency:"}
+{"p":"config-dependencies","b":"config-dependencies#1535","k":"para","t":"Then you can run:"}
+{"p":"config-dependencies","b":"config-dependencies#1536","k":"para","t":"This will install `is-odd@1.0.0` and add the following to your `package.json`:"}
+{"p":"config-dependencies","b":"config-dependencies#1537","k":"para","t":"This makes it easy to maintain and share centralized configuration and dependency versions across projects."}
+{"p":"config-dependencies","b":"config-dependencies#1538","k":"heading","t":"Loading Patch Files"}
+{"p":"config-dependencies","b":"config-dependencies#1539","k":"para","t":"You can reference [patch files](/docs/cli/patch) stored inside config dependencies."}
+{"p":"config-dependencies","b":"config-dependencies#1540","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"config-dependencies","b":"config-dependencies@title","k":"title","t":"Config Dependencies"}
+{"p":"configuring","b":"configuring#1541","k":"para","t":"pnpm settings are divided into two categories:"}
+{"p":"configuring","b":"configuring#1542","k":"li","t":"**Authentication and certificate settings** are stored in INI files. These contain sensitive credentials and should not be committed to your repository. See [Authentication Settings](/docs/npmrc#auth-file-locations) for details."}
+{"p":"configuring","b":"configuring#1543","k":"li","t":"**All other settings** are stored in YAML files: the project `pnpm-workspace.yaml` and the global `config.yaml`."}
+{"p":"configuring","b":"configuring#1544","k":"para","t":"pnpm also no longer reads settings from the `pnpm` field of `package.json`. Settings should be defined in `pnpm-workspace.yaml`."}
+{"p":"configuring","b":"configuring#1545","k":"heading","t":"Local project configuration"}
+{"p":"configuring","b":"configuring#1546","k":"para","t":"Project-level settings go in `pnpm-workspace.yaml`:"}
+{"p":"configuring","b":"configuring#1547","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"configuring","b":"configuring#1548","k":"heading","t":"Global configuration"}
+{"p":"configuring","b":"configuring#1549","k":"para","t":"The global YAML config file (`config.yaml`) is located at one of the following paths:"}
+{"p":"configuring","b":"configuring#1550","k":"li","t":"If the **$XDG_CONFIG_HOME** env variable is set, then **$XDG_CONFIG_HOME/pnpm/config.yaml**"}
+{"p":"configuring","b":"configuring#1551","k":"li","t":"On Windows: **~/AppData/Local/pnpm/config/config.yaml**"}
+{"p":"configuring","b":"configuring#1552","k":"li","t":"On macOS: **~/Library/Preferences/pnpm/config.yaml**"}
+{"p":"configuring","b":"configuring#1553","k":"li","t":"On Linux: **~/.config/pnpm/config.yaml**"}
+{"p":"configuring","b":"configuring#1554","k":"para","t":"The global `rc` file (for registry and auth settings only) is at:"}
+{"p":"configuring","b":"configuring#1555","k":"li","t":"If the **$XDG_CONFIG_HOME** env variable is set, then **$XDG_CONFIG_HOME/pnpm/rc**"}
+{"p":"configuring","b":"configuring#1556","k":"li","t":"On Windows: **~/AppData/Local/pnpm/config/rc**"}
+{"p":"configuring","b":"configuring#1557","k":"li","t":"On macOS: **~/Library/Preferences/pnpm/rc**"}
+{"p":"configuring","b":"configuring#1558","k":"li","t":"On Linux: **~/.config/pnpm/rc**"}
+{"p":"configuring","b":"configuring#1559","k":"heading","t":"Environment variables"}
+{"p":"configuring","b":"configuring#1560","k":"para","t":"Environment variables whose names start with `pnpm_config_` (or `PNPM_CONFIG_`) are loaded into configuration. These override settings from `pnpm-workspace.yaml` but not CLI arguments."}
+{"p":"configuring","b":"configuring#1561","k":"para","t":"pnpm no longer reads `npm_config_*` environment variables. Use `pnpm_config_*` environment variables instead (e.g., `pnpm_config_registry` instead of `npm_config_registry`)."}
+{"p":"configuring","b":"configuring#1562","k":"para","t":"For example:"}
+{"p":"configuring","b":"configuring#1563","k":"para","t":"If you need pnpm to work across multiple hard drives or filesystems, please read [the FAQ](/docs/faq#does-pnpm-work-across-multiple-drives-or-filesystems)."}
+{"p":"configuring","b":"configuring#1564","k":"para","t":"See the [config command](/docs/cli/config) for more information on managing configuration."}
+{"p":"continuous-integration","b":"continuous-integration#1565","k":"para","t":"pnpm can easily be used in various continuous integration systems."}
+{"p":"continuous-integration","b":"continuous-integration#1566","k":"heading","t":"Installing pnpm"}
+{"p":"continuous-integration","b":"continuous-integration#1567","k":"para","t":"Outside of GitHub Actions, which has [its own action](#github-actions), install pnpm with the standalone script:"}
+{"p":"continuous-integration","b":"continuous-integration#1568","k":"para","t":"Two things make this convenient in CI:"}
+{"p":"continuous-integration","b":"continuous-integration#1569","k":"li","t":"**It needs no Node.js.** pnpm is a self-contained executable, and it can install the runtime for you afterwards with `pnpm runtime set node lts -g`, so a job does not need a Node.js image to begin with."}
+{"p":"continuous-integration","b":"continuous-integration#1570","k":"li","t":"**It follows the project's version.** The bootstrap installs the latest pnpm 12, then, if your `package.json` has a `packageManager` or `devEngines.packageManager` field, pnpm switches to that version on first use, so the pipeline does not pin a version in two places."}
+{"p":"continuous-integration","b":"continuous-integration#1571","k":"para","t":"The script installs into `PNPM_HOME` and appends to a shell profile, which a CI job never reloads. Declare `PNPM_HOME` and put `$PNPM_HOME/bin` on `PATH` yourself, using whatever mechanism the platform provides — the examples below show it for each one."}
+{"p":"continuous-integration","b":"continuous-integration#1572","k":"para","t":"Earlier versions of this page used Corepack. Corepack installs a JavaScript shim in place of pnpm, so every `pnpm` call starts Node.js to run the shim before pnpm itself starts — a cost paid on each invocation, and CI jobs make many of them. Installing pnpm itself avoids that entirely."}
+{"p":"continuous-integration","b":"continuous-integration#1573","k":"para","t":"In all the provided configuration files the store is cached. However, this is not required, and it is not guaranteed that caching the store will make installation faster. So feel free to not cache the pnpm store in your job."}
+{"p":"continuous-integration","b":"continuous-integration#1574","k":"alt","t":"Cache the metadata cache too"}
+{"p":"continuous-integration","b":"continuous-integration#1575","k":"para","t":"Since v11.22.0, [pnpm cache path](/docs/cli/cache-path) prints the directory pnpm uses for its metadata cache, so a job can cache it without mirroring pnpm's own path resolution. That directory also holds the lockfile verification log, which lets a job skip re-checking an unchanged lockfile against the configured [supply-chain policies](/docs/supply-chain-security) — the dominant cost of an install in CI once the store is warm."}
+{"p":"continuous-integration","b":"continuous-integration#1576","k":"para","t":"Only cache pnpm's store and cache directories in locations writable by trusted jobs. Do not let untrusted CI jobs write to a store or metadata cache that trusted jobs later restore. These directories are trusted caches; see the [storeDir](/docs/settings/store#storedir) and [cacheDir](/docs/settings/other#cachedir) settings for details."}
+{"p":"continuous-integration","b":"continuous-integration#1577","k":"alt","t":"Lockfile behavior in CI"}
+{"p":"continuous-integration","b":"continuous-integration#1578","k":"para","t":"When pnpm detects that it is running in CI, it switches to frozen-lockfile mode automatically. Since v11, pnpm also fails on incompatible lockfiles in CI — if the lockfile was written by a newer pnpm major version, the install will error out instead of silently rewriting it. Upgrade your CI pnpm version to match the one used to generate the lockfile."}
+{"p":"continuous-integration","b":"continuous-integration#1579","k":"heading","t":"AppVeyor"}
+{"p":"continuous-integration","b":"continuous-integration#1580","k":"para","t":"On [AppVeyor](https://www.appveyor.com), you can use pnpm for installing your dependencies by adding this to your `appveyor.yml`:"}
+{"p":"continuous-integration","b":"continuous-integration#1581","k":"para","t":"appveyor.yml"}
+{"p":"continuous-integration","b":"continuous-integration#1582","k":"para","t":"pnpm brings its own runtime, so `Install-Product node` is no longer needed. Add `pnpm runtime set node lts -g` if your build scripts call `node` directly."}
+{"p":"continuous-integration","b":"continuous-integration#1583","k":"heading","t":"Azure Pipelines"}
+{"p":"continuous-integration","b":"continuous-integration#1584","k":"para","t":"On Azure Pipelines, you can use pnpm for installing and caching your dependencies by adding this to your `azure-pipelines.yml`:"}
+{"p":"continuous-integration","b":"continuous-integration#1585","k":"para","t":"azure-pipelines.yml"}
+{"p":"continuous-integration","b":"continuous-integration#1586","k":"para","t":"`task.prependpath` puts pnpm on `PATH` for the steps that follow; within the step that installs it, call it by its full path."}
+{"p":"continuous-integration","b":"continuous-integration#1587","k":"heading","t":"Bitbucket Pipelines"}
+{"p":"continuous-integration","b":"continuous-integration#1588","k":"para","t":"You can use pnpm for installing and caching your dependencies:"}
+{"p":"continuous-integration","b":"continuous-integration#1589","k":"para","t":".bitbucket-pipelines.yml"}
+{"p":"continuous-integration","b":"continuous-integration#1590","k":"para","t":"All the lines of a step run in one shell, so `export` carries to the ones that follow, and `store-dir` is pointed at the directory the cache saves."}
+{"p":"continuous-integration","b":"continuous-integration#1591","k":"para","t":"This example starts from a plain image and lets pnpm install Node.js. Keep your existing `node` image and drop the `pnpm runtime set` line if you would rather not change it."}
+{"p":"continuous-integration","b":"continuous-integration#1592","k":"heading","t":"CircleCI"}
+{"p":"continuous-integration","b":"continuous-integration#1593","k":"para","t":"On CircleCI, you can use pnpm for installing and caching your dependencies by adding this to your `.circleci/config.yml`:"}
+{"p":"continuous-integration","b":"continuous-integration#1594","k":"para","t":".circleci/config.yml"}
+{"p":"continuous-integration","b":"continuous-integration#1595","k":"para","t":"CircleCI sources `$BASH_ENV` before every step, which is how pnpm reaches the steps that follow."}
+{"p":"continuous-integration","b":"continuous-integration#1596","k":"heading","t":"GitHub Actions"}
+{"p":"continuous-integration","b":"continuous-integration#1597","k":"para","t":"On GitHub Actions, you can use pnpm for installing and caching your dependencies like so (belongs in `.github/workflows/NAME.yml`):"}
+{"p":"continuous-integration","b":"continuous-integration#1598","k":"para","t":".github/workflows/NAME.yml"}
+{"p":"continuous-integration","b":"continuous-integration#1599","k":"para","t":"[pnpm/setup](https://github.com/pnpm/setup) installs pnpm, then uses it to install the requested runtime, so no separate `actions/setup-node` step is needed. It also runs `pnpm install` for you, and `cache: true` caches the pnpm store between runs. Set `install: false` if you would rather run the install yourself."}
+{"p":"continuous-integration","b":"continuous-integration#1600","k":"para","t":"The pnpm version comes from the `packageManager` or `devEngines.packageManager` field of your `package.json`, so the workflow never needs updating when you change it. Add a `version` input if your `package.json` declares neither."}
+{"p":"continuous-integration","b":"continuous-integration#1601","k":"heading","t":"GitLab CI"}
+{"p":"continuous-integration","b":"continuous-integration#1602","k":"para","t":"On GitLab, you can use pnpm for installing and caching your dependencies like so (belongs in `.gitlab-ci.yml`):"}
+{"p":"continuous-integration","b":"continuous-integration#1603","k":"para","t":".gitlab-ci.yml"}
+{"p":"continuous-integration","b":"continuous-integration#1604","k":"heading","t":"Jenkins"}
+{"p":"continuous-integration","b":"continuous-integration#1605","k":"para","t":"You can use pnpm for installing and caching your dependencies:"}
+{"p":"continuous-integration","b":"continuous-integration#1606","k":"para","t":"Each `sh` step runs in its own shell, so `PATH` is set in the pipeline's `environment` block rather than exported inside a step."}
+{"p":"continuous-integration","b":"continuous-integration#1607","k":"heading","t":"Semaphore"}
+{"p":"continuous-integration","b":"continuous-integration#1608","k":"para","t":"On [Semaphore](https://semaphoreci.com), you can use pnpm for installing and caching your dependencies by adding this to your `.semaphore/semaphore.yml` file:"}
+{"p":"continuous-integration","b":"continuous-integration#1609","k":"para","t":".semaphore/semaphore.yml"}
+{"p":"continuous-integration","b":"continuous-integration#1610","k":"heading","t":"Travis"}
+{"p":"continuous-integration","b":"continuous-integration#1611","k":"para","t":"On [Travis CI](https://travis-ci.org), you can use pnpm for installing your dependencies by adding this to your `.travis.yml` file:"}
+{"p":"continuous-integration","b":"continuous-integration#1612","k":"para","t":".travis.yml"}
+{"p":"continuous-integration","b":"continuous-integration@title","k":"title","t":"Continuous Integration"}
+{"p":"docker","b":"docker#1613","k":"para","t":"It is impossible to create reflinks or hardlinks between a Docker container and the host filesystem during build time. The next best thing you can do is using BuildKit cache mount to share cache between builds. Alternatively, you may use [podman](/docs/podman) because it can mount Btrfs volumes during build time. If you use BuildKit cache mounts, keep the pnpm store cache scoped to mutually trusted builds. A store cache that can be written by an untrusted build should not be reused by trusted builds."}
+{"p":"docker","b":"docker#1614","k":"heading","t":"Official pnpm base image"}
+{"p":"docker","b":"docker#1615","k":"para","t":"An official pnpm base image is published to GitHub Container Registry as [ghcr.io/pnpm/pnpm](https://github.com/pnpm/pnpm/pkgs/container/pnpm). It is based on `debian:stable-slim` and contains only the pnpm [standalone binary](/docs/installation#using-a-standalone-script) — Node.js is **not** bundled. This lets you pick the Node.js version yourself (inside your Dockerfile or at runtime) instead of being locked to whatever Node version a base image ships with."}
+{"p":"docker","b":"docker#1616","k":"heading","t":"Tags"}
+{"p":"docker","b":"docker#1617","k":"para","t":"Supported platforms: `linux/amd64`, `linux/arm64`."}
+{"p":"docker","b":"docker#1618","k":"heading","t":"Installing Node.js"}
+{"p":"docker","b":"docker#1619","k":"para","t":"Let pnpm install Node.js automatically from [devEngines.runtime](/docs/package_json#devenginesruntime) in your `package.json`:"}
+{"p":"docker","b":"docker#1620","k":"para","t":"package.json"}
+{"p":"docker","b":"docker#1621","k":"heading","t":"When to use this image"}
+{"p":"docker","b":"docker#1622","k":"li","t":"You want the Node.js version to be pinned by your project via `devEngines.runtime` rather than by the base image."}
+{"p":"docker","b":"docker#1623","k":"li","t":"You want to upgrade pnpm and Node.js independently."}
+{"p":"docker","b":"docker#1624","k":"li","t":"You prefer a minimal Debian base without the Node.js build toolchain."}
+{"p":"docker","b":"docker#1625","k":"para","t":"The recipes further down this page start from this image and let pnpm install Node.js. If you prefer your own Node.js base image, keep the rest of each recipe and [install pnpm](/docs/installation) into that image instead."}
+{"p":"docker","b":"docker#1626","k":"heading","t":"Minimizing Docker image size and build time"}
+{"p":"docker","b":"docker#1627","k":"li","t":"Use a small image, e.g. `ghcr.io/pnpm/pnpm` or `node:XX-slim`."}
+{"p":"docker","b":"docker#1628","k":"li","t":"Leverage multi-stage if possible and makes sense."}
+{"p":"docker","b":"docker#1629","k":"li","t":"Leverage BuildKit cache mounts."}
+{"p":"docker","b":"docker#1630","k":"para","t":"The recipes below use the official pnpm image, which already sets `PNPM_HOME=/pnpm` and puts `/pnpm/bin` on `PATH`, so the store the cache mounts target is at `/pnpm/store`."}
+{"p":"docker","b":"docker#1631","k":"para","t":"Baking a warm store into an image layer — running an install during the build so later containers have nothing to download — does not make linking free. A hardlink to a file in a lower image layer succeeds, but overlayfs copies that file into the container's writable layer first, so an install copies most of the store out of the image while reporting that it hardlinked. [packageImportMethod: copy](/docs/settings/node-modules#a-store-baked-into-a-container-image-layer) is usually faster in that setup, and measurably so on ext4. A BuildKit cache mount does not have this problem, because the store is a mount rather than a layer."}
+{"p":"docker","b":"docker#1632","k":"heading","t":"Example 1: Build a bundle in a Docker container"}
+{"p":"docker","b":"docker#1633","k":"para","t":"Since `devDependencies` is only necessary for building the bundle, `pnpm install --prod` will be a separate stage from `pnpm install` and `pnpm run build`, allowing the final stage to copy only necessary files from the earlier stages, minimizing the size of the final image."}
+{"p":"docker","b":"docker#1634","k":"heading","t":"Example 2: Build multiple Docker images in a monorepo"}
+{"p":"docker","b":"docker#1635","k":"para","t":"Assuming you have a monorepo with 3 packages: app1, app2, and common; app1 and app2 depend on common but not each other."}
+{"p":"docker","b":"docker#1636","k":"para","t":"You want to save only necessary dependencies for each package, `pnpm deploy` should help you with copying only necessary files and packages."}
+{"p":"docker","b":"docker#1637","k":"para","t":"Structure of the monorepo"}
+{"p":"docker","b":"docker#1638","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"docker","b":"docker#1639","k":"para","t":"Run the following commands to build images for app1 and app2:"}
+{"p":"docker","b":"docker#1640","k":"heading","t":"Example 3: Build on CI/CD"}
+{"p":"docker","b":"docker#1641","k":"para","t":"On CI or CD environments, the BuildKit cache mounts might not be available, because the VM or container is ephemeral and only normal docker cache will work."}
+{"p":"docker","b":"docker#1642","k":"para","t":"So an alternative is to use a typical Dockerfile with layers that are built incrementally, for this scenario, `pnpm fetch` is the best option, as it only needs the `pnpm-lock.yaml` file and the layer cache will only be lost when you change the dependencies."}
+{"p":"docker","b":"docker@title","k":"title","t":"Working with Docker"}

@@ -1,0 +1,77 @@
+---
+import Icon from "./Icon.astro";
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-24 border-t border-line bg-raise/60">
+  <div class="tape" aria-hidden="true"></div>
+  <div class="mx-auto grid max-w-[1200px] gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+    <div>
+      <div class="flex items-center gap-2.5">
+        <svg width="26" height="26" viewBox="0 0 34 34" aria-hidden="true">
+          <rect x="1.5" y="1.5" width="31" height="31" rx="6" fill="var(--color-ink)" />
+          <text
+            x="17" y="21.5" text-anchor="middle" font-family="var(--font-display)"
+            font-weight="800" font-size="10.5" fill="var(--color-accent-fill)">pnpm</text>
+        </svg>
+        <span class="font-display text-lg font-extrabold tracking-tight">pnpm</span>
+      </div>
+      <p class="mt-4 max-w-xs text-[0.92rem] leading-relaxed text-muted">
+        快速、节省磁盘空间的包管理器。本站是由开发者维护的中文文档镜像，非官方站点。
+      </p>
+      <p class="mt-4 flex flex-wrap gap-3 text-[0.9rem]">
+        <a class="inline-flex items-center gap-1.5 text-muted no-underline hover:text-ink" href="https://github.com/pnpm/pnpm">
+          <Icon name="github-logo" size="1.05em" /> GitHub
+        </a>
+        <a class="inline-flex items-center gap-1.5 text-muted no-underline hover:text-ink" href="https://x.com/pnpmjs">
+          <Icon name="x-logo" size="1.05em" /> X
+        </a>
+        <a class="inline-flex items-center gap-1.5 text-muted no-underline hover:text-ink" href="https://r.pnpm.io/chat">
+          <Icon name="discord-logo" size="1.05em" /> Discord
+        </a>
+      </p>
+    </div>
+
+    <nav aria-label="文档">
+      <h2 class="chip !border-0 !bg-transparent !px-0 !py-0">文档</h2>
+      <ul class="mt-4 space-y-2.5 text-[0.92rem]">
+        <li><a class="text-muted no-underline hover:text-ink" href="/docs/motivation">为什么选择 pnpm</a></li>
+        <li><a class="text-muted no-underline hover:text-ink" href="/docs/installation">安装</a></li>
+        <li><a class="text-muted no-underline hover:text-ink" href="/docs/pnpm-cli">使用 pnpm</a></li>
+        <li><a class="text-muted no-underline hover:text-ink" href="/docs/workspaces">工作区</a></li>
+        <li><a class="text-muted no-underline hover:text-ink" href="/docs/faq">常见问题</a></li>
+      </ul>
+    </nav>
+
+    <nav aria-label="配置">
+      <h2 class="chip !border-0 !bg-transparent !px-0 !py-0">配置</h2>
+      <ul class="mt-4 space-y-2.5 text-[0.92rem]">
+        <li><a class="text-muted no-underline hover:text-ink" href="/docs/settings">设置总览</a></li>
+        <li><a class="text-muted no-underline hover:text-ink" href="/docs/npmrc">.npmrc</a></li>
+        <li><a class="text-muted no-underline hover:text-ink" href="/docs/package_json">package.json</a></li>
+        <li><a class="text-muted no-underline hover:text-ink" href="/docs/pnpmfile">pnpmfile.cjs</a></li>
+        <li><a class="text-muted no-underline hover:text-ink" href="/docs/errors">错误码</a></li>
+      </ul>
+    </nav>
+
+    <nav aria-label="关于">
+      <h2 class="chip !border-0 !bg-transparent !px-0 !py-0">关于</h2>
+      <ul class="mt-4 space-y-2.5 text-[0.92rem]">
+        <li><a class="text-muted no-underline hover:text-ink" href="/docs/feature-comparison">功能对比</a></li>
+        <li><a class="text-muted no-underline hover:text-ink" href="/docs/migration">从 npm/yarn 迁移</a></li>
+        <li><a class="text-muted no-underline hover:text-ink" href="https://pnpm.io/blog" rel="noopener">官方博客（英文）</a></li>
+        <li><a class="text-muted no-underline hover:text-ink" href="https://opencollective.com/pnpm" rel="noopener">支持 pnpm</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div
+    class="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 border-t border-line px-4 py-6 text-[0.82rem] text-muted sm:px-6"
+  >
+    <p>
+      文档译文与结构基于
+      <a class="text-accent no-underline hover:underline" href="https://github.com/pnpm/pnpm.io">pnpm.io</a>
+      （MIT License），版权归 pnpm 贡献者所有。
+    </p>
+    <p class="font-mono">v12.x · © {year} pnpm 中文文档社区</p>
+  </div>
+</footer>

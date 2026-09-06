@@ -1,0 +1,254 @@
+{"p":"cli/fetch","b":"cli/fetch#480","k":"para","t":"Fetch packages from a lockfile into virtual store, package manifest is ignored."}
+{"p":"cli/fetch","b":"cli/fetch#481","k":"heading","t":"Usage scenario"}
+{"p":"cli/fetch","b":"cli/fetch#482","k":"para","t":"This command is specifically designed to improve building a docker image."}
+{"p":"cli/fetch","b":"cli/fetch#483","k":"para","t":"You may have read the [official guide](https://github.com/nodejs/docker-node#readme) to writing a Dockerfile for a Node.js app, if you haven't read it yet, you may want to read it first."}
+{"p":"cli/fetch","b":"cli/fetch#484","k":"para","t":"From that guide, we learn to write an optimized Dockerfile for projects using pnpm, which looks like"}
+{"p":"cli/fetch","b":"cli/fetch#485","k":"para","t":"As long as there are no changes to `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `.pnpmfile.mjs`, docker build cache is still valid up to the layer of `RUN pnpm install --frozen-lockfile --prod`, which cost most of the time when building a docker image."}
+{"p":"cli/fetch","b":"cli/fetch#486","k":"para","t":"However, modification to `package.json` may happen much more frequently than we expect, because it does not only contain dependencies, but may also contain the version number, scripts, and arbitrary configuration for any other tool."}
+{"p":"cli/fetch","b":"cli/fetch#487","k":"para","t":"It's also hard to maintain a Dockerfile that builds a monorepo project, it may look like"}
+{"p":"cli/fetch","b":"cli/fetch#488","k":"para","t":"As you can see, the Dockerfile has to be updated when you add or remove sub-packages."}
+{"p":"cli/fetch","b":"cli/fetch#489","k":"para","t":"`pnpm fetch` solves the above problem perfectly by providing the ability to load packages into the virtual store using only information from a lockfile and a configuration file (`pnpm-workspace.yaml`)."}
+{"p":"cli/fetch","b":"cli/fetch#490","k":"para","t":"It works for both simple and monorepo projects, `--offline` enforces pnpm not to communicate with the package registry as all needed packages are already present in the virtual store."}
+{"p":"cli/fetch","b":"cli/fetch#491","k":"para","t":"As long as the lockfile is not changed, the build cache is valid up to the layer, so `RUN pnpm install -r --offline --prod`, will save you much time."}
+{"p":"cli/fetch","b":"cli/fetch#492","k":"para","t":"Local `file:` protocol dependencies are skipped during `pnpm fetch`, since they reference directories that may not be available at fetch time (e.g. in Docker builds)."}
+{"p":"cli/fetch","b":"cli/fetch#493","k":"heading","t":"Options"}
+{"p":"cli/fetch","b":"cli/fetch#494","k":"heading","t":"--dev, -D"}
+{"p":"cli/fetch","b":"cli/fetch#495","k":"para","t":"Only development packages will be fetched"}
+{"p":"cli/fetch","b":"cli/fetch#496","k":"heading","t":"--prod, -P"}
+{"p":"cli/fetch","b":"cli/fetch#497","k":"para","t":"Development packages will not be fetched"}
+{"p":"cli/fetch","b":"cli/fetch@title","k":"title","t":"pnpm fetch"}
+{"p":"cli/find-hash","b":"cli/find-hash#498","k":"para","t":"This command is experimental"}
+{"p":"cli/find-hash","b":"cli/find-hash#499","k":"para","t":"Lists the packages that include the file with the specified hash. For example:"}
+{"p":"cli/find-hash","b":"cli/find-hash@title","k":"title","t":"pnpm find-hash"}
+{"p":"cli/help","b":"cli/help#500","k":"para","t":"Display help information about pnpm."}
+{"p":"cli/help","b":"cli/help#501","k":"heading","t":"Options"}
+{"p":"cli/help","b":"cli/help#502","k":"heading","t":"--all, -a"}
+{"p":"cli/help","b":"cli/help#503","k":"para","t":"Added in: v10.20.0"}
+{"p":"cli/help","b":"cli/help#504","k":"para","t":"Print all the available commands."}
+{"p":"cli/help","b":"cli/help@title","k":"title","t":"pnpm help <command>"}
+{"p":"cli/ignored-builds","b":"cli/ignored-builds#505","k":"para","t":"Added in: v10.1.0"}
+{"p":"cli/ignored-builds","b":"cli/ignored-builds#506","k":"para","t":"Print the list of packages with blocked build scripts."}
+{"p":"cli/ignored-builds","b":"cli/ignored-builds@title","k":"title","t":"pnpm ignored-builds"}
+{"p":"cli/import","b":"cli/import#507","k":"para","t":"`pnpm import` generates a `pnpm-lock.yaml` from another package manager's lockfile. Supported source files:"}
+{"p":"cli/import","b":"cli/import#508","k":"para","t":"Note that if you have workspaces you wish to import dependencies for, they will need to be declared in a [pnpm-workspace.yaml](/docs/settings) file beforehand."}
+{"p":"cli/import","b":"cli/import@title","k":"title","t":"pnpm import"}
+{"p":"cli/init","b":"cli/init#509","k":"para","t":"Create a `package.json` file."}
+{"p":"cli/init","b":"cli/init#510","k":"heading","t":"Options"}
+{"p":"cli/init","b":"cli/init#511","k":"heading","t":"--bare"}
+{"p":"cli/init","b":"cli/init#512","k":"para","t":"Added in: v10.25.0"}
+{"p":"cli/init","b":"cli/init#513","k":"para","t":"Creates a `package.json` with only the required fields."}
+{"p":"cli/init","b":"cli/init#514","k":"heading","t":"--init-type <type>"}
+{"p":"cli/init","b":"cli/init#515","k":"li","t":"Default: **module**"}
+{"p":"cli/init","b":"cli/init#516","k":"li","t":"Type: **commonjs**, **module**"}
+{"p":"cli/init","b":"cli/init#517","k":"para","t":"Set the module system for the package."}
+{"p":"cli/init","b":"cli/init#518","k":"heading","t":"--init-package-manager"}
+{"p":"cli/init","b":"cli/init#519","k":"para","t":"Pin the project to a pnpm version."}
+{"p":"cli/init","b":"cli/init#520","k":"para","t":"Since v11, the pin is written as a [devEngines.packageManager](/docs/package_json#devenginespackagemanager) entry, so the resolved version is captured in `pnpm-lock.yaml`. Since v11.23.0 it is also written to the legacy `packageManager` field, as an exact version rather than a `^` range, because Corepack reads only `packageManager` and accepts nothing but an exact version."}
+{"p":"cli/init","b":"cli/init#521","k":"para","t":"Since v12.0.0, the pin can be newer than the pnpm that ran the command, so a project scaffolded by an outdated pnpm no longer inherits that staleness through its own pin ([#7490](https://github.com/pnpm/pnpm/issues/7490)). pnpm looks up the version published under the `latest` tag on the package-manager registries, and pins it **only when it is newer than the running version** — the lookup raises the pin, it never lowers it."}
+{"p":"cli/init","b":"cli/init#522","k":"para","t":"Two things follow from that. `latest` is a tag rather than \"the newest release\", so the pin tracks whichever line the tag points at: while `latest` is on the pnpm 11 line, a pnpm 11.20 running `pnpm init` pins the newest pnpm 11, and a pnpm 12 pins itself, because no pnpm 11 version is newer than it. And when the lookup cannot answer — no network, an unreachable or slow registry, `--offline`, or a `latest` that [minimumReleaseAge](/docs/settings/dependency-resolution#minimumreleaseage) or [trustPolicy](/docs/settings/dependency-resolution#trustpolicy) rejects — the running version is pinned, as before. The lookup never fails or hangs the command."}
+{"p":"cli/init","b":"cli/init#523","k":"para","t":"Inside a workspace subpackage this flag has no effect — the pin is only added to the workspace root's `package.json`, and the subpackage follows it. Pass `--no-init-package-manager` to scaffold a manifest with no pin at all."}
+{"p":"cli/init","b":"cli/init#524","k":"heading","t":"Configuration"}
+{"p":"cli/init","b":"cli/init#525","k":"para","t":"These settings fill in fields of the scaffolded `package.json`. They may be set in `pnpm-workspace.yaml`, in the [global configuration file](/docs/cli/config), or through the environment as `PNPM_CONFIG_INIT_VERSION` and friends."}
+{"p":"cli/init","b":"cli/init#526","k":"heading","t":"initVersion"}
+{"p":"cli/init","b":"cli/init#527","k":"li","t":"Type: **String**"}
+{"p":"cli/init","b":"cli/init#528","k":"para","t":"The `version` written into the new `package.json`."}
+{"p":"cli/init","b":"cli/init#529","k":"heading","t":"initLicense"}
+{"p":"cli/init","b":"cli/init#530","k":"li","t":"Default: **ISC**"}
+{"p":"cli/init","b":"cli/init#531","k":"li","t":"Type: **String**"}
+{"p":"cli/init","b":"cli/init#532","k":"para","t":"The `license` written into the new `package.json`."}
+{"p":"cli/init","b":"cli/init#533","k":"heading","t":"initAuthorName, initAuthorEmail, initAuthorUrl"}
+{"p":"cli/init","b":"cli/init#534","k":"li","t":"Type: **String**"}
+{"p":"cli/init","b":"cli/init#535","k":"para","t":"Assembled into the `author` field, in npm's `Name <email> (url)` form. A field left unset is left out of the string; with none of the three set, no `author` field is written."}
+{"p":"cli/init","b":"cli/init#536","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"cli/init","b":"cli/init@title","k":"title","t":"pnpm init"}
+{"p":"cli/install","b":"cli/install#537","k":"para","t":"`pnpm install` is used to install all dependencies for a project."}
+{"p":"cli/install","b":"cli/install#538","k":"para","t":"In a CI environment, installation fails if a lockfile is present but needs an update."}
+{"p":"cli/install","b":"cli/install#539","k":"para","t":"Inside a [workspace](/docs/workspaces), `pnpm install` installs all dependencies in all the projects. If you want to disable this behavior, set the `recursive-install` setting to `false`."}
+{"p":"cli/install","b":"cli/install#540","k":"heading","t":"TL;DR"}
+{"p":"cli/install","b":"cli/install#541","k":"heading","t":"Options for filtering dependencies"}
+{"p":"cli/install","b":"cli/install#542","k":"para","t":"Without a lockfile, pnpm has to create one, and it must be consistent regardless of dependencies filtering, so running `pnpm install --prod` on a directory without a lockfile would still resolve the dev dependencies, and it would error if the resolution is unsuccessful. The only exception for this rule are `link:` dependencies."}
+{"p":"cli/install","b":"cli/install#543","k":"para","t":"Without `--frozen-lockfile`, pnpm will check for outdated information from `file:` dependencies, so running `pnpm install --prod` without `--frozen-lockfile` on an environment where the target of `file:` has been removed would error."}
+{"p":"cli/install","b":"cli/install#544","k":"heading","t":"--prod, -P"}
+{"p":"cli/install","b":"cli/install#545","k":"li","t":"Default: **false**"}
+{"p":"cli/install","b":"cli/install#546","k":"li","t":"Type: **Boolean**"}
+{"p":"cli/install","b":"cli/install#547","k":"para","t":"If `true`, pnpm will not install any package listed in `devDependencies` and will remove those insofar they were already installed. If `false`, pnpm will install all packages listed in `devDependencies` and `dependencies`."}
+{"p":"cli/install","b":"cli/install#548","k":"heading","t":"--dev, -D"}
+{"p":"cli/install","b":"cli/install#549","k":"para","t":"Only `devDependencies` are installed and `dependencies` are removed insofar they were already installed."}
+{"p":"cli/install","b":"cli/install#550","k":"heading","t":"--no-optional"}
+{"p":"cli/install","b":"cli/install#551","k":"para","t":"`optionalDependencies` are not installed."}
+{"p":"cli/install","b":"cli/install#552","k":"heading","t":"--no-runtime"}
+{"p":"cli/install","b":"cli/install#553","k":"para","t":"Added in: v11.1.0"}
+{"p":"cli/install","b":"cli/install#554","k":"para","t":"Skip installing runtime entries (e.g. Node.js downloaded via [devEngines.runtime](/docs/package_json#devenginesruntime)). The lockfile is left untouched, so frozen installs still validate; only the runtime fetch and bin-linking are skipped."}
+{"p":"cli/install","b":"cli/install#555","k":"para","t":"This is useful in CI matrices where the runtime is provisioned externally (e.g. via `pnpm runtime -g set node <version>`) before `pnpm install` runs."}
+{"p":"cli/install","b":"cli/install#556","k":"para","t":"This can also be set via the `runtime=false` config in `pnpm-workspace.yaml`."}
+{"p":"cli/install","b":"cli/install#557","k":"heading","t":"Options"}
+{"p":"cli/install","b":"cli/install#558","k":"heading","t":"--force"}
+{"p":"cli/install","b":"cli/install#559","k":"para","t":"Force reinstall dependencies: refetch packages modified in store, recreate a lockfile and/or modules directory created by a non-compatible version of pnpm. Install all optionalDependencies even they don't satisfy the current environment(cpu, os, arch)."}
+{"p":"cli/install","b":"cli/install#560","k":"heading","t":"--offline"}
+{"p":"cli/install","b":"cli/install#561","k":"li","t":"Default: **false**"}
+{"p":"cli/install","b":"cli/install#562","k":"li","t":"Type: **Boolean**"}
+{"p":"cli/install","b":"cli/install#563","k":"para","t":"If `true`, pnpm will use only packages already available in the store. If a package won't be found locally, the installation will fail."}
+{"p":"cli/install","b":"cli/install#564","k":"heading","t":"--prefer-offline"}
+{"p":"cli/install","b":"cli/install#565","k":"li","t":"Default: **false**"}
+{"p":"cli/install","b":"cli/install#566","k":"li","t":"Type: **Boolean**"}
+{"p":"cli/install","b":"cli/install#567","k":"para","t":"If `true`, staleness checks for cached data will be bypassed, but missing data will be requested from the server. To force full offline mode, use `--offline`."}
+{"p":"cli/install","b":"cli/install#568","k":"heading","t":"--no-lockfile"}
+{"p":"cli/install","b":"cli/install#569","k":"para","t":"Don't read or generate a `pnpm-lock.yaml` file."}
+{"p":"cli/install","b":"cli/install#570","k":"heading","t":"--lockfile-only"}
+{"p":"cli/install","b":"cli/install#571","k":"li","t":"Default: **false**"}
+{"p":"cli/install","b":"cli/install#572","k":"li","t":"Type: **Boolean**"}
+{"p":"cli/install","b":"cli/install#573","k":"para","t":"When used, only updates `pnpm-lock.yaml` and `package.json`. Nothing gets written to the `node_modules` directory."}
+{"p":"cli/install","b":"cli/install#574","k":"heading","t":"--dry-run"}
+{"p":"cli/install","b":"cli/install#575","k":"para","t":"Added in: v11.8.0"}
+{"p":"cli/install","b":"cli/install#576","k":"para","t":"Run a full dependency resolution and report what a real install would change, without writing anything to disk. No lockfile, manifest, or `node_modules` changes are saved."}
+{"p":"cli/install","b":"cli/install#577","k":"para","t":"A completed dry run exits with code 0, even when it reports that a real install would update the lockfile."}
+{"p":"cli/install","b":"cli/install#578","k":"para","t":"`--dry-run` cannot be used with a configured pnpr server, because that install path resolves and links through the server."}
+{"p":"cli/install","b":"cli/install#579","k":"heading","t":"--fix-lockfile"}
+{"p":"cli/install","b":"cli/install#580","k":"para","t":"Fix broken lockfile entries automatically."}
+{"p":"cli/install","b":"cli/install#581","k":"heading","t":"--update-checksums"}
+{"p":"cli/install","b":"cli/install#582","k":"para","t":"Added in: v11.4.0"}
+{"p":"cli/install","b":"cli/install#583","k":"para","t":"Refresh the locked tarball integrity values from what the registry currently serves, when a downloaded tarball's hash doesn't match the integrity recorded in `pnpm-lock.yaml`."}
+{"p":"cli/install","b":"cli/install#584","k":"para","t":"By default, since v11.4.0, an integrity mismatch is a hard failure: `pnpm install` exits with `ERR_PNPM_TARBALL_INTEGRITY` rather than silently re-resolving from the registry and overwriting the locked integrity. This protects projects that ship a committed lockfile from a compromised registry, proxy, or republished version substituting attacker-controlled content on a clean machine."}
+{"p":"cli/install","b":"cli/install#585","k":"para","t":"`--update-checksums` is the narrowly-scoped opt-in for the legitimate case (e.g. a registry rewrote its tarballs and you've verified the new bytes are correct). A warning still prints when the bypass takes effect so the operation is auditable."}
+{"p":"cli/install","b":"cli/install#586","k":"para","t":"`--force` and `pnpm update` deliberately do **not** bypass the integrity check. `--frozen-lockfile` is unchanged, and `--fix-lockfile` keeps its documented purpose (filling in missing lockfile entries) and is also not a bypass."}
+{"p":"cli/install","b":"cli/install#587","k":"heading","t":"--frozen-lockfile"}
+{"p":"cli/install","b":"cli/install#588","k":"li","t":"For non-CI: **false**"}
+{"p":"cli/install","b":"cli/install#589","k":"li","t":"For CI: **true**, if a lockfile is present"}
+{"p":"cli/install","b":"cli/install#590","k":"li","t":"Type: **Boolean**"}
+{"p":"cli/install","b":"cli/install#591","k":"para","t":"If `true`, pnpm doesn't generate a lockfile and fails to install if the lockfile is out of sync with the manifest / an update is needed or no lockfile is present."}
+{"p":"cli/install","b":"cli/install#592","k":"para","t":"This setting is `true` by default in [CI environments](https://github.com/watson/ci-info#supported-ci-tools). The following code is used to detect CI environments:"}
+{"p":"cli/install","b":"cli/install#593","k":"para","t":"https://github.com/watson/ci-info/blob/44e98cebcdf4403f162195fbcf90b1f69fc6e047/index.js#L54-L61"}
+{"p":"cli/install","b":"cli/install#594","k":"heading","t":"--merge-git-branch-lockfiles"}
+{"p":"cli/install","b":"cli/install#595","k":"para","t":"Merge all git branch lockfiles. [Read more about git branch lockfiles.](/docs/git_branch_lockfiles)"}
+{"p":"cli/install","b":"cli/install#596","k":"heading","t":"--reporter=<name>"}
+{"p":"cli/install","b":"cli/install#597","k":"li","t":"For TTY stdout: **default**"}
+{"p":"cli/install","b":"cli/install#598","k":"li","t":"For non-TTY stdout: **append-only**"}
+{"p":"cli/install","b":"cli/install#599","k":"li","t":"Type: **default**, **append-only**, **ndjson**, **silent**"}
+{"p":"cli/install","b":"cli/install#600","k":"para","t":"Allows you to choose the reporter that will log debug info to the terminal about the installation progress."}
+{"p":"cli/install","b":"cli/install#601","k":"li","t":"**silent** - no output is logged to the console, not even fatal errors"}
+{"p":"cli/install","b":"cli/install#602","k":"li","t":"**default** - the default reporter when the stdout is TTY"}
+{"p":"cli/install","b":"cli/install#603","k":"li","t":"**append-only** - the output is always appended to the end. No cursor manipulations are performed"}
+{"p":"cli/install","b":"cli/install#604","k":"li","t":"**ndjson** - the most verbose reporter. Prints all logs in [ndjson](https://github.com/ndjson/ndjson-spec) format"}
+{"p":"cli/install","b":"cli/install#605","k":"para","t":"If you want to change what type of information is printed, use the [loglevel](/docs/settings/cli#loglevel) setting."}
+{"p":"cli/install","b":"cli/install#606","k":"heading","t":"--shamefully-hoist"}
+{"p":"cli/install","b":"cli/install#607","k":"li","t":"Default: **false**"}
+{"p":"cli/install","b":"cli/install#608","k":"li","t":"Type: **Boolean**"}
+{"p":"cli/install","b":"cli/install#609","k":"para","t":"Creates a flat `node_modules` structure, similar to that of `npm` or `yarn`. **WARNING**: This is highly discouraged."}
+{"p":"cli/install","b":"cli/install#610","k":"heading","t":"--ignore-scripts"}
+{"p":"cli/install","b":"cli/install#611","k":"li","t":"Default: **false**"}
+{"p":"cli/install","b":"cli/install#612","k":"li","t":"Type: **Boolean**"}
+{"p":"cli/install","b":"cli/install#613","k":"para","t":"Do not execute any scripts defined in the project `package.json` and its dependencies."}
+{"p":"cli/install","b":"cli/install#614","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/install","b":"cli/install#615","k":"heading","t":"--cpu=<name>"}
+{"p":"cli/install","b":"cli/install#616","k":"para","t":"Added in: v10.14.0"}
+{"p":"cli/install","b":"cli/install#617","k":"para","t":"Override CPU architecture of native modules to install. Acceptable values are same as `cpu` field of `package.json`, which comes from `process.arch`."}
+{"p":"cli/install","b":"cli/install#618","k":"heading","t":"--os=<name>"}
+{"p":"cli/install","b":"cli/install#619","k":"para","t":"Added in: v10.14.0"}
+{"p":"cli/install","b":"cli/install#620","k":"para","t":"Override OS of native modules to install. Acceptable values are same as `os` field of `package.json`, which comes from `process.platform`."}
+{"p":"cli/install","b":"cli/install#621","k":"heading","t":"--libc=<name>"}
+{"p":"cli/install","b":"cli/install#622","k":"para","t":"Added in: v10.14.0"}
+{"p":"cli/install","b":"cli/install#623","k":"para","t":"Override libc of native modules to install. Acceptable values are same as `libc` field of `package.json`."}
+{"p":"cli/install","b":"cli/install@title","k":"title","t":"pnpm install"}
+{"p":"cli/install-test","b":"cli/install-test#624","k":"para","t":"Runs `pnpm install` followed immediately by `pnpm test`. It takes exactly the same arguments as [pnpm install](/docs/cli/install)."}
+{"p":"cli/install-test","b":"cli/install-test@title","k":"title","t":"pnpm install-test"}
+{"p":"cli/lane","b":"cli/lane#625","k":"para","t":"Added in: v11.13.0"}
+{"p":"cli/lane","b":"cli/lane#626","k":"para","t":"Manages per-package release lanes. A lane is a parallel release track: while a package is on one, the bare [pnpm version -r](/docs/cli/version#recursive-releases) releases it as `X.Y.Z-<lane>.N` prereleases while the rest of the workspace keeps releasing stable versions. Moving a package back to the main lane releases its accumulated stable version on the next run."}
+{"p":"cli/lane","b":"cli/lane#627","k":"para","t":"Membership lives under the [versioning.lanes](/docs/settings/versioning#versioninglanes) key of `pnpm-workspace.yaml`; this command is a convenience editor for that key."}
+{"p":"cli/lane","b":"cli/lane#628","k":"heading","t":"Usage"}
+{"p":"cli/lane","b":"cli/lane#629","k":"heading","t":"Show lane membership"}
+{"p":"cli/lane","b":"cli/lane#630","k":"para","t":"If no package has been assigned a lane, this prints `All packages are on the main lane.`"}
+{"p":"cli/lane","b":"cli/lane#631","k":"heading","t":"Move packages onto a lane"}
+{"p":"cli/lane","b":"cli/lane#632","k":"para","t":"`--filter` is required — it selects the packages to move. Lane names may contain only alphanumerics and hyphens, and cannot be purely numeric."}
+{"p":"cli/lane","b":"cli/lane#633","k":"heading","t":"Move packages back to the main lane"}
+{"p":"cli/lane","b":"cli/lane#634","k":"para","t":"`main` is the reserved name of the default lane. Every package is on it unless assigned elsewhere, and packages on it release stable versions. Graduating a package releases the stable version its prereleases were building toward on the next `pnpm version -r` run."}
+{"p":"cli/lane","b":"cli/lane#635","k":"heading","t":"Versions on a lane"}
+{"p":"cli/lane","b":"cli/lane#636","k":"para","t":"A package on a lane releases `X.Y.Z-<lane>.N`, where `X.Y.Z` is the stable version the lane is building toward and `N` counts up from `0`:"}
+{"p":"cli/lane","b":"cli/lane#637","k":"para","t":"`N` restarts at `0` whenever the stable target changes. When a bump escalates the target — a `major` intent while the lane was building a minor — the target is recomputed and the counter resets."}
+{"p":"cli/lane","b":"cli/lane#638","k":"para","t":"Packages in the same [fixed group](/docs/versioning#fixed-groups) must move between lanes together."}
+{"p":"cli/lane","b":"cli/lane#639","k":"heading","t":"Options"}
+{"p":"cli/lane","b":"cli/lane#640","k":"heading","t":"--filter <package_selector&gt;"}
+{"p":"cli/lane","b":"cli/lane#641","k":"para","t":"Select the packages to move between lanes. Required when assigning a lane."}
+{"p":"cli/lane","b":"cli/lane@title","k":"title","t":"pnpm lane"}
+{"p":"cli/licenses","b":"cli/licenses#642","k":"heading","t":"Commands"}
+{"p":"cli/licenses","b":"cli/licenses#643","k":"heading","t":"list"}
+{"p":"cli/licenses","b":"cli/licenses#644","k":"para","t":"List licenses for installed packages."}
+{"p":"cli/licenses","b":"cli/licenses#645","k":"para","t":"Since v11.20.0, a package resolved from a [named registry](/docs/settings/dependency-resolution#namedregistries) is reported separately from a package of the same name and version that came from another registry. The registry alias is shown next to the package name in the table output and is exposed as the `registryName` field with `--json`."}
+{"p":"cli/licenses","b":"cli/licenses#646","k":"heading","t":"Options"}
+{"p":"cli/licenses","b":"cli/licenses#647","k":"heading","t":"--dev, -D"}
+{"p":"cli/licenses","b":"cli/licenses#648","k":"para","t":"Check only \"devDependencies\"."}
+{"p":"cli/licenses","b":"cli/licenses#649","k":"heading","t":"--json"}
+{"p":"cli/licenses","b":"cli/licenses#650","k":"para","t":"Show information in JSON format."}
+{"p":"cli/licenses","b":"cli/licenses#651","k":"heading","t":"--long"}
+{"p":"cli/licenses","b":"cli/licenses#652","k":"para","t":"Show more details (such as a link to the repo) are not displayed. To display the details, pass this option."}
+{"p":"cli/licenses","b":"cli/licenses#653","k":"heading","t":"--no-optional"}
+{"p":"cli/licenses","b":"cli/licenses#654","k":"para","t":"Don't check packages from `optionalDependencies`."}
+{"p":"cli/licenses","b":"cli/licenses#655","k":"heading","t":"--prod, -P"}
+{"p":"cli/licenses","b":"cli/licenses#656","k":"para","t":"Check only `dependencies` and `optionalDependencies`."}
+{"p":"cli/licenses","b":"cli/licenses#657","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/licenses","b":"cli/licenses@title","k":"title","t":"pnpm licenses"}
+{"p":"cli/link","b":"cli/link#691","k":"para","t":"Links a local package to the current project's `node_modules`."}
+{"p":"cli/link","b":"cli/link#692","k":"heading","t":"Options"}
+{"p":"cli/link","b":"cli/link#693","k":"heading","t":"`pnpm link <dir>`"}
+{"p":"cli/link","b":"cli/link#694","k":"para","t":"Links package from `<dir>` directory to `node_modules` of package from where you're executing this command. `<dir>` must be a relative or absolute path."}
+{"p":"cli/link","b":"cli/link#695","k":"para","t":"For example, if you are inside `~/projects/foo` and you execute `pnpm link ../bar`, then a link to `bar` will be created in `foo/node_modules/bar`."}
+{"p":"cli/link","b":"cli/link#696","k":"alt","t":"Breaking changes in v11"}
+{"p":"cli/link","b":"cli/link#697","k":"para","t":"`pnpm link` no longer resolves packages from the global store. Only relative or absolute paths are accepted (use `pnpm link ./foo` instead of `pnpm link foo`)."}
+{"p":"cli/link","b":"cli/link#698","k":"para","t":"`pnpm link --global` has been removed. To register a local package's bins globally, use `pnpm add -g .` instead."}
+{"p":"cli/link","b":"cli/link#699","k":"para","t":"`pnpm link` with no arguments has been removed. Always pass an explicit path."}
+{"p":"cli/link","b":"cli/link#700","k":"heading","t":"Use Cases"}
+{"p":"cli/link","b":"cli/link#701","k":"heading","t":"Replace an installed package with a local version of it"}
+{"p":"cli/link","b":"cli/link#702","k":"para","t":"Let's say you have a project that uses `foo` package. You want to make changes to `foo` and test them in your project. In this scenario, you can use `pnpm link` to link the local version of `foo` to your project:"}
+{"p":"cli/link","b":"cli/link#703","k":"heading","t":"Add a binary globally"}
+{"p":"cli/link","b":"cli/link#704","k":"para","t":"To make a local package's binaries available system-wide, use `pnpm add -g .` instead:"}
+{"p":"cli/link","b":"cli/link#705","k":"para","t":"Remember that the binary will be available only if the package has a `bin` field in its `package.json`."}
+{"p":"cli/link","b":"cli/link#706","k":"heading","t":"What's the difference between `pnpm link` and using the `file:` protocol?"}
+{"p":"cli/link","b":"cli/link#707","k":"para","t":"When you use `pnpm link`, the linked package is symlinked from the source code. You can modify the source code of the linked package, and the changes will be reflected in your project. With this method pnpm will not install the dependencies of the linked package, you will have to install them manually in the source code. This may be useful when you have to use a specific package manager for the linked package, for example, if you want to use `npm` for the linked package, but pnpm for your project."}
+{"p":"cli/link","b":"cli/link#708","k":"para","t":"When you use the `file:` protocol in `dependencies`, the linked package is hard-linked to your project `node_modules`, you can modify the source code of the linked package, and the changes will be reflected in your project. With this method pnpm will also install the dependencies of the linked package, overriding the `node_modules` of the linked package."}
+{"p":"cli/link","b":"cli/link#709","k":"para","t":"When dealing with **peer dependencies** it is recommended to use the `file:` protocol. It better resolves the peer dependencies from the project dependencies, ensuring that the linked dependency correctly uses the versions of the dependencies specified in your main project, leading to more consistent and expected behaviors."}
+{"p":"cli/link","b":"cli/link@title","k":"title","t":"pnpm link"}
+{"p":"cli/list","b":"cli/list#658","k":"para","t":"This command will output all the versions of packages that are installed, as well as their dependencies, in a tree-structure."}
+{"p":"cli/list","b":"cli/list#659","k":"para","t":"Positional arguments are `name-pattern@version-range` identifiers, which will limit the results to only the packages named. For example, `pnpm list \"babel-*\" \"eslint-*\" semver@5`."}
+{"p":"cli/list","b":"cli/list#660","k":"heading","t":"Options"}
+{"p":"cli/list","b":"cli/list#661","k":"heading","t":"--recursive, -r"}
+{"p":"cli/list","b":"cli/list#662","k":"para","t":"Perform command on every package in subdirectories or on every workspace package, when executed inside a workspace."}
+{"p":"cli/list","b":"cli/list#663","k":"heading","t":"--json"}
+{"p":"cli/list","b":"cli/list#664","k":"para","t":"Log output in JSON format."}
+{"p":"cli/list","b":"cli/list#665","k":"heading","t":"--long"}
+{"p":"cli/list","b":"cli/list#666","k":"para","t":"Show extended information."}
+{"p":"cli/list","b":"cli/list#667","k":"heading","t":"--lockfile-only"}
+{"p":"cli/list","b":"cli/list#668","k":"para","t":"Added in: v10.23.0"}
+{"p":"cli/list","b":"cli/list#669","k":"para","t":"Read package information from the lockfile instead of checking the actual `node_modules` directory. This is useful for quickly inspecting what would be installed without requiring a full installation."}
+{"p":"cli/list","b":"cli/list#670","k":"heading","t":"--parseable"}
+{"p":"cli/list","b":"cli/list#671","k":"para","t":"Outputs package directories in a parseable format instead of their tree view."}
+{"p":"cli/list","b":"cli/list#672","k":"heading","t":"--global, -g"}
+{"p":"cli/list","b":"cli/list#673","k":"para","t":"List packages in the global install directory instead of in the current project."}
+{"p":"cli/list","b":"cli/list#674","k":"heading","t":"--depth <number>"}
+{"p":"cli/list","b":"cli/list#675","k":"para","t":"Max display depth of the dependency tree."}
+{"p":"cli/list","b":"cli/list#676","k":"para","t":"`pnpm ls --depth 0` (default) will list direct dependencies only. `pnpm ls --depth -1` will list projects only. Useful inside a workspace when used with the `-r` option. `pnpm ls --depth Infinity` will list all dependencies regardless of depth."}
+{"p":"cli/list","b":"cli/list#677","k":"heading","t":"--prod, -P"}
+{"p":"cli/list","b":"cli/list#678","k":"para","t":"Display only the dependency graph for packages in `dependencies` and `optionalDependencies`."}
+{"p":"cli/list","b":"cli/list#679","k":"heading","t":"--dev, -D"}
+{"p":"cli/list","b":"cli/list#680","k":"para","t":"Display only the dependency graph for packages in `devDependencies`."}
+{"p":"cli/list","b":"cli/list#681","k":"heading","t":"--no-optional"}
+{"p":"cli/list","b":"cli/list#682","k":"para","t":"Don't display packages from `optionalDependencies`."}
+{"p":"cli/list","b":"cli/list#683","k":"heading","t":"--only-projects"}
+{"p":"cli/list","b":"cli/list#684","k":"para","t":"Display only dependencies that are also projects within the workspace."}
+{"p":"cli/list","b":"cli/list#685","k":"heading","t":"--exclude-peers"}
+{"p":"cli/list","b":"cli/list#686","k":"para","t":"Exclude peer dependencies from the results (but dependencies of peer dependencies are not ignored)."}
+{"p":"cli/list","b":"cli/list#687","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/list","b":"cli/list#688","k":"heading","t":"--find-by <finder_name>"}
+{"p":"cli/list","b":"cli/list#689","k":"para","t":"Added in: v10.16.0"}
+{"p":"cli/list","b":"cli/list#690","k":"para","t":"Use a [finder function](/docs/finders) defined in `.pnpmfile.mjs` to match dependencies by properties other than name."}
+{"p":"cli/list","b":"cli/list@title","k":"title","t":"pnpm list"}
+{"p":"cli/login","b":"cli/login#710","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/login","b":"cli/login#711","k":"para","t":"Authenticate with an npm registry."}
+{"p":"cli/login","b":"cli/login#712","k":"para","t":"Supports web-based login with QR code as well as classic username/password authentication."}
+{"p":"cli/login","b":"cli/login#713","k":"para","t":"Since v11.19.0, web-based login no longer requires an interactive terminal: without a TTY, `pnpm login` prints the authentication URL (skipping the QR code and the prompt to open the URL in a browser) and polls the registry until the browser approval completes. Only the classic username/password login still fails with `ERR_PNPM_LOGIN_NON_INTERACTIVE` in a non-interactive terminal."}
+{"p":"cli/login","b":"cli/login#714","k":"para","t":"In pnpm 12.1 and newer, the granted token is written to the global [config.yaml](/docs/cli/config), under the structured [_auth](/docs/npmrc#_auth) setting. When `--scope` is present, the same write routes that scope to the registry under the global [registries](/docs/registries) setting. pnpm 11.25 writes the token and scoped route to [<pnpm config>/auth.ini](/docs/npmrc#auth-file-locations); pnpm 12.1 continues to read tokens written there."}
+{"p":"cli/login","b":"cli/login#715","k":"heading","t":"Options"}
+{"p":"cli/login","b":"cli/login#716","k":"heading","t":"--registry <url>"}
+{"p":"cli/login","b":"cli/login#717","k":"para","t":"The registry to authenticate with. Defaults to the configured default registry."}
+{"p":"cli/login","b":"cli/login#718","k":"heading","t":"--scope <scope>"}
+{"p":"cli/login","b":"cli/login#719","k":"para","t":"Associate the credentials with the specified scope. The registry for that scope will be used."}
+{"p":"cli/login","b":"cli/login#720","k":"para","t":"Since v12.1.0, a `scope` setting in a project's `pnpm-workspace.yaml` is ignored with a warning. A repository must not be able to choose the machine-wide route a later login writes. Pass `--scope`, set `PNPM_CONFIG_SCOPE`, or set the machine's default with:"}
+{"p":"cli/login","b":"cli/login@title","k":"title","t":"pnpm login"}

@@ -1,0 +1,254 @@
+{"p":"registry-revisions","b":"registry-revisions#2621","k":"para","t":"Added in: v12.0.0"}
+{"p":"registry-revisions","b":"registry-revisions#2622","k":"para","t":"Some registries can serve a **replacement artifact** for a version that is already published — a rebuild with a vulnerability patched out, for example — without changing the version number and without rewriting the bytes the original `name@version` URL has always served. pnpm calls each such artifact a *revision* of that version."}
+{"p":"registry-revisions","b":"registry-revisions#2623","k":"para","t":"Revision 0 is always the original. A registry that replaces an artifact advertises the replacement as revision 1, the one after that as revision 2, and so on, per registry and per `name@version`."}
+{"p":"registry-revisions","b":"registry-revisions#2624","k":"para","t":"Revisions are a registry capability, not something pnpm can add to a registry that does not implement them. [pnpr](https://pnpm.io/pnpr) serves them, both for the packages it hosts and — as a proxy — for an upstream registry that advertises them. `registry.npmjs.org` does not."}
+{"p":"registry-revisions","b":"registry-revisions#2625","k":"heading","t":"How a revision is addressed"}
+{"p":"registry-revisions","b":"registry-revisions#2626","k":"para","t":"A revision is fetched by its own digest, from an immutable route on the registry:"}
+{"p":"registry-revisions","b":"registry-revisions#2627","k":"para","t":"Registry metadata advertises that URL together with an ordinary Subresource Integrity value and the revision number:"}
+{"p":"registry-revisions","b":"registry-revisions#2628","k":"para","t":"`dist.revision` is present exactly when the selected artifact is a replacement. `dist.revisions` carries the history — every advertised revision with its own integrity, digest URL, and manifest."}
+{"p":"registry-revisions","b":"registry-revisions#2629","k":"para","t":"pnpm validates all of that during resolution: the URL must sit on the selected registry's integrity-tarball route, its base64url digest must decode to exactly the digest in `dist.integrity`, and the revision number must be a canonical integer in `0 < N ≤ 2^53 − 1`. Anything else fails with `ERR_PNPM_MALFORMED_METADATA`. The fetch itself is a single authenticated request with no retry and no fallback, and **every** redirect — same-origin included — fails it."}
+{"p":"registry-revisions","b":"registry-revisions#2630","k":"para","t":"A registry may also serve an *original* through the digest route. pnpm normalizes that back to a plain integrity-only lockfile entry, rather than storing an absolute URL that would pin the lockfile to one deployment's hostname."}
+{"p":"registry-revisions","b":"registry-revisions#2631","k":"heading","t":"In the lockfile"}
+{"p":"registry-revisions","b":"registry-revisions#2632","k":"para","t":"An entry with no `revision` field means revision 0, and is byte-identical to what pnpm has always written — the canonical `name@version` URL is pinned to the original forever, so nothing about an unpatched dependency changes:"}
+{"p":"registry-revisions","b":"registry-revisions#2633","k":"para","t":"pnpm-lock.yaml"}
+{"p":"registry-revisions","b":"registry-revisions#2634","k":"para","t":"The `revision` line is what tells pnpm to fetch by digest instead of reconstructing the canonical URL. It also makes the diff readable: a change from `revision: 1` to `revision: 2` beside a changed integrity says *why* the integrity changed."}
+{"p":"registry-revisions","b":"registry-revisions#2635","k":"para","t":"Because originals are unmarked, a workspace that has adopted no replacements produces a lockfile an older pnpm can still read, and pointing the lockfile at a registry without the digest route keeps the whole unpatched graph installable — only the `revision` entries fail, and they fail as plain unavailability."}
+{"p":"registry-revisions","b":"registry-revisions#2636","k":"para","t":"An installed lockfile is never silently upgraded: a fetch keeps the locked revision rather than adopting whatever the registry currently selects."}
+{"p":"registry-revisions","b":"registry-revisions#2637","k":"heading","t":"Selecting a revision"}
+{"p":"registry-revisions","b":"registry-revisions#2638","k":"para","t":"A specifier may pin a revision with `+rN`, carried as semver build metadata:"}
+{"p":"registry-revisions","b":"registry-revisions#2639","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"registry-revisions","b":"registry-revisions#2640","k":"li","t":"`+r0` keeps the original — the opt-out from a replacement the registry has selected."}
+{"p":"registry-revisions","b":"registry-revisions#2641","k":"li","t":"A positive number adopts a replacement the registry advertises but has not selected, or freezes one it has."}
+{"p":"registry-revisions","b":"registry-revisions#2642","k":"para","t":"It works as an override target and as a directly declared dependency, across npm, JSR, aliases, and [named registries](/docs/registries#prefix). The version half resolves normally — build metadata is ignored for version matching — and then the named revision is selected out of `dist.revisions`, with **that\nentry's own manifest** driving subtree resolution. Revisions may legitimately differ in their dependencies, peer dependencies, `bin`, `engines`, and install-script posture, so reading the current version's top-level fields would be wrong."}
+{"p":"registry-revisions","b":"registry-revisions#2643","k":"para","t":"The rules around it:"}
+{"p":"registry-revisions","b":"registry-revisions#2644","k":"li","t":"A revision the registry does not advertise is a hard error (`ERR_PNPM_NO_MATCHING_REVISION`); pnpm never falls forward to the selected one."}
+{"p":"registry-revisions","b":"registry-revisions#2645","k":"li","t":"On a version that is not revision-aware, `+r0` is trivially satisfied by the only artifact, and a positive number is an error."}
+{"p":"registry-revisions","b":"registry-revisions#2646","k":"li","t":"Version-changing targets compose: `\"ejs@2.7.4\": \"2.7.5+r1\"` rewrites the spec to `2.7.5` and then selects its revision 1."}
+{"p":"registry-revisions","b":"registry-revisions#2647","k":"li","t":"Rewriting applies once, so revision selection can neither chain nor cycle."}
+{"p":"registry-revisions","b":"registry-revisions#2648","k":"li","t":"Only the `r<digits>` build-metadata namespace is reserved. A spec carrying any other build metadata is an ordinary spec."}
+{"p":"registry-revisions","b":"registry-revisions#2649","k":"li","t":"Two specs demanding different revisions of one `name@version` in the same graph fail with `ERR_PNPM_REVISION_CONFLICT`. One package key can hold only one artifact, and pnpm will not silently unify them."}
+{"p":"registry-revisions","b":"registry-revisions#2650","k":"para","t":"Like every exact-selector override, a `+rN` override **pins the version** too: a dependency declared `^2.7.0` stays on `2.7.4` after upstream publishes `2.7.5`, until the override is changed or removed."}
+{"p":"registry-revisions","b":"registry-revisions#2651","k":"para","t":"Selection is a preference, not a security boundary. A registry whose policy refuses a revision's bytes answers its digest URL with a `403`, and the pinned install then fails loudly, naming the policy and the advertised revisions."}
+{"p":"registry-revisions","b":"registry-revisions#2652","k":"heading","t":"Refreshing revisions"}
+{"p":"registry-revisions","b":"registry-revisions#2653","k":"para","t":"To move to the artifacts a registry currently selects, without changing any package version:"}
+{"p":"registry-revisions","b":"registry-revisions#2654","k":"para","t":"For every locked registry package, pnpm resolves current metadata for the same exact `name@version`. When the selected artifact changed, it updates the integrity, the `revision` field, and the whole package snapshot together — dependency metadata may differ between revisions, so changing only the checksum would be wrong."}
+{"p":"registry-revisions","b":"registry-revisions#2655","k":"para","t":"A package whose revision is pinned explicitly is skipped, and the pin holds: that covers an override with a `+rN` target and a dependency declared as one, so `\"ejs\": \"2.7.4+r1\"` stays on revision 1 across every refresh."}
+{"p":"registry-revisions","b":"registry-revisions#2656","k":"para","t":"`--patches` cannot be combined with package selectors, `--latest`, `--interactive`, or `--global` (`ERR_PNPM_PATCHES_WITH_SELECTOR`)."}
+{"p":"registry-revisions","b":"registry-revisions#2657","k":"para","t":"The refresh can be resolved server-side by a pnpr server, either from [pnprServer](https://pnpm.io/pnpr/install-acceleration) or from `--pnpr-server <url>` on the command line. An explicit refresh bypasses frozen reuse and pnpr's whole-resolution cache, and the registry resolver revalidates metadata even when its caches are warm — otherwise the command could hand back exactly the revisions it was asked to look past."}
+{"p":"registry-revisions","b":"registry-revisions@title","k":"title","t":"Registry Revisions"}
+{"p":"scripts","b":"scripts#2658","k":"para","t":"How pnpm handles the `scripts` field of `package.json`."}
+{"p":"scripts","b":"scripts#2659","k":"heading","t":"Hidden Scripts"}
+{"p":"scripts","b":"scripts#2660","k":"para","t":"Added in: v11.0.0"}
+{"p":"scripts","b":"scripts#2661","k":"para","t":"Scripts with names starting with `.` are hidden. They cannot be run directly via `pnpm run` and are omitted from the `pnpm run` listing. Hidden scripts can only be called from other scripts."}
+{"p":"scripts","b":"scripts#2662","k":"para","t":"In this example, `pnpm run .helper` would fail, but `pnpm run build` would succeed because `.helper` is called from another script."}
+{"p":"scripts","b":"scripts#2663","k":"heading","t":"Environment Variables"}
+{"p":"scripts","b":"scripts#2664","k":"para","t":"pnpm sets the following environment variables during lifecycle script execution:"}
+{"p":"scripts","b":"scripts#2665","k":"li","t":"`npm_package_name` — the package name"}
+{"p":"scripts","b":"scripts#2666","k":"li","t":"`npm_package_version` — the package version"}
+{"p":"scripts","b":"scripts#2667","k":"li","t":"`npm_lifecycle_event` — the name of the running script (e.g., `postinstall`)"}
+{"p":"scripts","b":"scripts#2668","k":"para","t":"Since v11, pnpm no longer populates `npm_config_*` environment variables from the pnpm configuration. Only the well-known `npm_*` variables above are set, matching Yarn's behavior."}
+{"p":"scripts","b":"scripts#2669","k":"heading","t":"Built-in Command and Script Name Conflicts"}
+{"p":"scripts","b":"scripts#2670","k":"para","t":"Added in: v11.0.0"}
+{"p":"scripts","b":"scripts#2671","k":"para","t":"The following built-in commands prefer user scripts: `clean`, `setup`, `deploy`, and `rebuild`. If your `package.json` defines a script with one of these names, `pnpm <name>` will execute the script instead of the built-in command."}
+{"p":"scripts","b":"scripts#2672","k":"para","t":"To force the built-in command, use [pnpm pm <name>](/docs/cli/pm)."}
+{"p":"scripts","b":"scripts#2673","k":"heading","t":"Lifecycle Scripts"}
+{"p":"scripts","b":"scripts#2674","k":"heading","t":"`pnpm:devPreinstall`"}
+{"p":"scripts","b":"scripts#2675","k":"para","t":"Runs only on local `pnpm install`."}
+{"p":"scripts","b":"scripts#2676","k":"para","t":"Runs before any dependency is installed."}
+{"p":"scripts","b":"scripts#2677","k":"para","t":"This script is executed only when set in the root project's `package.json`."}
+{"p":"settings","b":"settings#2678","k":"para","t":"pnpm gets its configuration from the command line, environment variables, and `pnpm-workspace.yaml`."}
+{"p":"settings","b":"settings#2679","k":"para","t":"Only auth and registry settings are read from `.npmrc` files. All other settings (like `hoistPattern`, `nodeLinker`, `shamefullyHoist`, etc.) must be configured in `pnpm-workspace.yaml` or the global `~/.config/pnpm/config.yaml`."}
+{"p":"settings","b":"settings#2680","k":"para","t":"The `pnpm config` command can be used to read and edit the contents of the project and global configuration files."}
+{"p":"settings","b":"settings#2681","k":"para","t":"The relevant configuration files are:"}
+{"p":"settings","b":"settings#2682","k":"li","t":"Per-project configuration file: `/path/to/my/project/pnpm-workspace.yaml`"}
+{"p":"settings","b":"settings#2683","k":"para","t":"Authorization-related settings are handled via [.npmrc](/docs/npmrc)."}
+{"p":"settings","b":"settings#2684","k":"para","t":"Values in the configuration files may contain env variables using the `${NAME}` syntax. The env variables may also be specified with default values. Using `${NAME-fallback}` will return `fallback` if `NAME` isn't set. `${NAME:-fallback}` will return `fallback` if `NAME` isn't set, or is an empty string."}
+{"p":"settings","b":"settings#2685","k":"para","t":"Since v11.5.3, env variables are **not** expanded in settings of `pnpm-workspace.yaml` that define registry URLs: `registry` and the URL values of [registries](/docs/settings/dependency-resolution#registries) and [namedRegistries](/docs/settings/dependency-resolution#namedregistries). Values containing a `${...}` placeholder in these settings are ignored. In the [registry declaration shape](/docs/registries) of `registries` (since v11.23.0), the URL is the key rather than the value, and the same rule applies to the keys. Because `pnpm-workspace.yaml` is committed to the repository, expanding env variables in registry URLs could be exploited by a malicious repository to leak secrets from the environment to an attacker-controlled registry. Configure dynamic registry URLs in a trusted location instead: the global configuration file or CLI options."}
+{"p":"settings","b":"settings#2686","k":"para","t":"Since v11.22.0, a project's `pnpm-workspace.yaml` cannot choose where pnpm keeps its credentials, its own installation, or other machine-level state: `bin`, `configDir`, `dir`, `globalBinDir`, `globalDir`, `npmrcAuthFile`, `pnpmHomeDir`, `stateDir`, `userconfig`, and `workspaceDir` are ignored there, with a warning. Set them in the [global configuration file](/docs/cli/config) or on the command line instead. `cacheDir` and `storeDir` are unaffected."}
+{"p":"settings","b":"settings#2687","k":"heading","t":"packages"}
+{"p":"settings","b":"settings#2688","k":"para","t":"Besides settings, `pnpm-workspace.yaml` defines the root of the [workspace](/docs/workspaces) and enables you to include / exclude directories from the workspace. If the `packages` field is omitted, only the root package is included in the workspace."}
+{"p":"settings","b":"settings#2689","k":"para","t":"For example:"}
+{"p":"settings","b":"settings#2690","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"settings","b":"settings#2691","k":"para","t":"The root package is always included, even when custom location wildcards are used."}
+{"p":"settings","b":"settings#2692","k":"para","t":"Catalogs are also defined in the `pnpm-workspace.yaml` file. See [Catalogs](/docs/catalogs) for details."}
+{"p":"settings","b":"settings#2693","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"settings","b":"settings#2694","k":"heading","t":"packageConfigs"}
+{"p":"settings","b":"settings#2695","k":"para","t":"Added in: v11.0.0"}
+{"p":"settings","b":"settings#2696","k":"para","t":"Allows setting project-specific configuration for individual workspace packages. This replaces workspace project-specific `.npmrc` files."}
+{"p":"settings","b":"settings#2697","k":"para","t":"`packageConfigs` can be specified as a map of package names to config objects:"}
+{"p":"settings","b":"settings#2698","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"settings","b":"settings#2699","k":"para","t":"Or as an array of pattern-matched rules:"}
+{"p":"settings","b":"settings#2700","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"settings","b":"settings#2701","k":"heading","t":"Settings"}
+{"p":"settings","b":"settings#2702","k":"para","t":"Every setting is listed below, grouped by topic. Follow a setting to read its documentation, or open the full reference of a group."}
+{"p":"settings","b":"settings#2703","k":"heading","t":"Dependency Resolution"}
+{"p":"settings","b":"settings#2704","k":"heading","t":"Node-Modules Settings"}
+{"p":"settings","b":"settings#2705","k":"heading","t":"Dependency Hoisting Settings"}
+{"p":"settings","b":"settings#2706","k":"heading","t":"Store Settings"}
+{"p":"settings","b":"settings#2707","k":"heading","t":"Lockfile Settings"}
+{"p":"settings","b":"settings#2708","k":"heading","t":"Network Settings"}
+{"p":"settings","b":"settings#2709","k":"heading","t":"Request Settings"}
+{"p":"settings","b":"settings#2710","k":"heading","t":"Peer Dependency Settings"}
+{"p":"settings","b":"settings#2711","k":"heading","t":"CLI Settings"}
+{"p":"settings","b":"settings#2712","k":"heading","t":"Node.js Settings"}
+{"p":"settings","b":"settings#2713","k":"heading","t":"Build Settings"}
+{"p":"settings","b":"settings#2714","k":"heading","t":"Versioning Settings"}
+{"p":"settings","b":"settings#2715","k":"heading","t":"Other Settings"}
+{"p":"settings","b":"settings#2716","k":"heading","t":"Workspace Settings"}
+{"p":"settings","b":"settings#2717","k":"para","t":"These settings are configured in `pnpm-workspace.yaml` as well, but are documented together with the workspace feature they belong to."}
+{"p":"settings","b":"settings#2718","k":"heading","t":"Settings documented elsewhere"}
+{"p":"settings","b":"settings#2719","k":"li","t":"Authorization settings, which are read from [.npmrc](/docs/npmrc)"}
+{"p":"settings","b":"settings@title","k":"title","t":"Settings (pnpm-workspace.yaml)"}
+{"p":"settings/build","b":"settings/build#2720","k":"heading","t":"ignoreScripts"}
+{"p":"settings/build","b":"settings/build#2721","k":"li","t":"Default: **false**"}
+{"p":"settings/build","b":"settings/build#2722","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/build","b":"settings/build#2723","k":"para","t":"Do not execute any scripts defined in the project `package.json` and its dependencies."}
+{"p":"settings/build","b":"settings/build#2724","k":"para","t":"This flag does not prevent the execution of [.pnpmfile.mjs](/docs/pnpmfile)"}
+{"p":"settings/build","b":"settings/build#2725","k":"heading","t":"childConcurrency"}
+{"p":"settings/build","b":"settings/build#2726","k":"li","t":"Type: **Number**"}
+{"p":"settings/build","b":"settings/build#2727","k":"para","t":"The maximum number of child processes to allocate simultaneously to build node_modules."}
+{"p":"settings/build","b":"settings/build#2728","k":"heading","t":"sideEffectsCache"}
+{"p":"settings/build","b":"settings/build#2729","k":"li","t":"Default: **true**"}
+{"p":"settings/build","b":"settings/build#2730","k":"li","t":"Type: **Boolean or Object**"}
+{"p":"settings/build","b":"settings/build#2731","k":"para","t":"Use and cache the results of (pre/post)install hooks."}
+{"p":"settings/build","b":"settings/build#2732","k":"para","t":"When a pre/post install script modify the contents of a package (e.g. build output), pnpm saves the modified package in the global store. On future installs on the same machine, pnpm reuses this cached, prebuilt version—making installs significantly faster."}
+{"p":"settings/build","b":"settings/build#2733","k":"para","t":"You may want to disable this setting if:"}
+{"p":"settings/build","b":"settings/build#2734","k":"li","t":"The install scripts modify files *outside* the package directory (pnpm cannot track or cache these changes)."}
+{"p":"settings/build","b":"settings/build#2735","k":"li","t":"The scripts perform side effects that are unrelated to building the package."}
+{"p":"settings/build","b":"settings/build#2736","k":"para","t":"An object says the same thing in more detail, and is the canonical way to declare the remote tier:"}
+{"p":"settings/build","b":"settings/build#2737","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"settings/build","b":"settings/build#2738","k":"li","t":"`read` — restore a build from the cache when one is present. Default **true**."}
+{"p":"settings/build","b":"settings/build#2739","k":"li","t":"`write` — save a package's build output to the cache. Default **true**."}
+{"p":"settings/build","b":"settings/build#2740","k":"li","t":"`remote` — reuse builds across machines; see below."}
+{"p":"settings/build","b":"settings/build#2741","k":"para","t":"`sideEffectsCache: true` is the shorthand for reading and writing, and is what the setting meant before it grew a remote tier. Writing without reading (`read: false, write: true`) populates a cache the run never consumes, which is what a job that warms one for others wants."}
+{"p":"settings/build","b":"settings/build#2742","k":"heading","t":"sideEffectsCacheReadonly"}
+{"p":"settings/build","b":"settings/build#2743","k":"li","t":"Default: **false**"}
+{"p":"settings/build","b":"settings/build#2744","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/build","b":"settings/build#2745","k":"para","t":"Only use the side effects cache if present, do not create it for new packages. The older spelling of `sideEffectsCache: { read: true, write: false }`."}
+{"p":"settings/build","b":"settings/build#2746","k":"heading","t":"sideEffectsCache.remote"}
+{"p":"settings/build","b":"settings/build#2747","k":"para","t":"Added in: v12.0.0"}
+{"p":"settings/build","b":"settings/build#2748","k":"li","t":"Default: **undefined**"}
+{"p":"settings/build","b":"settings/build#2749","k":"li","t":"Type: **Object**"}
+{"p":"settings/build","b":"settings/build#2750","k":"para","t":"Opt in to reusing a dependency's build output across machines, by restoring signed, organization-scoped artifacts through a [pnpr](https://pnpm.io/pnpr) server instead of running the package's lifecycle scripts locally. This is a proof of concept: it is off unless configured, it needs a pnpr server started with `artifacts.enabled: true`, and it restores artifacts on Linux/glibc, macOS, and Windows, on x64 and arm64. Other operating systems and libc families build locally."}
+{"p":"settings/build","b":"settings/build#2751","k":"para","t":"A repository declares eligibility and nothing else:"}
+{"p":"settings/build","b":"settings/build#2752","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"settings/build","b":"settings/build#2753","k":"para","t":"Declaring only `remote` leaves `read` and `write` at their defaults, so the local cache keeps working as it did."}
+{"p":"settings/build","b":"settings/build#2754","k":"para","t":"`packages` is an eligibility list, not a permission: a package is only a candidate when it also passes [allowBuilds](#allowbuilds), has `requiresBuild: true`, and has a verified source integrity. Listing a package here does not review its build scripts for you — under the default [strictDepBuilds](#strictdepbuilds) an install still fails with `ERR_PNPM_IGNORED_BUILDS` when it reaches a build nobody has ruled on, and a package denied with `allowBuilds: false` is never built, from the cache or otherwise."}
+{"p":"settings/build","b":"settings/build#2755","k":"para","t":"Everything describing the *act of signing* — `publish`, `keyId`, `builderId`, `imageDigest`, `architectureBaseline`, `buildEnv`, `trustedKeys` and `privateKey` — is refused in `pnpm-workspace.yaml` with `ERR_PNPM_WORKSPACE_REMOTE_SIDE_EFFECTS_TRUST`, and is read from the [global\nconfiguration file](/docs/cli/config) or the environment instead. A cloned repository is not a trust root, and must not be able to turn the machine's signing key into a signing oracle."}
+{"p":"settings/build","b":"settings/build#2756","k":"para","t":"Any cache failure — an unreachable server, an unverifiable signature, an incompatible platform, a bad blob — falls back to the ordinary local build. See [Shared side-effects cache](https://pnpm.io/pnpr/shared-side-effects-cache) for the full setup, including the server flag, the trust material, and how an artifact is published."}
+{"p":"settings/build","b":"settings/build#2757","k":"para","t":"Since v12.1.0, a restored artifact is saved in the shared store together with its signed origin. Before a later install reuses it, pnpm checks the signature again against the machine's current keys and revalidates its owner, package and source identity, platform, policy, and stored files. A bad remote variant is quarantined for that pnpr server and is not selected again."}
+{"p":"settings/build","b":"settings/build#2758","k":"para","t":"`remoteSideEffectsCache` is the older spelling of this setting, and `organization` of its `org` field; both still work."}
+{"p":"settings/build","b":"settings/build#2759","k":"para","t":"The two spellings are merged, not chosen between: a field set under both takes its value from `sideEffectsCache.remote`, and a field set under only one is kept either way. That is what lets a repository declare the org in `pnpm-workspace.yaml` while the machine supplies the signing key from the global config under whichever spelling it already used."}
+{"p":"settings/build","b":"settings/build#2760","k":"heading","t":"unsafePerm"}
+{"p":"settings/build","b":"settings/build#2761","k":"li","t":"Default: **false** IF running as root, ELSE **true**"}
+{"p":"settings/build","b":"settings/build#2762","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/build","b":"settings/build#2763","k":"para","t":"Set to true to enable UID/GID switching when running package scripts. If set explicitly to false, then installing as a non-root user will fail."}
+{"p":"settings/build","b":"settings/build#2764","k":"heading","t":"nodeOptions"}
+{"p":"settings/build","b":"settings/build#2765","k":"li","t":"Default: **NULL**"}
+{"p":"settings/build","b":"settings/build#2766","k":"li","t":"Type: **String**"}
+{"p":"settings/build","b":"settings/build#2767","k":"para","t":"Options to pass through to Node.js via the `NODE_OPTIONS` environment variable. This does not impact how pnpm itself is executed but it does impact how lifecycle scripts are called."}
+{"p":"settings/build","b":"settings/build#2768","k":"para","t":"To preserve existing `NODE_OPTIONS` you can reference the existing environment variable using `${NODE_OPTIONS}` in your configuration:"}
+{"p":"settings/build","b":"settings/build#2769","k":"heading","t":"verifyDepsBeforeRun"}
+{"p":"settings/build","b":"settings/build#2770","k":"li","t":"Default: **install**"}
+{"p":"settings/build","b":"settings/build#2771","k":"li","t":"Type: **install**, **warn**, **error**, **prompt**, **false**"}
+{"p":"settings/build","b":"settings/build#2772","k":"para","t":"This setting allows the checking of the state of dependencies before running scripts. The check runs on `pnpm run` and `pnpm exec` commands. The following values are supported:"}
+{"p":"settings/build","b":"settings/build#2773","k":"li","t":"`install` - Automatically runs install if `node_modules` is not up to date."}
+{"p":"settings/build","b":"settings/build#2774","k":"li","t":"`warn` - Prints a warning if `node_modules` is not up to date."}
+{"p":"settings/build","b":"settings/build#2775","k":"li","t":"`prompt` - Prompts the user for permission to run install if `node_modules` is not up to date."}
+{"p":"settings/build","b":"settings/build#2776","k":"li","t":"`error` - Throws an error if `node_modules` is not up to date."}
+{"p":"settings/build","b":"settings/build#2777","k":"li","t":"`false` - Disables dependency checks."}
+{"p":"settings/build","b":"settings/build#2778","k":"heading","t":"strictDepBuilds"}
+{"p":"settings/build","b":"settings/build#2779","k":"para","t":"Added in: v10.3.0"}
+{"p":"settings/build","b":"settings/build#2780","k":"li","t":"Default: **true**"}
+{"p":"settings/build","b":"settings/build#2781","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/build","b":"settings/build#2782","k":"para","t":"When `strictDepBuilds` is enabled, the installation will exit with a non-zero exit code if any dependencies have unreviewed build scripts (aka postinstall scripts)."}
+{"p":"settings/build","b":"settings/build#2783","k":"heading","t":"allowBuilds"}
+{"p":"settings/build","b":"settings/build#2784","k":"para","t":"Added in: v10.26.0"}
+{"p":"settings/build","b":"settings/build#2785","k":"para","t":"A map of package matchers to explicitly allow (`true`) or disallow (`false`) script execution."}
+{"p":"settings/build","b":"settings/build#2786","k":"para","t":"**Git-hosted packages:** a package name on its own never approves builds for a git or tarball dependency — the name alone does not identify the artifact. Approve one either by its exact resolved path (including the commit) or, since v11.11.0, by its repository URL:"}
+{"p":"settings/build","b":"settings/build#2787","k":"para","t":"The repository form lets a trusted git dependency keep running its build scripts across branch updates without re-approving each new commit. The key is the package name, followed by `@` and the git URL, with no `#<ref>` suffix. Matching is exact, so `git+ssh://` and `git+https://` URLs for the same repository are separate keys."}
+{"p":"settings/build","b":"settings/build#2788","k":"para","t":"Since v11.19.0, the repository form also approves git-hosted packages that pnpm downloads as a tarball rather than clones — such as `github:` dependencies, which are fetched from `codeload.github.com`. A `foo@git+https://github.com/org/foo.git` entry approves `foo` whether pnpm clones the repository or downloads a tarball. GitLab and Bitbucket tarball downloads are matched the same way. Approving or denying a specific resolved commit by its full tarball dep path continues to work."}
+{"p":"settings/build","b":"settings/build#2789","k":"para","t":"Denials by package name are not restricted this way: `foo: false` blocks `foo` whether it comes from the registry or from git."}
+{"p":"settings/build","b":"settings/build#2790","k":"para","t":"**Default behavior:** Packages not listed in `allowBuilds` are disallowed by default and are treated as unreviewed. By default, an error is printed ([strictDepBuilds](#strictdepbuilds) defaults to `true`). If `strictDepBuilds` is set to `false`, a warning is printed instead."}
+{"p":"settings/build","b":"settings/build#2791","k":"para","t":"During install, dependencies with ignored builds that are not yet listed in `allowBuilds` are automatically added to `pnpm-workspace.yaml` with a placeholder value, so you can manually set them to `true` or `false`. The [--allow-build](/docs/cli/add) flag on `pnpm add` and `pnpm approve-builds` writes its entries here as well."}
+{"p":"settings/build","b":"settings/build#2792","k":"alt","t":"Migrating from older settings"}
+{"p":"settings/build","b":"settings/build#2793","k":"para","t":"To migrate these settings automatically, run `pnpx codemod run pnpm-v10-to-v11` from the [Migrating from v10 to v11](/docs/migration) guide."}
+{"p":"settings/build","b":"settings/build#2794","k":"para","t":"The following settings have been removed in v11 and replaced by `allowBuilds`: `onlyBuiltDependencies`, `onlyBuiltDependenciesFile`, `neverBuiltDependencies`, `ignoredBuiltDependencies`, and `ignoreDepScripts`."}
+{"p":"settings/build","b":"settings/build#2795","k":"heading","t":"dangerouslyAllowAllBuilds"}
+{"p":"settings/build","b":"settings/build#2796","k":"para","t":"Added in: v10.9.0"}
+{"p":"settings/build","b":"settings/build#2797","k":"li","t":"Default: **false**"}
+{"p":"settings/build","b":"settings/build#2798","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/build","b":"settings/build#2799","k":"para","t":"If set to `true`, all build scripts (e.g. `preinstall`, `install`, `postinstall`) from dependencies will run automatically, without requiring approval."}
+{"p":"settings/build","b":"settings/build#2800","k":"para","t":"This setting allows all dependencies—including transitive ones—to run install scripts, both now and in the future. Even if your current dependency graph appears safe:"}
+{"p":"settings/build","b":"settings/build#2801","k":"li","t":"Future updates may introduce new, untrusted dependencies."}
+{"p":"settings/build","b":"settings/build#2802","k":"li","t":"Existing packages may add scripts in later versions."}
+{"p":"settings/build","b":"settings/build#2803","k":"li","t":"Packages can be hijacked or compromised and begin executing malicious code."}
+{"p":"settings/build","b":"settings/build#2804","k":"para","t":"For maximum safety, only enable this if you’re fully aware of the risks and trust the entire ecosystem you’re pulling from. It’s recommended to review and allow builds explicitly."}
+{"p":"settings/build","b":"settings/build@title","k":"title","t":"Build Settings"}
+{"p":"settings/cli","b":"settings/cli#2805","k":"heading","t":"CLI Settings"}
+{"p":"settings/cli","b":"settings/cli#2806","k":"heading","t":"[no-]color"}
+{"p":"settings/cli","b":"settings/cli#2807","k":"li","t":"Default: **auto**"}
+{"p":"settings/cli","b":"settings/cli#2808","k":"li","t":"Type: **auto**, **always**, **never**"}
+{"p":"settings/cli","b":"settings/cli#2809","k":"para","t":"Controls colors in the output."}
+{"p":"settings/cli","b":"settings/cli#2810","k":"li","t":"**auto** - output uses colors when the standard output is a terminal or TTY."}
+{"p":"settings/cli","b":"settings/cli#2811","k":"li","t":"**always** - ignore the difference between terminals and pipes. You’ll rarely want this; in most scenarios, if you want color codes in your redirected output, you can instead pass a `--color` flag to the pnpm command to force it to use color codes. The default setting is almost always what you’ll want."}
+{"p":"settings/cli","b":"settings/cli#2812","k":"li","t":"**never** - turns off colors. This is the setting used by `--no-color`."}
+{"p":"settings/cli","b":"settings/cli#2813","k":"heading","t":"loglevel"}
+{"p":"settings/cli","b":"settings/cli#2814","k":"li","t":"Default: **info**"}
+{"p":"settings/cli","b":"settings/cli#2815","k":"li","t":"Type: **debug**, **info**, **warn**, **error**"}
+{"p":"settings/cli","b":"settings/cli#2816","k":"para","t":"Any logs at or higher than the given level will be shown. You can instead pass `--silent` to turn off all output logs."}
+{"p":"settings/cli","b":"settings/cli#2817","k":"heading","t":"useBetaCli"}
+{"p":"settings/cli","b":"settings/cli#2818","k":"li","t":"Default: **false**"}
+{"p":"settings/cli","b":"settings/cli#2819","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/cli","b":"settings/cli#2820","k":"para","t":"Experimental option that enables beta features of the CLI. This means that you may get some changes to the CLI functionality that are breaking changes, or potentially bugs."}
+{"p":"settings/cli","b":"settings/cli#2821","k":"heading","t":"recursiveInstall"}
+{"p":"settings/cli","b":"settings/cli#2822","k":"li","t":"Default: **true**"}
+{"p":"settings/cli","b":"settings/cli#2823","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/cli","b":"settings/cli#2824","k":"para","t":"If this is enabled, the primary behaviour of `pnpm install` becomes that of `pnpm install -r`, meaning the install is performed on all workspace or subdirectory packages."}
+{"p":"settings/cli","b":"settings/cli#2825","k":"para","t":"Else, `pnpm install` will exclusively build the package in the current directory."}
+{"p":"settings/cli","b":"settings/cli#2826","k":"heading","t":"engineStrict"}
+{"p":"settings/cli","b":"settings/cli#2827","k":"li","t":"Default: **false**"}
+{"p":"settings/cli","b":"settings/cli#2828","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/cli","b":"settings/cli#2829","k":"para","t":"If this is enabled, pnpm will not install any package that claims to not be compatible with the current Node version."}
+{"p":"settings/cli","b":"settings/cli#2830","k":"para","t":"Regardless of this configuration, installation will always fail if a project (not a dependency) specifies an incompatible version in its `engines` field."}
+{"p":"settings/cli","b":"settings/cli#2831","k":"para","t":"Optional dependencies are exempt, because a package that pnpm may skip is not required to be compatible. Since v12.0.0 the exemption follows the edge rather than the subtree: an incompatible package reached through a regular `dependencies` edge of a package that is being installed fails the install, even when the subtree it sits in hangs off an `optionalDependencies` entry. pnpm 11 installs it and prints an install-check warning instead. A package reachable only through optional edges, or through a package that was itself skipped, is still skipped in both versions ([#13286](https://github.com/pnpm/pnpm/issues/13286))."}
+{"p":"settings/cli","b":"settings/cli#2832","k":"heading","t":"npmPath"}
+{"p":"settings/cli","b":"settings/cli#2833","k":"li","t":"Type: **path**"}
+{"p":"settings/cli","b":"settings/cli#2834","k":"para","t":"The location of the npm binary that pnpm uses for some actions, like publishing."}
+{"p":"settings/cli","b":"settings/cli#2835","k":"heading","t":"pmOnFail"}
+{"p":"settings/cli","b":"settings/cli#2836","k":"para","t":"Added in: v11.0.0"}
+{"p":"settings/cli","b":"settings/cli#2837","k":"li","t":"Default: **download**"}
+{"p":"settings/cli","b":"settings/cli#2838","k":"li","t":"Type: **download**, **error**, **warn**, **ignore**"}
+{"p":"settings/cli","b":"settings/cli#2839","k":"para","t":"Overrides the `onFail` behavior of both the `packageManager` field and `devEngines.packageManager` when the running pnpm version does not match the declared one."}
+{"p":"settings/cli","b":"settings/cli#2840","k":"li","t":"`download` — download and run the declared pnpm version (this is the default and matches the previous `managePackageManagerVersions: true` behavior)."}
+{"p":"settings/cli","b":"settings/cli#2841","k":"li","t":"`error` — fail the command (equivalent to the previous `packageManagerStrictVersion: true`)."}
+{"p":"settings/cli","b":"settings/cli#2842","k":"li","t":"`warn` — print a warning but continue (equivalent to the previous `packageManagerStrict: false` or `COREPACK_ENABLE_STRICT=0`)."}
+{"p":"settings/cli","b":"settings/cli#2843","k":"li","t":"`ignore` — skip the check entirely (equivalent to the previous `managePackageManagerVersions: false`). Useful when version management is handled by an external tool such as asdf, mise, or Volta."}
+{"p":"settings/cli","b":"settings/cli#2844","k":"para","t":"Can be set via CLI flag, environment variable, or `pnpm-workspace.yaml`:"}
+{"p":"settings/cli","b":"settings/cli#2845","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"settings/cli","b":"settings/cli#2846","k":"para","t":"This setting replaces the removed `managePackageManagerVersions`, `packageManagerStrict`, and `packageManagerStrictVersion` settings, as well as the `COREPACK_ENABLE_STRICT` environment variable."}
+{"p":"settings/cli","b":"settings/cli#2847","k":"para","t":"See also [pnpm with](/docs/cli/with) for running pnpm at a specific version without changing this setting."}
+{"p":"settings/cli","b":"settings/cli#2848","k":"heading","t":"ignoreWorkspaceRootCheck"}
+{"p":"settings/cli","b":"settings/cli#2849","k":"li","t":"Default: **false**"}
+{"p":"settings/cli","b":"settings/cli#2850","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/cli","b":"settings/cli#2851","k":"para","t":"If this is enabled, running `pnpm install`/`pnpm add` from the project's root folder will no longer error when `-w`/`--ignore-workspace-root-check` is not provided."}
+{"p":"settings/cli","b":"settings/cli#2852","k":"heading","t":"Node.js Settings"}
+{"p":"settings/cli","b":"settings/cli#2853","k":"heading","t":"nodeVersion"}
+{"p":"settings/cli","b":"settings/cli#2854","k":"li","t":"Default: the value returned by **node -v**, without the v prefix"}
+{"p":"settings/cli","b":"settings/cli#2855","k":"li","t":"Type: **exact semver version (not a range)**"}
+{"p":"settings/cli","b":"settings/cli#2856","k":"para","t":"The Node.js version to use when checking a package's `engines` setting."}
+{"p":"settings/cli","b":"settings/cli#2857","k":"para","t":"If you want to prevent contributors of your project from adding new incompatible dependencies, use `nodeVersion` and `engineStrict` in a `pnpm-workspace.yaml` file at the root of the project:"}
+{"p":"settings/cli","b":"settings/cli#2858","k":"para","t":"This way, even if someone is using Node.js v22, they will not be able to install a new dependency that doesn't support Node.js v12.22.0."}
+{"p":"settings/cli","b":"settings/cli#2859","k":"heading","t":"runtimeOnFail"}
+{"p":"settings/cli","b":"settings/cli#2860","k":"para","t":"Added in: v11.0.0"}
+{"p":"settings/cli","b":"settings/cli#2861","k":"li","t":"Default: **undefined**"}
+{"p":"settings/cli","b":"settings/cli#2862","k":"li","t":"Type: **download**, **error**, **warn**, **ignore**"}
+{"p":"settings/cli","b":"settings/cli#2863","k":"para","t":"Overrides the `onFail` field of [devEngines.runtime](/docs/package_json#devenginesruntime) (and `engines.runtime`) in the root project's `package.json`. This is useful when you want a different local behavior than what is written in the manifest — for instance, forcing pnpm to download the declared runtime even when the manifest sets `onFail: \"warn\"`:"}
+{"p":"settings/cli","b":"settings/cli#2864","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"settings/cli","b":"settings/cli#2865","k":"heading","t":"nodeDownloadMirrors"}
+{"p":"settings/cli","b":"settings/cli#2866","k":"para","t":"Added in: v11.0.0"}
+{"p":"settings/cli","b":"settings/cli#2867","k":"li","t":"Default: **undefined**"}
+{"p":"settings/cli","b":"settings/cli#2868","k":"li","t":"Type: **Record<string, string>**"}
+{"p":"settings/cli","b":"settings/cli#2869","k":"para","t":"Configure custom Node.js download mirrors in `pnpm-workspace.yaml`. The keys are release channels (`release`, `rc`, `nightly`, `v8-canary`, etc.) and the values are base URLs."}
+{"p":"settings/cli","b":"settings/cli#2870","k":"para","t":"Here is how pnpm may be configured to download Node.js from a mirror in China:"}
+{"p":"settings/cli","b":"settings/cli@title","k":"title","t":"CLI & Node.js Settings"}

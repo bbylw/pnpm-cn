@@ -1,0 +1,243 @@
+{"b":"settings/dependency-resolution#2871","z":"overrides"}
+{"b":"settings/dependency-resolution#2872","z":"该字段允许你指示 pnpm 覆盖依赖图中的任意依赖，包括对等依赖。它可用于强制所有包使用某个依赖的单一版本、回移植修复、用 fork 替换依赖，或移除未使用的依赖。"}
+{"b":"settings/dependency-resolution#2873","z":"注意，overrides 字段只能在项目根目录设置。"}
+{"b":"settings/dependency-resolution#2874","z":"`overrides` 字段的示例："}
+{"b":"settings/dependency-resolution#2875","z":"你可以通过用 \">\" 分隔包选择器和依赖选择器，来指定被覆盖依赖所属的包，例如 `qar@1>zoo` 只会覆盖 `qar@1` 的 `zoo` 依赖，而不影响其他任何依赖。"}
+{"b":"settings/dependency-resolution#2876","z":"要让被覆盖的版本与工作区中其他地方使用的版本保持同步，可在 [目录](/docs/catalogs) 中定义该版本，并通过 `catalog:` 协议引用它。这样版本只在一处维护，并同时被你的依赖和覆盖所引用："}
+{"b":"settings/dependency-resolution#2877","z":"pnpm-workspace.yaml"}
+{"b":"settings/dependency-resolution#2878","z":"你也可以用 `catalog:<name>` 引用命名 catalog。更多信息见 [目录](/docs/catalogs)。"}
+{"b":"settings/dependency-resolution#2879","z":"如果你发现自己对某个包的用法并不需要它的某个依赖，可以用 `-` 移除它。例如，若包 `foo@1.0.0` 为一个你用不到的函数依赖了一个名为 `bar` 的大包，移除它可以缩短安装时间："}
+{"b":"settings/dependency-resolution#2880","z":"该特性与 `optionalDependencies` 配合尤其有用，其中大多数可选包都可以安全跳过。"}
+{"b":"settings/dependency-resolution#2881","z":"收敛覆盖"}
+{"b":"settings/dependency-resolution#2882","z":"自 v11.13.0 起提供"}
+{"b":"settings/dependency-resolution#2883","z":"带 **空范围** 的选择器，即 `\"pkg@\"`，就是一个收敛覆盖。与无条件重写每条匹配边的常规覆盖不同，收敛覆盖只在某条依赖边的版本满足该边声明的范围时才重写它："}
+{"b":"settings/dependency-resolution#2884","z":"pnpm-workspace.yaml"}
+{"b":"settings/dependency-resolution#2885","z":"有了上述配置，声明 `form-data: \"^4.0.5\"` 的依赖会被固定到 `4.0.6`，而声明 `^3.0.0` 的依赖保留自己的解析结果。这让兼容的使用方收敛到单一版本，无论现在还是将来新增的依赖方，而不会把不兼容的版本强加给依赖图的其余部分。"}
+{"b":"settings/dependency-resolution#2886","z":"该值必须是 **精确版本**。范围、dist-tag 或 `-` 移除都会以 `ERR_PNPM_INVALID_CONVERGENCE_OVERRIDE` 报错失败。只要 catalog 条目解析为精确版本，就允许 `catalog:` 引用。"}
+{"b":"settings/dependency-resolution#2887","z":"只有纯 semver 边参与。用 `workspace:`、`catalog:`、`npm:`、dist-tag 或 git/URL 说明符声明的边没有有意义的 \"satisfies\"（满足）关系，会保持原样不受影响。"}
+{"b":"settings/dependency-resolution#2888","z":"收敛覆盖不能与父选择器组合使用：`\"parent>pkg@\"` 会被拒绝。"}
+{"b":"settings/dependency-resolution#2889","z":"对于同一条边，常规覆盖始终优先于收敛覆盖。"}
+{"b":"settings/dependency-resolution#2890","z":"当完整解析发现每个声明的范围也允许某个更新的版本时，pnpm 会警告该覆盖已过期，并指出应改为收敛到的版本。"}
+{"b":"settings/dependency-resolution#2891","z":"在 v11.13.0 之前，覆盖选择器中的空范围没有文档说明，其行为类似于裸（无父选择器）覆盖。"}
+{"b":"settings/dependency-resolution#2892","z":"覆盖对等依赖"}
+{"b":"settings/dependency-resolution#2893","z":"覆盖同样适用于 `peerDependencies`。其行为取决于覆盖中使用的版本说明符类型："}
+{"b":"settings/dependency-resolution#2894","z":"**Semver 范围**（如 `^1.0.0`）、**workspace** 和 **catalog** 协议：对等依赖被覆盖，并保持为对等依赖。"}
+{"b":"settings/dependency-resolution#2895","z":"**非范围说明符**（如 `link:` 或 `file:` 协议）：对等依赖被覆盖并移入 `dependencies`，因为这些不是有效的对等依赖范围。"}
+{"b":"settings/dependency-resolution#2896","z":"**移除**（`-`）：该对等依赖被完全移除。"}
+{"b":"settings/dependency-resolution#2897","z":"例如，要覆盖 `react-dom` 的 `react` 对等依赖："}
+{"b":"settings/dependency-resolution#2898","z":"pnpm-workspace.yaml"}
+{"b":"settings/dependency-resolution#2899","z":"packageExtensions"}
+{"b":"settings/dependency-resolution#2900","z":"`packageExtensions` 字段提供了一种在现有包定义中补充额外信息的方式。例如，如果 `react-redux` 本应在其 `peerDependencies` 中包含 `react-dom` 但没有，就可以用 `packageExtensions` 为 `react-redux` 打补丁："}
+{"b":"settings/dependency-resolution#2901","z":"`packageExtensions` 中的键是包名，或包名加 semver 范围，因此可以只为某个包的部分版本打补丁："}
+{"b":"settings/dependency-resolution#2902","z":"以下字段可以用 `packageExtensions` 扩展：`dependencies`、`optionalDependencies`、`peerDependencies` 和 `peerDependenciesMeta`。"}
+{"b":"settings/dependency-resolution#2903","z":"一个更完整的示例："}
+{"b":"settings/dependency-resolution#2904","z":"我们与 Yarn 共同维护一个 `packageExtensions` 数据库，用于为生态中损坏的包打补丁。如果你使用了 `packageExtensions`，考虑向上游提交 PR，并将你的扩展贡献给 [@yarnpkg/extensions](https://github.com/yarnpkg/berry/blob/master/packages/yarnpkg-extensions/sources/index.ts) 数据库。"}
+{"b":"settings/dependency-resolution#2905","z":"allowedDeprecatedVersions"}
+{"b":"settings/dependency-resolution#2906","z":"此设置允许屏蔽特定包的废弃警告。"}
+{"b":"settings/dependency-resolution#2907","z":"有了上述配置，pnpm 不会再打印关于 `request` 任何版本以及 `express` v1 的废弃警告。"}
+{"b":"settings/dependency-resolution#2908","z":"update"}
+{"b":"settings/dependency-resolution#2909","z":"自 v11.16.0 起提供"}
+{"b":"settings/dependency-resolution#2910","z":"本节设置用于调整 [pnpm update](/docs/cli/update) 和 [pnpm outdated](/docs/cli/outdated) 命令。"}
+{"b":"settings/dependency-resolution#2911","z":"update.ignoreDeps"}
+{"b":"settings/dependency-resolution#2912","z":"有时你无法更新某个依赖。例如，该依赖的最新版本开始使用 ESM，但你的项目还不是 ESM。令人烦恼的是，运行 `pnpm update --latest` 时，`pnpm outdated` 命令总会打印出这样的包并将其更新。不过，你可以在 `ignoreDeps` 字段中列出你不想升级的包："}
+{"b":"settings/dependency-resolution#2913","z":"也支持模式匹配，因此你可以忽略某个作用域下的任意包：`@babel/*`。"}
+{"b":"settings/dependency-resolution#2914","z":"update.changeset"}
+{"b":"settings/dependency-resolution#2915","z":"自 v11.16.0 起提供"}
+{"b":"settings/dependency-resolution#2916","z":"默认值：**false**"}
+{"b":"settings/dependency-resolution#2917","z":"类型：**布尔值**"}
+{"b":"settings/dependency-resolution#2918","z":"当设为 `true` 时，`pnpm update` 会在更新工作区清单后写入一条 [变更意图](/docs/versioning)：为每个因更新而改变了 `dependencies` 或 `optionalDependencies` 的工作区包声明一次 `patch` 提升，并在其 `peerDependencies` 改变时声明一次 `major` 提升。等同于传入 [--changeset](/docs/cli/update#--changeset)；传入 `--no-changeset` 可在单次运行中覆盖该设置。"}
+{"b":"settings/dependency-resolution#2919","z":"update.githubActions"}
+{"b":"settings/dependency-resolution#2920","z":"自 v11.16.0 起提供"}
+{"b":"settings/dependency-resolution#2921","z":"默认值：**false**"}
+{"b":"settings/dependency-resolution#2922","z":"类型：**布尔值**"}
+{"b":"settings/dependency-resolution#2923","z":"当设为 `true` 时，`pnpm update` 和 `pnpm outdated` 还会检查仓库工作流文件所引用的 GitHub Actions。等同于传入 [--include-github-actions](/docs/cli/update#--include-github-actions)。参见 [更新 GitHub Actions](/docs/cli/update#updating-github-actions)。"}
+{"b":"settings/dependency-resolution#2924","z":"update.githubActionsServer"}
+{"b":"settings/dependency-resolution#2925","z":"自 v11.17.0 起提供"}
+{"b":"settings/dependency-resolution#2926","z":"默认值：`GITHUB_SERVER_URL` 环境变量，回退到 **https://github.com**"}
+{"b":"settings/dependency-resolution#2927","z":"类型：**URL**"}
+{"b":"settings/dependency-resolution#2928","z":"承载工作流文件所引用 GitHub Actions 仓库的 GitHub 服务器的基础 URL（例如某个 GitHub Enterprise Server）。该 URL 必须使用 `https://` 或 `http://` 协议。只有在可信网络上的可信服务器才使用 `http://`：用于将 action 固定到提交哈希的 ref 会通过该 URL 拉取，未加密的流量可能被篡改。"}
+{"b":"settings/dependency-resolution#2929","z":"在 v11.16.0 之前，`update.ignoreDeps` 名为 `updateConfig.ignoreDependencies`。已废弃的 `updateConfig` 设置在下一个 major 版本之前仍可使用；当两者都设置时，`update` 段优先，并会打印一条警告。"}
+{"b":"settings/dependency-resolution#2930","z":"supportedArchitectures"}
+{"b":"settings/dependency-resolution#2931","z":"你可以指定要为其安装可选依赖的架构，即使它们与运行安装的系统架构不匹配。"}
+{"b":"settings/dependency-resolution#2932","z":"例如，以下配置会指示为 Windows x64 安装可选依赖："}
+{"b":"settings/dependency-resolution#2933","z":"而此配置会为 Windows、macOS 以及当前运行安装的系统架构安装可选依赖。它同时包含 x64 和 arm64 CPU 的产物："}
+{"b":"settings/dependency-resolution#2934","z":"此外，`supportedArchitectures` 还支持指定系统的 `libc`。"}
+{"b":"settings/dependency-resolution#2935","z":"ignoredOptionalDependencies"}
+{"b":"settings/dependency-resolution#2936","z":"如果某个可选依赖的名称包含在此数组中，它将被跳过。例如："}
+{"b":"settings/dependency-resolution#2937","z":"minimumReleaseAge"}
+{"b":"settings/dependency-resolution#2938","z":"自 v10.16.0 起提供"}
+{"b":"settings/dependency-resolution#2939","z":"默认值：**1440**（自 v11 起），**0**（v11 之前）"}
+{"b":"settings/dependency-resolution#2940","z":"类型：**数字（分钟）**"}
+{"b":"settings/dependency-resolution#2941","z":"为降低安装被攻陷包的风险，你可以推迟对新发布版本的安装。在大多数情况下，恶意发布会在一个小时之内被发现并从 registry 中移除。"}
+{"b":"settings/dependency-resolution#2942","z":"`minimumReleaseAge` 定义了版本发布后、pnpm 才会安装它所需经过的最少分钟数。它适用于 **所有依赖**，包括传递依赖。"}
+{"b":"settings/dependency-resolution#2943","z":"例如，以下设置确保只能安装至少一天前发布的包："}
+{"b":"settings/dependency-resolution#2944","z":"minimumReleaseAgeExclude"}
+{"b":"settings/dependency-resolution#2945","z":"自 v10.16.0 起提供"}
+{"b":"settings/dependency-resolution#2946","z":"默认值：**undefined**"}
+{"b":"settings/dependency-resolution#2947","z":"类型：**string[]**"}
+{"b":"settings/dependency-resolution#2948","z":"如果你设置了 `minimumReleaseAge`，但某些依赖需要始终立即安装最新版本，可以把它们列在 `minimumReleaseAgeExclude` 下。该排除按 **包名** 生效，并适用于该包的所有版本。"}
+{"b":"settings/dependency-resolution#2949","z":"在这种情况下，所有依赖都必须至少已有一天历史，`webpack` 和 `react` 除外，它们一旦发布就立即安装。"}
+{"b":"settings/dependency-resolution#2950","z":"自 v10.17.0 起提供"}
+{"b":"settings/dependency-resolution#2951","z":"你也可以使用模式匹配。例如，允许你所在组织的全部包："}
+{"b":"settings/dependency-resolution#2952","z":"自 v10.19.0 起提供"}
+{"b":"settings/dependency-resolution#2953","z":"你也可以豁免特定版本（或用 `||` 析联合并的版本列表）。这允许把例外固定到成熟期规则上："}
+{"b":"settings/dependency-resolution#2954","z":"minimumReleaseAgeExcludePrune"}
+{"b":"settings/dependency-resolution#2955","z":"自 v11.22.0 起提供"}
+{"b":"settings/dependency-resolution#2956","z":"默认值：**false**"}
+{"b":"settings/dependency-resolution#2957","z":"类型：**布尔值**"}
+{"b":"settings/dependency-resolution#2958","z":"当设为 `true` 时，`pnpm add`、`pnpm update` 和 `pnpm remove` 会清理 `pnpm-workspace.yaml` 中 [minimumReleaseAgeExclude](#minimumreleaseageexclude) 里新写入锁文件不再解析的条目：已消失的版本会被丢弃（当某条目没有任何版本剩余时该条目被移除），锁文件中已不存在的包对应的条目也会被移除。名称模式（`@myorg/*`）始终保留。"}
+{"b":"settings/dependency-resolution#2959","z":"当本次安装的锁文件未覆盖整个工作区（[sharedWorkspaceLockfile: false](/docs/workspaces#sharedworkspacelockfile)）时，会跳过此清理，因为另一个项目仍需要的条目会被误判为过期。"}
+{"b":"settings/dependency-resolution#2960","z":"minimumReleaseAgeIgnoreMissingTime"}
+{"b":"settings/dependency-resolution#2961","z":"自 v11.0.0 起提供"}
+{"b":"settings/dependency-resolution#2962","z":"默认值：**true**"}
+{"b":"settings/dependency-resolution#2963","z":"类型：**布尔值**"}
+{"b":"settings/dependency-resolution#2964","z":"当设为 `true` 时，对于 registry 元数据不含 `time` 字段的包（某些私有 registry 和镜像会省略该字段），pnpm 会跳过 [minimumReleaseAge](#minimumreleaseage) 检查。设为 `false` 时，在这种情况下改为让解析失败，而不是安装该包。"}
+{"b":"settings/dependency-resolution#2965","z":"自 v11.23.0 起，此设置还管理 [trustPolicy](#trustpolicy)，后者读取相同的发布日期：`trustPolicy: no-downgrade` 会跳过 registry 无法确定日期的包并给出警告，而不是以 `ERR_PNPM_MISSING_TIME` 使安装失败。"}
+{"b":"settings/dependency-resolution#2966","z":"此开关针对的是无法给自身发布定日期的 registry，而不是 registry 声称从未发布过的包：在 [锁文件校验](/docs/supply-chain-security) 期间，若某个会为自己列出的每个版本都标注日期的 packument 中缺失某锁文件条目，则仍是硬性失败。"}
+{"b":"settings/dependency-resolution#2967","z":"minimumReleaseAgeStrict"}
+{"b":"settings/dependency-resolution#2968","z":"自 v11.0.0 起提供"}
+{"b":"settings/dependency-resolution#2969","z":"默认值：若显式配置了 [minimumReleaseAge](#minimumreleaseage) 则为 **true**，否则为 **false**"}
+{"b":"settings/dependency-resolution#2970","z":"类型：**布尔值**"}
+{"b":"settings/dependency-resolution#2971","z":"控制当所请求范围内没有任何依赖版本满足 [minimumReleaseAge](#minimumreleaseage) 约束时 pnpm 的行为。当设为 `false` 时，pnpm 回退到一个不满足 `minimumReleaseAge` 约束的版本，使安装仍能成功。当设为 `true` 时，pnpm 改为让解析失败。"}
+{"b":"settings/dependency-resolution#2972","z":"默认值取决于你是否自行配置了 `minimumReleaseAge`：如果你显式设置了它（通过 `pnpm-workspace.yaml`、CLI 或环境变量），严格模式默认开启，因此该设置会被强制执行。`minimumReleaseAge` 的内置默认值（1440 分钟）为向后兼容采用非严格模式。"}
+{"b":"settings/dependency-resolution#2973","z":"trustPolicy"}
+{"b":"settings/dependency-resolution#2974","z":"自 v10.21.0 起提供"}
+{"b":"settings/dependency-resolution#2975","z":"默认值：**off**"}
+{"b":"settings/dependency-resolution#2976","z":"类型：**no-downgrade** | **off**"}
+{"b":"settings/dependency-resolution#2977","z":"当设为 `no-downgrade` 时，如果某个包的信任级别相比其先前发布的版本有所下降，pnpm 会失败。例如，若某个包此前由受信任的发布者发布，而现在只有来源证明（provenance）或没有任何信任证据，安装将会失败。这有助于防止安装可能被攻陷的版本。信任检查仅基于发布日期，而非 semver。如果任何更早发布的版本拥有更强的信任证据，该包就无法安装。自 v10.24.0 起，在为非预发布版本安装评估信任证据时会忽略预发布版本，因此受信任的预发布版本不会阻止缺乏信任证据的稳定版本。"}
+{"b":"settings/dependency-resolution#2978","z":"trustPolicyExclude"}
+{"b":"settings/dependency-resolution#2979","z":"自 v10.22.0 起提供"}
+{"b":"settings/dependency-resolution#2980","z":"类型：**string[]**"}
+{"b":"settings/dependency-resolution#2981","z":"应从信任策略检查中排除的包选择器列表。这让你可以安装特定的包或版本，即使它们不满足 `trustPolicy` 要求。"}
+{"b":"settings/dependency-resolution#2982","z":"例如："}
+{"b":"settings/dependency-resolution#2983","z":"trustPolicyIgnoreAfter"}
+{"b":"settings/dependency-resolution#2984","z":"自 v10.27.0 起提供"}
+{"b":"settings/dependency-resolution#2985","z":"默认值：**undefined**"}
+{"b":"settings/dependency-resolution#2986","z":"类型：**数字（分钟）**"}
+{"b":"settings/dependency-resolution#2987","z":"允许对发布已超过指定分钟数的包忽略信任策略检查。这在启用严格信任策略时很有用，因为它允许安装较旧的包版本（这些版本可能没有用签名或来源证明发布的流程），而无需手动排除，前提是它们因年代久远而被认为是安全的。"}
+{"b":"settings/dependency-resolution#2988","z":"trustLockfile"}
+{"b":"settings/dependency-resolution#2989","z":"自 v11.3.0 起提供"}
+{"b":"settings/dependency-resolution#2990","z":"默认值：**false**"}
+{"b":"settings/dependency-resolution#2991","z":"类型：**布尔值**"}
+{"b":"settings/dependency-resolution#2992","z":"当设为 `true` 时，`pnpm install` 会跳过供应链校验步骤，该步骤本会对已加载锁文件中的每个条目重新应用 [minimumReleaseAge](#minimumreleaseage) 和 [trustPolicy](#trustpolicy)。此安装将锁文件视为已被信任。"}
+{"b":"settings/dependency-resolution#2993","z":"在锁文件实际上属于可信基础的场景中很有用，例如每个提交都来自受信任作者的闭源项目。被投毒的锁文件（贡献者在比 CI 所强制策略更弱的策略下编写的锁文件）可能蒙混过关，因此只要外部协作者可以编辑锁文件，就应保持此值为 `false`。"}
+{"b":"settings/dependency-resolution#2994","z":"在大型工作区中，校验步骤会在整个安装期间把各包的 registry 元数据保存在内存里；禁用它可减少内存占用，但代价是失去供应链检查。大多数使用默认 `frozenLockfile` CI 工作流的项目无需设置此项。"}
+{"b":"settings/dependency-resolution#2995","z":"blockExoticSubdeps"}
+{"b":"settings/dependency-resolution#2996","z":"自 v10.26.0 起提供"}
+{"b":"settings/dependency-resolution#2997","z":"默认值：**true**"}
+{"b":"settings/dependency-resolution#2998","z":"类型：**布尔值**"}
+{"b":"settings/dependency-resolution#2999","z":"当设为 `true` 时，只有直接依赖（列在你根 `package.json` 中的依赖）才能使用特殊来源（如 git 仓库或直接的 tarball URL）。所有传递依赖必须从可信来源解析，例如配置的 registry、本地文件路径、工作区链接，或受信任的 GitHub 仓库（node、bun、deno）。"}
+{"b":"settings/dependency-resolution#3000","z":"此设置通过阻止传递依赖从不受信任的位置拉取代码，帮助加固依赖供应链安全。"}
+{"b":"settings/dependency-resolution#3001","z":"特殊来源包括："}
+{"b":"settings/dependency-resolution#3002","z":"Git 仓库（`git+ssh://...`）"}
+{"b":"settings/dependency-resolution#3003","z":"指向 tarball 的直接 URL 链接（`https://.../package.tgz`）"}
+{"b":"settings/dependency-resolution#3004","z":"registries"}
+{"b":"settings/dependency-resolution#3005","z":"自 v11.0.0 起提供"}
+{"b":"settings/dependency-resolution#3006","z":"默认值：**undefined**"}
+{"b":"settings/dependency-resolution#3007","z":"类型：**Record<string, RegistryDeclaration>** 或 **Record<string, string>**"}
+{"b":"settings/dependency-resolution#3008","z":"声明项目从中安装包的 registry。自 v11.23.0 起，每个 registry 只声明一次，以其 URL 为键，pnpm 所知道的关于它的一切都在该条目中：路由到它的 `scopes`、它响应裸说明符的 `prefix`，以及服务器如何排布 tarball URL（`serverType`、`supportsTimeField`）。每个字段的完整说明在专门的 [registry](/docs/registries) 页面上。"}
+{"b":"settings/dependency-resolution#3009","z":"旧的形态（将 scope 映射到 URL）仍被接受。`default` 键设置主 registry（等同于 `registry` 的 `.npmrc` 设置），而带作用域的键为特定的包 scope 配置 registry："}
+{"b":"settings/dependency-resolution#3010","z":"两种形态不能混在同一个映射中。"}
+{"b":"settings/dependency-resolution#3011","z":"自 v11.11.0 起，此设置也可以在 [全局配置文件](/docs/cli/config)（`config.yaml`）中定义，这对那些应应用于机器上每个项目而非单个仓库的 registry 很有用。其中只读取路由（`scopes` 和 `prefix`）；`serverType` 和 `supportsTimeField` 会塑造锁文件，因此只从 `pnpm-workspace.yaml` 读取。参见 [该设置可放置的位置](/docs/registries#where-the-setting-may-live)。"}
+{"b":"settings/dependency-resolution#3012","z":"namedRegistries"}
+{"b":"settings/dependency-resolution#3013","z":"自 v11.1.0 起提供"}
+{"b":"settings/dependency-resolution#3014","z":"默认值：**undefined**"}
+{"b":"settings/dependency-resolution#3015","z":"类型：**Record<string, string>**"}
+{"b":"settings/dependency-resolution#3016","z":"自 v11.23.0 起废弃：改为在 [registries](#registries) 中声明 `prefix`，参见 [registry](/docs/registries) 页面。`namedRegistries` 仍会被读取，但仅针对 `registries` 未声明的前缀；当两个设置都声明前缀时，pnpm 会警告。下文关于别名的一切，包括内置别名、保留名称和锁文件键，同样适用于通过 `prefix` 声明的别名。"}
+{"b":"settings/dependency-resolution#3017","z":"定义命名 registry 别名，可在安装包时用作前缀，风格参照 [vlt 的命名 registry 别名](https://docs.vlt.sh/cli/registries)。例如，使用以下配置："}
+{"b":"settings/dependency-resolution#3018","z":"pnpm-workspace.yaml"}
+{"b":"settings/dependency-resolution#3019","z":"`pnpm add work:@corp/lib@^2.0.0` 会将 `@corp/lib@^2.0.0` 相对于 `https://npm.work.example.com/` 解析。"}
+{"b":"settings/dependency-resolution#3020","z":"认证信息会从现有的按 URL 划分的 `.npmrc` 条目中获取（例如 `//npm.pkg.github.com/:_authToken=...`），因此无需单独的认证机制。"}
+{"b":"settings/dependency-resolution#3021","z":"自 v11.11.0 起，此设置也可以在 [全局配置文件](/docs/cli/config)（`config.yaml`）中定义，因此像 `work:` 这样的别名可以在机器上的每个项目之间共享。"}
+{"b":"settings/dependency-resolution#3022","z":"内置别名"}
+{"b":"settings/dependency-resolution#3023","z":"有两个别名无需任何配置即可使用："}
+{"b":"settings/dependency-resolution#3024","z":"你在 `namedRegistries` 下定义的条目会合并到这些之上，因此两者都可以被覆盖：GitHub Enterprise Server 用户可以让 `gh` 指向自己的主机，而对 npmjs 做镜像或代理的组织应让 `npmjs` 指向镜像："}
+{"b":"settings/dependency-resolution#3025","z":"pnpm-workspace.yaml"}
+{"b":"settings/dependency-resolution#3026","z":"即使默认 [registry](#registries) 指向别处（例如内部代理），`npmjs:` 也能把某个依赖固定到公共 registry："}
+{"b":"settings/dependency-resolution#3027","z":"package.json"}
+{"b":"settings/dependency-resolution#3028","z":"`npm:` 前缀做不到这一点：它是 [别名协议](/docs/aliases)（`npm:<name>@<range>`），通过 `registry` 所指向的地址解析。"}
+{"b":"settings/dependency-resolution#3029","z":"内置 URL 也是 pnpm 校验某个包时用来匹配锁文件中所记录 tarball URL 的前缀。如果你代理了 npmjs 且未覆盖该别名，那么 tarball URL 位于 `registry.npmjs.org` 的条目会针对公共 registry 而非你的镜像进行校验。这只影响记录了此类 URL 的锁文件（你所配置 registry 的规范 URL 会从锁文件中省略），且仅在运行 tarball URL、[minimumReleaseAge](#minimumreleaseage) 或 [trustPolicy](#trustpolicy) 检查时才会如此。"}
+{"b":"settings/dependency-resolution#3030","z":"保留别名名称"}
+{"b":"settings/dependency-resolution#3031","z":"自 v11.20.0 起，遮蔽了保留依赖说明符前缀（`file`、`link`、`workspace`、`runtime`、`npm`、`jsr`、`git`、`github`、`gitlab`、`bitbucket`、`catalog`、`custom`、`http`、`https`、`ssh`）的别名会被拒绝并报 `ERR_PNPM_RESERVED_NAMED_REGISTRY_NAME`。此前，此类别名会被相应的解析器静默遮蔽。别名还必须以字母开头，且只包含字母、数字、`.`、`_` 和 `-`。"}
+{"b":"settings/dependency-resolution#3032","z":"锁文件中的命名 registry"}
+{"b":"settings/dependency-resolution#3033","z":"自 v11.20.0 起，从命名 registry 解析的包会以带 registry 限定的键 `<name>@<registryName>:<version>` 记录在 `pnpm-lock.yaml` 中："}
+{"b":"settings/dependency-resolution#3034","z":"pnpm-lock.yaml"}
+{"b":"settings/dependency-resolution#3035","z":"在 v11.20.0 之前，包仅以 `name@version` 为键，因此由两个 registry 提供的同名同版本会合并到单个条目，且谁先解析就决定了每个使用方拿到的 tarball。这是一种包替换风险：你期望从私有 registry 获得的包，可能改由另一个发布了相同名称和版本的 registry 安装，而锁文件中没有任何迹象能揭示这一点。带 registry 限定的键让每个 registry 拥有自己的条目，并固定某个依赖来自哪一个。"}
+{"b":"settings/dependency-resolution#3036","z":"锁文件格式版本保持不变，且限定键只出现在从命名 registry 解析的包上，包括内置的 `gh:` 和 `npmjs:` 别名，它们无需 `namedRegistries` 条目。完全不用别名安装的项目看不出任何差异，较旧的 pnpm 版本也能继续读取该文件。"}
+{"b":"settings/dependency-resolution#3037","z":"如果有依赖通过别名安装，那么你在 v11.20.0 或更新版本上首次进行的非冻结安装会重新键化这些条目，表现为一次锁文件差异。请提交它，该差异正是所应用的修复。同时也应审查它：某个条目移动到你未曾预期的 registry 值得追查。"}
+{"b":"settings/dependency-resolution#3038","z":"让项目中的所有成员先迁移到 v11.20.0 或更新版本。较旧的 pnpm 能正常读取重新键化后的锁文件，冻结安装也不受影响，但它自己不会生成带 registry 限定的键：任何更新锁文件的安装都会把这些条目写回旧形态，而下一次在当前 pnpm 上的安装又会重新为它们加限定。于是锁文件来回翻转，而只要它处于旧形态，项目就又暴露在风险中。由于锁文件格式版本被有意保持不变，pnpm 无法检测到此情况并向你发出警告。"}
+{"b":"settings/dependency-resolution#3039","z":"没有保留旧行为的设置，旧形态本身就是漏洞。"}
+{"b":"settings/dependency-resolution#3040","z":"锁文件引用的每个非内置别名都必须保持声明状态，要么通过 [registries](#registries) 中的 `prefix`，要么通过 `namedRegistries`。读取一个别名已消失的条目会以 `ERR_PNPM_MISSING_NAMED_REGISTRY` 失败，而不是回退到默认 registry，因为那会拉取到一个不同的包。重命名别名会重新解析那些使用了它的包。"}
+{"b":"settings/dependency-resolution#3041","z":"对于命名 registry 的包，遵循标准 registry 布局的 tarball URL 不再写入锁文件；它们会按需根据别名声明的 URL 重新计算。"}
+{"b":"settings/dependency-resolution@title","z":"依赖解析设置"}
+{"b":"settings/network#3042","z":"网络设置"}
+{"b":"settings/network#3043","z":"httpsProxy"}
+{"b":"settings/network#3044","z":"默认值：**null**"}
+{"b":"settings/network#3045","z":"类型：**url**"}
+{"b":"settings/network#3046","z":"用于传出 HTTPS 请求的代理。如果设置了 `HTTPS_PROXY`、`https_proxy`、`HTTP_PROXY` 或 `http_proxy` 环境变量，则将改用它们的值。"}
+{"b":"settings/network#3047","z":"如果你的代理 URL 包含用户名和密码，请确保对其进行 URL 编码。例如："}
+{"b":"settings/network#3048","z":"不要对用户名和密码之间的冒号（`:`）进行编码。"}
+{"b":"settings/network#3049","z":"自 v11.20.0 起，空值会被视为未设置，而不是以 `ERR_PNPM_INVALID_PROXY` 使安装失败，因此导出 `HTTPS_PROXY=` 的 shell 只是简单地禁用了代理。在 `pnpm-workspace.yaml` 或 `.npmrc` 中把值设为 `false` 或 `null` 也会关闭代理。在命令行上，`false` 和 `null` 是普通主机名，因为标志会原样携带其值。"}
+{"b":"settings/network#3050","z":"httpProxy"}
+{"b":"settings/network#3051","z":"默认值：**null**"}
+{"b":"settings/network#3052","z":"类型：**url**"}
+{"b":"settings/network#3053","z":"用于传出 HTTP 请求的代理。如果设置了 `HTTP_PROXY` 或 `http_proxy` 环境变量，底层请求库会遵循这些代理设置。"}
+{"b":"settings/network#3054","z":"空值、`false` 和 `null` 的行为如 [httpsProxy](#httpsproxy) 所述。"}
+{"b":"settings/network#3055","z":"`.npmrc` 还支持 npm 的旧版 `proxy` 设置，它作为 `https-proxy` 和 `http-proxy` 的后备。自 v11.20.0 起，空的 `proxy=` 会被视为未设置，因此不再屏蔽 `HTTPS_PROXY` 环境变量；而 `proxy=false`（或在 `pnpm-workspace.yaml` 中写 `proxy: false`）会关闭代理，而不是被读成一个名为 `false` 的代理主机（`[#13533](https://github.com/pnpm/pnpm/issues/13533)`）。"}
+{"b":"settings/network#3056","z":"noProxy"}
+{"b":"settings/network#3057","z":"默认值：**null**"}
+{"b":"settings/network#3058","z":"类型：**字符串**"}
+{"b":"settings/network#3059","z":"一个以逗号分隔的字符串，列出不应使用代理的域名后缀。"}
+{"b":"settings/network#3060","z":"空值、`false` 和 `null` 的行为如 [httpsProxy](#httpsproxy) 所述。"}
+{"b":"settings/network#3061","z":"localAddress"}
+{"b":"settings/network#3062","z":"默认值：**undefined**"}
+{"b":"settings/network#3063","z":"类型：**IP 地址**"}
+{"b":"settings/network#3064","z":"连接 npm registry 时所使用的本地接口的 IP 地址。"}
+{"b":"settings/network#3065","z":"maxsockets"}
+{"b":"settings/network#3066","z":"默认值：**networkConcurrency x 3**"}
+{"b":"settings/network#3067","z":"类型：**数字**"}
+{"b":"settings/network#3068","z":"每个源（协议/主机/端口组合）所使用的最大连接数。"}
+{"b":"settings/network#3069","z":"`maxSockets` 可作为别名接受。两种拼写都会从 `pnpm-workspace.yaml`、全局配置文件、环境和命令行读取，且优先级依次递增，因此即使在两边对该设置的拼写不同时，命令行上传入的值也会胜出。"}
+{"b":"settings/network#3070","z":"strictSsl"}
+{"b":"settings/network#3071","z":"默认值：**true**"}
+{"b":"settings/network#3072","z":"类型：**布尔值**"}
+{"b":"settings/network#3073","z":"通过 HTTPS 向 registry 发出请求时是否执行 SSL 密钥验证。"}
+{"b":"settings/network#3074","z":"请求设置"}
+{"b":"settings/network#3075","z":"gitShallowHosts"}
+{"b":"settings/network#3076","z":"默认值：**['github.com', 'gist.github.com', 'gitlab.com', 'bitbucket.com', 'bitbucket.org']**"}
+{"b":"settings/network#3077","z":"类型：**string[]**"}
+{"b":"settings/network#3078","z":"拉取作为 Git 仓库的依赖时，如果主机列在此设置中，pnpm 会使用浅克隆，只拉取所需的提交而非全部历史。"}
+{"b":"settings/network#3079","z":"networkConcurrency"}
+{"b":"settings/network#3080","z":"默认值：**auto (workers × 3 clamped to 16-64)**"}
+{"b":"settings/network#3081","z":"类型：**数字**"}
+{"b":"settings/network#3082","z":"控制并发处理的 HTTP(S) 请求最大数量。"}
+{"b":"settings/network#3083","z":"自 v10.24.0 起，pnpm 会根据 worker 数量自动选择 16 到 64 之间的一个值（networkConcurrency = clamp(workers × 3, 16, 64)）。显式设置此值可覆盖自动缩放。"}
+{"b":"settings/network#3084","z":"fetchRetries"}
+{"b":"settings/network#3085","z":"类型：**数字**"}
+{"b":"settings/network#3086","z":"当 pnpm 无法从 registry 拉取时重试的次数。"}
+{"b":"settings/network#3087","z":"fetchRetryFactor"}
+{"b":"settings/network#3088","z":"类型：**数字**"}
+{"b":"settings/network#3089","z":"重试退避的指数因子。"}
+{"b":"settings/network#3090","z":"fetchRetryMintimeout"}
+{"b":"settings/network#3091","z":"默认值：**10000（10 秒）**"}
+{"b":"settings/network#3092","z":"类型：**数字**"}
+{"b":"settings/network#3093","z":"重试指数退避的下界（以毫秒计）。"}
+{"b":"settings/network#3094","z":"fetchRetryMaxtimeout"}
+{"b":"settings/network#3095","z":"默认值：**60000（1 分钟）**"}
+{"b":"settings/network#3096","z":"类型：**数字**"}
+{"b":"settings/network#3097","z":"重试指数退避的上界（以毫秒计）。"}
+{"b":"settings/network#3098","z":"fetchTimeout"}
+{"b":"settings/network#3099","z":"默认值：**60000（1 分钟）**"}
+{"b":"settings/network#3100","z":"类型：**数字**"}
+{"b":"settings/network#3101","z":"HTTP 请求连接并完成所等待的最长时间。这段时间应足以在合理连接下下载最大的包。"}
+{"b":"settings/network#3102","z":"fetchWarnTimeoutMs"}
+{"b":"settings/network#3103","z":"自 v10.18.0 起提供"}
+{"b":"settings/network#3104","z":"默认值：**10000 ms（10 秒）**"}
+{"b":"settings/network#3105","z":"类型：**数字**"}
+{"b":"settings/network#3106","z":"如果向 registry 请求元数据所用的时间超过指定的阈值（以毫秒计），则显示一条警告消息。"}
+{"b":"settings/network#3107","z":"fetchMinSpeedKiBps"}
+{"b":"settings/network#3108","z":"自 v10.18.0 起提供"}
+{"b":"settings/network#3109","z":"默认值：**50 KiB/s**"}
+{"b":"settings/network#3110","z":"类型：**数字**"}
+{"b":"settings/network#3111","z":"如果从 registry 下载 tarball 的速度低于指定的阈值（以 KiB/s 计），则显示一条警告消息。"}
+{"b":"settings/network@title","z":"网络与请求设置"}

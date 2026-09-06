@@ -1,0 +1,377 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import StoreMachine from "../components/StoreMachine.astro";
+import { FEATURES, STAGES, COMPARE_ROWS, SPONSORS, COMMUNITY } from "../data/site";
+
+
+
+import CompareCell from "../components/CompareCell.astro";
+---
+
+<Base
+  title="pnpm｜快速、节省磁盘空间的包管理器"
+  desc="pnpm 是快速、节省磁盘空间且严格正确的包管理器：内容寻址存储 + 硬链接，比 npm 快达 2 倍。中文文档、基准与配置参考。"
+  jsonLd={{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "pnpm 中文文档",
+    alternateName: "pnpm",
+    url: new URL("/", Astro.site).href,
+    inLanguage: "zh-CN",
+    description: "pnpm 中文文档站：快速、节省磁盘空间的包管理器。内容寻址存储、硬链接、工作区、CLI 与配置参考。",
+  }}
+>
+  <!-- ================= HERO ================= -->
+  <section class="relative overflow-hidden">
+    <div class="pointer-events-none absolute inset-x-0 -top-24 h-[420px] opacity-60" aria-hidden="true">
+      <div class="absolute left-1/2 top-0 h-[380px] w-[1100px] -translate-x-1/2 bg-[radial-gradient(55%_75%_at_50%_20%,color-mix(in_srgb,var(--color-accent-fill)_18%,transparent),transparent_70%)]"></div>
+    </div>
+    <div class="relative mx-auto grid max-w-[1200px] items-center gap-12 px-4 pb-10 pt-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:pt-20">
+      <div>
+        <p class="chip tracking-[0.01em] font-sans text-[0.82rem] font-medium"><span class="h-[7px] w-[7px] rounded-full bg-accent-fill"></span>自 2016 年起，久经生产环境考验</p>
+        <h1 class="mt-5 font-display text-[clamp(2.25rem,4.9vw,3.5rem)] font-extrabold leading-[1.12] tracking-[-0.03em]">
+          <span class="block max-[420px]:whitespace-normal whitespace-nowrap">快速、<span class="mark">节省磁盘空间</span></span>
+          <span class="block">的包管理器</span>
+        </h1>
+        <p class="mt-6 max-w-xl text-[1.06rem] leading-relaxed text-muted">
+          100 个项目用同一个依赖，磁盘上只存一份。pnpm 用内容寻址存储与硬链接重写
+          node_modules 的组织方式：安装比 npm 快达 2 倍，依赖树严格可复现。
+        </p>
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a href="/docs/installation" class="btn btn--primary no-underline">开始使用 <Icon name="arrow-right" size="1.05em" /></a>
+          <a href="/docs/motivation" class="btn btn--ghost no-underline">为什么是 pnpm</a>
+        </div>
+        <div class="term mt-7 flex max-w-md items-center justify-between gap-3 text-[0.84rem]">
+          <code class="truncate"><span class="text-term-accent">$</span> npm i -g pnpm</code>
+          <button type="button" class="copybtn" data-copy="npm i -g pnpm" aria-label="复制安装命令">
+            <Icon name="copy" size="1em" />
+          </button>
+        </div>
+      </div>
+      <StoreMachine />
+    </div>
+  </section>
+
+  <!-- ================= 特性 ================= -->
+  <section id="features" class="mx-auto max-w-[1200px] scroll-mt-24 px-4 py-20 sm:px-6">
+    <h2 class="sec-title">为什么选它</h2>
+    <div class="mt-10 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+      {
+        FEATURES.map((f) => (
+          <div class="rv group bg-raise p-6">
+            <span class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-line bg-sunken text-accent" aria-hidden="true">
+              <Icon name={f.icon} size="1.15rem" />
+            </span>
+            <h3 class="mt-4 font-display text-[1.02rem] font-bold">{f.title}</h3>
+            <p class="mt-2 text-[0.9rem] leading-relaxed text-muted">{f.body}</p>
+            {f.href && (
+              <a href={f.href} class="mt-3 inline-flex items-center gap-1 text-[0.84rem] font-semibold text-accent no-underline opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100">
+                深入了解 <Icon name="arrow-right" size="0.95em" />
+              </a>
+            )}
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ================= 背景 / 工作原理 ================= -->
+  <section id="background" class="border-y border-line bg-raise/50">
+    <div class="mx-auto grid max-w-[1200px] gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2">
+      <div>
+        <h2 class="sec-title">磁盘上只存一份</h2>
+        <p class="mt-6 text-[1.02rem] leading-relaxed text-muted">
+          pnpm 使用内容寻址存储，把磁盘上所有模块目录的文件统一存放。依赖不同版本时，
+          <strong class="text-ink">只有存在差异的文件</strong>会进入存储：一个 100 文件的包升级只改动
+          1 个文件，<code class="font-mono text-[0.9em] bg-sunken rounded px-1 border border-line">pnpm update</code> 就只新增 1 个文件。
+        </p>
+        <p class="mt-4 text-[1.02rem] leading-relaxed text-muted">
+          安装时，文件从存储的同一位置<strong class="text-ink">硬链接</strong>（或写时复制的引用链接）进入各项目的
+          node_modules，不占用额外空间。你省下的磁盘与项目数、依赖数成正比。
+        </p>
+        <a href="/docs/motivation" class="btn btn--ghost mt-8 no-underline">阅读完整动机 <Icon name="arrow-right" size="1.05em" /></a>
+      </div>
+      <ol class="rv space-y-0">
+        {
+          STAGES.map((s, i) => (
+            <li class="relative flex gap-5 pb-8 last:pb-0">
+              {i < STAGES.length - 1 && <span class="absolute left-[21px] top-12 bottom-0 w-px border-l-2 border-dashed border-line" aria-hidden="true" />}
+              <span class="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-lg border border-line-strong bg-raise text-accent" aria-hidden="true">
+                <Icon name={s.icon} size="1.2rem" />
+              </span>
+              <div class="pt-1">
+                <h3 class="font-display text-[1.05rem] font-bold">{s.title}</h3>
+                <p class="mt-1.5 text-[0.93rem] leading-relaxed text-muted">{s.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================= 基准 ================= -->
+  <section id="benchmarks" class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
+    <h2 class="sec-title">快，是有据可查的</h2>
+    <div class="mt-10 grid items-start gap-10 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
+      <div>
+        <p class="font-display text-[clamp(3.2rem,7vw,4.6rem)] font-extrabold leading-none tracking-tight text-accent">2×</p>
+        <p class="mt-3 text-[1.02rem] font-semibold">快达 npm 与 Yarn classic 的两倍</p>
+        <p class="mt-4 text-[0.93rem] leading-relaxed text-muted">
+          上图是在依赖众多的 alotta-files 项目上的安装基准（越小越好）：全新安装、缓存安装、
+          更新依赖等场景全面领先。数据来自官方 benchmark，Node.js v24.19.0，采集于 2026-09-04。
+        </p>
+        <a href="/docs/faq" class="btn btn--ghost mt-7 no-underline">性能背后的机制 <Icon name="arrow-right" size="1.05em" /></a>
+      </div>
+      <figure class="rv corners overflow-x-auto rounded-xl border border-line bg-white p-4 sm:p-6">
+        <img src="/img/bench-alotta-files.svg" width="760" height="230" alt="alotta-files 基准测试：npm、pnpm 与 pnpm Rust 版在各场景下的安装耗时对比条形图" loading="lazy" class="h-auto w-full min-w-[560px] max-w-[820px]" />
+        <figcaption class="mt-3 text-right font-mono text-[0.72rem] text-ink/60">
+          图源：<a class="text-ink/80 underline decoration-1 underline-offset-2" href="https://r.pnpm.io/benchmarks" rel="noopener">pnpm.io/benchmarks</a>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ================= 功能对比 ================= -->
+  <section id="comparison" class="border-y border-line bg-raise/50">
+    <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
+      <h2 class="sec-title">和 npm、Yarn 的差别</h2>
+      <div class="doc-body mt-8">
+        <table class="compare">
+          <thead>
+            <tr>
+              <th>能力</th>
+              <th class="text-center">pnpm</th>
+              <th class="text-center">npm</th>
+              <th class="text-center">Yarn</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              COMPARE_ROWS.map((r) => (
+                <tr>
+                  <td>
+                    <span class="font-semibold">{r.label}</span>
+                    <span class="block text-[0.8rem] text-muted">{r.note}</span>
+                  </td>
+                  <td class="text-center">{<CompareCell v={r.pnpm} />}</td>
+                  <td class="text-center">{<CompareCell v={r.npm} />}</td>
+                  <td class="text-center">{<CompareCell v={r.yarn} />}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+      <a href="/docs/feature-comparison" class="btn btn--ghost mt-8 no-underline">完整功能对比表 <Icon name="arrow-right" size="1.05em" /></a>
+    </div>
+  </section>
+
+  <!-- ================= 证言 ================= -->
+  <section class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
+    <blockquote class="rv relative mx-auto max-w-3xl rounded-2xl border border-line bg-raise px-8 py-10 text-center shadow-block sm:px-14">
+      <span class="absolute left-6 top-4 text-accent-fill/70" aria-hidden="true"><Icon name="quotes" size="2.6rem" /></span>
+      <p class="font-display text-[1.18rem] font-semibold leading-relaxed sm:text-[1.35rem]">
+        Microsoft 在 Rush 仓库中使用 pnpm 管理数百个项目，每天有数百个 PR，我们发现它非常快速且可靠。
+      </p>
+      <footer class="mt-5 text-[0.88rem] text-muted">
+        —— <a href="https://rushjs.io/" rel="noopener" class="text-accent no-underline hover:underline">Rush 团队</a>
+      </footer>
+    </blockquote>
+  </section>
+
+  <!-- ================= 赞助商 ================= -->
+  <section id="sponsors" class="border-t border-line bg-raise/40">
+    <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
+      <h2 class="sec-title">赞助商</h2>
+      <p class="mt-4 max-w-2xl text-[0.95rem] text-muted">
+        pnpm 是开源项目，由这些公司与个人通过
+        <a href="https://opencollective.com/pnpm" rel="noopener" class="text-accent font-semibold">OpenCollective</a>
+        支持。
+      </p>
+      {
+        SPONSORS.map((tier) => (
+          <div class="mt-10">
+            <h3 class="chip">{tier.tier}</h3>
+            <ul class="mt-4 flex flex-wrap items-center gap-3">
+              {tier.items.map((s) => (
+                <li>
+                  <a
+                    href={s.url}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    title={s.name}
+                    class={`flex h-14 min-w-[7.5rem] items-center justify-center rounded-lg border border-line px-4 transition-transform hover:-translate-y-0.5 ${s.light ? "" : "bg-white"}`}
+                  >
+                    <img src={`/img/users/${s.dark}`} class="only-light h-[55%] w-auto object-contain p-1" alt={s.name} width="80" height={s.h} loading="lazy" />
+                    {s.light && <img src={`/img/users/${s.light}`} class="only-dark h-[55%] w-auto object-contain p-1" alt="" aria-hidden="true" width="80" height={s.h} loading="lazy" />}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+      <p class="mt-10 text-[0.88rem] text-muted">
+        Logo 与赞助名单来自 pnpm 官方；
+        <a href="https://opencollective.com/pnpm#sponsor" rel="noopener" class="text-accent no-underline hover:underline">成为赞助商</a>。
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= 快速开始 CTA ================= -->
+  <section id="start" class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
+    <div class="rounded-2xl border border-line bg-cta-bg px-6 py-12 text-cta-ink shadow-block sm:px-12">
+      <div class="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_auto]">
+        <div>
+          <h2 class="font-display text-[clamp(1.7rem,3.6vw,2.3rem)] font-extrabold tracking-tight">换掉你的包管理器</h2>
+          <p class="mt-3 max-w-xl text-[0.98rem] opacity-80">
+            一条命令装上 pnpm，把 npm 换成 pnpm 继续干活即可：既有脚本、CI 与 node_modules 大体无缝兼容。
+          </p>
+          <div class="term mt-6 flex items-center justify-between gap-3 border-white/15 text-[0.86rem] opacity-100">
+            <code><span class="text-term-accent">$</span> npm i -g pnpm && pnpm install</code>
+            <button type="button" class="copybtn" data-copy="npm i -g pnpm && pnpm install" aria-label="复制命令">
+              <Icon name="copy" size="1em" />
+            </button>
+          </div>
+        </div>
+        <nav class="grid gap-2 sm:grid-cols-3 lg:grid-cols-1" aria-label="快速入口">
+          <a href="/docs/installation" class="cta-entry">安装指南</a>
+          <a href="/docs/pnpm-cli" class="cta-entry">日常用法</a>
+          <a href="/docs/migration" class="cta-entry">从 npm 迁移</a>
+        </nav>
+      </div>
+    </div>
+    <ul class="mt-10 flex flex-wrap items-center gap-3">
+      {
+        COMMUNITY.map((c) => (
+          <li>
+            <a href={c.href} rel="noopener" class="chip gap-2 py-2! text-[0.8rem]! no-underline hover:border-accent-line!">
+              <Icon name={c.icon} size="1.05em" /> {c.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .mark {
+    background: linear-gradient(transparent 62%, color-mix(in srgb, var(--color-accent-fill) 45%, transparent) 62%);
+    border-radius: 2px;
+    padding: 0 0.06em;
+  }
+  .sec-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    padding-left: 0.62em;
+    border-left: 5px solid var(--color-accent-fill);
+  }
+  .term {
+    background: var(--color-term-bg);
+    color: var(--color-term-ink);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9px;
+    padding: 0.7em 0.9em;
+    font-family: var(--font-mono);
+  }
+  .term code {
+    background: none;
+    border: 0;
+    padding: 0;
+  }
+  .copybtn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: inherit;
+    border-radius: 6px;
+    padding: 0.35em 0.45em;
+    cursor: pointer;
+    opacity: 0.75;
+  }
+  .copybtn:hover {
+    opacity: 1;
+  }
+  .compare {
+    width: 100%;
+    display: table;
+  }
+  .compare th:nth-child(1) {
+    width: 46%;
+  }
+  .cta-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-width: 11.5rem;
+    border: 1.5px dashed color-mix(in srgb, var(--color-cta-ink) 40%, transparent);
+    border-radius: 8px;
+    padding: 0.75em 1.1em;
+    font-weight: 650;
+    font-size: 0.92rem;
+    text-decoration: none;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .cta-entry:hover {
+    background: color-mix(in srgb, var(--color-cta-ink) 10%, transparent);
+    transform: translateX(2px);
+  }
+  .only-light {
+    display: block;
+  }
+  .only-dark {
+    display: none !important;
+  }
+  html[data-theme="dark"] .only-light {
+    display: none !important;
+  }
+  html[data-theme="dark"] .only-dark {
+    display: block !important;
+  }
+  .rv {
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  /* 渐进增强：无 JS 时内容直接可见；仅 JS 可用时才先隐藏、入场时显现 */
+  html.js .rv {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  html.js .rv.rv-in {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html.js .rv,
+    .rv {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  const reveal = new IntersectionObserver(
+    (es) => {
+      for (const e of es) if (e.isIntersecting) (e.target.classList.add("rv-in"), reveal.unobserve(e.target));
+    },
+    { rootMargin: "0px 0px -60px 0px" }
+  );
+  document.querySelectorAll(".rv").forEach((el) => reveal.observe(el));
+
+  for (const btn of document.querySelectorAll<HTMLButtonElement>(".copybtn")) {
+    const orig = btn.innerHTML;
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy ?? "");
+        btn.textContent = "已复制";
+        setTimeout(() => (btn.innerHTML = orig), 1400);
+      } catch {}
+    });
+  }
+</script>

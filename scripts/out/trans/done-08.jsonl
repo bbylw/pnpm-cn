@@ -1,0 +1,211 @@
+{"b":"errors#1643","z":"ERR_PNPM_TASK_CYCLE"}
+{"b":"errors#1644","z":"递归运行的任务图中存在依赖环。错误会以 `<project>#<script>` 标识符列出参与的任务。"}
+{"b":"errors#1645","z":"在 [任务](/docs/workspace-task-orchestration) 中移除或修改该环。如果是有意为之，将 [ignoreWorkspaceCycles](/docs/workspaces#ignoreworkspacecycles) 设为 `true`，可把该错误降级为警告，并在不保证顺序的情况下运行环中的任务。"}
+{"b":"errors#1646","z":"ERR_PNPM_UNEXPECTED_STORE"}
+{"b":"errors#1647","z":"存在一个 modules 目录，且它链接到了另一个存储目录。"}
+{"b":"errors#1648","z":"如果你是有意更改了存储目录，运行 `pnpm install`，pnpm 会使用新的存储重新安装依赖。"}
+{"b":"errors#1649","z":"ERR_PNPM_NO_MATCHING_VERSION_INSIDE_WORKSPACE"}
+{"b":"errors#1650","z":"某个项目有一个工作区依赖，而该依赖在工作区中并不存在。"}
+{"b":"errors#1651","z":"例如，包 `foo` 在 `dependencies` 中声明了 `bar@1.0.0`："}
+{"b":"errors#1652","z":"然而，工作区中只有 `bar@2.0.0`，因此 `pnpm install` 会失败。"}
+{"b":"errors#1653","z":"要修复此错误，所有使用 [workspace 协议](/docs/workspaces#workspace-protocol-workspace) 的依赖都应更新为工作区中已存在的包版本。这可以手动完成，也可以使用 `pnpm -r update` 命令。"}
+{"b":"errors#1654","z":"ERR_PNPM_PEER_DEP_ISSUES"}
+{"b":"errors#1655","z":"如果项目存在未解析的对等依赖，或对等依赖与所需范围不匹配，`pnpm install` 将会失败。要修复此问题，请安装缺失的对等依赖。"}
+{"b":"errors#1656","z":"你也可以使用 [peerDependencyRules.ignoreMissing](/docs/settings/peer-dependencies#peerdependencyrulesignoremissing) 和 [peerDependencyRules.allowedVersions](/docs/settings/peer-dependencies#peerdependencyrulesallowedversions) 设置有选择地忽略这些错误。"}
+{"b":"errors#1657","z":"ERR_PNPM_OUTDATED_LOCKFILE"}
+{"b":"errors#1658","z":"当无法在不更改锁文件的情况下执行安装时，就会出现此错误。在 CI 环境中，如果有人修改了仓库中的某个 `package.json` 文件但没有随后运行 `pnpm install`，就可能出现此错误。或者有人忘记提交对锁文件的更改。"}
+{"b":"errors#1659","z":"要修复此错误，只需运行 `pnpm install` 并提交对锁文件的更改。"}
+{"b":"errors#1660","z":"ERR_PNPM_TARBALL_INTEGRITY"}
+{"b":"errors#1661","z":"此错误表明下载的包的 tarball 与预期的完整性校验和不匹配。"}
+{"b":"errors#1662","z":"如果你使用 npm registry（`registry.npmjs.org`），这很可能意味着你锁文件中的完整性校验值有误。这可能是因为锁文件在合并时错误地解决了合并冲突。"}
+{"b":"errors#1663","z":"如果你使用的 registry 允许覆盖某个包的已有版本，这可能意味着你的本地元数据缓存中保存的是该包旧版本的完整性校验和。在这种情况下，你应该运行 `pnpm store prune`。此命令会删除你的本地元数据缓存。然后你可以重试失败的命令。"}
+{"b":"errors#1664","z":"但也要小心，确认包是从正确的 URL 下载的。该 URL 应该会打印在错误消息中。"}
+{"b":"errors#1665","z":"ERR_PNPM_MISMATCHED_RELEASE_CHANNEL"}
+{"b":"errors#1666","z":"配置字段 `use-node-version` 定义的发布通道与版本后缀不一致。"}
+{"b":"errors#1667","z":"例如："}
+{"b":"errors#1668","z":"`rc/20.0.0` 定义了一个 `rc` 通道，但版本却是稳定版本的。"}
+{"b":"errors#1669","z":"`release/20.0.0-rc.0` 定义了一个 `release` 通道，但版本却是 RC 版本的。"}
+{"b":"errors#1670","z":"要修复此错误，要么移除发布通道前缀，要么更正版本后缀。"}
+{"b":"errors#1671","z":"请注意，不允许像 `lts/Jod` 这样指定 node 版本。稳定版本的正确语法严格为 X.Y.Z 或 release/X.Y.Z。"}
+{"b":"errors#1672","z":"ERR_PNPM_INVALID_NODE_VERSION"}
+{"b":"errors#1673","z":"配置字段 `use-node-version` 的值具有无效语法。"}
+{"b":"errors#1674","z":"以下是 `use-node-version` 的有效形式："}
+{"b":"errors#1675","z":"稳定版本："}
+{"b":"errors#1676","z":"`X.Y.Z`（`X`、`Y`、`Z` 为整数）"}
+{"b":"errors#1677","z":"`release/X.Y.Z`（`X`、`Y`、`Z` 为整数）"}
+{"b":"errors#1678","z":"RC 版本："}
+{"b":"errors#1679","z":"`X.Y.Z-rc.W`（`X`、`Y`、`Z`、`W` 为整数）"}
+{"b":"errors#1680","z":"`rc/X.Y.Z-rc.W`（`X`、`Y`、`Z`、`W` 为整数）"}
+{"b":"errors@title","z":"错误码"}
+{"b":"faq#1681","z":"如果包存储在某个全局存储中，为什么我的 `node_modules` 文件夹还会占用磁盘空间？"}
+{"b":"faq#1682","z":"pnpm 会创建从全局存储到项目 `node_modules` 文件夹的[硬链接](https://en.wikipedia.org/wiki/Hard_link)。硬链接指向磁盘上与原始文件相同的位置。例如，如果你的项目中有一个依赖 `foo`，它占用 1MB 空间，那么它在项目的 `node_modules` 文件夹中看起来占用 1MB，在全局存储中也占用同样的 1MB。然而，那 1MB 是从两个不同位置寻址的磁盘上的*同一块空间*。因此总计 `foo` 占用 1MB，而不是 2MB。"}
+{"b":"faq#1683","z":"关于此主题的更多信息："}
+{"b":"faq#1684","z":"它在 Windows 上可用吗？"}
+{"b":"faq#1685","z":"简短回答：可以。详细回答：在 Windows 上使用符号链接有时会有问题，不过 pnpm 有一个变通方案。对于 Windows，如果[开发者模式](https://learn.microsoft.com/windows/advanced-settings/developer-mode)未开启，我们改用 [junctions](https://docs.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions)。"}
+{"b":"faq#1686","z":"但嵌套的 `node_modules` 方式与 Windows 不兼容？"}
+{"b":"faq#1687","z":"早期版本的 npm 因为把所有 `node_modules` 嵌套起来而存在问题（见[此问题](https://github.com/nodejs/node-v0.x-archive/issues/6960)）。然而，pnpm 不会创建很深的文件夹，它以扁平方式存储所有包，并使用符号链接来创建依赖树结构。"}
+{"b":"faq#1688","z":"循环符号链接怎么办？"}
+{"b":"faq#1689","z":"尽管 pnpm 使用链接把依赖放进 `node_modules` 文件夹，但循环符号链接是可以避免的，因为父包与其依赖被放在同一个 `node_modules` 文件夹中。因此 `foo` 的依赖并不在 `foo/node_modules` 中，而 `foo` 自身与它自己的依赖一起位于 `node_modules` 中。"}
+{"b":"faq#1690","z":"为什么要用硬链接？为什么不直接符号链接到全局存储？"}
+{"b":"faq#1691","z":"在一台机器上，一个包可能有不同的依赖集合。"}
+{"b":"faq#1692","z":"在项目 **A** 中，`foo@1.0.0` 的某个依赖可能解析为 `bar@1.0.0`，而在项目 **B** 中，`foo` 的同一依赖可能解析为 `bar@1.1.0`；因此，pnpm 把 `foo@1.0.0` 硬链接到每个使用它的项目，以便为它创建不同的依赖集合。"}
+{"b":"faq#1693","z":"直接符号链接到全局存储可以用 Node 的 `--preserve-symlinks` 标志实现，然而这种方式本身带来大量问题，所以我们决定坚持使用硬链接。关于做出这一决定的更多细节，见[此问题](https://github.com/nodejs/node-eps/issues/46)。"}
+{"b":"faq#1694","z":"pnpm 能在单个 Btrfs 分区内的不同子卷之间工作吗？"}
+{"b":"faq#1695","z":"虽然 Btrfs 不允许在单个分区内的不同子卷之间进行跨设备硬链接，但它确实允许引用链接（reflink）。因此，pnpm 利用引用链接在这些子卷之间共享数据。"}
+{"b":"faq#1696","z":"pnpm 能在多个驱动器或文件系统之间工作吗？"}
+{"b":"faq#1697","z":"包存储应与安装位于同一驱动器和文件系统上，否则包将被复制而不是链接。这是由于硬链接工作方式的一个限制：一个文件系统上的文件无法寻址另一个文件系统中的位置。更多细节见 [Issue #712](https://github.com/pnpm/pnpm/issues/712)。"}
+{"b":"faq#1698","z":"pnpm 在以下两种情况下的行为有所不同："}
+{"b":"faq#1699","z":"指定了存储路径"}
+{"b":"faq#1700","z":"如果通过[存储配置](/docs/configuring)指定了存储路径，那么存储与位于不同磁盘上的任何项目之间会发生复制。"}
+{"b":"faq#1701","z":"如果你在驱动器 `A` 上运行 `pnpm install`，那么 pnpm 存储必须位于驱动器 `A`。如果 pnpm 存储位于驱动器 `B`，那么所有必需的包将被直接复制到项目位置，而不是被链接。这会严重削弱 pnpm 在存储和性能方面的优势。"}
+{"b":"faq#1702","z":"未指定存储路径"}
+{"b":"faq#1703","z":"如果没有设置存储路径，则会创建多个存储（每个驱动器或文件系统一个）。"}
+{"b":"faq#1704","z":"如果在驱动器 `A` 上运行安装，存储将在文件系统根目录下 `A` 的 `.pnpm-store` 中创建。之后如果在驱动器 `B` 上运行安装，将在 `B` 上的 `.pnpm-store` 处创建一个独立的存储。项目仍会保持 pnpm 的优势，但每个驱动器上可能都有冗余的包。"}
+{"b":"faq#1705","z":"`pnpm` 代表什么？"}
+{"b":"faq#1706","z":"`pnpm` 代表 `performant npm`。这个名字由 [@rstacruz](https://github.com/rstacruz/) 提出。"}
+{"b":"faq#1707","z":"`pnpm` 无法在 <YOUR-PROJECT-HERE> 上工作？"}
+{"b":"faq#1708","z":"在大多数情况下，这意味着某个依赖需要的包未在 `package.json` 中声明。这是由扁平的 `node_modules` 引起的常见错误。如果发生这种情况，这是依赖中的一个错误，应当修复该依赖。不过这可能需要时间，因此 pnpm 支持变通方案，让有问题的包能够工作。"}
+{"b":"faq#1709","z":"方案 1"}
+{"b":"faq#1710","z":"如果出现这些问题，你可以使用 [nodeLinker: hoisted](/docs/settings/node-modules#nodelinker) 设置。这会创建一个扁平的 `node_modules` 结构，类似于 `npm` 所创建的那种。"}
+{"b":"faq#1711","z":"方案 2"}
+{"b":"faq#1712","z":"在以下示例中，某个依赖在自己的依赖列表中**没有** `iterall` 模块。"}
+{"b":"faq#1713","z":"解决有问题的包缺失依赖的最简单方法，是**将 iterall 作为依赖添加到我们项目的 package.json**。"}
+{"b":"faq#1714","z":"你可以通过 `pnpm add iterall` 来安装它，它会被自动添加到你项目的 `package.json`。"}
+{"b":"faq#1715","z":"方案 3"}
+{"b":"faq#1716","z":"一种解决方案是使用[钩子](/docs/pnpmfile#hooks)把缺失的依赖添加到包的 `package.json`。"}
+{"b":"faq#1717","z":"一个例子是 [Webpack Dashboard](https://github.com/pnpm/pnpm/issues/1043)，它当时无法在 `pnpm` 下工作。现在已解决，它已经能在 `pnpm` 下工作了。"}
+{"b":"faq#1718","z":"它过去会抛出一个错误："}
+{"b":"faq#1719","z":"问题在于 `inspectpack` 使用了 `babel-traverse`，而 `inspectpack` 又被 `webpack-dashboard` 使用，但 `inspectpack` 的 `package.json` 中并未指定 `babel-traverse`。它在 `npm` 和 `yarn` 下仍然可用，因为它们创建扁平的 `node_modules`。"}
+{"b":"faq#1720","z":"解决方案是创建一个 `.pnpmfile.mjs`，内容如下："}
+{"b":"faq#1721","z":"创建 `.pnpmfile.mjs` 后，只需删除 `pnpm-lock.yaml`——不需要删除 `node_modules`，因为 pnpm 钩子只影响模块解析。然后重新构建依赖，它应该就能工作了。"}
+{"b":"faq@title","z":"常见问题"}
+{"b":"feature-comparison#1722","z":"**注意：**为了保持对比简洁，我们只包含可能经常使用的功能。"}
+{"b":"feature-comparison@title","z":"功能对比"}
+{"b":"filtering#1744","z":"过滤允许你把命令限制在特定的包子集上。"}
+{"b":"filtering#1745","z":"pnpm 支持丰富的选择器语法，可按名称或关系选择包。"}
+{"b":"filtering#1746","z":"可通过 `--filter`（或 `-F`）标志指定选择器："}
+{"b":"filtering#1747","z":"匹配"}
+{"b":"filtering#1748","z":"--filter <package_name>"}
+{"b":"filtering#1749","z":"要选择确切的包，只需指定其名称（`@scope/pkg`），或使用模式选择一组包（`@scope/*`）。"}
+{"b":"filtering#1750","z":"指定包的作用域是可选的，因此如果找不到 `core`，`--filter=core` 会挑选 `@babel/core`。然而，如果工作区中有多个同名的包（例如 `@babel/core` 和 `@types/core`），那么不带作用域的过滤将什么都不选。"}
+{"b":"filtering#1751","z":"--filter <package_name>..."}
+{"b":"filtering#1752","z":"要选择某个包及其依赖（直接和非直接依赖），在包名后加上省略号：`<package_name>...`。例如，以下命令将运行 `foo` 及其所有依赖的测试："}
+{"b":"filtering#1753","z":"你可以使用模式来选择一组根包："}
+{"b":"filtering#1754","z":"--filter <package_name>^..."}
+{"b":"filtering#1755","z":"要仅选择某个包的依赖（直接和非直接都在内），在名称后加上前述省略号，其前再加一个尖角符号。例如，以下命令将运行 `foo` 所有依赖的测试："}
+{"b":"filtering#1756","z":"--filter ...<package_name>"}
+{"b":"filtering#1757","z":"要选择某个包及其被依赖包（直接和非直接都在内），在包名前加上省略号：`...<package_name>`。例如，这将运行 `foo` 及所有依赖它的包的测试："}
+{"b":"filtering#1758","z":"--filter \"...^<package_name>\""}
+{"b":"filtering#1759","z":"要仅选择某个包的被依赖包（直接和非直接都在内），在包名前加上省略号后跟一个尖角符号。例如，这将运行所有依赖 `foo` 的包的测试："}
+{"b":"filtering#1760","z":"--filter `./<glob>`, --filter `{<glob>}`"}
+{"b":"filtering#1761","z":"一个相对于当前工作目录、用于匹配项目的 glob 模式。"}
+{"b":"filtering#1762","z":"包含指定目录下的所有项目。"}
+{"b":"filtering#1763","z":"它可以与省略号和尖角符号运算符一起使用，以选择被依赖包/依赖："}
+{"b":"filtering#1764","z":"它也可以与 `[<since>]` 结合使用。例如，选择一个目录内所有更改过的项目："}
+{"b":"filtering#1765","z":"或者，你可以从某个目录中选择所有名称与给定模式匹配的包："}
+{"b":"filtering#1766","z":"legacyDirFiltering"}
+{"b":"filtering#1767","z":"默认值：**false**"}
+{"b":"filtering#1768","z":"类型：**布尔值**"}
+{"b":"filtering#1769","z":"`{<dir>}` 作为 glob 模式匹配：`{packages/*}` 选择 `packages/` 下一层的项目，要到达更深层则需要 `**`。在 `pnpm-workspace.yaml` 中将 `legacyDirFiltering` 设为 `true` 可恢复旧行为：在该行为下，选择器命名的是一个目录，并匹配其下子树中的**每个**项目："}
+{"b":"filtering#1770","z":"pnpm-workspace.yaml"}
+{"b":"filtering#1771","z":"此设置仅适用于你编写的那些选择器。pnpm 为自身生成的工作区根选择器——递归 `run` / `exec` / `add` / `test` 追加的 `!{<workspace-root>}`，以及 `--workspace-root` 追加的 `{<workspace-root>}`——自 v11.24.0 起始终作为 glob 匹配。按子树匹配来解读时，它们会命名根下的每个项目，因此在此设置下递归命令什么都选不到，而 `--workspace-root` 会拉入整个工作区而不是仅根目录（[#14101](https://github.com/pnpm/pnpm/issues/14101)）。"}
+{"b":"filtering#1772","z":"--filter \"[<since>]\""}
+{"b":"filtering#1773","z":"选择自指定的提交/分支以来所有更改过的包。可在其后或前加上 `...` 以包含依赖/被依赖包。"}
+{"b":"filtering#1774","z":"例如，以下命令将在自 `master` 以来所有更改过的包以及任意被依赖包中运行测试："}
+{"b":"filtering#1775","z":"--fail-if-no-match"}
+{"b":"filtering#1776","z":"如果你希望没有包匹配过滤条件时让 CLI 失败，请使用此标志。"}
+{"b":"filtering#1777","z":"你也可以通过 [failIfNoMatch 设置](/docs/workspaces#failifnomatch)永久设置此项。"}
+{"b":"filtering#1778","z":"排除"}
+{"b":"filtering#1779","z":"任何过滤选择器在前面加上 \"!\" 时都可以作为排除运算符。在 zsh（以及可能的其他 shell）中，\"!\" 需要转义：`\\!`。"}
+{"b":"filtering#1780","z":"例如，这将在除 `foo` 之外的所有项目中运行命令："}
+{"b":"filtering#1781","z":"而这将在不位于 `lib` 目录下的所有项目中运行命令："}
+{"b":"filtering#1782","z":"多重性"}
+{"b":"filtering#1783","z":"过滤包时，会选取每个匹配至少一个选择器的包。你可以使用任意数量的过滤器："}
+{"b":"filtering#1784","z":"--filter-prod <filtering_pattern>"}
+{"b":"filtering#1785","z":"行为与 `--filter` 相同，但从工作区选择依赖项目时会省略 `devDependencies`。"}
+{"b":"filtering#1786","z":"--test-pattern <glob>"}
+{"b":"filtering#1787","z":"`test-pattern` 允许检测被修改的文件是否与测试相关。如果是，则不会包含这些被修改包的被依赖包。"}
+{"b":"filtering#1788","z":"此选项与 \"changed since\" 过滤器配合使用很有用。例如，以下命令将在所有更改过的包中运行测试，而如果更改在于包的源代码，则也会在依赖它的包中运行测试："}
+{"b":"filtering#1789","z":"--changed-files-ignore-pattern <glob>"}
+{"b":"filtering#1790","z":"允许在过滤自指定提交/分支以来更改过的项目时，按 glob 模式忽略更改的文件。"}
+{"b":"filtering#1791","z":"用法示例："}
+{"b":"finders#1723","z":"自 v10.16.0 起提供"}
+{"b":"finders#1724","z":"查找器函数允许你**通过包的任意属性（而不仅是名称）搜索依赖图**。它们可以声明在 [.pnpmfile.mjs](/docs/pnpmfile) 中，并与 [pnpm list](/docs/cli/list) 和 [pnpm why](/docs/cli/why) 一起使用。"}
+{"b":"finders#1725","z":"定义查找器函数"}
+{"b":"finders#1726","z":"查找器函数在你项目的 [.pnpmfile.mjs](/docs/pnpmfile) 文件中、在 finders 导出下声明。每个函数接收一个上下文对象，并且必须返回以下之一："}
+{"b":"finders#1727","z":"`true` → 在结果中包含此依赖，"}
+{"b":"finders#1728","z":"`false` → 跳过它，"}
+{"b":"finders#1729","z":"或一个 `string` → 包含此依赖并将该字符串作为附加信息打印出来。"}
+{"b":"finders#1730","z":"示例：一个匹配 `peerDependencies` 中含有 **React 17** 的任意依赖的查找器："}
+{"b":"finders#1731","z":".pnpmfile.mjs"}
+{"b":"finders#1732","z":"查找器上下文 (ctx)"}
+{"b":"finders#1733","z":"每个查找器函数接收一个上下文对象，描述正在访问的依赖节点。"}
+{"b":"finders#1734","z":"使用查找器"}
+{"b":"finders#1735","z":"你可以使用 `--find-by=<functionName>` 标志调用一个查找器："}
+{"b":"finders#1736","z":"返回额外元数据"}
+{"b":"finders#1737","z":"查找器也可以返回一个字符串。该字符串将在输出中与匹配到的包一起显示。"}
+{"b":"finders#1738","z":"示例：打印包的许可证："}
+{"b":"finders#1739","z":"其他示例用例："}
+{"b":"finders#1740","z":"查找所有具有特定许可证的包。"}
+{"b":"finders#1741","z":"检测要求最低 Node.js 版本的包。"}
+{"b":"finders#1742","z":"列出所有公开二进制文件的依赖。"}
+{"b":"finders#1743","z":"打印所有包的资助 URL。"}
+{"b":"git#1792","z":"锁文件"}
+{"b":"git#1793","z":"你应当始终提交锁文件（`pnpm-lock.yaml`）。这有诸多原因，其中主要原因是："}
+{"b":"git#1794","z":"它通过跳过包解析，为 CI 和生产环境实现了更快的安装"}
+{"b":"git#1795","z":"它强制开发、测试和生产环境之间的安装与解析保持一致，意味着测试和生产中使用的包将与你开发项目时完全相同"}
+{"b":"git#1796","z":"合并冲突"}
+{"b":"git#1797","z":"pnpm 可以自动解决 `pnpm-lock.yaml` 中的合并冲突。如果你有冲突，只需运行 `pnpm install` 并提交更改。"}
+{"b":"git#1798","z":"不过请注意。我们建议你在暂存提交之前审查更改，因为我们无法保证 pnpm 会选正确的 head——它会使用最新更新的那个锁文件来构建，这在大多数情况下是最理想的。"}
+{"b":"git@title","z":"使用 Git"}
+{"b":"git_branch_lockfiles#1799","z":"Git 分支锁文件让你可以完全避免锁文件合并冲突，稍后再解决它们。"}
+{"b":"git_branch_lockfiles#1800","z":"使用 git 分支锁文件"}
+{"b":"git_branch_lockfiles#1801","z":"你可以通过配置 `pnpm-workspace.yaml` 文件来开启此功能。"}
+{"b":"git_branch_lockfiles#1802","z":"这样做之后，锁文件名将根据当前分支名生成。"}
+{"b":"git_branch_lockfiles#1803","z":"例如，当前分支名是 `feature-1`。那么，生成的锁文件名将是 `pnpm-lock.feature-1.yaml`。你可以将它提交到 Git，并稍后合并所有 git 分支锁文件。"}
+{"b":"git_branch_lockfiles#1804","z":"`feature/1` 比较特殊，因为 `/` 会自动转换为 `!`，所以对应的锁文件名将是 `pnpm-lock.feature!1.yaml`。"}
+{"b":"git_branch_lockfiles#1805","z":"合并 git 分支锁文件"}
+{"b":"git_branch_lockfiles#1806","z":"`pnpm install --merge-git-branch-lockfiles`"}
+{"b":"git_branch_lockfiles#1807","z":"要合并所有 git 分支锁文件，只需向 `pnpm install` 命令指定 `--merge-git-branch-lockfiles`。"}
+{"b":"git_branch_lockfiles#1808","z":"之后，所有 git 分支锁文件将被合并为一个 `pnpm-lock.yaml`"}
+{"b":"git_branch_lockfiles#1809","z":"分支匹配"}
+{"b":"git_branch_lockfiles#1810","z":"pnpm 允许你通过匹配当前分支名来指定 `--merge-git-branch-lockfiles`。"}
+{"b":"git_branch_lockfiles#1811","z":"例如，在 `pnpm-workspace.yaml` 文件中进行以下设置后，在 `main` 分支以及分支名以 `release` 开头的分支中运行时，`pnpm install` 将合并所有 git 分支锁文件。"}
+{"b":"git_branch_lockfiles@title","z":"Git 分支锁文件"}
+{"b":"git-worktrees#1812","z":"当多个 AI 代理需要同时在同一个 monorepo 上工作时，每个代理都需要一个具有完全可用的 `node_modules` 的隔离工作副本。Git 工作树（worktree）结合 pnpm 的[全局虚拟存储](/docs/global-virtual-store)让这一点变得可行：每个工作树都有自己的检出和自己的 `node_modules`，但依赖通过磁盘上单个内容寻址存储在它们之间共享。"}
+{"b":"git-worktrees#1813","z":"什么是 git 工作树？"}
+{"b":"git-worktrees#1814","z":"通常，一个 git 仓库在同一时间只有一个绑定到单个分支的工作目录。如果你想查看另一个分支，就必须暂存或提交你的更改再切换。[git 工作树](https://git-scm.com/docs/git-worktree)让你可以同时检出多个分支，每个分支都在自己的目录中。所有工作树共享相同的仓库历史和对象——它们只是同一仓库的不同视图。"}
+{"b":"git-worktrees#1815","z":"这会创建一个新目录 `../feature-branch`，其中检出了 `feat/my-feature`，而你原来的工作目录仍停留在当前分支。你可以独立地在这两个目录中工作。"}
+{"b":"git-worktrees#1816","z":"一个常见的模式是使用一个**裸仓库**（bare repository，即没有自己的工作目录的仓库）作为中心，并把所有工作目录创建为工作树："}
+{"b":"git-worktrees#1817","z":"为什么用工作树？"}
+{"b":"git-worktrees#1818","z":"早在 AI 代理出现之前，工作树就已经很有用了——它可以维护一个项目的多个主要版本。在我的开发机器上，我使用一个至少有 2 个工作树的 pnpm 仓库：一个在 `main` 上用于 pnpm v12，另一个在 `v11` 分支上用于回移和维护版本发布。这样，我可以在不停存我进行中的 v12 工作的情况下修复 v11 上的一个 bug——两个版本始终处于检出状态、随时可用。过去，在 pnpm 仓库里 2 或 3 个工作树通常就够我用了。然而，自从我开始大量使用 AI 代理后，我需要多得多的工作树，好让我的代理并行处理许多任务。"}
+{"b":"git-worktrees#1819","z":"为什么这在 AI 代理下更重要"}
+{"b":"git-worktrees#1820","z":"有了 AI 编码代理，工作树从方便变成了必不可少。每个代理都需要自己的工作目录，以便编辑文件、运行构建和执行测试，而不干扰其他代理。没有工作树，就意味着要多次克隆仓库，为每个副本重复 git 历史。"}
+{"b":"git-worktrees#1821","z":"工作树解决了 git 这一侧的问题——每个代理都得到自己的隔离检出，同时共享底层的 git 对象。但每个工作树仍然需要自己的 `node_modules`，这可能是数百兆字节。这就是 pnpm 的[全局虚拟存储](/docs/global-virtual-store)发挥作用的地方：启用它后，每个工作树的 `node_modules` 只包含指向磁盘上单个内容寻址存储的符号链接。这意味着添加一个新代理既快又几乎不占用额外磁盘空间。"}
+{"b":"git-worktrees#1822","z":"此设置假定工作树和代理共享同一个信任边界。不要为相互不信任的代理或用户共用一个可写的 pnpm 存储。"}
+{"b":"git-worktrees#1823","z":"设置"}
+{"b":"git-worktrees#1824","z":"1. 创建裸仓库"}
+{"b":"git-worktrees#1825","z":"2. 为每个分支创建工作树"}
+{"b":"git-worktrees#1826","z":"每个工作树都是一个完整检出，拥有自己的文件，但它们都共享同一个 `.git` 对象存储。"}
+{"b":"git-worktrees#1827","z":"3. 启用全局虚拟存储"}
+{"b":"git-worktrees#1828","z":"在你的仓库的 `pnpm-workspace.yaml` 中添加 `virtualStoreType: global`（在 v11.23.0 之前，此设置写作 `enableGlobalVirtualStore: true`）："}
+{"b":"git-worktrees#1829","z":"4. 在每个工作树中安装依赖"}
+{"b":"git-worktrees#1830","z":"第一次 `pnpm install` 会将包下载到全局存储。其他工作树中的后续安装几乎瞬间完成，因为它们只是创建指向同一存储的符号链接。"}
+{"b":"git-worktrees#1831","z":"工作原理"}
+{"b":"git-worktrees#1832","z":"没有全局虚拟存储时，每个工作树都会有自己的、位于 `node_modules` 内的 `.pnpm` 虚拟存储，其中包含每个包的硬链接或副本。使用 `virtualStoreType: global` 时，pnpm 将所有包内容保存在单个共享目录（全局存储，你可以通过运行 `pnpm store path` 找到它）中，而每个工作树的 `node_modules` 包含指向那里的符号链接："}
+{"b":"git-worktrees#1833","z":"这意味着："}
+{"b":"git-worktrees#1834","z":"**每个工作树近乎零开销**——本地的 `node_modules` 只包含指向共享全局虚拟存储的符号链接。与 pnpm 的默认行为（它把文件从内容寻址存储硬链接到本地的 `node_modules/.pnpm` 目录）不同，全局虚拟存储意味着根本没有任何文件被复制或硬链接到工作树中。"}
+{"b":"git-worktrees#1835","z":"**新工作树的即时安装**——包已经在全局存储中。"}
+{"b":"git-worktrees#1836","z":"**没有冲突**——每个工作树都有自己的 `node_modules` 树，因此代理可以在不同分支上安装不同的依赖版本而互不干扰。"}
+{"b":"git-worktrees#1837","z":"示例：pnpm monorepo 本身"}
+{"b":"git-worktrees#1838","z":"[pnpm 仓库](https://github.com/pnpm/pnpm)使用的正是这套配置：一个裸 git 仓库加一个全局虚拟存储。它包含一些辅助脚本，让工作树管理更简单："}
+{"b":"git-worktrees#1839","z":"**pnpm worktree:new <branch-name|pr-number>** — 创建一个新工作树并设置它："}
+{"b":"git-worktrees#1840","z":"该脚本处理了一些超出普通 `git worktree add` 的事情："}
+{"b":"git-worktrees#1841","z":"PR 编号通过 `git fetch origin pull/<number>/head` 获取，因此它们对 fork 也有效。"}
+{"b":"git-worktrees#1842","z":"包含斜杠的分支名（例如 `feat/my-feature`）会被转换为短横线作为目录名（例如 `feat-my-feature`）。"}
+{"b":"git-worktrees#1843","z":"`.claude` 目录从裸仓库的 git 公共目录符号链接到新工作树，因此所有工作树共享相同的 Claude Code 设置和已批准命令。"}
+{"b":"git-worktrees#1844","z":"此外还有一个 shell 辅助脚本 [shell/wt.sh](https://github.com/pnpm/pnpm/blob/main/shell/wt.sh)，它包装了该脚本并 `cd` 到新工作树："}
+{"b":"git-worktrees#1845","z":"提示"}
+{"b":"git-worktrees#1846","z":"**为代理创建工作树**：启动 AI 代理时，为它创建一个专用工作树。代理获得完全的隔离来编辑文件、运行测试和安装包，而不影响其他代理。"}
+{"b":"git-worktrees#1847","z":"**清理**：当工作树不再需要时，用 `git worktree remove ./feature-auth` 移除它。残留的工作树开销很小，但会不断累积。"}
+{"b":"git-worktrees@title","z":"pnpm + Git 工作树实现多代理开发"}

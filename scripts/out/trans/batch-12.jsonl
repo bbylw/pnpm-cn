@@ -1,0 +1,225 @@
+{"p":"pnpmfile","b":"pnpmfile#2398","k":"para","t":"pnpm lets you hook directly into the installation process via special functions (hooks). Hooks can be declared in a file called `.pnpmfile.mjs` (ESM) or `.pnpmfile.cjs` (CommonJS)."}
+{"p":"pnpmfile","b":"pnpmfile#2399","k":"para","t":"By default, `.pnpmfile.mjs` should be located in the same directory as the lockfile. For instance, in a [workspace](/docs/workspaces) with a shared lockfile, `.pnpmfile.mjs` should be in the root of the monorepo."}
+{"p":"pnpmfile","b":"pnpmfile#2400","k":"heading","t":"Hooks"}
+{"p":"pnpmfile","b":"pnpmfile#2401","k":"heading","t":"TL;DR"}
+{"p":"pnpmfile","b":"pnpmfile#2402","k":"heading","t":"`hooks.readPackage(pkg, context): pkg | Promise<pkg>`"}
+{"p":"pnpmfile","b":"pnpmfile#2403","k":"para","t":"Allows you to mutate a dependency's `package.json` after parsing and prior to resolution. These mutations are not saved to the filesystem, however, they will affect what gets resolved in the lockfile and therefore what gets installed."}
+{"p":"pnpmfile","b":"pnpmfile#2404","k":"para","t":"Note that you will need to delete the `pnpm-lock.yaml` if you have already resolved the dependency you want to modify."}
+{"p":"pnpmfile","b":"pnpmfile#2405","k":"para","t":"If you need changes to `package.json` saved to the filesystem, you need to use the [pnpm patch](/docs/cli/patch) command and patch the `package.json` file. This might be useful if you want to remove the `bin` field of a dependency for instance."}
+{"p":"pnpmfile","b":"pnpmfile#2406","k":"heading","t":"Arguments"}
+{"p":"pnpmfile","b":"pnpmfile#2407","k":"li","t":"`pkg` - The manifest of the package. Either the response from the registry or the `package.json` content."}
+{"p":"pnpmfile","b":"pnpmfile#2408","k":"li","t":"`context` - Context object for the step. Method `#log(msg)` allows you to use a debug log for the step."}
+{"p":"pnpmfile","b":"pnpmfile#2409","k":"heading","t":"Usage"}
+{"p":"pnpmfile","b":"pnpmfile#2410","k":"para","t":"Example `.pnpmfile.mjs` (changes the dependencies of a dependency):"}
+{"p":"pnpmfile","b":"pnpmfile#2411","k":"heading","t":"Known limitations"}
+{"p":"pnpmfile","b":"pnpmfile#2412","k":"para","t":"Removing the `scripts` field from a dependency's manifest via `readPackage` will not prevent pnpm from building the dependency. When building a dependency, pnpm reads the `package.json` of the package from the package's archive, which is not affected by the hook. In order to ignore a package's build, use the [allowBuilds](/docs/settings/build#allowbuilds) field."}
+{"p":"pnpmfile","b":"pnpmfile#2413","k":"heading","t":"`hooks.updateConfig(config): config | Promise<config>`"}
+{"p":"pnpmfile","b":"pnpmfile#2414","k":"para","t":"Added in: v10.8.0"}
+{"p":"pnpmfile","b":"pnpmfile#2415","k":"para","t":"Allows you to modify the configuration settings used by pnpm. This hook is most useful when paired with [configDependencies](/docs/config-dependencies), allowing you to share and reuse settings across different Git repositories."}
+{"p":"pnpmfile","b":"pnpmfile#2416","k":"para","t":"For example, [@pnpm/plugin-better-defaults](https://github.com/pnpm/plugin-better-defaults) uses the `updateConfig` hook to apply a curated set of recommended settings."}
+{"p":"pnpmfile","b":"pnpmfile#2417","k":"heading","t":"Usage example"}
+{"p":"pnpmfile","b":"pnpmfile#2418","k":"para","t":".pnpmfile.mjs"}
+{"p":"pnpmfile","b":"pnpmfile#2419","k":"heading","t":"`hooks.afterAllResolved(lockfile, context): lockfile | Promise<lockfile>`"}
+{"p":"pnpmfile","b":"pnpmfile#2420","k":"para","t":"Allows you to mutate the lockfile output before it is serialized."}
+{"p":"pnpmfile","b":"pnpmfile#2421","k":"heading","t":"Arguments"}
+{"p":"pnpmfile","b":"pnpmfile#2422","k":"li","t":"`lockfile` - The lockfile resolutions object that is serialized to `pnpm-lock.yaml`."}
+{"p":"pnpmfile","b":"pnpmfile#2423","k":"li","t":"`context` - Context object for the step. Method `#log(msg)` allows you to use a debug log for the step."}
+{"p":"pnpmfile","b":"pnpmfile#2424","k":"heading","t":"Usage example"}
+{"p":"pnpmfile","b":"pnpmfile#2425","k":"para","t":".pnpmfile.mjs"}
+{"p":"pnpmfile","b":"pnpmfile#2426","k":"heading","t":"Known Limitations"}
+{"p":"pnpmfile","b":"pnpmfile#2427","k":"para","t":"There are none - anything that can be done with the lockfile can be modified via this function, and you can even extend the lockfile's functionality."}
+{"p":"pnpmfile","b":"pnpmfile#2428","k":"heading","t":"`hooks.beforePacking(pkg): pkg | Promise<pkg>`"}
+{"p":"pnpmfile","b":"pnpmfile#2429","k":"para","t":"Added in: v10.28.0"}
+{"p":"pnpmfile","b":"pnpmfile#2430","k":"para","t":"Allows you to modify the `package.json` manifest before it is packed into a tarball during `pnpm pack` or `pnpm publish`. This is useful for customizing the published package without affecting your local development `package.json`."}
+{"p":"pnpmfile","b":"pnpmfile#2431","k":"para","t":"Unlike `hooks.readPackage`, which modifies how dependencies are resolved during installation, `beforePacking` only affects the contents of the tarball that gets published."}
+{"p":"pnpmfile","b":"pnpmfile#2432","k":"heading","t":"Arguments"}
+{"p":"pnpmfile","b":"pnpmfile#2433","k":"li","t":"`pkg` - The package manifest object that will be included in the published tarball."}
+{"p":"pnpmfile","b":"pnpmfile#2434","k":"heading","t":"Usage example"}
+{"p":"pnpmfile","b":"pnpmfile#2435","k":"para","t":".pnpmfile.mjs"}
+{"p":"pnpmfile","b":"pnpmfile#2436","k":"para","t":"The modifications made by this hook only affect the `package.json` inside the tarball. Your local `package.json` file remains unchanged."}
+{"p":"pnpmfile","b":"pnpmfile#2437","k":"heading","t":"`hooks.preResolution(options): Promise<void>`"}
+{"p":"pnpmfile","b":"pnpmfile#2438","k":"para","t":"This hook is executed after reading and parsing the lockfiles of the project, but before resolving dependencies. It allows modifications to the lockfile objects."}
+{"p":"pnpmfile","b":"pnpmfile#2439","k":"heading","t":"Arguments"}
+{"p":"pnpmfile","b":"pnpmfile#2440","k":"li","t":"`options.existsCurrentLockfile` - A boolean that is true if the lockfile at `node_modules/.pnpm/lock.yaml` exists."}
+{"p":"pnpmfile","b":"pnpmfile#2441","k":"li","t":"`options.currentLockfile` - The lockfile object from `node_modules/.pnpm/lock.yaml`."}
+{"p":"pnpmfile","b":"pnpmfile#2442","k":"li","t":"`options.existsNonEmptyWantedLockfile` - A boolean that is true if the lockfile at `pnpm-lock.yaml` exists."}
+{"p":"pnpmfile","b":"pnpmfile#2443","k":"li","t":"`options.wantedLockfile` - The lockfile object from `pnpm-lock.yaml`."}
+{"p":"pnpmfile","b":"pnpmfile#2444","k":"li","t":"`options.lockfileDir` - The directory where the wanted lockfile is found."}
+{"p":"pnpmfile","b":"pnpmfile#2445","k":"li","t":"`options.storeDir` - The location of the store directory."}
+{"p":"pnpmfile","b":"pnpmfile#2446","k":"li","t":"`options.registries` - A map of scopes to registry URLs."}
+{"p":"pnpmfile","b":"pnpmfile#2447","k":"heading","t":"`hooks.importPackage(destinationDir, options): Promise<string | undefined>`"}
+{"p":"pnpmfile","b":"pnpmfile#2448","k":"alt","t":"Deprecated in v11.23.0"}
+{"p":"pnpmfile","b":"pnpmfile#2449","k":"para","t":"`importPackage` is deprecated and will be removed in the next major version. pnpm warns when a pnpmfile defines it, and defining it opts the installation out of the parallel package importer, making installation slower. If you rely on this hook, comment on [#14101](https://github.com/pnpm/pnpm/issues/14101)."}
+{"p":"pnpmfile","b":"pnpmfile#2450","k":"para","t":"This hook allows to change how packages are written to `node_modules`. The return value is optional and states what method was used for importing the dependency, e.g.: clone, hardlink."}
+{"p":"pnpmfile","b":"pnpmfile#2451","k":"heading","t":"Arguments"}
+{"p":"pnpmfile","b":"pnpmfile#2452","k":"li","t":"`destinationDir` - The destination directory where the package should be written."}
+{"p":"pnpmfile","b":"pnpmfile#2453","k":"heading","t":"`hooks.filterLog(log): boolean`"}
+{"p":"pnpmfile","b":"pnpmfile#2454","k":"alt","t":"Deprecated in v12.0.0"}
+{"p":"pnpmfile","b":"pnpmfile#2455","k":"para","t":"`filterLog` returns `false` for a log entry to keep it out of pnpm's reporter output. pnpm 12 ignores the hook and warns when a pnpmfile defines it, so remove it rather than relying on it. Use [loglevel](/docs/settings/cli#loglevel) to choose how much pnpm reports."}
+{"p":"pnpmfile","b":"pnpmfile#2456","k":"heading","t":"`hooks.fetchers`"}
+{"p":"pnpmfile","b":"pnpmfile#2457","k":"alt","t":"Removed in v11.0.0"}
+{"p":"pnpmfile","b":"pnpmfile#2458","k":"para","t":"`hooks.fetchers` has been removed. Use top-level `fetchers` instead. See the [Custom Fetchers](#custom-fetchers) section for the new API."}
+{"p":"pnpmfile","b":"pnpmfile#2459","k":"heading","t":"Finders"}
+{"p":"pnpmfile","b":"pnpmfile#2460","k":"para","t":"Added in: v10.16.0"}
+{"p":"pnpmfile","b":"pnpmfile#2461","k":"para","t":"Finder functions are used with `pnpm list` and `pnpm why` via the `--find-by` flag."}
+{"p":"pnpmfile","b":"pnpmfile#2462","k":"para","t":".pnpmfile.mjs"}
+{"p":"pnpmfile","b":"pnpmfile#2463","k":"para","t":"See [Finders](/docs/finders) for more details."}
+{"p":"pnpmfile","b":"pnpmfile#2464","k":"heading","t":"Custom Resolvers and Fetchers"}
+{"p":"pnpmfile","b":"pnpmfile#2465","k":"para","t":"Added in: v11.0.0"}
+{"p":"pnpmfile","b":"pnpmfile#2466","k":"para","t":"Custom resolvers and fetchers allow you to implement custom package resolution and fetching logic for new package identifier schemes (like `my-protocol:package-name`). They are registered as top-level exports in `.pnpmfile.cjs`:"}
+{"p":"pnpmfile","b":"pnpmfile#2467","k":"heading","t":"TypeScript Interfaces"}
+{"p":"pnpmfile","b":"pnpmfile#2468","k":"heading","t":"Custom Resolvers"}
+{"p":"pnpmfile","b":"pnpmfile#2469","k":"para","t":"Custom resolvers convert package descriptors (e.g., `foo@^1.0.0`) into resolutions that are stored in the lockfile."}
+{"p":"pnpmfile","b":"pnpmfile#2470","k":"heading","t":"Resolver Interface"}
+{"p":"pnpmfile","b":"pnpmfile#2471","k":"para","t":"A custom resolver is an object that can implement any combination of the following methods:"}
+{"p":"pnpmfile","b":"pnpmfile#2472","k":"heading","t":"`canResolve(wantedDependency): boolean | Promise<boolean>`"}
+{"p":"pnpmfile","b":"pnpmfile#2473","k":"para","t":"Determines whether this resolver can resolve a given wanted dependency."}
+{"p":"pnpmfile","b":"pnpmfile#2474","k":"para","t":"- Object with:"}
+{"p":"pnpmfile","b":"pnpmfile#2475","k":"li","t":"`alias` - The package name or alias as it appears in package.json"}
+{"p":"pnpmfile","b":"pnpmfile#2476","k":"li","t":"`bareSpecifier` - The version range, git URL, file path, or other specifier"}
+{"p":"pnpmfile","b":"pnpmfile#2477","k":"para","t":"**Returns:** `true` if this resolver can handle the package, `false` otherwise. This determines whether `resolve` will be called."}
+{"p":"pnpmfile","b":"pnpmfile#2478","k":"heading","t":"`resolve(wantedDependency, opts): ResolveResult | Promise<ResolveResult>`"}
+{"p":"pnpmfile","b":"pnpmfile#2479","k":"para","t":"Resolves a wanted dependency to specific package metadata and resolution information."}
+{"p":"pnpmfile","b":"pnpmfile#2480","k":"li","t":"`wantedDependency` - The wanted dependency (same as `canResolve`)"}
+{"p":"pnpmfile","b":"pnpmfile#2481","k":"para","t":"- Object with:"}
+{"p":"pnpmfile","b":"pnpmfile#2482","k":"li","t":"`lockfileDir` - Directory containing the lockfile"}
+{"p":"pnpmfile","b":"pnpmfile#2483","k":"li","t":"`projectDir` - The project root directory"}
+{"p":"pnpmfile","b":"pnpmfile#2484","k":"li","t":"`preferredVersions` - Map of package names to preferred versions"}
+{"p":"pnpmfile","b":"pnpmfile#2485","k":"para","t":"**Returns:** Object with:"}
+{"p":"pnpmfile","b":"pnpmfile#2486","k":"li","t":"`id` - Unique package identifier (e.g., `'custom-pkg@1.0.0'`)"}
+{"p":"pnpmfile","b":"pnpmfile#2487","k":"para","t":"- Resolution metadata. This can be:"}
+{"p":"pnpmfile","b":"pnpmfile#2488","k":"li","t":"Standard resolution, e.g. `{ tarball: 'https://...', integrity: '...' }`"}
+{"p":"pnpmfile","b":"pnpmfile#2489","k":"li","t":"Custom resolution: `{ type: 'custom:cdn', url: '...' }`"}
+{"p":"pnpmfile","b":"pnpmfile#2490","k":"para","t":"Custom resolutions must be handled by a corresponding custom fetcher."}
+{"p":"pnpmfile","b":"pnpmfile#2491","k":"alt","t":"Custom Resolution Types"}
+{"p":"pnpmfile","b":"pnpmfile#2492","k":"para","t":"Custom resolutions must use the `custom:` prefix in their type field (e.g., `custom:cdn`, `custom:artifactory`) to differentiate them from pnpm's built-in resolution types."}
+{"p":"pnpmfile","b":"pnpmfile#2493","k":"heading","t":"`shouldRefreshResolution(depPath, pkgSnapshot): boolean | Promise<boolean>`"}
+{"p":"pnpmfile","b":"pnpmfile#2494","k":"para","t":"Return `true` to trigger full resolution of all packages, skipping the \"Lockfile is up to date\" optimization. This is useful for implementing time-based cache invalidation or other custom re-resolution logic."}
+{"p":"pnpmfile","b":"pnpmfile#2495","k":"li","t":"`depPath` - The package identifier string (e.g., `lodash@4.17.21`)"}
+{"p":"pnpmfile","b":"pnpmfile#2496","k":"li","t":"`pkgSnapshot` - The lockfile entry for this package, providing direct access to the resolution, dependencies, etc."}
+{"p":"pnpmfile","b":"pnpmfile#2497","k":"para","t":"**Returns:** `true` to force re-resolution, `false` otherwise."}
+{"p":"pnpmfile","b":"pnpmfile#2498","k":"para","t":"`shouldRefreshResolution` is skipped during frozen lockfile installs, as no resolution is allowed in that mode."}
+{"p":"pnpmfile","b":"pnpmfile#2499","k":"heading","t":"Custom Fetchers"}
+{"p":"pnpmfile","b":"pnpmfile#2500","k":"para","t":"Custom fetchers completely handle fetching for custom package types, downloading package contents from custom sources and storing them in pnpm's content-addressable file system."}
+{"p":"pnpmfile","b":"pnpmfile#2501","k":"heading","t":"Fetcher Interface"}
+{"p":"pnpmfile","b":"pnpmfile#2502","k":"para","t":"A custom fetcher is an object that can implement the following methods:"}
+{"p":"pnpmfile","b":"pnpmfile#2503","k":"heading","t":"`canFetch(pkgId, resolution): boolean | Promise<boolean>`"}
+{"p":"pnpmfile","b":"pnpmfile#2504","k":"para","t":"Determines whether this fetcher can fetch a package with the given resolution."}
+{"p":"pnpmfile","b":"pnpmfile#2505","k":"li","t":"`pkgId` - The unique package identifier from the resolution phase"}
+{"p":"pnpmfile","b":"pnpmfile#2506","k":"li","t":"`resolution` - The resolution object from a resolver's `resolve` method"}
+{"p":"pnpmfile","b":"pnpmfile#2507","k":"para","t":"**Returns:** `true` if this fetcher can handle fetching this package, `false` otherwise."}
+{"p":"pnpmfile","b":"pnpmfile#2508","k":"heading","t":"`fetch(cafs, resolution, opts, fetchers): FetchResult | CustomFetcherDelegation | Promise<FetchResult | CustomFetcherDelegation>`"}
+{"p":"pnpmfile","b":"pnpmfile#2509","k":"para","t":"Fetches package files and returns metadata about the fetched package."}
+{"p":"pnpmfile","b":"pnpmfile#2510","k":"li","t":"`cafs` - Content-addressable file system interface for storing files"}
+{"p":"pnpmfile","b":"pnpmfile#2511","k":"li","t":"`resolution` - The resolution object (same as passed to `canFetch`)"}
+{"p":"pnpmfile","b":"pnpmfile#2512","k":"para","t":"- Fetch options including:"}
+{"p":"pnpmfile","b":"pnpmfile#2513","k":"li","t":"`lockfileDir` - Directory containing the lockfile"}
+{"p":"pnpmfile","b":"pnpmfile#2514","k":"li","t":"`filesIndexFile` - Path for the files index"}
+{"p":"pnpmfile","b":"pnpmfile#2515","k":"li","t":"`onStart` - Optional callback when fetch starts"}
+{"p":"pnpmfile","b":"pnpmfile#2516","k":"li","t":"`onProgress` - Optional progress callback"}
+{"p":"pnpmfile","b":"pnpmfile#2517","k":"para","t":"- Object containing pnpm's standard fetchers for delegation:"}
+{"p":"pnpmfile","b":"pnpmfile#2518","k":"li","t":"`remoteTarball` - Fetcher for remote tarballs"}
+{"p":"pnpmfile","b":"pnpmfile#2519","k":"li","t":"`localTarball` - Fetcher for local tarballs"}
+{"p":"pnpmfile","b":"pnpmfile#2520","k":"li","t":"`gitHostedTarball` - Fetcher for GitHub/GitLab/Bitbucket tarballs"}
+{"p":"pnpmfile","b":"pnpmfile#2521","k":"li","t":"`directory` - Fetcher for local directories"}
+{"p":"pnpmfile","b":"pnpmfile#2522","k":"li","t":"`git` - Fetcher for git repositories"}
+{"p":"pnpmfile","b":"pnpmfile#2523","k":"para","t":"**Returns:** either a fetch result, or a [delegation envelope](#delegating-to-the-built-in-fetchers)."}
+{"p":"pnpmfile","b":"pnpmfile#2524","k":"para","t":"A fetch result is an object with:"}
+{"p":"pnpmfile","b":"pnpmfile#2525","k":"li","t":"`filesIndex` - Map of relative file paths to their physical locations. For remote packages, these are paths in pnpm's content-addressable store (CAFS). For local packages (when `local: true`), these are absolute paths to files on disk."}
+{"p":"pnpmfile","b":"pnpmfile#2526","k":"li","t":"`manifest` - Optional. The package.json from the fetched package. If not provided, pnpm will read it from disk when needed. Providing it avoids an extra file I/O operation and is recommended when you have the manifest data readily available (e.g., already parsed during fetch)."}
+{"p":"pnpmfile","b":"pnpmfile#2527","k":"li","t":"`requiresBuild` - Boolean indicating whether the package has build scripts that need to be executed. Set to `true` if the package has `preinstall`, `install`, or `postinstall` scripts, or contains `binding.gyp` or `.hooks/` files. Standard fetchers determine this automatically using the manifest and file list."}
+{"p":"pnpmfile","b":"pnpmfile#2528","k":"li","t":"`local` - Optional. Set to `true` to load the package directly from disk without copying to pnpm's store. When `true`, `filesIndex` should contain absolute paths to files on disk, and pnpm will hardlink them to `node_modules` instead of copying. This is how the directory fetcher handles local dependencies (e.g., `file:../my-package`)."}
+{"p":"pnpmfile","b":"pnpmfile#2529","k":"heading","t":"Delegating to the built-in fetchers"}
+{"p":"pnpmfile","b":"pnpmfile#2530","k":"para","t":"Added in: v11.12.0"}
+{"p":"pnpmfile","b":"pnpmfile#2531","k":"para","t":"Rather than fetching the package itself, a custom fetcher may hand the work back to pnpm. There are two ways to do this."}
+{"p":"pnpmfile","b":"pnpmfile#2532","k":"para","t":"**Return a { delegate } envelope.** Instead of a fetch result, return an object with a single `delegate` key holding the resolution pnpm should fetch instead. pnpm rewrites the package's resolution to that shape and runs its built-in fetch path on it:"}
+{"p":"pnpmfile","b":"pnpmfile#2533","k":"para","t":".pnpmfile.cjs"}
+{"p":"pnpmfile","b":"pnpmfile#2534","k":"para","t":"The delegated resolution must be a complete, fetchable shape (for example `{ tarball, integrity }`). Delegation is single-step: a `delegate` that is itself custom-typed is rejected."}
+{"p":"pnpmfile","b":"pnpmfile#2535","k":"para","t":"**Call fetchers.* directly.** The `fetchers` argument gives you pnpm's standard fetchers, so you can transform the resolution and invoke one yourself."}
+{"p":"pnpmfile","b":"pnpmfile#2536","k":"alt","t":"Prefer the envelope for portability"}
+{"p":"pnpmfile","b":"pnpmfile#2537","k":"para","t":"The `{ delegate }` envelope is the only delegation form that works in both pnpm and [pacquet](https://pnpm.io/blog/releases/12.0) (the Rust port of pnpm). pacquet invokes pnpmfile fetchers over IPC, where `cafs` and `fetchers` cannot exist and both arrive as `null`. A fetcher that should run on either stack must return the envelope rather than calling `fetchers.*`."}
+{"p":"pnpmfile","b":"pnpmfile#2538","k":"heading","t":"Usage Examples"}
+{"p":"pnpmfile","b":"pnpmfile#2539","k":"heading","t":"Basic Custom Resolver"}
+{"p":"pnpmfile","b":"pnpmfile#2540","k":"para","t":"This example shows a custom resolver that resolves packages from a custom registry:"}
+{"p":"pnpmfile","b":"pnpmfile#2541","k":"para","t":".pnpmfile.cjs"}
+{"p":"pnpmfile","b":"pnpmfile#2542","k":"heading","t":"Custom Resolver and Fetcher with `shouldRefreshResolution`"}
+{"p":"pnpmfile","b":"pnpmfile#2543","k":"para","t":"This example shows a resolver and fetcher working together with a custom resolution type and time-based cache invalidation:"}
+{"p":"pnpmfile","b":"pnpmfile#2544","k":"para","t":".pnpmfile.cjs"}
+{"p":"pnpmfile","b":"pnpmfile#2545","k":"heading","t":"Basic Custom Fetcher"}
+{"p":"pnpmfile","b":"pnpmfile#2546","k":"para","t":"This example shows a custom fetcher that fetches certain packages from a different source:"}
+{"p":"pnpmfile","b":"pnpmfile#2547","k":"para","t":".pnpmfile.cjs"}
+{"p":"pnpmfile","b":"pnpmfile#2548","k":"heading","t":"Custom Resolution Type with Resolver and Fetcher"}
+{"p":"pnpmfile","b":"pnpmfile#2549","k":"para","t":"This example shows a custom resolver and fetcher working together with a custom resolution type:"}
+{"p":"pnpmfile","b":"pnpmfile#2550","k":"para","t":".pnpmfile.cjs"}
+{"p":"pnpmfile","b":"pnpmfile#2551","k":"heading","t":"Priority and Ordering"}
+{"p":"pnpmfile","b":"pnpmfile#2552","k":"para","t":"When multiple resolvers are registered, they are checked in order. The first resolver where `canResolve` returns `true` will be used for resolution. The same applies for fetchers: The first fetcher where `canFetch` returns `true` will be used during the fetch phase."}
+{"p":"pnpmfile","b":"pnpmfile#2553","k":"para","t":"Custom resolvers are tried before pnpm's built-in resolvers (npm, git, tarball, etc.), giving you full control over package resolution."}
+{"p":"pnpmfile","b":"pnpmfile#2554","k":"heading","t":"Performance Considerations"}
+{"p":"pnpmfile","b":"pnpmfile#2555","k":"para","t":"`canResolve()`, `canFetch()`, and `shouldRefreshResolution()` should be cheap checks (ideally synchronous), as they're called for every dependency during resolution."}
+{"p":"pnpmfile","b":"pnpmfile#2556","k":"heading","t":"Related Configuration"}
+{"p":"pnpmfile","b":"pnpmfile#2557","k":"heading","t":"ignorePnpmfile"}
+{"p":"pnpmfile","b":"pnpmfile#2558","k":"li","t":"Default: **false**"}
+{"p":"pnpmfile","b":"pnpmfile#2559","k":"li","t":"Type: **Boolean**"}
+{"p":"pnpmfile","b":"pnpmfile#2560","k":"para","t":"The pnpmfile will be ignored. Useful together with `--ignore-scripts` when you want to make sure that no script gets executed during install."}
+{"p":"pnpmfile","b":"pnpmfile#2561","k":"heading","t":"pnpmfile"}
+{"p":"pnpmfile","b":"pnpmfile#2562","k":"li","t":"Default: **['.pnpmfile.mjs']**"}
+{"p":"pnpmfile","b":"pnpmfile#2563","k":"li","t":"Type: **path[]**"}
+{"p":"pnpmfile","b":"pnpmfile#2564","k":"li","t":"Example: **['.pnpm/.pnpmfile.mjs']**"}
+{"p":"pnpmfile","b":"pnpmfile#2565","k":"para","t":"The location of the local pnpmfile(s)."}
+{"p":"pnpmfile","b":"pnpmfile#2566","k":"heading","t":"globalPnpmfile"}
+{"p":"pnpmfile","b":"pnpmfile#2567","k":"li","t":"Default: **null**"}
+{"p":"pnpmfile","b":"pnpmfile#2568","k":"li","t":"Type: **path**"}
+{"p":"pnpmfile","b":"pnpmfile#2569","k":"li","t":"Example: **~/.pnpm/global_pnpmfile.mjs**"}
+{"p":"pnpmfile","b":"pnpmfile#2570","k":"para","t":"The location of a global pnpmfile. A global pnpmfile is used by all projects during installation."}
+{"p":"pnpmfile","b":"pnpmfile#2571","k":"para","t":"It is recommended to use local pnpmfiles. Only use a global pnpmfile if you use pnpm on projects that don't use pnpm as the primary package manager."}
+{"p":"pnpmfile","b":"pnpmfile@title","k":"title","t":".pnpmfile.mjs"}
+{"p":"podman","b":"podman#2572","k":"heading","t":"Sharing Files Between a Container and the Host Btrfs Filesystem"}
+{"p":"podman","b":"podman#2573","k":"para","t":"This method only works on copy-on-write filesystems supported by Podman, such as Btrfs. For other filesystems, like Ext4, pnpm will copy the files instead."}
+{"p":"podman","b":"podman#2574","k":"para","t":"Podman support copy-on-write filesystems like Btrfs. With Btrfs, container runtimes create actual Btrfs subvolumes for their mounted volumes. pnpm can leverage this behavior to reflink the files between different mounted volumes."}
+{"p":"podman","b":"podman#2575","k":"para","t":"To share files between the host and the container, mount the store directory and the `node_modules` directory from the host to the container. This allows pnpm inside the container to naturally reuse the files from the host as reflinks."}
+{"p":"podman","b":"podman#2576","k":"para","t":"Only mount a host pnpm store into containers you trust. A container with write access to the mounted store can affect later installs that reuse that store."}
+{"p":"podman","b":"podman#2577","k":"para","t":"Below is an example container setup for demonstration:"}
+{"p":"podman","b":"podman#2578","k":"para","t":"Declare Node.js in [devEngines.runtime](/docs/package_json#devenginesruntime) in your `package.json`. The `pnpm install` command below will install the declared version automatically."}
+{"p":"podman","b":"podman#2579","k":"para","t":"Run the following command to build the podman image:"}
+{"p":"podman","b":"podman@title","k":"title","t":"Working with Podman"}
+{"p":"production","b":"production#2580","k":"para","t":"There are two ways to bootstrap your package in a production environment with pnpm. One of these is to commit the lockfile. Then, in your production environment, run `pnpm install` - this will build the dependency tree using the lockfile, meaning the dependency versions will be consistent with how they were when the lockfile was committed. This is the most effective way (and the one we recommend) to ensure your dependency tree persists across environments."}
+{"p":"production","b":"production#2581","k":"para","t":"The other method is to commit the lockfile AND copy the package store to your production environment (you can change where with the [store location option](/docs/settings/store#storedir)). Then, you can run `pnpm install --offline` and pnpm will use the packages from the global store, so it will not make any requests to the registry. This is recommended **ONLY** for environments where external access to the registry is unavailable for whatever reason."}
+{"p":"registries","b":"registries#2582","k":"para","t":"Added in: v11.23.0"}
+{"p":"registries","b":"registries#2583","k":"para","t":"The [registries](/docs/settings/dependency-resolution#registries) setting in `pnpm-workspace.yaml` declares each registry a project installs from — once, keyed by the registry's URL. Everything pnpm knows about a registry lives in its entry: the scopes routed to it, the bare-specifier prefix it answers to, and what the server behind it is like."}
+{"p":"registries","b":"registries#2584","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"registries","b":"registries#2585","k":"para","t":"The URL is the key because every fact in an entry is a fact about that server. If the tarball layout were keyed by scope instead, it would be bound to whoever the scope currently points at, and two developers whose scope resolves differently would write lockfiles that disagree about which URLs may be omitted."}
+{"p":"registries","b":"registries#2586","k":"para","t":"An entry may carry:"}
+{"p":"registries","b":"registries#2587","k":"para","t":"Any other field is rejected. In particular, credentials (`_authToken`, `_auth`, `_password`, `username`, `tokenHelper`) and TLS material (`ca`, `cafile`, `cert`, `certfile`, `key`, `keyfile`) are refused rather than silently ignored — `pnpm-workspace.yaml` is committed to the repository, so they belong in [.npmrc](/docs/npmrc) (e.g. `//npm.corp.example.com/:_authToken=...`). A URL key that embeds `user:pass@` credentials is refused for the same reason."}
+{"p":"registries","b":"registries#2588","k":"heading","t":"Routing packages to a registry"}
+{"p":"registries","b":"registries#2589","k":"heading","t":"scopes"}
+{"p":"registries","b":"registries#2590","k":"para","t":"The scopes whose packages resolve from this registry, `@`-prefixed. A bare `\"@\"` routes the scope-less default registry — the same registry the `registry` setting names:"}
+{"p":"registries","b":"registries#2591","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"registries","b":"registries#2592","k":"para","t":"A scope resolves to exactly one registry, so routing the same scope from two entries is an error."}
+{"p":"registries","b":"registries#2593","k":"heading","t":"prefix"}
+{"p":"registries","b":"registries#2594","k":"para","t":"The [named-registry](/docs/package-sources#named-registries) prefix this registry answers to, as in `\"lib\": \"work:^2.0.0\"`:"}
+{"p":"registries","b":"registries#2595","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"registries","b":"registries#2596","k":"para","t":"Each entry declares at most one prefix, and two entries cannot declare the same one: the prefix is the registry's identity in a lockfile package key (`foo@work:1.0.0`), so a second spelling would key the same package from the same registry twice."}
+{"p":"registries","b":"registries#2597","k":"para","t":"Prefixes declared here follow the same rules as the deprecated [namedRegistries](/docs/settings/dependency-resolution#namedregistries) setting they replace: the built-in `gh:` and `npmjs:` aliases can be overridden by declaring their prefix on your own URL, [reserved names](/docs/settings/dependency-resolution#reserved-alias-names) are rejected, and packages resolved through a prefix get [registry-qualified lockfile keys](/docs/settings/dependency-resolution#named-registries-in-the-lockfile)."}
+{"p":"registries","b":"registries#2598","k":"heading","t":"Describing the server"}
+{"p":"registries","b":"registries#2599","k":"heading","t":"serverType"}
+{"p":"registries","b":"registries#2600","k":"para","t":"Registries do not all lay out tarball URLs the way the npm registry does. pnpm omits a tarball URL from `pnpm-lock.yaml` when it can rebuild the URL from the package's name, version, and registry — the lockfile then carries no host-specific URL for that package, and renaming or moving the registry does not churn the lockfile. Whether pnpm can rebuild a URL depends on the server, and `serverType` is where you declare it. It has three states:"}
+{"p":"registries","b":"registries#2601","k":"para","t":"For a JFrog Artifactory registry this is the difference between a lockfile that records a host-specific tarball URL for **every scoped package** and one that records none of them:"}
+{"p":"registries","b":"registries#2602","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"registries","b":"registries#2603","k":"para","t":"Values for common servers:"}
+{"p":"registries","b":"registries#2604","k":"para","t":"The layout is declared, never inferred: a virtual repository can serve both layouts at once, depending on whether each package was synced from an upstream or published locally, so there is no registry-level signal pnpm could sniff. Declaring it also keeps a wrong value a fixable misconfiguration instead of a silent breakage."}
+{"p":"registries","b":"registries#2605","k":"para","t":"`serverType` is a claim about the server that only its operator can make, and the lockfile depends on it: an omitted tarball URL is rebuilt using the declared layout on every install, including `--frozen-lockfile` installs. Declare a layout the server actually serves, and expect a one-time lockfile diff after declaring one — URLs that pnpm can now rebuild disappear from the lockfile on the next install that writes it."}
+{"p":"registries","b":"registries#2606","k":"heading","t":"supportsTimeField"}
+{"p":"registries","b":"registries#2607","k":"para","t":"Whether this registry's abbreviated metadata carries the `time` field. `registry.npmjs.org`'s does not, which is why the default is `false` and why time-based resolution features such as [minimumReleaseAge](/docs/settings/dependency-resolution#minimumreleaseage) fall back to the far larger full metadata documents. A registry that does carry it — Verdaccio v5.15.1+ and several proxies — is worth declaring:"}
+{"p":"registries","b":"registries#2608","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"registries","b":"registries#2609","k":"para","t":"This is the per-registry form of the [registrySupportsTimeField](/docs/settings/other#registrysupportstimefield) setting. The fallback is decided per registry: one registry that needs full metadata no longer costs it at the others, and `registrySupportsTimeField` remains the answer for every registry the project does not describe."}
+{"p":"registries","b":"registries#2610","k":"heading","t":"Where the setting may live"}
+{"p":"registries","b":"registries#2611","k":"para","t":"The setting belongs in `pnpm-workspace.yaml` rather than `.npmrc` or the global config because the lockfile depends on it: one developer omitting tarball URLs that another reconstructs differently would break a frozen install."}
+{"p":"registries","b":"registries#2612","k":"para","t":"The [global configuration file](/docs/cli/config) (`config.yaml`) may declare the *routes* — `scopes` and `prefix` — so that a scope or an alias like `work:` applies to every project on the machine. The server descriptions (`serverType` and `supportsTimeField`) are read only from `pnpm-workspace.yaml`, for the reason above."}
+{"p":"registries","b":"registries#2613","k":"para","t":"Since v12.1.0, [pnpm login --scope <scope>](/docs/cli/login#--scope-scope) adds that machine-wide scope route to the global `registries` setting while it records the credential under `_auth`. A later login for the same scope moves the route rather than declaring it at two registries."}
+{"p":"registries","b":"registries#2614","k":"para","t":"An entry that declares no routes describes a registry configured elsewhere — for example, the default registry set in `.npmrc`. Such an entry only takes effect when its URL is one the project actually resolves from; pnpm warns about entries that match no configured registry, since they would otherwise sit there inert (a stale URL, a scope that moved)."}
+{"p":"registries","b":"registries#2615","k":"para","t":"Environment variables are **not** expanded in the URL keys of this setting, for the same reason they are not expanded in other [registry URLs in pnpm-workspace.yaml](/docs/settings): the file is committed, and expanding env variables into a request destination could leak secrets to an attacker-controlled host. A key containing a `${...}` placeholder is ignored."}
+{"p":"registries","b":"registries#2616","k":"heading","t":"The older shapes"}
+{"p":"registries","b":"registries#2617","k":"para","t":"Before v11.23.0, `registries` mapped scopes to URLs, with the `default` key naming the main registry:"}
+{"p":"registries","b":"registries#2618","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"registries","b":"registries#2619","k":"para","t":"This shape is still accepted and behaves as before. The two shapes cannot be mixed in one map — an entry whose value is a string is a scope route, and a scope route keyed by a URL is an error."}
+{"p":"registries","b":"registries#2620","k":"para","t":"The [namedRegistries](/docs/settings/dependency-resolution#namedregistries) setting is deprecated in favor of `prefix`. It is still read, but only for prefixes that `registries` does not declare; when both declare prefixes, pnpm warns."}

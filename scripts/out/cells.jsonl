@@ -1,0 +1,16 @@
+{"b":"cell#0000","t":"Plug'n'Play","n":1}
+{"b":"cell#0001","t":"**Node.js**","n":1}
+{"b":"cell#0002","t":"Node.js 14","n":1}
+{"b":"cell#0003","t":"Node.js 16","n":1}
+{"b":"cell#0004","t":"Node.js 18","n":1}
+{"b":"cell#0005","t":"Node.js 20","n":1}
+{"b":"cell#0006","t":"Node.js 22","n":1}
+{"b":"cell#0007","t":"Node.js 24","n":1}
+{"b":"cell#0008","t":"Node.js 26","n":1}
+{"b":"cell#0009","t":"Yarn Classic (`<2`)","n":1}
+{"b":"cell#0010","t":"Yarn Berry (`2` – `5`)","n":1}
+{"b":"cell#0011","t":"JFrog Artifactory","n":1}
+{"b":"cell#0012","t":"GitLab package registry","n":1}
+{"b":"cell#0013","t":"Verdaccio, Sonatype Nexus, Azure Artifacts","n":1}
+{"b":"cell#0014","t":"GitHub Packages","n":1}
+{"b":"cell#0015","t":"GitHub Enterprise Server","n":1}

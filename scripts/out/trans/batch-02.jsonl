@@ -1,0 +1,248 @@
+{"p":"cli/cache-view","b":"cli/cache-view#242","k":"para","t":"This command is experimental"}
+{"p":"cli/cache-view","b":"cli/cache-view#243","k":"para","t":"Views information from the specified package's cache."}
+{"p":"cli/cache-view","b":"cli/cache-view@title","k":"title","t":"pnpm cache view"}
+{"p":"cli/cat-file","b":"cli/cat-file#250","k":"para","t":"Prints the contents of a file based on the hash value stored in the index file. For example:"}
+{"p":"cli/cat-file","b":"cli/cat-file@title","k":"title","t":"pnpm cat-file"}
+{"p":"cli/cat-index","b":"cli/cat-index#251","k":"para","t":"Prints the index file of a specific package from the store. The package is specified by its name and version:"}
+{"p":"cli/cat-index","b":"cli/cat-index@title","k":"title","t":"pnpm cat-index"}
+{"p":"cli/change","b":"cli/change#252","k":"para","t":"Added in: v11.13.0"}
+{"p":"cli/change","b":"cli/change#253","k":"para","t":"Records a change intent: which packages a change affects, the bump type for each, and a summary that becomes the changelog entry. The intent file is written to `.changeset/` in the [changesets](https://github.com/changesets/changesets) format."}
+{"p":"cli/change","b":"cli/change#254","k":"para","t":"Change intents are consumed later by [pnpm version -r](/docs/cli/version#recursive-releases). See [Release management](/docs/versioning) for the whole workflow."}
+{"p":"cli/change","b":"cli/change#255","k":"heading","t":"Usage"}
+{"p":"cli/change","b":"cli/change#256","k":"para","t":"Run without arguments to record an intent interactively:"}
+{"p":"cli/change","b":"cli/change#257","k":"para","t":"You are asked three questions:"}
+{"p":"cli/change","b":"cli/change#258","k":"li","t":"**Which packages does this change affect?** Packages changed since the merge base with `main` (or `master`) are preselected."}
+{"p":"cli/change","b":"cli/change#259","k":"li","t":"**Which packages should have a major bump?**, then the same for `minor`. Anything left over is bumped as `patch`."}
+{"p":"cli/change","b":"cli/change#260","k":"li","t":"**Summary of the change**, which becomes the changelog entry."}
+{"p":"cli/change","b":"cli/change#261","k":"para","t":"The result is a file such as `.changeset/calm-cats-resolve.md`:"}
+{"p":"cli/change","b":"cli/change#262","k":"para","t":"Commit this file along with your change."}
+{"p":"cli/change","b":"cli/change#263","k":"para","t":"Passing package names together with `--bump` and `--summary` records an intent without prompting, which is useful in scripts:"}
+{"p":"cli/change","b":"cli/change#264","k":"heading","t":"Subcommands"}
+{"p":"cli/change","b":"cli/change#265","k":"heading","t":"status"}
+{"p":"cli/change","b":"cli/change#266","k":"para","t":"Show the pending change intents and the release plan they produce."}
+{"p":"cli/change","b":"cli/change#267","k":"para","t":"The cause of each bump is one of `intent` (a change intent named the package), `dependencies` (a dependent was pulled in by propagation), `fixed` (a [fixed group](/docs/versioning#fixed-groups) companion), or `epic` (an [epic](/docs/versioning#epics) re-base)."}
+{"p":"cli/change","b":"cli/change#268","k":"heading","t":"Options"}
+{"p":"cli/change","b":"cli/change#269","k":"heading","t":"--bump <type>"}
+{"p":"cli/change","b":"cli/change#270","k":"para","t":"The bump type for the named packages: `none`, `patch`, `minor`, or `major`. `none` records an explicit decline — the change needs no release."}
+{"p":"cli/change","b":"cli/change#271","k":"heading","t":"--summary <text>"}
+{"p":"cli/change","b":"cli/change#272","k":"para","t":"The summary for the changelog entry. Together with package names, this runs the command non-interactively."}
+{"p":"cli/change","b":"cli/change#273","k":"heading","t":"Referencing packages by directory"}
+{"p":"cli/change","b":"cli/change#274","k":"para","t":"When two workspace projects publish the same name, a package can be referenced by its workspace-relative directory instead, with a `./` prefix:"}
+{"p":"cli/change","b":"cli/change#275","k":"para","t":"This is the one additive extension pnpm makes to the changesets format. `pnpm change` writes it automatically when a name is ambiguous."}
+{"p":"cli/change","b":"cli/change@title","k":"title","t":"pnpm change"}
+{"p":"cli/ci","b":"cli/ci#276","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/ci","b":"cli/ci#277","k":"para","t":"Perform a clean install. This command runs [pnpm clean](/docs/cli/clean) followed by [pnpm install --frozen-lockfile](/docs/cli/install)."}
+{"p":"cli/ci","b":"cli/ci#278","k":"para","t":"Designed for CI/CD environments where reproducible builds are critical."}
+{"p":"cli/ci","b":"cli/ci@title","k":"title","t":"pnpm ci"}
+{"p":"cli/clean","b":"cli/clean#279","k":"para","t":"Safely remove `node_modules` contents from all workspace projects. Uses Node.js to remove directories, which correctly handles NTFS junctions on Windows without following them into their targets."}
+{"p":"cli/clean","b":"cli/clean#280","k":"para","t":"In a workspace, `node_modules` directories are cleaned in the root and every workspace package. Non-pnpm hidden entries (e.g., `.cache`) inside `node_modules` are preserved."}
+{"p":"cli/clean","b":"cli/clean#281","k":"para","t":"If a custom [virtualStoreDir](/docs/settings/node-modules#virtualstoredir) is configured and it resides inside the project root (but outside `node_modules`), it is also removed."}
+{"p":"cli/clean","b":"cli/clean#282","k":"heading","t":"Options"}
+{"p":"cli/clean","b":"cli/clean#283","k":"heading","t":"--lockfile, -l"}
+{"p":"cli/clean","b":"cli/clean#284","k":"para","t":"Also remove `pnpm-lock.yaml` files."}
+{"p":"cli/clean","b":"cli/clean@title","k":"title","t":"pnpm clean"}
+{"p":"cli/config","b":"cli/config#285","k":"para","t":"Manage the configuration files."}
+{"p":"cli/config","b":"cli/config#286","k":"para","t":"pnpm settings are split across two kinds of configuration files:"}
+{"p":"cli/config","b":"cli/config#287","k":"li","t":"**Legacy and npm-compatible registry/authentication settings** live in INI files — the global `rc` file, `auth.ini`, and local `.npmrc` files."}
+{"p":"cli/config","b":"cli/config#288","k":"li","t":"**pnpm settings** live in YAML files — the global `config.yaml` and the per-project `pnpm-workspace.yaml`. The global file may also hold the structured [_auth](/docs/npmrc#_auth) and [registries](/docs/registries) values that pnpm 12.1 and newer writes during `pnpm login`."}
+{"p":"cli/config","b":"cli/config#289","k":"para","t":"The local workspace configuration file is located at the root of the project and is named `pnpm-workspace.yaml`. The global YAML configuration file (`config.yaml`) is located at:"}
+{"p":"cli/config","b":"cli/config#290","k":"li","t":"If the **$XDG_CONFIG_HOME** env variable is set, then **$XDG_CONFIG_HOME/pnpm/config.yaml**"}
+{"p":"cli/config","b":"cli/config#291","k":"li","t":"On Windows: **~/AppData/Local/pnpm/config/config.yaml**"}
+{"p":"cli/config","b":"cli/config#292","k":"li","t":"On macOS: **~/Library/Preferences/pnpm/config.yaml**"}
+{"p":"cli/config","b":"cli/config#293","k":"li","t":"On Linux: **~/.config/pnpm/config.yaml**"}
+{"p":"cli/config","b":"cli/config#294","k":"para","t":"The global `rc` file (registry/auth settings only) is at:"}
+{"p":"cli/config","b":"cli/config#295","k":"li","t":"If the **$XDG_CONFIG_HOME** env variable is set, then **$XDG_CONFIG_HOME/pnpm/rc**"}
+{"p":"cli/config","b":"cli/config#296","k":"li","t":"On Windows: **~/AppData/Local/pnpm/config/rc**"}
+{"p":"cli/config","b":"cli/config#297","k":"li","t":"On macOS: **~/Library/Preferences/pnpm/rc**"}
+{"p":"cli/config","b":"cli/config#298","k":"li","t":"On Linux: **~/.config/pnpm/rc**"}
+{"p":"cli/config","b":"cli/config#299","k":"para","t":"You can also retrieve the path to your global config file by running (added in v10.21.0):"}
+{"p":"cli/config","b":"cli/config#300","k":"heading","t":"Commands"}
+{"p":"cli/config","b":"cli/config#301","k":"heading","t":"set <key> <value>"}
+{"p":"cli/config","b":"cli/config#302","k":"para","t":"Set the config key to the value provided."}
+{"p":"cli/config","b":"cli/config#303","k":"para","t":"Without the `--json` flag, it parses the value as plain string:"}
+{"p":"cli/config","b":"cli/config#304","k":"para","t":"With the `--json` flag, it parses the value as JSON:"}
+{"p":"cli/config","b":"cli/config#305","k":"para","t":"The `--json` flag also allows `pnpm config set` to create arrays and objects:"}
+{"p":"cli/config","b":"cli/config#306","k":"para","t":"The `set` command does not accept a property path."}
+{"p":"cli/config","b":"cli/config#307","k":"para","t":"`pnpm config set` refuses to write a setting to a project's `pnpm-workspace.yaml` that pnpm does not read from there — `configDir`, `pnpmHomeDir`, `stateDir`, and the other settings that name machine-level state. Since v12.1.0, this includes `scope`, which controls the machine-wide default for `pnpm login`. The command fails with `ERR_PNPM_CONFIG_SET_NOT_A_PROJECT_SETTING`, naming where the setting belongs when it belongs somewhere. `pnpm config delete` still clears such a key from a file that already carries it."}
+{"p":"cli/config","b":"cli/config#308","k":"heading","t":"get <key>"}
+{"p":"cli/config","b":"cli/config#309","k":"para","t":"Print the config value for the provided key."}
+{"p":"cli/config","b":"cli/config#310","k":"para","t":"The `key` can be a simple key:"}
+{"p":"cli/config","b":"cli/config#311","k":"para","t":"It can also be a property path:"}
+{"p":"cli/config","b":"cli/config#312","k":"para","t":"The syntax of the property path emulates JavaScript property paths."}
+{"p":"cli/config","b":"cli/config#313","k":"heading","t":"delete <key>"}
+{"p":"cli/config","b":"cli/config#314","k":"para","t":"Remove the config key from the config file."}
+{"p":"cli/config","b":"cli/config#315","k":"heading","t":"list"}
+{"p":"cli/config","b":"cli/config#316","k":"para","t":"Show all the config settings. Output is a JSON object."}
+{"p":"cli/config","b":"cli/config#317","k":"para","t":"Auth-related settings are hidden from the output; use `pnpm config get <key>` to read them explicitly."}
+{"p":"cli/config","b":"cli/config#318","k":"para","t":"Since v11, `pnpm config get` (without `--json`) no longer prints INI-formatted text. It prints JSON for objects and arrays, and raw strings for strings, numbers, booleans, and nulls. `pnpm config get --json` prints all values as JSON. `pnpm config list` always prints a JSON object."}
+{"p":"cli/config","b":"cli/config#319","k":"heading","t":"Options"}
+{"p":"cli/config","b":"cli/config#320","k":"heading","t":"--global, -g"}
+{"p":"cli/config","b":"cli/config#321","k":"para","t":"Set the configuration in the global config file."}
+{"p":"cli/config","b":"cli/config#322","k":"heading","t":"--location"}
+{"p":"cli/config","b":"cli/config#323","k":"para","t":"By default, `--location` is set to `global`."}
+{"p":"cli/config","b":"cli/config#324","k":"para","t":"When set to `project`, pnpm writes the setting to `pnpm-workspace.yaml` at the workspace root (or, for registry/auth settings, to the `.npmrc` in the workspace root)."}
+{"p":"cli/config","b":"cli/config#325","k":"para","t":"When set to `global`, the behavior is the same as passing the `--global` option."}
+{"p":"cli/config","b":"cli/config#326","k":"heading","t":"--json"}
+{"p":"cli/config","b":"cli/config#327","k":"para","t":"Make `get` and `list` show all the config settings in JSON format and make `set` parse the value as JSON."}
+{"p":"cli/config","b":"cli/config@title","k":"title","t":"pnpm config"}
+{"p":"cli/create","b":"cli/create#328","k":"para","t":"Create a project from a `create-*` or `@foo/create-*` starter kit."}
+{"p":"cli/create","b":"cli/create#329","k":"heading","t":"Examples"}
+{"p":"cli/create","b":"cli/create#330","k":"heading","t":"Options"}
+{"p":"cli/create","b":"cli/create#331","k":"heading","t":"--allow-build"}
+{"p":"cli/create","b":"cli/create#332","k":"para","t":"Added in: v10.2.0"}
+{"p":"cli/create","b":"cli/create#333","k":"para","t":"A list of package names that are allowed to run postinstall scripts during installation."}
+{"p":"cli/create","b":"cli/create#334","k":"heading","t":"Security and trust policies"}
+{"p":"cli/create","b":"cli/create#335","k":"para","t":"Since v11.0.0, `pnpm create` honors the project-level security and trust policy settings — [minimumReleaseAge](/docs/settings/dependency-resolution#minimumreleaseage) (and its `Exclude`/`Strict` companions) and [trustPolicy](/docs/settings/dependency-resolution#trustpolicy) (and its `Exclude`/`IgnoreAfter` companions) — when resolving and fetching the starter kit."}
+{"p":"cli/create","b":"cli/create@title","k":"title","t":"pnpm create"}
+{"p":"cli/dedupe","b":"cli/dedupe#362","k":"para","t":"Perform an install removing older dependencies in the lockfile if a newer version can be used."}
+{"p":"cli/dedupe","b":"cli/dedupe#363","k":"heading","t":"Options"}
+{"p":"cli/dedupe","b":"cli/dedupe#364","k":"heading","t":"`--check`"}
+{"p":"cli/dedupe","b":"cli/dedupe#365","k":"para","t":"Check if running dedupe would result in changes without installing packages or editing the lockfile. Exits with a non-zero status code if changes are possible."}
+{"p":"cli/dedupe","b":"cli/dedupe@title","k":"title","t":"pnpm dedupe"}
+{"p":"cli/deploy","b":"cli/deploy#336","k":"para","t":"Deploy a package from a workspace. During deployment, the files of the deployed package are copied to the target directory. All dependencies of the deployed package, including dependencies from the workspace, are installed inside an isolated `node_modules` directory at the target directory. The target directory will contain a portable package that can be copied to a server and executed without additional steps."}
+{"p":"cli/deploy","b":"cli/deploy#337","k":"para","t":"By default, the deploy command only works with workspaces that have the `inject-workspace-packages` setting set to `true`. If you want to use deploy without \"injected dependencies\", use the `--legacy` flag or set `force-legacy-deploy` to `true`."}
+{"p":"cli/deploy","b":"cli/deploy#338","k":"para","t":"When the [enableGlobalVirtualStore](/docs/settings/node-modules#enableglobalvirtualstore) option is set, `pnpm deploy` ignores it and always creates a localized virtual store within the deploy directory. This keeps the deploy directory self-contained and portable."}
+{"p":"cli/deploy","b":"cli/deploy#339","k":"para","t":"In case you build your project before deployment, also use the `--prod` option to skip `devDependencies` installation."}
+{"p":"cli/deploy","b":"cli/deploy#340","k":"para","t":"Usage in a docker image. After building everything in your monorepo, do this in a second image that uses your monorepo base image as a build context or in an additional build stage:"}
+{"p":"cli/deploy","b":"cli/deploy#341","k":"heading","t":"Options"}
+{"p":"cli/deploy","b":"cli/deploy#342","k":"heading","t":"--dev, -D"}
+{"p":"cli/deploy","b":"cli/deploy#343","k":"para","t":"Only `devDependencies` are installed."}
+{"p":"cli/deploy","b":"cli/deploy#344","k":"heading","t":"--no-optional"}
+{"p":"cli/deploy","b":"cli/deploy#345","k":"para","t":"`optionalDependencies` are not installed."}
+{"p":"cli/deploy","b":"cli/deploy#346","k":"heading","t":"--prod, -P"}
+{"p":"cli/deploy","b":"cli/deploy#347","k":"para","t":"Packages in `devDependencies` won't be installed."}
+{"p":"cli/deploy","b":"cli/deploy#348","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/deploy","b":"cli/deploy#349","k":"heading","t":"--legacy"}
+{"p":"cli/deploy","b":"cli/deploy#350","k":"para","t":"Force legacy deploy implementation."}
+{"p":"cli/deploy","b":"cli/deploy#351","k":"para","t":"By default, `pnpm deploy` will try creating a dedicated lockfile from a shared lockfile for deployment. The `--legacy` flag disables this behavior and also allows using the deploy command without the `inject-workspace-packages=true` setting."}
+{"p":"cli/deploy","b":"cli/deploy#352","k":"heading","t":"Files included in the deployed project"}
+{"p":"cli/deploy","b":"cli/deploy#353","k":"para","t":"By default, all the files of the project are copied during deployment but this can be modified in *one* of the following ways which are resolved in order:"}
+{"p":"cli/deploy","b":"cli/deploy#354","k":"li","t":"The project's `package.json` may contain a \"files\" field to list the files and directories that should be copied."}
+{"p":"cli/deploy","b":"cli/deploy#355","k":"li","t":"If there is an `.npmignore` file in the application directory then any files listed here are ignored."}
+{"p":"cli/deploy","b":"cli/deploy#356","k":"li","t":"If there is a `.gitignore` file in the application directory then any files listed here are ignored."}
+{"p":"cli/deploy","b":"cli/deploy#357","k":"heading","t":"Configuration"}
+{"p":"cli/deploy","b":"cli/deploy#358","k":"heading","t":"forceLegacyDeploy"}
+{"p":"cli/deploy","b":"cli/deploy#359","k":"li","t":"Default: **false**"}
+{"p":"cli/deploy","b":"cli/deploy#360","k":"li","t":"Type: **Boolean**"}
+{"p":"cli/deploy","b":"cli/deploy#361","k":"para","t":"By default, `pnpm deploy` will try creating a dedicated lockfile from a shared lockfile for deployment. If this setting is set to `true`, the legacy `deploy` behavior will be used."}
+{"p":"cli/deploy","b":"cli/deploy@title","k":"title","t":"pnpm deploy"}
+{"p":"cli/deprecate","b":"cli/deprecate#366","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/deprecate","b":"cli/deprecate#367","k":"para","t":"Set a deprecation message on a published package version. Consumers running `pnpm install` will see this message when the matching version is installed."}
+{"p":"cli/deprecate","b":"cli/deprecate#368","k":"para","t":"To clear a deprecation message, use [pnpm undeprecate](#pnpm-undeprecate) or pass an empty string:"}
+{"p":"cli/deprecate","b":"cli/deprecate#369","k":"heading","t":"Examples"}
+{"p":"cli/deprecate","b":"cli/deprecate#370","k":"para","t":"Deprecate a single version:"}
+{"p":"cli/deprecate","b":"cli/deprecate#371","k":"para","t":"Deprecate a range of versions:"}
+{"p":"cli/deprecate","b":"cli/deprecate#372","k":"para","t":"Deprecate all versions:"}
+{"p":"cli/deprecate","b":"cli/deprecate#373","k":"heading","t":"Options"}
+{"p":"cli/deprecate","b":"cli/deprecate#374","k":"heading","t":"--registry <url>"}
+{"p":"cli/deprecate","b":"cli/deprecate#375","k":"para","t":"The registry to publish to. Defaults to the registry configured for the package."}
+{"p":"cli/deprecate","b":"cli/deprecate#376","k":"heading","t":"--otp <code>"}
+{"p":"cli/deprecate","b":"cli/deprecate#377","k":"para","t":"When the registry requires two-factor authentication, supply the one-time password via this flag or the `PNPM_CONFIG_OTP` environment variable."}
+{"p":"cli/deprecate","b":"cli/deprecate#378","k":"heading","t":"pnpm undeprecate"}
+{"p":"cli/deprecate","b":"cli/deprecate#379","k":"para","t":"Remove a deprecation message from a package version. Equivalent to running `pnpm deprecate <pkg>[@<version-range>] \"\"`."}
+{"p":"cli/deprecate","b":"cli/deprecate@title","k":"title","t":"pnpm deprecate"}
+{"p":"cli/dist-tag","b":"cli/dist-tag#380","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/dist-tag","b":"cli/dist-tag#381","k":"para","t":"Manage distribution tags for a package. Dist-tags provide human-readable aliases (like `latest`, `next`, `beta`) that point to specific package versions on the registry."}
+{"p":"cli/dist-tag","b":"cli/dist-tag#382","k":"heading","t":"Subcommands"}
+{"p":"cli/dist-tag","b":"cli/dist-tag#383","k":"heading","t":"add <pkg>@<version> [<tag>]"}
+{"p":"cli/dist-tag","b":"cli/dist-tag#384","k":"para","t":"Tag the specified version of a package with a dist-tag. If `<tag>` is omitted, the value of the [tag](/docs/settings/other#tag) setting is used (defaults to `latest`)."}
+{"p":"cli/dist-tag","b":"cli/dist-tag#385","k":"heading","t":"rm <pkg> <tag>"}
+{"p":"cli/dist-tag","b":"cli/dist-tag#386","k":"para","t":"Remove a dist-tag from a package."}
+{"p":"cli/dist-tag","b":"cli/dist-tag#387","k":"heading","t":"ls [<pkg>]"}
+{"p":"cli/dist-tag","b":"cli/dist-tag#388","k":"para","t":"List all dist-tags for a package. If no package name is given, the dist-tags for the current package (read from the local `package.json`) are shown."}
+{"p":"cli/dist-tag","b":"cli/dist-tag#389","k":"heading","t":"Options"}
+{"p":"cli/dist-tag","b":"cli/dist-tag#390","k":"heading","t":"--registry <url>"}
+{"p":"cli/dist-tag","b":"cli/dist-tag#391","k":"para","t":"The registry to operate on. Defaults to the registry configured for the package."}
+{"p":"cli/dist-tag","b":"cli/dist-tag#392","k":"heading","t":"--otp <code>"}
+{"p":"cli/dist-tag","b":"cli/dist-tag#393","k":"para","t":"When the registry requires two-factor authentication, supply the one-time password via this flag or the `PNPM_CONFIG_OTP` environment variable."}
+{"p":"cli/dist-tag","b":"cli/dist-tag@title","k":"title","t":"pnpm dist-tag"}
+{"p":"cli/docs","b":"cli/docs#394","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/docs","b":"cli/docs#395","k":"para","t":"Open a package's documentation (or homepage) in the browser."}
+{"p":"cli/docs","b":"cli/docs#396","k":"para","t":"When run without arguments inside a package directory, it opens the documentation for the current project."}
+{"p":"cli/docs","b":"cli/docs#397","k":"para","t":"If the package does not declare a valid `homepage`, pnpm falls back to `https://npmx.dev/package/<name>`."}
+{"p":"cli/docs","b":"cli/docs#398","k":"heading","t":"Examples"}
+{"p":"cli/docs","b":"cli/docs#399","k":"para","t":"Open the documentation for a published package:"}
+{"p":"cli/docs","b":"cli/docs#400","k":"para","t":"Open the documentation for multiple packages at once:"}
+{"p":"cli/docs","b":"cli/docs#401","k":"para","t":"Open the documentation for the current project:"}
+{"p":"cli/docs","b":"cli/docs@title","k":"title","t":"pnpm docs"}
+{"p":"cli/doctor","b":"cli/doctor#402","k":"para","t":"Added in: v11.14.0"}
+{"p":"cli/doctor","b":"cli/doctor#403","k":"para","t":"Runs diagnostics on the pnpm installation and the environment it runs in."}
+{"p":"cli/doctor","b":"cli/doctor#404","k":"para","t":"Each check reports how to fix what it finds, and the command exits with a non-zero code when any check fails. Warnings do not fail the command."}
+{"p":"cli/doctor","b":"cli/doctor#405","k":"heading","t":"Checks"}
+{"p":"cli/doctor","b":"cli/doctor#406","k":"heading","t":"Versions"}
+{"p":"cli/doctor","b":"cli/doctor#407","k":"para","t":"Reports the running pnpm and Node.js versions."}
+{"p":"cli/doctor","b":"cli/doctor#408","k":"heading","t":"Install method"}
+{"p":"cli/doctor","b":"cli/doctor#409","k":"para","t":"Reports how pnpm was installed — as the `pnpm` package or the `@pnpm/exe` standalone build — and warns when pnpm is being run by Corepack, which manages the pnpm version itself and makes `pnpm self-update` unavailable."}
+{"p":"cli/doctor","b":"cli/doctor#410","k":"heading","t":"Global bin directory"}
+{"p":"cli/doctor","b":"cli/doctor#411","k":"para","t":"Checks that the directory pnpm links global executables into is on `PATH` and writable. If it is missing from `PATH`, the fix is to run [pnpm setup](/docs/cli/setup)."}
+{"p":"cli/doctor","b":"cli/doctor#412","k":"heading","t":"Cache directory"}
+{"p":"cli/doctor","b":"cli/doctor#413","k":"para","t":"Checks that the [cache directory](/docs/settings/other#cachedir) is writable."}
+{"p":"cli/doctor","b":"cli/doctor#414","k":"heading","t":"Store directory"}
+{"p":"cli/doctor","b":"cli/doctor#415","k":"para","t":"Checks that the [store directory](/docs/settings/store#storedir) is writable. Skipped when no store directory is configured."}
+{"p":"cli/doctor","b":"cli/doctor#416","k":"heading","t":"Filesystem"}
+{"p":"cli/doctor","b":"cli/doctor#417","k":"para","t":"Probes which link strategies work from the store's volume: reflink (copy-on-write), hardlink, and symlink. This is what determines how packages land in `node_modules` and how fast an install is — a reflink or hardlink is near-free, a plain copy is not."}
+{"p":"cli/doctor","b":"cli/doctor#418","k":"para","t":"If neither reflink nor hardlink works, the check warns that installs will fall back to copying, and suggests putting the store on the same filesystem as your projects."}
+{"p":"cli/doctor","b":"cli/doctor#419","k":"heading","t":"Registry connectivity"}
+{"p":"cli/doctor","b":"cli/doctor#420","k":"para","t":"Pings the configured registry with a 15-second timeout and reports the round-trip time. Fails if the registry cannot be reached or answers with an error status, which usually points at network, proxy, or auth configuration."}
+{"p":"cli/doctor","b":"cli/doctor#421","k":"para","t":"Skipped with `--offline`."}
+{"p":"cli/doctor","b":"cli/doctor#422","k":"heading","t":"Install smoke test"}
+{"p":"cli/doctor","b":"cli/doctor#423","k":"para","t":"Installs a throwaway package as a `file:` dependency, entirely offline, in a temporary directory. This exercises the resolve, store, and link path end to end and confirms the running binary can actually perform an install."}
+{"p":"cli/doctor","b":"cli/doctor#424","k":"para","t":"This check is always offline by construction, so `--offline` does not skip it."}
+{"p":"cli/doctor","b":"cli/doctor#425","k":"heading","t":"Options"}
+{"p":"cli/doctor","b":"cli/doctor#426","k":"heading","t":"--offline"}
+{"p":"cli/doctor","b":"cli/doctor#427","k":"para","t":"Skip the checks that need network access."}
+{"p":"cli/doctor","b":"cli/doctor#428","k":"heading","t":"--benchmark"}
+{"p":"cli/doctor","b":"cli/doctor#429","k":"para","t":"Also time the filesystem and install checks, reporting the duration alongside each result."}
+{"p":"cli/doctor","b":"cli/doctor#430","k":"heading","t":"--json"}
+{"p":"cli/doctor","b":"cli/doctor#431","k":"para","t":"Report the results as JSON. The output is an object with a single `checks` array, each entry having `title`, `status` (`pass`, `warn`, or `fail`), and optionally `detail`, `fix`, and `durationMs`."}
+{"p":"cli/doctor","b":"cli/doctor@title","k":"title","t":"pnpm doctor"}
+{"p":"cli/env","b":"cli/env#432","k":"para","t":"`pnpm env` is deprecated. Use [pnpm runtime](/docs/cli/runtime) instead. For example, `pnpm env use --global lts` becomes `pnpm runtime set node lts -g`."}
+{"p":"cli/env","b":"cli/env#433","k":"para","t":"Manages the Node.js environment."}
+{"p":"cli/env","b":"cli/env#434","k":"heading","t":"Commands"}
+{"p":"cli/env","b":"cli/env#435","k":"heading","t":"use"}
+{"p":"cli/env","b":"cli/env#436","k":"para","t":"Install and use the specified version of Node.js"}
+{"p":"cli/env","b":"cli/env#437","k":"para","t":"Install the LTS version of Node.js:"}
+{"p":"cli/env","b":"cli/env#438","k":"para","t":"Install Node.js v16:"}
+{"p":"cli/env","b":"cli/env#439","k":"para","t":"Install a prerelease version of Node.js:"}
+{"p":"cli/env","b":"cli/env#440","k":"para","t":"Install the latest version of Node.js:"}
+{"p":"cli/env","b":"cli/env#441","k":"para","t":"Install an LTS version of Node.js using its [codename](https://github.com/nodejs/Release/blob/main/CODENAMES.md):"}
+{"p":"cli/env","b":"cli/env#442","k":"heading","t":"add"}
+{"p":"cli/env","b":"cli/env#443","k":"para","t":"Installs the specified version(s) of Node.js without activating them as the current version."}
+{"p":"cli/env","b":"cli/env#444","k":"heading","t":"remove, rm"}
+{"p":"cli/env","b":"cli/env#445","k":"para","t":"Removes the specified version(s) of Node.js."}
+{"p":"cli/env","b":"cli/env#446","k":"para","t":"Usage example:"}
+{"p":"cli/env","b":"cli/env#447","k":"heading","t":"list, ls"}
+{"p":"cli/env","b":"cli/env#448","k":"para","t":"List Node.js versions available locally or remotely."}
+{"p":"cli/env","b":"cli/env#449","k":"para","t":"Print locally installed versions:"}
+{"p":"cli/env","b":"cli/env#450","k":"para","t":"Print remotely available Node.js versions:"}
+{"p":"cli/env","b":"cli/env#451","k":"para","t":"Print remotely available Node.js v16 versions:"}
+{"p":"cli/env","b":"cli/env#452","k":"heading","t":"Options"}
+{"p":"cli/env","b":"cli/env#453","k":"heading","t":"--global, -g"}
+{"p":"cli/env","b":"cli/env#454","k":"para","t":"The changes are made systemwide."}
+{"p":"cli/env","b":"cli/env@title","k":"title","t":"pnpm env <cmd>"}
+{"p":"cli/exec","b":"cli/exec#455","k":"para","t":"Execute a shell command in scope of a project."}
+{"p":"cli/exec","b":"cli/exec#456","k":"para","t":"`node_modules/.bin` is added to the `PATH`, so `pnpm exec` allows executing commands of dependencies."}
+{"p":"cli/exec","b":"cli/exec#457","k":"heading","t":"Examples"}
+{"p":"cli/exec","b":"cli/exec#458","k":"para","t":"If you have Jest as a dependency of your project, there is no need to install Jest globally, just run it with `pnpm exec`:"}
+{"p":"cli/exec","b":"cli/exec#459","k":"para","t":"The `exec` part is actually optional when the command is not in conflict with a builtin pnpm command, so you may also just run:"}
+{"p":"cli/exec","b":"cli/exec#460","k":"heading","t":"Options"}
+{"p":"cli/exec","b":"cli/exec#461","k":"para","t":"Any options for the `exec` command should be listed before the `exec` keyword. Options listed after the `exec` keyword are passed to the executed command."}
+{"p":"cli/exec","b":"cli/exec#462","k":"para","t":"Good. pnpm will run recursively:"}
+{"p":"cli/exec","b":"cli/exec#463","k":"para","t":"Bad, pnpm will not run recursively but `jest` will be executed with the `-r` option:"}
+{"p":"cli/exec","b":"cli/exec#464","k":"heading","t":"--recursive, -r"}
+{"p":"cli/exec","b":"cli/exec#465","k":"para","t":"Execute the shell command in every project of the workspace."}
+{"p":"cli/exec","b":"cli/exec#466","k":"para","t":"The name of the current package is available through the environment variable `PNPM_PACKAGE_NAME`."}
+{"p":"cli/exec","b":"cli/exec#467","k":"heading","t":"Examples"}
+{"p":"cli/exec","b":"cli/exec#468","k":"para","t":"Prune `node_modules` installations for all packages:"}
+{"p":"cli/exec","b":"cli/exec#469","k":"para","t":"View package information for all packages. This should be used with the `--shell-mode` (or `-c`) option for the environment variable to work."}
+{"p":"cli/exec","b":"cli/exec#470","k":"heading","t":"--no-reporter-hide-prefix"}
+{"p":"cli/exec","b":"cli/exec#471","k":"para","t":"Do not hide prefix when running commands in parallel."}
+{"p":"cli/exec","b":"cli/exec#472","k":"heading","t":"--resume-from <package_name>"}
+{"p":"cli/exec","b":"cli/exec#473","k":"para","t":"Resume execution at a particular project. pnpm skips the projects a matching record of the previous recursive `exec` says already passed. Without such a record, it omits the named project's transitive dependencies, but still runs the named project, its dependents, and unrelated projects in the selected graph. See [Workspace task\norchestration](/docs/workspace-task-orchestration#--resume-from-package_name)."}
+{"p":"cli/exec","b":"cli/exec#474","k":"heading","t":"--parallel"}
+{"p":"cli/exec","b":"cli/exec#475","k":"para","t":"Completely disregard concurrency and topological sorting, running a given script immediately in all matching packages. This is the preferred flag for long-running processes over many packages, for instance, a lengthy build process."}
+{"p":"cli/exec","b":"cli/exec#476","k":"heading","t":"--shell-mode, -c"}
+{"p":"cli/exec","b":"cli/exec#477","k":"para","t":"Runs the command inside of a shell. Uses `/bin/sh` on UNIX and `\\cmd.exe` on Windows."}
+{"p":"cli/exec","b":"cli/exec#478","k":"heading","t":"--report-summary"}
+{"p":"cli/exec","b":"cli/exec#479","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/exec","b":"cli/exec@title","k":"title","t":"pnpm exec"}

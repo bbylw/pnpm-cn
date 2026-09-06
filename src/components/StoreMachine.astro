@@ -1,0 +1,360 @@
+---
+/**
+ * 核心产品视觉：pnpm 内容寻址存储与硬链接的工作机。
+ * 纯 SVG + 真实几何（viewBox 可缩放），明暗双主题由 CSS 变量驱动。
+ * 模式切换对比 npm 的每项目副本 vs pnpm 的单一存储 + 硬链接。
+ */
+const STORE_FILES = [
+  { id: "000000001", tone: "dim" },
+  { id: "000000002", tone: "store" },
+  { id: "000000004", tone: "dim" },
+  { id: "000000005", tone: "accent" },
+  { id: "000000006", tone: "dim" },
+  { id: "000000007", tone: "copy" },
+];
+const P1 = [
+  { name: "is-odd/index.js", to: 2 },
+  { name: "is-odd/LICENSE.md", to: 3 },
+];
+const P2 = [
+  { name: "is-even/index.js", to: 3 },
+  { name: "is-even/LICENSE.md", to: 1 },
+];
+---
+
+<figure class="machine not-prose my-0" data-mode="pnpm">
+  <div class="machine__bar">
+    <div class="flex items-center gap-2.5">
+      <span class="chip chip--accent">node_modules 解剖</span>
+      <span class="font-mono text-[0.78rem] text-muted">100 个项目共用同一份文件</span>
+    </div>
+    <div role="group" aria-label="包管理器模式切换" class="flex gap-1 rounded-md border border-line bg-raise p-1">
+      <button type="button" data-set="pnpm" aria-pressed="true" class="mtab is-on">pnpm</button>
+      <button type="button" data-set="npm" aria-pressed="false" class="mtab">npm</button>
+    </div>
+  </div>
+
+  <svg viewBox="0 0 980 442" class="machine__svg" role="img" aria-label="pnpm 把所有包文件存放在单一内容寻址存储中，各项目的 node_modules 通过硬链接指向它们；而 npm 为每个项目复制整份依赖。">
+    <defs>
+      <marker id="mArrow" orient="auto" viewBox="-1 -4 10 8" markerWidth="9" markerHeight="9">
+        <path d="M 0 -3 L 6 0 L 0 3 Z" />
+      </marker>
+    </defs>
+
+    <!-- ===== store ===== -->
+    <g class="g-store">
+      <rect class="panel" x="380" y="46" width="220" height="330" rx="10" />
+      <text class="t-label" x="490" y="72" text-anchor="middle">内容寻址存储</text>
+      <text class="t-mono-dim" x="490" y="90" text-anchor="middle">~/.pnpm-store/v3/files</text>
+      {
+        STORE_FILES.map((f, i) => (
+          <g class={`cell cell--${f.tone}`}>
+            <rect x="400" y={106 + i * 44} width="180" height="34" rx="4" />
+            <text x="414" y={128 + i * 44} class="t-mono">{f.id}</text>
+          </g>
+        ))
+      }
+    </g>
+
+    <!-- ===== pnpm 模式：项目 + 硬链接 ===== -->
+    <g class="g-links">
+      <g class="proj">
+        <rect class="panel" x="30" y="120" width="230" height="130" rx="10" />
+        <text class="t-label" x="145" y="148" text-anchor="middle">project_1</text>
+        {
+          P1.map((f, i) => (
+            <g>
+              <rect class="cellbox cellbox--hard" x="48" y={164 + i * 40} width="194" height="30" rx="4" />
+              <text x="60" y={184 + i * 40} class="t-mono">{f.name}</text>
+            </g>
+          ))
+        }
+      </g>
+      <g class="proj">
+        <rect class="panel" x="720" y="120" width="230" height="130" rx="10" />
+        <text class="t-label" x="835" y="148" text-anchor="middle">project_2</text>
+        {
+          P2.map((f, i) => (
+            <g>
+              <rect class="cellbox cellbox--hard" x="738" y={164 + i * 40} width="194" height="30" rx="4" />
+              <text x="750" y={184 + i * 40} class="t-mono">{f.name}</text>
+            </g>
+          ))
+        }
+      </g>
+
+      {
+        P1.map((f, i) => {
+          const y1 = 179 + i * 40;
+          const y2 = 123 + f.to * 44;
+          return (
+            <path
+              class="hardline"
+              d={`M 242 ${y1} C 300 ${y1}, 330 ${y2}, 394 ${y2}`}
+              marker-end="url(#mArrow)"
+            />
+          );
+        })
+      }
+      {
+        P2.map((f, i) => {
+          const y1 = 179 + i * 40;
+          const y2 = 123 + f.to * 44;
+          return (
+            <path
+              class="hardline"
+              d={`M 738 ${y1} C 680 ${y1}, 646 ${y2}, 566 ${y2}`}
+              marker-end="url(#mArrow)"
+            />
+          );
+        })
+      }
+      <text class="t-note" x="252" y="336">硬链接 hard link</text>
+      <text class="t-note" x="700" y="336">不占额外空间</text>
+    </g>
+
+    <!-- ===== npm 模式：每项目一份副本 ===== -->
+    <g class="g-copies">
+      <g class="proj">
+        <rect class="panel" x="30" y="120" width="230" height="130" rx="10" />
+        <text class="t-label" x="145" y="148" text-anchor="middle">project_1</text>
+        {
+          P1.map((f, i) => (
+            <g>
+              <rect class="cellbox cellbox--copy" x="48" y={164 + i * 40} width="194" height="30" rx="4" />
+              <text x="60" y={184 + i * 40} class="t-mono">{f.name}</text>
+            </g>
+          ))
+        }
+      </g>
+      <g class="proj">
+        <rect class="panel" x="720" y="120" width="230" height="130" rx="10" />
+        <text class="t-label" x="835" y="148" text-anchor="middle">project_2</text>
+        {
+          P2.map((f, i) => (
+            <g>
+              <rect class="cellbox cellbox--copy" x="738" y={164 + i * 40} width="194" height="30" rx="4" />
+              <text x="750" y={184 + i * 40} class="t-mono">{f.name}</text>
+            </g>
+          ))
+        }
+      </g>
+      <text class="t-note" x="96" y="292">整份拷贝 ×N</text>
+      <text class="t-note" x="790" y="292">整份拷贝 ×N</text>
+      <text class="t-warn" x="490" y="215" text-anchor="middle">磁盘 ×2 起步</text>
+    </g>
+
+    <!-- ===== 磁盘计 ===== -->
+    <g class="g-disk">
+      <rect class="panel" x="30" y="386" width="920" height="40" rx="8" />
+      <text class="t-label" x="46" y="411">磁盘占用</text>
+      <rect class="disktrack" x="150" y="399" width="790" height="14" rx="7" />
+      <rect class="diskfill" x="150" y="399" width="200" height="14" rx="7" />
+      <text class="t-mono disktext disktext--pnpm" x="360" y="411">1×</text>
+      <text class="t-mono disktext disktext--npm" x="880" y="411">N×</text>
+    </g>
+  </svg>
+
+  <figcaption class="sr-only">
+    pnpm 使用内容寻址存储与硬链接组织依赖；npm 为每个项目维护完整副本。
+  </figcaption>
+</figure>
+
+<style>
+  .machine {
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background: var(--color-raise);
+    box-shadow: var(--shadow-block);
+    overflow: hidden;
+  }
+  .machine__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    border-bottom: 1px dashed var(--color-line-strong);
+  }
+  .mtab {
+    font: 600 0.82rem var(--font-mono);
+    padding: 0.4em 1em;
+    border-radius: 5px;
+    border: 0;
+    background: transparent;
+    color: var(--color-muted);
+    cursor: pointer;
+  }
+  .mtab.is-on {
+    background: var(--color-cta-bg);
+    color: var(--color-cta-ink);
+  }
+  .machine__svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    padding: 10px 8px 16px;
+  }
+
+  .machine__svg .panel {
+    fill: var(--color-bg);
+    stroke: var(--color-line);
+    stroke-width: 1.4;
+  }
+  .machine__svg .t-label {
+    font: 700 15px var(--font-display);
+    fill: var(--color-ink);
+    letter-spacing: 0.02em;
+  }
+  .machine__svg .t-mono {
+    font: 400 13px var(--font-mono);
+    fill: var(--color-ink);
+  }
+  .machine__svg .t-mono-dim {
+    font: 400 11.5px var(--font-mono);
+    fill: var(--color-muted);
+  }
+  .machine__svg .t-note {
+    font: 600 12.5px var(--font-mono);
+    fill: var(--color-accent);
+    letter-spacing: 0.04em;
+  }
+  .machine__svg .t-warn {
+    font: 700 15px var(--font-display);
+    fill: var(--color-no);
+  }
+  .machine__svg .cellbox {
+    fill: var(--color-bg);
+    stroke: var(--color-line);
+    stroke-width: 1.2;
+  }
+  .machine__svg .cellrect {
+    fill: var(--color-bg);
+    stroke: var(--color-line);
+  }
+  .cell rect {
+    stroke-width: 1.3;
+    fill: var(--color-sunken);
+    stroke: var(--color-line-strong);
+  }
+  .cell--store rect {
+    fill: color-mix(in srgb, var(--color-store) 22%, var(--color-bg));
+    stroke: var(--color-store);
+  }
+  .cell--accent rect {
+    fill: var(--color-accent-fill);
+    stroke: var(--color-accent-line);
+  }
+  .cell--copy rect {
+    fill: color-mix(in srgb, var(--color-no) 14%, var(--color-bg));
+    stroke: var(--color-no);
+  }
+  .cellbox--hard {
+    stroke-dasharray: 3 3;
+    stroke: var(--color-accent-line);
+  }
+  .cellbox--copy {
+    fill: color-mix(in srgb, var(--color-no) 16%, var(--color-bg));
+    stroke: var(--color-no);
+  }
+  .hardline {
+    fill: none;
+    stroke: var(--color-accent-line);
+    stroke-width: 1.8;
+  }
+  #mArrow path {
+    fill: var(--color-accent-line);
+  }
+  .disktrack {
+    fill: var(--color-sunken);
+    stroke: var(--color-line);
+  }
+  .diskfill {
+    fill: var(--color-accent-fill);
+    transition: width 0.5s ease;
+  }
+  .machine[data-mode="npm"] .diskfill {
+    fill: var(--color-no);
+    width: 780px;
+  }
+  .disktext {
+    font: 700 13px var(--font-mono);
+    fill: var(--color-ink);
+  }
+  .disktext--npm {
+    display: none;
+    fill: #fff;
+  }
+  .machine[data-mode="npm"] .disktext--pnpm {
+    display: none;
+  }
+  .machine[data-mode="npm"] .disktext--npm {
+    display: block;
+  }
+  .machine[data-mode="npm"] .g-store {
+    opacity: 0.14;
+  }
+  .g-store {
+    transition: opacity 0.4s ease;
+  }
+  .g-links,
+  .g-copies {
+    transition: opacity 0.4s ease;
+  }
+  .g-copies {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .machine[data-mode="npm"] .g-links {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .machine[data-mode="npm"] .g-copies {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  @keyframes dashin {
+    from {
+      stroke-dashoffset: 240;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  .machine.is-in .hardline {
+    stroke-dasharray: 240;
+    animation: dashin 1.1s 0.15s ease both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .machine.is-in .hardline {
+      animation: none;
+      stroke-dasharray: none;
+    }
+    .diskfill,
+    .disktext {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>("[data-mode]");
+  if (root) {
+    for (const btn of root.querySelectorAll<HTMLButtonElement>("[data-set]")) {
+      btn.addEventListener("click", () => {
+        root.dataset.mode = btn.dataset.set!;
+        for (const b of root.querySelectorAll<HTMLElement>("[data-set]")) {
+          const on = b === btn;
+          b.classList.toggle("is-on", on);
+          b.setAttribute("aria-pressed", String(on));
+        }
+      });
+    }
+    const io = new IntersectionObserver(
+      (es) => es.forEach((e) => e.isIntersecting && (root.classList.add("is-in"), io.disconnect())),
+      { rootMargin: "0px 0px -80px 0px" }
+    );
+    io.observe(root);
+  }
+</script>

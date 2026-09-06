@@ -1,0 +1,244 @@
+{"b":"cli/search#1202","z":"自 v11.0.0 起提供"}
+{"b":"cli/search#1203","z":"在 registry 中搜索与给定关键词匹配的包"}
+{"b":"cli/search#1204","z":"示例"}
+{"b":"cli/search#1205","z":"选项"}
+{"b":"cli/search#1206","z":"--json"}
+{"b":"cli/search#1207","z":"以 JSON 格式输出搜索结果"}
+{"b":"cli/search#1208","z":"--search-limit <number>"}
+{"b":"cli/search#1209","z":"显示的最大结果数"}
+{"b":"cli/search@title","z":"pnpm search"}
+{"b":"cli/self-update#1186","z":"将 pnpm 更新到最新版本或指定版本"}
+{"b":"cli/self-update#1187","z":"用法示例："}
+{"b":"cli/self-update#1188","z":"行为"}
+{"b":"cli/self-update#1189","z":"`pnpm self-update` 的行为取决于项目上下文："}
+{"b":"cli/self-update#1190","z":"在锁定 pnpm 版本的项目中"}
+{"b":"cli/self-update#1191","z":"当项目的 `package.json` 将 `packageManager` 字段设为 pnpm（或有针对 pnpm 的 `devEngines.packageManager` 条目）时，`self-update` 只会把 `package.json` 中锁定的版本更新为解析出的版本，不会全局安装 pnpm。下次你运行 pnpm 命令时，pnpm 会自动下载并切换到指定的版本。"}
+{"b":"cli/self-update#1192","z":"在项目外部（或 pnpm 锁定被忽略时）"}
+{"b":"cli/self-update#1193","z":"如果项目没有锁定 pnpm，或通过 [pmOnFail: ignore](/docs/settings/cli#pmonfail) 忽略了该锁定，`self-update` 会全局安装解析出的 pnpm 版本，并将其链接到 `PNPM_HOME`，使其成为你系统上生效的 pnpm 二进制文件。"}
+{"b":"cli/self-update#1194","z":"忽略项目设置"}
+{"b":"cli/self-update#1195","z":"自 v11.18.0 起，`pnpm self-update` 不接受其运行所在项目的任何指示："}
+{"b":"cli/self-update#1196","z":"pnpm 通过切换 pnpm 版本时所用的同一受信任 registry 和身份验证配置来拉取，因此项目的 `.npmrc` 或 `pnpm-workspace.yaml` 无法重定向下载或为其附加凭据，项目的默认 `.pnpmfile.(c|m)js` 也不会被加载。来自受信任来源的 pnpmfile（[pnpmfile](/docs/pnpmfile#pnpmfile) 设置、全局 pnpmfile、config 依赖）仍然生效。"}
+{"b":"cli/self-update#1197","z":"项目的 [minimumReleaseAge](/docs/settings/dependency-resolution#minimumreleaseage)、[trustPolicy](/docs/settings/dependency-resolution#trustpolicy) 和 `ci` 设置不影响 `self-update`。它们仍然管理项目自身的依赖；对 `self-update` 而言，这些值来自内置默认值、你的全局配置、`PNPM_CONFIG_*` 环境变量或命令行标志。这防止某个仓库要么放宽版本发布冷却期，要么通过调高它把你困在过时的 pnpm 上，也防止削弱守护 pnpm 下载的信任检查。"}
+{"b":"cli/self-update#1198","z":"当 `self-update` 拒绝一个比 `minimumReleaseAge` 截止时间更晚的版本时，交互式运行会询问是否仍要更新；非交互式运行仍然失败。即使在附加了 TTY 的 runner 上，CI 也从不提示。"}
+{"b":"cli/self-update#1199","z":"安装 pnpm v12"}
+{"b":"cli/self-update#1200","z":"pnpm 12 以 `latest-12` dist-tag 下的 `pnpm` 和 `@pnpm/exe` 两个名称发布："}
+{"b":"cli/self-update#1201","z":"v12 将原生二进制以 `@pnpm/exe.<platform>-<arch>` 包提供，由 pnpm 内置的安装程序直接链接。没有 Node.js 启动器，因此命令没有 Node.js 启动开销。自 v12 起，安装收敛到不带作用域的 `pnpm` 包（Rust 可执行文件），即使是 `@pnpm/exe` 的 SEA 构建也一样。"}
+{"b":"cli/self-update@title","z":"pnpm self-update"}
+{"b":"cli/set-script#1217","z":"自 v11.3.0 起提供"}
+{"b":"cli/set-script#1218","z":"在项目清单的 `scripts` 字段中添加或更新条目"}
+{"b":"cli/set-script#1219","z":"支持 `package.json`、`package.json5` 和 `package.yaml` 清单格式"}
+{"b":"cli/set-script#1220","z":"如果 `scripts` 字段不存在，则创建它。如果已存在同名的脚本，则会被覆盖"}
+{"b":"cli/set-script#1221","z":"示例"}
+{"b":"cli/set-script#1222","z":"上述操作等同于手动编辑 `package.json`："}
+{"b":"cli/set-script#1223","z":"另见"}
+{"b":"cli/set-script#1224","z":"[pnpm pkg set](/docs/cli/pkg#set)，用于在 `package.json` 中设置任意字段，包括通过 `scripts.<name>=<command>` 设置单个脚本。"}
+{"b":"cli/set-script@title","z":"pnpm set-script"}
+{"b":"cli/setup#1210","z":"此命令由 pnpm 的独立安装脚本使用，例如 [https://get.pnpm.io/install.sh](https://get.pnpm.io/install.sh)。"}
+{"b":"cli/setup#1211","z":"Setup 执行以下操作："}
+{"b":"cli/setup#1212","z":"为 pnpm CLI 创建主目录"}
+{"b":"cli/setup#1213","z":"通过更新 shell 配置文件，将 pnpm 主目录添加到 `PATH`"}
+{"b":"cli/setup#1214","z":"将 pnpm 可执行文件复制到 pnpm 主目录"}
+{"b":"cli/setup#1215","z":"自 v11.18.0 起，在 GitHub Actions 上运行时，`pnpm setup` 还会把 `PNPM_HOME` 和全局 bin 目录追加到 GitHub Actions 环境文件（`GITHUB_ENV` 和 `GITHUB_PATH`），使同一作业中的后续步骤能够运行 `pnpm add --global` 和其他全局命令。"}
+{"b":"cli/setup#1216","z":"升级到 pnpm v11 后，运行 `pnpm setup` 以更新你的 shell 配置。在 v11 中，全局安装的可执行文件存放在 `PNPM_HOME` 下的 `bin` 子目录中。"}
+{"b":"cli/setup@title","z":"pnpm setup"}
+{"b":"cli/shim#1225","z":"自 v12.0.0-rc.6 起提供（仅 pnpm v12）"}
+{"b":"cli/shim#1226","z":"管理项目感知的命令 shim"}
+{"b":"cli/shim#1227","z":"此命令创建的 shim 背后没有全局安装。它的存在只是为了让你所在的项目决定运行什么：`pnpm shim add yarn` 会链接一个 `yarn` 命令，运行当前项目所锁定的版本，并按需预置该版本。在一台只有 pnpm 的机器上，正是它让 `yarn` 在 Yarn 项目里可用。"}
+{"b":"cli/shim#1228","z":"创建 shim 始终是有意为之，不会作为 [pnpm setup](/docs/cli/setup) 或安装的副作用自动写入，因为 shim 会遮蔽你的 `PATH` 在此之前解析到的任何内容。"}
+{"b":"cli/shim#1229","z":"命令"}
+{"b":"cli/shim#1230","z":"add"}
+{"b":"cli/shim#1231","z":"把每个包的每个 bin 的 shim 链接到全局 bin 目录（`pnpm bin -g`），并在 [globalShims](/docs/settings/other#globalshims) 设置中记录该包，以便这些 shim 真正分发命令。"}
+{"b":"cli/shim#1232","z":"[pnpm 预置的包管理器](/docs/package-managers)，即 `npm`、`yarn`、`bun`，无需查找：它们的 bin 事先已知，别名也包括在内（`yarn` 和 `yarnpkg`、`npm` 和 `npx`）。对于任何其他包，bin 从该包已发布的清单读取；不发布任何 bin 的包会以 `ERR_PNPM_SHIM_NO_BINS` 失败。"}
+{"b":"cli/shim#1233","z":"全局 bin 目录中已存在的某个 bin 属于别的东西，可能是某个全局安装的包，也可能是另一个包的 shim，因此命令会以 `ERR_PNPM_SHIM_BIN_CONFLICT` 拒绝，而不是拿走一个能用的命令。"}
+{"b":"cli/shim#1234","z":"在设置了 `globalShims: false` 时添加 shim 会以 `ERR_PNPM_SHIMS_DISABLED` 失败：该设置关闭所有项目感知的 shim，否则 shim 会待在 `PATH` 上什么也不做。"}
+{"b":"cli/shim#1235","z":"rm"}
+{"b":"cli/shim#1236","z":"移除该包的 shim 以及 `add` 为其记录的 `globalShims` 条目"}
+{"b":"cli/shim#1237","z":"ls"}
+{"b":"cli/shim#1238","z":"列出全局 bin 目录中的每个 shim 及其适用的策略："}
+{"b":"cli/shim#1239","z":"版本如何选择"}
+{"b":"cli/shim#1240","z":"shim 会从当前工作目录向上查找，解析你所在的项目："}
+{"b":"cli/shim#1241","z":"对于**包管理器**，项目的 [packageManager](/docs/package_json) 或 [devEngines.packageManager](/docs/package_json#devenginespackagemanager) 锁定决定版本，并由 pnpm 预置。该锁定优先于全局安装的该包管理器，因为它是项目自己关于由谁安装它的声明。"}
+{"b":"cli/shim#1242","z":"对于**任何其他包**，使用项目的 `node_modules/.bin/<name>`。"}
+{"b":"cli/shim#1243","z":"如果项目中没有任何东西提供该命令，就运行全局安装的版本，shim 绝不会仅仅因为分发未生效就使命令失败。"}
+{"b":"cli/shim#1244","z":"项目感知全局 bin 的[信任规则](/docs/global-packages#trust)在这里同样适用：npm 发布的包管理器针对其确切版本用 npm 的签名验证，并无需询问就切换，而 Bun 和 Yarn 6 以校验和锁定的平台归档形式到达，会经过确认提示。该应答按项目和二进制分别记住，所以把项目的锁定改到另一个版本会再次询问。"}
+{"b":"cli/shim#1245","z":"相关"}
+{"b":"cli/shim@title","z":"pnpm shim <cmd>"}
+{"b":"cli/stage#1246","z":"自 v11.3.0 起提供"}
+{"b":"cli/stage#1247","z":"使用 npm 的[分阶段发布](https://docs.npmjs.com/staged-publishing)工作流为发布准备包。分阶段的版本在明确批准之前不会被 `pnpm install` 解析，让你可以把在线证明（2FA）推迟到稍后的时间点，适用于验证发布产物、对 CI 做冒烟测试，或协调多包发布。"}
+{"b":"cli/stage#1248","z":"子命令"}
+{"b":"cli/stage#1249","z":"publish"}
+{"b":"cli/stage#1250","z":"为一个包的发布做分阶段准备"}
+{"b":"cli/stage#1251","z":"接受与 [pnpm publish](/docs/cli/publish) 相同的参数，但把 tarball 上传到分阶段暂存，而不是提升到正式 registry。所产生的 **stage id** 会被打印出来，可用于其他子命令。"}
+{"b":"cli/stage#1252","z":"使用 `--recursive`（或 `-r`）暂存工作区中每个可发布的包"}
+{"b":"cli/stage#1253","z":"list"}
+{"b":"cli/stage#1254","z":"列出所有分阶段的包版本，或列出某个特定包的分阶段版本"}
+{"b":"cli/stage#1255","z":"view"}
+{"b":"cli/stage#1256","z":"显示某个特定分阶段的版本的详细信息"}
+{"b":"cli/stage#1257","z":"approve"}
+{"b":"cli/stage#1258","z":"批准一个分阶段的版本，将其提升到正式 registry。这一步会消耗一次性密码"}
+{"b":"cli/stage#1259","z":"自 v12.0.0 起，可以一次批准多个 stage id，不带任何 id 运行 `approve` 会在分阶段的版本上打开一个交互式选择器："}
+{"b":"cli/stage#1260","z":"整批通过**一个**一次性密码批准；只在 registry 停止接受当前密码时，pnpm 才要求提供新的。"}
+{"b":"cli/stage#1261","z":"在工作区内，选定的包按依赖顺序批准；若某包的工作区依赖无法批准，该包会被跳过，而不是针对一个从未到达 registry 的依赖进行发布。"}
+{"b":"cli/stage#1262","z":"reject"}
+{"b":"cli/stage#1263","z":"拒绝一个分阶段的版本，并将其从分阶段暂存中移除"}
+{"b":"cli/stage#1264","z":"download"}
+{"b":"cli/stage#1265","z":"下载某个分阶段的版本的 tarball 以供检查"}
+{"b":"cli/stage#1266","z":"选项"}
+{"b":"cli/stage#1267","z":"--registry <url>"}
+{"b":"cli/stage#1268","z":"npm registry 的基础 URL。默认为所配置的默认 registry"}
+{"b":"cli/stage#1269","z":"--tag <tag>"}
+{"b":"cli/stage#1270","z":"以给定的 dist-tag 注册分阶段的包。默认为 `latest`"}
+{"b":"cli/stage#1271","z":"--access <public|restricted>"}
+{"b":"cli/stage#1272","z":"告知 registry 分阶段的包应为公开还是受限"}
+{"b":"cli/stage#1273","z":"--json"}
+{"b":"cli/stage#1274","z":"以 JSON 格式显示信息。适用于 `list`、`view`、`publish` 和 `download`"}
+{"b":"cli/stage#1275","z":"--dry-run"}
+{"b":"cli/stage#1276","z":"执行 `stage publish` 会做的所有事情，除了上传到 registry"}
+{"b":"cli/stage#1277","z":"--otp <otp>"}
+{"b":"cli/stage#1278","z":"`approve` 和 `reject` 的一次性密码"}
+{"b":"cli/stage#1279","z":"--recursive, -r"}
+{"b":"cli/stage#1280","z":"暂存工作区中所有可发布的包"}
+{"b":"cli/stage#1281","z":"--filter <package_selector>"}
+{"b":"cli/stage@title","z":"pnpm stage"}
+{"b":"cli/star#1282","z":"自 v11.0.0 起提供"}
+{"b":"cli/star#1283","z":"在 registry 上把一个包标记为收藏。你必须已登录（见 [pnpm login](/docs/cli/login)）。"}
+{"b":"cli/star#1284","z":"pnpm unstar"}
+{"b":"cli/star#1285","z":"从你的收藏中移除一个包"}
+{"b":"cli/star#1286","z":"pnpm stars"}
+{"b":"cli/star#1287","z":"列出你（或另一个用户）标为收藏的包"}
+{"b":"cli/star#1288","z":"不带用户名运行时，pnpm 列出当前已认证用户标为收藏的包"}
+{"b":"cli/star@title","z":"pnpm star"}
+{"b":"cli/start#1289","z":"运行包的 `scripts` 对象中 `start` 属性所指定的任意命令。如果 `scripts` 对象上没有指定 `start` 属性，它会尝试以默认方式运行 `node server.js`，若两者都没有则失败。"}
+{"b":"cli/start#1290","z":"该属性的预期用途是指定一个启动你的程序的命令"}
+{"b":"cli/start@title","z":"pnpm start"}
+{"b":"cli/store#1291","z":"管理包存储"}
+{"b":"cli/store#1292","z":"命令"}
+{"b":"cli/store#1293","z":"status"}
+{"b":"cli/store#1294","z":"检查存储中被改动的包"}
+{"b":"cli/store#1295","z":"如果包的内容与解包时相同，返回退出码 0"}
+{"b":"cli/store#1296","z":"add"}
+{"b":"cli/store#1297","z":"在功能上等同于 [pnpm add](/docs/cli/add)，不同之处在于它直接把新包添加到存储，而不修改存储之外的任何项目或文件。"}
+{"b":"cli/store#1298","z":"prune"}
+{"b":"cli/store#1299","z":"从存储中移除*未引用的包*"}
+{"b":"cli/store#1300","z":"未引用的包是系统中任何项目都不使用的包。包在大多数安装操作之后可能变为未引用，例如当依赖变得多余时。"}
+{"b":"cli/store#1301","z":"例如，在 `pnpm install` 期间，包 `foo@1.0.0` 被更新到 `foo@1.0.1`。pnpm 会把 `foo@1.0.0` 留在存储中，因为它不会自动移除包。如果系统上没有其他项目使用 `foo@1.0.0`，它就变为未引用。运行 `pnpm store prune` 会从存储中移除 `foo@1.0.0`。"}
+{"b":"cli/store#1302","z":"运行 `pnpm store prune` 无害，也不会对你的项目产生副作用。如果将来的安装需要被移除的包，pnpm 会再次下载它们。"}
+{"b":"cli/store#1303","z":"最佳实践是偶尔运行 `pnpm store prune` 来清理存储，但不要过于频繁。有时未引用的包会重新变为必需，这可能发生在切换分支并安装较旧依赖时，此时 pnpm 需要重新下载所有被移除的包，会短暂放慢安装过程。"}
+{"b":"cli/store#1304","z":"清理后，pnpm 会显示被移除文件的总大小"}
+{"b":"cli/store#1305","z":"启用[全局虚拟存储](/docs/settings/node-modules#enableglobalvirtualstore)后，`pnpm store prune` 还会对全局虚拟存储的 `links/` 目录执行标记-清除垃圾回收。使用存储的项目通过 `{storeDir}/v11/projects/` 中的符号链接注册，使 pnpm 能够跟踪活跃使用情况，并安全地从全局虚拟存储中移除未使用的包。"}
+{"b":"cli/store#1306","z":"path"}
+{"b":"cli/store#1307","z":"返回当前生效的存储目录的路径"}
+{"b":"cli/store@title","z":"pnpm store"}
+{"b":"cli/team#1308","z":"自 v11.13.0 起提供"}
+{"b":"cli/team#1309","z":"在 registry 上管理组织团队和团队成员身份"}
+{"b":"cli/team#1310","z":"团队引用始终以前导的 `@` 书写：组织写作 `@myorg`，其中的团队写作 `@myorg:developers`"}
+{"b":"cli/team#1311","z":"子命令"}
+{"b":"cli/team#1312","z":"create"}
+{"b":"cli/team#1313","z":"在一个组织中创建一个新团队"}
+{"b":"cli/team#1314","z":"destroy"}
+{"b":"cli/team#1315","z":"销毁一个已存在的团队"}
+{"b":"cli/team#1316","z":"add"}
+{"b":"cli/team#1317","z":"把一个用户添加到已存在的团队"}
+{"b":"cli/team#1318","z":"rm"}
+{"b":"cli/team#1319","z":"把一个用户从已存在的团队中移除"}
+{"b":"cli/team#1320","z":"ls"}
+{"b":"cli/team#1321","z":"列出组织中的团队，或某个团队的成员"}
+{"b":"cli/team#1322","z":"别名：`list`。如果未给出子命令且第一个参数看起来像作用域或团队，则默认视为 `ls`，因此 `pnpm team @myorg` 等同于 `pnpm team ls @myorg`。"}
+{"b":"cli/team#1323","z":"选项"}
+{"b":"cli/team#1324","z":"--registry <url&gt;"}
+{"b":"cli/team#1325","z":"此次操作要使用的 npm registry 的基础 URL。为组织作用域配置的 registry（通过 [registries](/docs/settings/dependency-resolution#registries)）会被遵循。"}
+{"b":"cli/team#1326","z":"--otp <code&gt;"}
+{"b":"cli/team#1327","z":"当 registry 要求双因素认证时，此选项提供一次性密码。适用于 `create`、`destroy`、`add` 和 `rm`。"}
+{"b":"cli/team#1328","z":"--parseable"}
+{"b":"cli/team#1329","z":"以裸名称逐行输出 `ls` 的结果，不带表头或缩进"}
+{"b":"cli/team#1330","z":"--json"}
+{"b":"cli/team#1331","z":"把 `ls` 的结果以名称的 JSON 数组输出。优先于 `--parseable`"}
+{"b":"cli/team@title","z":"pnpm team"}
+{"b":"cli/test#1399","z":"运行包的 `scripts` 对象中 `test` 属性所指定的任意命令"}
+{"b":"cli/test#1400","z":"该属性的预期用途是指定一个为你的程序运行单元或集成测试的命令"}
+{"b":"cli/test@title","z":"pnpm test"}
+{"b":"cli/unlink#1391","z":"取消链接一个系统级包（[pnpm link](/docs/cli/link) 的反向操作）"}
+{"b":"cli/unlink#1392","z":"不带参数调用时，会在当前项目内取消链接所有已链接的依赖"}
+{"b":"cli/unlink#1393","z":"这类似于 `yarn unlink`，不同之处在于 pnpm 会在移除外部链接后重新安装该依赖"}
+{"b":"cli/unlink#1394","z":"如果你想移除用 `pnpm link --global <package>` 创建的链接，应使用 `pnpm uninstall --global <package>`。`pnpm unlink` 只移除你当前目录中的链接。"}
+{"b":"cli/unlink#1395","z":"选项"}
+{"b":"cli/unlink#1396","z":"--recursive, -r"}
+{"b":"cli/unlink#1397","z":"在子目录中找到的每个包里取消链接，或在 [工作区](/docs/workspaces) 内执行时在每个工作区包里取消链接。"}
+{"b":"cli/unlink#1398","z":"--filter <package_selector>"}
+{"b":"cli/unlink@title","z":"pnpm unlink"}
+{"b":"cli/unpublish#1401","z":"自 v11.0.0 起提供"}
+{"b":"cli/unpublish#1402","z":"从 registry 移除一个已发布的包版本"}
+{"b":"cli/unpublish#1403","z":"通常不建议取消发布。大多数 registry（包括公开的 npm registry）都限制何时以及如何取消发布包。尽可能优先使用 [pnpm deprecate](/docs/cli/deprecate)。"}
+{"b":"cli/unpublish#1404","z":"示例"}
+{"b":"cli/unpublish#1405","z":"取消发布特定版本："}
+{"b":"cli/unpublish#1406","z":"使用 semver 说明符取消发布一个版本范围："}
+{"b":"cli/unpublish#1407","z":"取消发布整个包（所有版本）。需要 `--force`："}
+{"b":"cli/unpublish#1408","z":"在包目录内不带参数运行时，pnpm 会取消发布从本地 `package.json` 读取的当前包版本。"}
+{"b":"cli/unpublish#1409","z":"选项"}
+{"b":"cli/unpublish#1410","z":"--force"}
+{"b":"cli/unpublish#1411","z":"当移除整个包（所有版本）而非特定版本或范围时必需"}
+{"b":"cli/unpublish#1412","z":"--registry <url>"}
+{"b":"cli/unpublish#1413","z":"要发布到的 registry。默认为该包所配置的 registry"}
+{"b":"cli/unpublish#1414","z":"--otp <code>"}
+{"b":"cli/unpublish#1415","z":"当 registry 要求双因素认证时，通过此标志或 `PNPM_CONFIG_OTP` 环境变量提供一次性密码。"}
+{"b":"cli/unpublish@title","z":"pnpm unpublish"}
+{"b":"cli/update#1332","z":"`pnpm update` 根据指定范围将包更新到其最新版本"}
+{"b":"cli/update#1333","z":"不带参数使用时，更新所有依赖"}
+{"b":"cli/update#1334","z":"TL;DR"}
+{"b":"cli/update#1335","z":"一次更新写入了什么"}
+{"b":"cli/update#1336","z":"除了把 `pnpm-lock.yaml` 移到新解析的版本外，`pnpm update` 还会把新的范围写回依赖被声明的地方："}
+{"b":"cli/update#1337","z":"在 `package.json` 中，范围移到已解析的版本，同时保留依赖已声明的操作符，因此 `^1.1.0` 仍是插入符范围。"}
+{"b":"cli/update#1338","z":"通过 [catalog 协议](/docs/catalogs)声明的依赖不会在 `package.json` 中被重写，而是改为更新它所指向的目录条目，位于 `pnpm-workspace.yaml` 中。"}
+{"b":"cli/update#1339","z":"通过 dist-tag（例如 `\"foo\": \"latest\"`）声明的依赖继续跟踪该标签。标签留在 `package.json` 中，只有锁文件移到它背后的版本，即使使用 `--latest` 也是如此。"}
+{"b":"cli/update#1340","z":"传递 [--no-save](#--no-save) 可只更新锁文件而保持声明的范围不变。"}
+{"b":"cli/update#1341","z":"自 v12.0.0 起，[--patches](#--patches) 做的事情与上述全都不同：它不改变任何版本或声明的范围，只刷新每个已锁定版本解析到的 registry 产物。这仍然会重写锁文件元数据，包括 `integrity`、`revision` 及其周围的包快照，因为产物修订可能声明不同的依赖。见 [Registry revisions](/docs/registry-revisions)。"}
+{"b":"cli/update#1342","z":"更新到特定版本"}
+{"b":"cli/update#1343","z":"自 v11.23.0 起，当该包不是任何被选项目的直接依赖时，`pnpm update <name>@<version>` 会以 `ERR_PNPM_UPDATE_VERSION_ON_INDIRECT_DEP` 失败。这种情况下无处记录该版本；应改用 [覆盖](/docs/settings/dependency-resolution#overrides) 来锁定间接依赖。范围和标签不受影响。"}
+{"b":"cli/update#1344","z":"用模式选择依赖"}
+{"b":"cli/update#1345","z":"你可以使用模式来更新特定的依赖"}
+{"b":"cli/update#1346","z":"更新所有 `babel` 包："}
+{"b":"cli/update#1347","z":"更新所有依赖，但 `webpack` 除外："}
+{"b":"cli/update#1348","z":"模式也可以组合，因此下一条命令会更新所有 `babel` 包，但 `core` 除外："}
+{"b":"cli/update#1349","z":"更新 GitHub Actions"}
+{"b":"cli/update#1350","z":"自 v11.16.0 起提供"}
+{"b":"cli/update#1351","z":"[pnpm outdated](/docs/cli/outdated) 可以检查仓库工作流文件所引用的 GitHub Actions 是否有可用更新，`pnpm update` 可以更新它们。对每个命令而言这都是需主动选择的：传递 [--include-github-actions](#--include-github-actions)，或在 `pnpm-workspace.yaml` 中把 [update.githubActions](/docs/settings/dependency-resolution#updategithubactions) 设为 `true` 以默认启用。"}
+{"b":"cli/update#1352","z":"更新后的 action 被锁定到确切的 commit 哈希，并在注释中保留其发布标签："}
+{"b":"cli/update#1353","z":"检查更新会对每个被引用的仓库运行 `git ls-remote`。那些 ref 无法读取的 action，例如私有仓库中的 action，会被跳过并发出警告。如果 actions 托管在不同的 GitHub 服务器上（例如 GitHub Enterprise Server），设置 [update.githubActionsServer](/docs/settings/dependency-resolution#updategithubactionsserver)（自 v11.17.0 起提供）。"}
+{"b":"cli/update#1354","z":"选项"}
+{"b":"cli/update#1355","z":"--recursive, -r"}
+{"b":"cli/update#1356","z":"在所有含 `package.json` 的子目录（不含 node_modules）中并发运行 update"}
+{"b":"cli/update#1357","z":"用法示例："}
+{"b":"cli/update#1358","z":"--latest, -L"}
+{"b":"cli/update#1359","z":"只要 `package.json` 中指定的版本范围低于 `latest` 标签，就把依赖更新到由其 `latest` 标签判定的最新稳定版本（可能跨主版本升级包）（即它不会降级预发布版本）。"}
+{"b":"cli/update#1360","z":"--patches"}
+{"b":"cli/update#1361","z":"自 v12.0.0 起提供"}
+{"b":"cli/update#1362","z":"刷新 [registry 修订](/docs/registry-revisions)而不改变任何包版本：对每个已锁定的 registry 包，pnpm 解析相同 `name@version` 的当前元数据，并在 registry 当前选择的产物发生变化时采用它。版本和声明的范围保持不变，但锁文件条目会被整体重写，包括 `integrity`、`revision` 及其周围的包快照，因为修订可能声明不同的依赖。"}
+{"b":"cli/update#1363","z":"不能与包选择器、`--latest`、`--interactive` 或 `--global` 组合（`ERR_PNPM_PATCHES_WITH_SELECTOR`）。这些选项中的每一个都会缩小或重定向一次更新所针对的目标，即某个包子集、最新版本、交互式选择、全局安装，而 `--patches` 被定义为以当前版本覆盖当前项目的每个已锁定包。"}
+{"b":"cli/update#1364","z":"--pnpr-server <url>"}
+{"b":"cli/update#1365","z":"自 v12.0.0 起提供"}
+{"b":"cli/update#1366","z":"把 `--patches` 刷新的解析卸载到一个 [pnpr](https://pnpm.io/pnpr) 服务器，就像 [pnprServer](https://pnpm.io/pnpr/install-acceleration) 对安装做的那样。"}
+{"b":"cli/update#1367","z":"--global, -g"}
+{"b":"cli/update#1368","z":"更新全局包"}
+{"b":"cli/update#1369","z":"--workspace"}
+{"b":"cli/update#1370","z":"尝试链接工作区中的所有包。版本会被更新以匹配工作区内各包的版本"}
+{"b":"cli/update#1371","z":"如果更新特定的包，当任何被更新的依赖在工作区内找不到时，命令会失败。例如，如果 `express` 不是工作区包，以下命令会失败："}
+{"b":"cli/update#1372","z":"--prod, -P"}
+{"b":"cli/update#1373","z":"只更新 `dependencies` 和 `optionalDependencies` 中的包"}
+{"b":"cli/update#1374","z":"--dev, -D"}
+{"b":"cli/update#1375","z":"只更新 `devDependencies` 中的包"}
+{"b":"cli/update#1376","z":"--no-optional"}
+{"b":"cli/update#1377","z":"不更新 `optionalDependencies` 中的包"}
+{"b":"cli/update#1378","z":"--interactive, -i"}
+{"b":"cli/update#1379","z":"显示过时的依赖并选择要更新哪些"}
+{"b":"cli/update#1380","z":"自 v11.21.0 起，与 `--global` 结合时，每个[隔离安装组](/docs/global-packages#isolated-installations)作为一个可选项呈现：共享一个全局安装的包会作为一个整体一起更新。"}
+{"b":"cli/update#1381","z":"--no-save"}
+{"b":"cli/update#1382","z":"不更新 `package.json` 中的范围"}
+{"b":"cli/update#1383","z":"--changeset"}
+{"b":"cli/update#1384","z":"自 v11.16.0 起提供"}
+{"b":"cli/update#1385","z":"更新完成后，写入一个[变更意图](/docs/versioning)，即一个与 changesets 兼容的 `.changeset/*.md` 文件，为每个其 `dependencies` 或 `optionalDependencies` 被该更新改变的工作区包声明 `patch` 提升，并在其 `peerDependencies` 改变时声明 `major` 提升。通过 `catalog:` 协议使用被更新目录条目的包也会被纳入。私有包、无名称的包，以及列在 `.changeset/config.json` 的 `ignore` 数组中的包会被跳过。如果 `.changeset/config.json` 不存在，会打印警告且不生成变更集。"}
+{"b":"cli/update#1386","z":"在 `pnpm-workspace.yaml` 中把 [update.changeset](/docs/settings/dependency-resolution#updatechangeset) 设为 `true` 以默认启用此行为，并用 `--no-changeset` 为单次更新覆盖该设置。"}
+{"b":"cli/update#1387","z":"--include-github-actions"}
+{"b":"cli/update#1388","z":"自 v11.16.0 起提供"}
+{"b":"cli/update#1389","z":"同时更新仓库工作流文件所引用的 GitHub Actions。见 [更新 GitHub Actions](#updating-github-actions)。"}
+{"b":"cli/update#1390","z":"--filter <package_selector>"}
+{"b":"cli/update@title","z":"pnpm update"}

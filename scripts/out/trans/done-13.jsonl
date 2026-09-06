@@ -1,0 +1,254 @@
+{"b":"registry-revisions#2621","z":"自 v12.0.0 起提供"}
+{"b":"registry-revisions#2622","z":"某些 registry 可以为一个已发布的版本提供一个**替换产物**——例如重新构建并修补了某个漏洞的版本——而无需更改版本号，也无需改写原始 `name@version` URL 一直以来所提供的字节。pnpm 将每个这样的产物称为该版本的一个*修订版*。"}
+{"b":"registry-revisions#2623","z":"修订版 0 始终是原始产物。一个替换了产物的 registry 会将替换版本公告为修订版 1，其后的为修订版 2，依此类推，按每个 registry、每个 `name@version` 分别计数。"}
+{"b":"registry-revisions#2624","z":"修订版是 registry 的一种能力，pnpm 无法为一个未实现它的 registry 添加该能力。[pnpr](https://pnpm.io/pnpr) 会提供修订版，既针对它托管的包，也——作为代理——针对公告了修订版的上游 registry。`registry.npmjs.org` 则不提供。"}
+{"b":"registry-revisions#2625","z":"修订版的寻址方式"}
+{"b":"registry-revisions#2626","z":"修订版通过其自身的摘要，从 registry 上的一条不可变路由拉取："}
+{"b":"registry-revisions#2627","z":"registry 元数据会将该 URL 与一个普通的子资源完整性（Subresource Integrity）值以及修订版编号一起公告："}
+{"b":"registry-revisions#2628","z":"`dist.revision` 仅当所选产物是一个替换版本时才存在。`dist.revisions` 承载了完整的历史——每一个被公告的修订版及其自身的完整性、摘要 URL 和 manifest。"}
+{"b":"registry-revisions#2629","z":"pnpm 会在解析期间校验以上内容：该 URL 必须位于所选 registry 的完整性摘要 tarball 路由上，其 base64url 摘要必须解码为与 `dist.integrity` 中完全一致的摘要，且修订版编号必须是 `0 < N ≤ 2^53 − 1` 范围内的规范整数。任何不满足的内容都会以 `ERR_PNPM_MALFORMED_METADATA` 失败。拉取本身是一次经过认证的单个请求，既不重试也不回退，并且**任何**重定向——包括同源重定向——都会使其失败。"}
+{"b":"registry-revisions#2630","z":"registry 也可能通过摘要路由提供一个*原始*产物。pnpm 会将其归一化回一个仅含完整性的普通锁文件条目，而不是存储一个会把锁文件钉死在某次部署主机名上的绝对 URL。"}
+{"b":"registry-revisions#2631","z":"在锁文件中"}
+{"b":"registry-revisions#2632","z":"没有 `revision` 字段的条目表示修订版 0，并且在字节上与 pnpm 一直以来所写入的完全一致——规范的 `name@version` URL 永远钉在原始产物上，因此对于一个未经修补的依赖，什么都没有变化："}
+{"b":"registry-revisions#2633","z":"pnpm-lock.yaml"}
+{"b":"registry-revisions#2634","z":"`revision` 这一行正是告诉 pnpm 按摘要拉取、而非重建规范 URL 的依据。它也让 diff 更易读：在某个完整性发生变化处，旁边从 `revision: 1` 变为 `revision: 2` 说明了完整性*为何*变化。"}
+{"b":"registry-revisions#2635","z":"由于原始产物不作标记，一个尚未采用任何替换版本的工作区会生成一个旧版 pnpm 仍能读取的锁文件，并且将锁文件指向一个没有摘要路由的 registry 也能让整个未经修补的依赖图保持可安装——只有 `revision` 条目会失败，且它们以普通的不可用形式失败。"}
+{"b":"registry-revisions#2636","z":"已安装的锁文件绝不会在未经提示的情况下升级：一次拉取会保留已锁定的修订版，而不是采用 registry 当前所选的那个。"}
+{"b":"registry-revisions#2637","z":"选择修订版"}
+{"b":"registry-revisions#2638","z":"一个 specifier 可以用 `+rN` 钉住某个修订版，以 semver 构建元数据的形式携带："}
+{"b":"registry-revisions#2639","z":"pnpm-workspace.yaml"}
+{"b":"registry-revisions#2640","z":"`+r0` 保留原始产物——即从 registry 已选的替换版本中退出。"}
+{"b":"registry-revisions#2641","z":"一个正数会采用一个 registry 公告但尚未选用的替换版本，或将一个已选用的冻结下来。"}
+{"b":"registry-revisions#2642","z":"它既可作为 override 目标，也可直接声明为依赖，跨 npm、JSR、别名以及[命名 registry](/docs/registries#prefix) 生效。版本部分正常解析——构建元数据在版本匹配时被忽略——随后从 `dist.revisions` 中选出指定的修订版，并由**该条目自身的 manifest** 驱动子树解析。修订版之间的依赖、对等依赖、`bin`、`engines` 以及安装脚本姿态可能合理地存在差异，因此读取当前版本的顶层字段会是错误的。"}
+{"b":"registry-revisions#2643","z":"围绕它的规则如下："}
+{"b":"registry-revisions#2644","z":"一个 registry 未公告的修订版是硬性错误（`ERR_PNPM_NO_MATCHING_REVISION`）；pnpm 绝不向前回退到所选的那个。"}
+{"b":"registry-revisions#2645","z":"在一个不具备修订版感知的版本上，`+r0` 会被唯一的产物平凡地满足，而正数则是一个错误。"}
+{"b":"registry-revisions#2646","z":"会改变版本的目标可以组合：`\"ejs@2.7.4\": \"2.7.5+r1\"` 会将 spec 重写为 `2.7.5`，然后选出它的修订版 1。"}
+{"b":"registry-revisions#2647","z":"重写只应用一次，因此修订版选择既不能链式叠加也不能循环。"}
+{"b":"registry-revisions#2648","z":"只有 `r<digits>` 构建元数据命名空间被保留。携带任何其他构建元数据的 spec 都是一个普通 spec。"}
+{"b":"registry-revisions#2649","z":"在同一依赖图中，针对同一个 `name@version` 要求不同修订版的两个 spec 会以 `ERR_PNPM_REVISION_CONFLICT` 失败。一个包键只能持有一个产物，pnpm 不会将它们静默统一。"}
+{"b":"registry-revisions#2650","z":"和每个精确选择器 override 一样，一个 `+rN` override 也会**钉住版本**：一个声明为 `^2.7.0` 的依赖在上游发布 `2.7.5` 之后仍留在 `2.7.4`，直到该 override 被更改或移除。"}
+{"b":"registry-revisions#2651","z":"选择是一种偏好，而非安全边界。一个策略拒绝某修订版字节的 registry，会用 `403` 响应其摘要 URL，随后被钉住的安装会大声失败，并指出该策略与被公告的修订版。"}
+{"b":"registry-revisions#2652","z":"刷新修订版"}
+{"b":"registry-revisions#2653","z":"要移动到 registry 当前所选的产物，而不更改任何包版本："}
+{"b":"registry-revisions#2654","z":"对每个锁定的 registry 包，pnpm 都为完全相同的 `name@version` 解析当前元数据。当所选产物发生变化时，它会一起更新完整性、`revision` 字段和整个包快照——不同修订版之间的依赖元数据可能不同，因此只改校验和会是错误的。"}
+{"b":"registry-revisions#2655","z":"一个显式钉住了修订版的包会被跳过，且该钉住会保持：这涵盖了带 `+rN` 目标的 override 以及作为其声明的依赖，因此 `\"ejs\": \"2.7.4+r1\"` 会在每次刷新中留在修订版 1。"}
+{"b":"registry-revisions#2656","z":"`--patches` 不能与包选择器、`--latest`、`--interactive` 或 `--global` 组合使用（`ERR_PNPM_PATCHES_WITH_SELECTOR`）。"}
+{"b":"registry-revisions#2657","z":"刷新可以由 pnpr 服务器在服务端解析完成，无论是通过 [pnprServer](https://pnpm.io/pnpr/install-acceleration) 还是命令行上的 `--pnpr-server <url>`。一次显式刷新会绕过冻结复用和 pnpr 的整体解析缓存，并且 registry 解析器即便在其缓存已热的情况下也会重新验证元数据——否则该命令可能会原样交回被要求越过的修订版。"}
+{"b":"registry-revisions@title","z":"Registry 修订版"}
+{"b":"scripts#2658","z":"pnpm 如何处理 `package.json` 的 `scripts` 字段。"}
+{"b":"scripts#2659","z":"隐藏脚本"}
+{"b":"scripts#2660","z":"自 v11.0.0 起提供"}
+{"b":"scripts#2661","z":"名称以 `.` 开头的脚本是隐藏的。它们无法通过 `pnpm run` 直接运行，并从 `pnpm run` 的列表中省略。隐藏脚本只能从其他脚本中被调用。"}
+{"b":"scripts#2662","z":"在此示例中，`pnpm run .helper` 会失败，但 `pnpm run build` 会成功，因为 `.helper` 是从另一个脚本中被调用的。"}
+{"b":"scripts#2663","z":"环境变量"}
+{"b":"scripts#2664","z":"pnpm 在生命周期脚本执行期间设置以下环境变量："}
+{"b":"scripts#2665","z":"`npm_package_name` — 包名"}
+{"b":"scripts#2666","z":"`npm_package_version` — 包版本"}
+{"b":"scripts#2667","z":"`npm_lifecycle_event` — 正在运行的脚本的名称（例如 `postinstall`）"}
+{"b":"scripts#2668","z":"自 v11 起，pnpm 不再从 pnpm 配置填充 `npm_config_*` 环境变量。仅设置上述那些广为人知的 `npm_*` 变量，与 Yarn 的行为一致。"}
+{"b":"scripts#2669","z":"内置命令与脚本名称冲突"}
+{"b":"scripts#2670","z":"自 v11.0.0 起提供"}
+{"b":"scripts#2671","z":"以下内置命令优先使用用户脚本：`clean`、`setup`、`deploy` 和 `rebuild`。如果你的 `package.json` 用其中之一定义了脚本，`pnpm <name>` 将执行该脚本而非内置命令。"}
+{"b":"scripts#2672","z":"要强制使用内置命令，请用 [pnpm pm <name>](/docs/cli/pm)。"}
+{"b":"scripts#2673","z":"生命周期脚本"}
+{"b":"scripts#2674","z":"`pnpm:devPreinstall`"}
+{"b":"scripts#2675","z":"仅在本地 `pnpm install` 时运行。"}
+{"b":"scripts#2676","z":"在任何依赖安装之前运行。"}
+{"b":"scripts#2677","z":"此脚本仅在设置于根项目的 `package.json` 中时才执行。"}
+{"b":"settings#2678","z":"pnpm 从命令行、环境变量和 `pnpm-workspace.yaml` 获取其配置。"}
+{"b":"settings#2679","z":"仅有 auth 和 registry 设置从 `.npmrc` 文件读取。所有其他设置（如 `hoistPattern`、`nodeLinker`、`shamefullyHoist` 等）必须在 `pnpm-workspace.yaml` 或全局的 `~/.config/pnpm/config.yaml` 中配置。"}
+{"b":"settings#2680","z":"`pnpm config` 命令可用于读取和编辑项目与全局配置文件的内容。"}
+{"b":"settings#2681","z":"相关的配置文件有："}
+{"b":"settings#2682","z":"每个项目的配置文件：`/path/to/my/project/pnpm-workspace.yaml`"}
+{"b":"settings#2683","z":"与授权相关的设置通过 [.npmrc](/docs/npmrc) 处理。"}
+{"b":"settings#2684","z":"配置文件中的值可以使用 `${NAME}` 语法包含环境变量。环境变量也可以指定默认值。使用 `${NAME-fallback}` 会在 `NAME` 未设置时返回 `fallback`。`${NAME:-fallback}` 会在 `NAME` 未设置或为空字符串时返回 `fallback`。"}
+{"b":"settings#2685","z":"自 v11.5.3 起，在 `pnpm-workspace.yaml` 中定义 registry URL 的设置里**不会**展开环境变量：`registry`，以及 [registries](/docs/settings/dependency-resolution#registries) 和 [namedRegistries](/docs/settings/dependency-resolution#namedregistries) 的 URL 值。这些设置中包含 `${...}` 占位符的值会被忽略。在 `registries` 的 [registry 声明形式](/docs/registries) 中（自 v11.23.0 起），URL 是键而非值，同样的规则适用于键。由于 `pnpm-workspace.yaml` 会提交到仓库，在 registry URL 中展开环境变量可能会被恶意仓库利用，把环境中的机密泄露到攻击者控制的 registry。请改为在受信任的位置配置动态 registry URL：全局配置文件或 CLI 选项。"}
+{"b":"settings#2686","z":"自 v11.22.0 起，项目的 `pnpm-workspace.yaml` 不能选择 pnpm 保存其凭据、其自身安装或其他机器级状态的位置：`bin`、`configDir`、`dir`、`globalBinDir`、`globalDir`、`npmrcAuthFile`、`pnpmHomeDir`、`stateDir`、`userconfig` 和 `workspaceDir` 在那里会被忽略，并发出警告。请改在[全局配置文件](/docs/cli/config)或命令行上设置它们。`cacheDir` 和 `storeDir` 不受影响。"}
+{"b":"settings#2687","z":"packages"}
+{"b":"settings#2688","z":"除设置之外，`pnpm-workspace.yaml` 还定义了[工作区](/docs/workspaces)的根，并让你能将目录纳入 / 排除出工作区。如果省略 `packages` 字段，则只有根包包含在工作区中。"}
+{"b":"settings#2689","z":"例如："}
+{"b":"settings#2690","z":"pnpm-workspace.yaml"}
+{"b":"settings#2691","z":"根包始终被纳入，即使使用了自定义位置通配符。"}
+{"b":"settings#2692","z":"catalogs 也在 `pnpm-workspace.yaml` 文件中定义。详情见 [Catalogs](/docs/catalogs)。"}
+{"b":"settings#2693","z":"pnpm-workspace.yaml"}
+{"b":"settings#2694","z":"packageConfigs"}
+{"b":"settings#2695","z":"自 v11.0.0 起提供"}
+{"b":"settings#2696","z":"允许为各个工作区包设置项目专属的配置。这取代了工作区项目专属的 `.npmrc` 文件。"}
+{"b":"settings#2697","z":"`packageConfigs` 可以指定为一个从包名到配置对象的映射："}
+{"b":"settings#2698","z":"pnpm-workspace.yaml"}
+{"b":"settings#2699","z":"或者作为一个由通配符匹配的规则数组："}
+{"b":"settings#2700","z":"pnpm-workspace.yaml"}
+{"b":"settings#2701","z":"设置"}
+{"b":"settings#2702","z":"以下按主题分组列出每个设置。跟随某个设置可阅读其文档，或打开某个分组的完整参考。"}
+{"b":"settings#2703","z":"依赖解析"}
+{"b":"settings#2704","z":"node_modules 设置"}
+{"b":"settings#2705","z":"依赖提升设置"}
+{"b":"settings#2706","z":"存储设置"}
+{"b":"settings#2707","z":"锁文件设置"}
+{"b":"settings#2708","z":"网络设置"}
+{"b":"settings#2709","z":"请求设置"}
+{"b":"settings#2710","z":"对等依赖设置"}
+{"b":"settings#2711","z":"CLI 设置"}
+{"b":"settings#2712","z":"Node.js 设置"}
+{"b":"settings#2713","z":"构建设置"}
+{"b":"settings#2714","z":"版本策略设置"}
+{"b":"settings#2715","z":"其他设置"}
+{"b":"settings#2716","z":"工作区设置"}
+{"b":"settings#2717","z":"这些设置同样在 `pnpm-workspace.yaml` 中配置，但与其所属的工作区特性一起文档化。"}
+{"b":"settings#2718","z":"在其他处文档化的设置"}
+{"b":"settings#2719","z":"在 [.npmrc](/docs/npmrc) 中读取的授权设置"}
+{"b":"settings@title","z":"设置（pnpm-workspace.yaml）"}
+{"b":"settings/build#2720","z":"ignoreScripts"}
+{"b":"settings/build#2721","z":"默认值：**false**"}
+{"b":"settings/build#2722","z":"类型：**布尔值**"}
+{"b":"settings/build#2723","z":"不要执行项目 `package.json` 及其依赖中定义的任何脚本。"}
+{"b":"settings/build#2724","z":"此标志不会阻止执行 [.pnpmfile.mjs](/docs/pnpmfile)"}
+{"b":"settings/build#2725","z":"childConcurrency"}
+{"b":"settings/build#2726","z":"类型：**数字**"}
+{"b":"settings/build#2727","z":"构建 node_modules 时同时分配的子进程的最大数量。"}
+{"b":"settings/build#2728","z":"sideEffectsCache"}
+{"b":"settings/build#2729","z":"默认值：**true**"}
+{"b":"settings/build#2730","z":"类型：**布尔值或对象**"}
+{"b":"settings/build#2731","z":"使用并缓存（前/后）install 钩子的结果。"}
+{"b":"settings/build#2732","z":"当某个前/后安装脚本修改了包的内容（例如构建输出）时，pnpm 会将修改后的包保存到全局存储中。在同一台机器上未来的安装中，pnpm 会复用这个已缓存、已预构建的版本——使安装显著更快。"}
+{"b":"settings/build#2733","z":"如果以下情况，你可能想禁用此设置："}
+{"b":"settings/build#2734","z":"安装脚本修改了包目录*之外*的文件（pnpm 无法跟踪或缓存这些更改）。"}
+{"b":"settings/build#2735","z":"这些脚本执行了与构建包无关的副作用。"}
+{"b":"settings/build#2736","z":"一个对象以更详细的措辞表达同样的意思，也是声明远程层级的规范方式："}
+{"b":"settings/build#2737","z":"pnpm-workspace.yaml"}
+{"b":"settings/build#2738","z":"`read` — 当缓存中存在构建结果时从缓存恢复构建。默认 **true**。"}
+{"b":"settings/build#2739","z":"`write` — 将包的构建输出保存到缓存。默认 **true**。"}
+{"b":"settings/build#2740","z":"`remote` — 跨机器复用构建；见下文。"}
+{"b":"settings/build#2741","z":"`sideEffectsCache: true` 是读取与写入的简写，也是该设置在长出远程层级之前的含义。只写不读（`read: false, write: true`）会填充一个本次运行从不消费的缓存，这正是一个为他人预热缓存的任务所想要的。"}
+{"b":"settings/build#2742","z":"sideEffectsCacheReadonly"}
+{"b":"settings/build#2743","z":"默认值：**false**"}
+{"b":"settings/build#2744","z":"类型：**布尔值**"}
+{"b":"settings/build#2745","z":"仅在存在时使用副作用缓存，不为新包创建它。这是 `sideEffectsCache: { read: true, write: false }` 的旧写法。"}
+{"b":"settings/build#2746","z":"sideEffectsCache.remote"}
+{"b":"settings/build#2747","z":"自 v12.0.0 起提供"}
+{"b":"settings/build#2748","z":"默认值：**undefined**"}
+{"b":"settings/build#2749","z":"类型：**对象**"}
+{"b":"settings/build#2750","z":"通过一个 [pnpr](https://pnpm.io/pnpr) 服务器恢复经签名、组织范围内的产物，而不是在本地运行包的生命周期脚本，从而选择在跨机器间复用某个依赖的构建输出。这是一个概念验证：除非配置，否则它是关闭的，它需要一个以 `artifacts.enabled: true` 启动的 pnpr 服务器，并且在 Linux/glibc、macOS 和 Windows 上的 x64 和 arm64 恢复产物。其他操作系统和 libc 家族会在本地构建。"}
+{"b":"settings/build#2751","z":"一个仓库只声明资格，不声明其他任何东西："}
+{"b":"settings/build#2752","z":"pnpm-workspace.yaml"}
+{"b":"settings/build#2753","z":"只声明 `remote` 会让 `read` 和 `write` 保持其默认值，因此本地缓存照常继续工作。"}
+{"b":"settings/build#2754","z":"`packages` 是一份资格清单，而非一种许可：一个包只有当它同时通过 [allowBuilds](#allowbuilds)、具有 `requiresBuild: true` 并具有经过验证的源完整性时，才是一个候选。在此列出一个包并不会替你审查其构建脚本——在默认的 [strictDepBuilds](#strictdepbuilds) 下，当一个构建到达时无人裁定，安装仍会以 `ERR_PNPM_IGNORED_BUILDS` 失败，而一个以 `allowBuilds: false` 被拒绝的包永远不会构建，无论来自缓存还是其他途径。"}
+{"b":"settings/build#2755","z":"所有描述*签名这一动作*的内容——`publish`、`keyId`、`builderId`、`imageDigest`、`architectureBaseline`、`buildEnv`、`trustedKeys` 和 `privateKey`——在 `pnpm-workspace.yaml` 中都会被以 `ERR_PNPM_WORKSPACE_REMOTE_SIDE_EFFECTS_TRUST` 拒绝，而是从[全局配置文件](/docs/cli/config)或环境中读取。一个被克隆的仓库不是信任根，且绝不能将机器的签名密钥变成签名神谕。"}
+{"b":"settings/build#2756","z":"任何缓存失败——不可达的服务器、无法验证的签名、不兼容的平台、损坏的 blob——都会回退到普通的本地构建。完整设置，包括服务器标志、信任材料以及产物如何发布，见 [Shared side-effects cache](https://pnpm.io/pnpr/shared-side-effects-cache)。"}
+{"b":"settings/build#2757","z":"自 v12.1.0 起，一个被恢复的产物会连同其经签名的来源一起保存在共享存储中。在后续安装复用之前，pnpm 会针对机器当前的密钥再次检查签名，并重新验证其所有者、包与源身份、平台、策略和存储的文件。一个坏的远程变体会被该 pnpr 服务器隔离，并且不再被选中。"}
+{"b":"settings/build#2758","z":"`remoteSideEffectsCache` 是此设置的旧拼写，`organization` 是其 `org` 字段的旧拼写；两者仍然可用。"}
+{"b":"settings/build#2759","z":"两种拼写是合并的，而非二选一：在两种拼写下都设置的字段的值取自 `sideEffectsCache.remote`，而只在一种拼写下设置的字段无论如何都会保留。这正是让一个仓库能在 `pnpm-workspace.yaml` 中声明 org，同时机器从其已经使用的那种拼写下的全局配置提供签名密钥的原因。"}
+{"b":"settings/build#2760","z":"unsafePerm"}
+{"b":"settings/build#2761","z":"默认值：以 root 运行时为 **false**，否则为 **true**"}
+{"b":"settings/build#2762","z":"类型：**布尔值**"}
+{"b":"settings/build#2763","z":"设为 true 以在运行包脚本时启用 UID/GID 切换。如果显式设为 false，则以非 root 用户身份安装将会失败。"}
+{"b":"settings/build#2764","z":"nodeOptions"}
+{"b":"settings/build#2765","z":"默认值：**NULL**"}
+{"b":"settings/build#2766","z":"类型：**字符串**"}
+{"b":"settings/build#2767","z":"通过 `NODE_OPTIONS` 环境变量传递给 Node.js 的选项。这不影响 pnpm 本身如何执行，但会影响生命周期脚本如何被调用。"}
+{"b":"settings/build#2768","z":"要保留现有的 `NODE_OPTIONS`，你可以在配置中使用 `${NODE_OPTIONS}` 引用现有环境变量："}
+{"b":"settings/build#2769","z":"verifyDepsBeforeRun"}
+{"b":"settings/build#2770","z":"默认值：**install**"}
+{"b":"settings/build#2771","z":"类型：**install**、**warn**、**error**、**prompt**、**false**"}
+{"b":"settings/build#2772","z":"此设置允许在运行脚本前检查依赖的状态。该检查在 `pnpm run` 和 `pnpm exec` 命令上运行。支持以下值："}
+{"b":"settings/build#2773","z":"`install` - 当 `node_modules` 不是最新时自动运行 install。"}
+{"b":"settings/build#2774","z":"`warn` - 当 `node_modules` 不是最新时打印一条警告。"}
+{"b":"settings/build#2775","z":"`prompt` - 当 `node_modules` 不是最新时提示用户是否允许运行 install。"}
+{"b":"settings/build#2776","z":"`error` - 当 `node_modules` 不是最新时抛出一个错误。"}
+{"b":"settings/build#2777","z":"`false` - 禁用依赖检查。"}
+{"b":"settings/build#2778","z":"strictDepBuilds"}
+{"b":"settings/build#2779","z":"自 v10.3.0 起提供"}
+{"b":"settings/build#2780","z":"默认值：**true**"}
+{"b":"settings/build#2781","z":"类型：**布尔值**"}
+{"b":"settings/build#2782","z":"启用 `strictDepBuilds` 时，如果任何依赖具有未经审查的构建脚本（即 postinstall 脚本），安装将以非零退出码退出。"}
+{"b":"settings/build#2783","z":"allowBuilds"}
+{"b":"settings/build#2784","z":"自 v10.26.0 起提供"}
+{"b":"settings/build#2785","z":"一个从包匹配器到显式允许（`true`）或禁止（`false`）脚本执行的映射。"}
+{"b":"settings/build#2786","z":"**Git 托管的包：**单独一个包名绝不会为 git 或 tarball 依赖批准构建——仅凭名称无法标识该产物。批准一个，要么用其精确的解析后路径（包含 commit），要么自 v11.11.0 起用其仓库 URL："}
+{"b":"settings/build#2787","z":"仓库形式让一个受信任的 git 依赖能在分支更新间继续运行其构建脚本，而无需为每个新 commit 重新批准。键是包名，后跟 `@` 和 git URL，不带 `#<ref>` 后缀。匹配是精确的，因此同一仓库的 `git+ssh://` 和 `git+https://` URL 是分开的键。"}
+{"b":"settings/build#2788","z":"自 v11.19.0 起，仓库形式也会批准那些 pnpm 以 tarball 而非克隆方式下载的 git 托管包——例如 `github:` 依赖，它们从 `codeload.github.com` 拉取。一个 `foo@git+https://github.com/org/foo.git` 条目会批准 `foo`，无论 pnpm 是克隆仓库还是下载 tarball。GitLab 和 Bitbucket 的 tarball 下载以同样方式匹配。用一个完整的 tarball 依赖路径批准或拒绝某个特定的已解析 commit 仍然可用。"}
+{"b":"settings/build#2789","z":"按包名做出的拒绝不受此限制：`foo: false` 会屏蔽 `foo`，无论它来自 registry 还是 git。"}
+{"b":"settings/build#2790","z":"**默认行为：**未在 `allowBuilds` 中列出的包默认被禁止，并被当作未经审查处理。默认会打印一个错误（[strictDepBuilds](#strictdepbuilds) 默认为 `true`）。如果 `strictDepBuilds` 设为 `false`，则改为打印一个警告。"}
+{"b":"settings/build#2791","z":"在安装期间，具有被忽略构建但尚未列在 `allowBuilds` 中的依赖会以一个占位值自动添加到 `pnpm-workspace.yaml`，以便你手动将它们设为 `true` 或 `false`。`pnpm add` 和 `pnpm approve-builds` 上的 [--allow-build](/docs/cli/add) 标志也会将其条目写入此处。"}
+{"b":"settings/build#2792","z":"从旧设置迁移"}
+{"b":"settings/build#2793","z":"要自动迁移这些设置，请从 [Migrating from v10 to v11](/docs/migration) 指南运行 `pnpx codemod run pnpm-v10-to-v11`。"}
+{"b":"settings/build#2794","z":"以下设置已在 v11 中被移除并由 `allowBuilds` 取代：`onlyBuiltDependencies`、`onlyBuiltDependenciesFile`、`neverBuiltDependencies`、`ignoredBuiltDependencies` 和 `ignoreDepScripts`。"}
+{"b":"settings/build#2795","z":"dangerouslyAllowAllBuilds"}
+{"b":"settings/build#2796","z":"自 v10.9.0 起提供"}
+{"b":"settings/build#2797","z":"默认值：**false**"}
+{"b":"settings/build#2798","z":"类型：**布尔值**"}
+{"b":"settings/build#2799","z":"设为 `true` 时，依赖的所有构建脚本（例如 `preinstall`、`install`、`postinstall`）将自动运行，无需批准。"}
+{"b":"settings/build#2800","z":"此设置允许所有依赖——包括传递依赖——无论现在还是将来都运行安装脚本。即使你当前的依赖图看起来是安全的："}
+{"b":"settings/build#2801","z":"未来的更新可能引入新的、不受信任的依赖。"}
+{"b":"settings/build#2802","z":"现有的包可能在后续版本中添加脚本。"}
+{"b":"settings/build#2803","z":"包可能被劫持或攻破并开始执行恶意代码。"}
+{"b":"settings/build#2804","z":"为获得最大安全性，仅在你完全了解风险并信任你所拉取的整个生态时才启用此项。建议显式审查并允许构建。"}
+{"b":"settings/build@title","z":"构建设置"}
+{"b":"settings/cli#2805","z":"CLI 设置"}
+{"b":"settings/cli#2806","z":"[no-]color"}
+{"b":"settings/cli#2807","z":"默认值：**auto**"}
+{"b":"settings/cli#2808","z":"类型：**auto**、**always**、**never**"}
+{"b":"settings/cli#2809","z":"控制输出中的颜色。"}
+{"b":"settings/cli#2810","z":"**auto** - 当标准输出是终端或 TTY 时，输出使用颜色。"}
+{"b":"settings/cli#2811","z":"**always** - 忽略终端与管道之间的差异。你很少需要这个；在大多数场景下，如果你想在重定向的输出中要颜色码，可以改为给 pnpm 命令传一个 `--color` 标志，强制其使用颜色码。默认设置几乎总是你想要的。"}
+{"b":"settings/cli#2812","z":"**never** - 关闭颜色。这就是 `--no-color` 所使用的设置。"}
+{"b":"settings/cli#2813","z":"loglevel"}
+{"b":"settings/cli#2814","z":"默认值：**info**"}
+{"b":"settings/cli#2815","z":"类型：**debug**、**info**、**warn**、**error**"}
+{"b":"settings/cli#2816","z":"等于或高于给定级别的任何日志都会被显示。你可以改传 `--silent` 以关闭所有输出日志。"}
+{"b":"settings/cli#2817","z":"useBetaCli"}
+{"b":"settings/cli#2818","z":"默认值：**false**"}
+{"b":"settings/cli#2819","z":"类型：**布尔值**"}
+{"b":"settings/cli#2820","z":"一个启用 CLI 测试版特性的实验性选项。这意味着你可能会遇到一些对 CLI 功能而言是破坏性变更的改动，或潜在的缺陷。"}
+{"b":"settings/cli#2821","z":"recursiveInstall"}
+{"b":"settings/cli#2822","z":"默认值：**true**"}
+{"b":"settings/cli#2823","z":"类型：**布尔值**"}
+{"b":"settings/cli#2824","z":"如果启用，`pnpm install` 的主要行为会变成 `pnpm install -r` 的行为，意味着安装会在所有工作区或子目录包上执行。"}
+{"b":"settings/cli#2825","z":"否则，`pnpm install` 将只构建当前目录中的包。"}
+{"b":"settings/cli#2826","z":"engineStrict"}
+{"b":"settings/cli#2827","z":"默认值：**false**"}
+{"b":"settings/cli#2828","z":"类型：**布尔值**"}
+{"b":"settings/cli#2829","z":"如果启用，pnpm 将不会安装任何声称与当前 Node 版本不兼容的包。"}
+{"b":"settings/cli#2830","z":"无论此配置如何，如果一个项目（而非依赖）在其 `engines` 字段中指定了一个不兼容的版本，安装总是会以失败告终。"}
+{"b":"settings/cli#2831","z":"可选依赖被豁免，因为一个 pnpm 可能跳过的包不要求是兼容的。自 v12.0.0 起，该豁免跟随的是边（edge）而非子树：一个通过正在安装的包的某个常规 `dependencies` 边抵达的不兼容包会使安装失败，即使它所在的子树挂在一个 `optionalDependencies` 条目之下。pnpm 11 会安装它并改为打印一个安装检查警告。一个只能经由可选边抵达、或经由一个自身被跳过的包抵达的包，在两个版本中仍然会被跳过（[#13286](https://github.com/pnpm/pnpm/issues/13286)）。"}
+{"b":"settings/cli#2832","z":"npmPath"}
+{"b":"settings/cli#2833","z":"类型：**路径**"}
+{"b":"settings/cli#2834","z":"pnpm 用于某些操作（如发布）的 npm 二进制文件的位置。"}
+{"b":"settings/cli#2835","z":"pmOnFail"}
+{"b":"settings/cli#2836","z":"自 v11.0.0 起提供"}
+{"b":"settings/cli#2837","z":"默认值：**download**"}
+{"b":"settings/cli#2838","z":"类型：**download**、**error**、**warn**、**ignore**"}
+{"b":"settings/cli#2839","z":"当正在运行的 pnpm 版本与所声明的版本不匹配时，覆盖 `packageManager` 字段和 `devEngines.packageManager` 两者的 `onFail` 行为。"}
+{"b":"settings/cli#2840","z":"`download` — 下载并运行所声明的 pnpm 版本（这是默认值，与之前的 `managePackageManagerVersions: true` 行为一致）。"}
+{"b":"settings/cli#2841","z":"`error` — 使命令失败（等同于之前的 `packageManagerStrictVersion: true`）。"}
+{"b":"settings/cli#2842","z":"`warn` — 打印一条警告但继续（等同于之前的 `packageManagerStrict: false` 或 `COREPACK_ENABLE_STRICT=0`）。"}
+{"b":"settings/cli#2843","z":"`ignore` — 完全跳过检查（等同于之前的 `managePackageManagerVersions: false`）。当版本管理由外部工具（如 asdf、mise 或 Volta）处理时很有用。"}
+{"b":"settings/cli#2844","z":"可通过 CLI 标志、环境变量或 `pnpm-workspace.yaml` 设置："}
+{"b":"settings/cli#2845","z":"pnpm-workspace.yaml"}
+{"b":"settings/cli#2846","z":"此设置取代了已移除的 `managePackageManagerVersions`、`packageManagerStrict` 和 `packageManagerStrictVersion` 设置，以及 `COREPACK_ENABLE_STRICT` 环境变量。"}
+{"b":"settings/cli#2847","z":"另见 [pnpm with](/docs/cli/with)，可在不更改此设置的情况下以某个特定版本运行 pnpm。"}
+{"b":"settings/cli#2848","z":"ignoreWorkspaceRootCheck"}
+{"b":"settings/cli#2849","z":"默认值：**false**"}
+{"b":"settings/cli#2850","z":"类型：**布尔值**"}
+{"b":"settings/cli#2851","z":"如果启用，从项目根目录运行 `pnpm install`/`pnpm add` 在未提供 `-w`/`--ignore-workspace-root-check` 时将不再报错。"}
+{"b":"settings/cli#2852","z":"Node.js 设置"}
+{"b":"settings/cli#2853","z":"nodeVersion"}
+{"b":"settings/cli#2854","z":"默认值：**node -v** 返回的值，不带 v 前缀"}
+{"b":"settings/cli#2855","z":"类型：**精确的 semver 版本（非范围）**"}
+{"b":"settings/cli#2856","z":"检查某个包的 `engines` 设置时所使用的 Node.js 版本。"}
+{"b":"settings/cli#2857","z":"如果你想阻止你项目的贡献者添加新的不兼容依赖，请在项目根目录的 `pnpm-workspace.yaml` 文件中使用 `nodeVersion` 和 `engineStrict`："}
+{"b":"settings/cli#2858","z":"这样一来，即使某人使用 Node.js v22，他们也无法安装一个不支持 Node.js v12.22.0 的新依赖。"}
+{"b":"settings/cli#2859","z":"runtimeOnFail"}
+{"b":"settings/cli#2860","z":"自 v11.0.0 起提供"}
+{"b":"settings/cli#2861","z":"默认值：**undefined**"}
+{"b":"settings/cli#2862","z":"类型：**download**、**error**、**warn**、**ignore**"}
+{"b":"settings/cli#2863","z":"覆盖根项目 `package.json` 中 [devEngines.runtime](/docs/package_json#devenginesruntime)（以及 `engines.runtime`）的 `onFail` 字段。当你想要一个不同于清单中所写的本地行为时很有用——例如，即便清单设置了 `onFail: \"warn\"`，也强制 pnpm 下载所声明的运行时："}
+{"b":"settings/cli#2864","z":"pnpm-workspace.yaml"}
+{"b":"settings/cli#2865","z":"nodeDownloadMirrors"}
+{"b":"settings/cli#2866","z":"自 v11.0.0 起提供"}
+{"b":"settings/cli#2867","z":"默认值：**undefined**"}
+{"b":"settings/cli#2868","z":"类型：**Record<string, string>**"}
+{"b":"settings/cli#2869","z":"在 `pnpm-workspace.yaml` 中配置自定义 Node.js 下载镜像。键是发布通道（`release`、`rc`、`nightly`、`v8-canary` 等），值是基础 URL。"}
+{"b":"settings/cli#2870","z":"下面是如何配置 pnpm 从中国的一个镜像下载 Node.js 的示例："}
+{"b":"settings/cli@title","z":"CLI 与 Node.js 设置"}

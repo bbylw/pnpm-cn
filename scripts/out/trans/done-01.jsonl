@@ -1,0 +1,259 @@
+{"b":"aliases#99","z":"别名允许你以自定义名称安装包。"}
+{"b":"aliases#100","z":"假设你的项目中到处都在使用 `lodash`。`lodash` 有一个会导致项目出错的 bug。你已经修好了，但 `lodash` 不会合并你的修复。通常你可以直接从自己的 fork 安装 `lodash`（作为 git 依赖），或者换个名字发布。如果选择后者，你就得把项目里所有的 require 都替换成新的依赖名（`require('lodash')` => `require('awesome-lodash')`）。有了别名，你还有第三个选择。"}
+{"b":"aliases#101","z":"发布一个名为 `awesome-lodash` 的新包，并以 `lodash` 作为别名安装它："}
+{"b":"aliases#102","z":"无需改动任何代码。所有对 `lodash` 的 require 现在都会解析到 `awesome-lodash`。"}
+{"b":"aliases#103","z":"有时你会想在项目里同时使用同一个包的两个不同版本。很简单："}
+{"b":"aliases#104","z":"现在你可以通过 `require('lodash1')` 引用第一个版本的 lodash，通过 `require('lodash2')` 引用第二个。"}
+{"b":"aliases#105","z":"与钩子结合后，这会变得更加强大。也许你想用 `awesome-lodash` 替换 `node_modules` 中所有包里的 `lodash`。你可以通过下面这个 `.pnpmfile.mjs` 轻松实现："}
+{"b":"catalogs#0","z":"「目录（catalogs）」是一项[工作区功能](/docs/workspaces)，用于把依赖版本范围定义成可复用的常量。目录中定义的常量之后可以在 `package.json` 文件里引用。"}
+{"b":"catalogs#1","z":"目录协议（`catalog:`）"}
+{"b":"catalogs#2","z":"一旦在 `pnpm-workspace.yaml` 中定义了目录，"}
+{"b":"catalogs#3","z":"pnpm-workspace.yaml"}
+{"b":"catalogs#4","z":"可以用 `catalog:` 协议代替版本范围本身。"}
+{"b":"catalogs#5","z":"packages/example-app/package.json"}
+{"b":"catalogs#6","z":"这等同于直接写出版本范围（例如 `^18.3.1`）。"}
+{"b":"catalogs#7","z":"packages/example-app/package.json"}
+{"b":"catalogs#8","z":"你可以在以下字段中使用 `catalog:` 协议："}
+{"b":"catalogs#9","z":"package.json"}
+{"b":"catalogs#10","z":"pnpm-workspace.yaml"}
+{"b":"catalogs#11","z":"`catalog:` 协议允许在冒号后附加一个可选的名称（例如 `catalog:name`），用来指定使用哪个目录。省略名称时，使用默认目录。"}
+{"b":"catalogs#12","z":"根据场景不同，与直接编写版本范围相比，`catalog:` 协议提供了若干[优势](#advantages)，下文详述。"}
+{"b":"catalogs#13","z":"优势"}
+{"b":"catalogs#14","z":"在工作区（即 monorepo 或多包仓库）中，同一个依赖被许多包使用是很常见的。目录在编写 `package.json` 文件时减少了重复，并带来以下几方面好处："}
+{"b":"catalogs#15","z":"**保持版本唯一** — 在工作区里通常希望一个依赖只存在一个版本。目录让这一点更易于维护。重复的依赖可能在运行时产生冲突并引发 bug。使用打包工具时，重复还会增大打包产物体积。"}
+{"b":"catalogs#16","z":"**升级更容易** — 升级依赖时，只需编辑 `pnpm-workspace.yaml` 中的目录条目，而不必逐个修改所有使用该依赖的 `package.json`。这节省了时间，只需改一行而不是很多行。"}
+{"b":"catalogs#17","z":"**更少的合并冲突** — 由于升级依赖时不需要编辑 `package.json` 文件，这些文件中不再会出现 git 合并冲突。"}
+{"b":"catalogs#18","z":"定义目录"}
+{"b":"catalogs#19","z":"目录定义在 `pnpm-workspace.yaml` 文件中。有两种定义目录的方式。"}
+{"b":"catalogs#20","z":"使用（单数形式的）`catalog` 字段创建一个名为 `default` 的目录。"}
+{"b":"catalogs#21","z":"使用（复数形式的）`catalogs` 字段创建任意名称的目录。"}
+{"b":"catalogs#22","z":"如果你已有一个工作区并想迁移到使用目录，可以用下面这个 [codemod](https://go.codemod.com/pnpm-catalog)："}
+{"b":"catalogs#23","z":"默认目录"}
+{"b":"catalogs#24","z":"顶层的 `catalog` 字段允许用户定义一个名为 `default` 的目录。"}
+{"b":"catalogs#25","z":"pnpm-workspace.yaml"}
+{"b":"catalogs#26","z":"这些版本范围可以通过 `catalog:default` 引用。对于默认目录，还可以使用一种特殊的 `catalog:` 简写形式。可以把 `catalog:` 理解为展开为 `catalog:default` 的简写。"}
+{"b":"catalogs#27","z":"命名目录"}
+{"b":"catalogs#28","z":"可以在 `catalogs` 键下配置多个使用任意名称的目录。"}
+{"b":"catalogs#29","z":"pnpm-workspace.yaml"}
+{"b":"catalogs#30","z":"默认目录可以与多个命名目录同时定义。这在一个正在逐步迁移到依赖新版本的大型多包仓库中可能很有用。"}
+{"b":"catalogs#31","z":"pnpm-workspace.yaml"}
+{"b":"catalogs#32","z":"发布"}
+{"b":"catalogs#33","z":"在运行 `pnpm publish` 或 `pnpm pack` 时，`catalog:` 协议会被移除。这与 [workspace: 协议](/docs/workspaces#workspace-protocol-workspace)类似，后者[也会在发布时被替换](/docs/workspaces#publishing-workspace-packages)。"}
+{"b":"catalogs#34","z":"例如，"}
+{"b":"catalogs#35","z":"packages/example-components/package.json"}
+{"b":"catalogs#36","z":"在发布时会变成如下内容。"}
+{"b":"catalogs#37","z":"packages/example-components/package.json"}
+{"b":"catalogs#38","z":"`catalog:` 协议的替换过程使得 `@example/components` 包可以被其他工作区或包管理器使用。"}
+{"b":"catalogs#39","z":"设置"}
+{"b":"catalogs#40","z":"catalogMode"}
+{"b":"catalogs#41","z":"自 v10.12.1 起提供"}
+{"b":"catalogs#42","z":"默认值：**manual**"}
+{"b":"catalogs#43","z":"类型：**manual**、**strict**、**prefer**"}
+{"b":"catalogs#44","z":"控制运行 `pnpm add` 时是否以及如何把依赖加入默认目录。共有三种模式："}
+{"b":"catalogs#45","z":"**strict** — 只允许使用目录中的依赖版本。添加目录版本范围之外的依赖会导致报错。"}
+{"b":"catalogs#46","z":"**prefer** — 优先使用目录版本，但在找不到兼容版本时回退为直接依赖。"}
+{"b":"catalogs#47","z":"**manual**（默认）— 不会自动把依赖加入目录。"}
+{"b":"catalogs#48","z":"catalogPrune"}
+{"b":"catalogs#49","z":"自 v11.22.0 起提供（自 v10.15.0 起名为 `cleanupUnusedCatalogs`）"}
+{"b":"catalogs#50","z":"默认值：**false**"}
+{"b":"catalogs#51","z":"类型：**Boolean**"}
+{"b":"catalogs#52","z":"设为 `true` 时，pnpm 会在安装过程中移除未使用的目录条目。"}
+{"b":"catalogs#53","z":"`cleanupUnusedCatalogs` 是此设置的已废弃拼写，仍然可用；当两者都被设置时，以 `catalogPrune` 为准。"}
+{"b":"cli/access#71","z":"自 v11.11.0 起提供"}
+{"b":"cli/access#72","z":"管理包在 registry 上的访问权限与可见性。"}
+{"b":"cli/access#73","z":"子命令"}
+{"b":"cli/access#74","z":"list packages"}
+{"b":"cli/access#75","z":"列出某个用户、scope 或团队可以访问的包。不带参数时，列出你自己的包。"}
+{"b":"cli/access#76","z":"参数的类型根据其形式推断：包含 `:` 的值是团队，以 `@` 开头的值是组织，其他值都是用户。"}
+{"b":"cli/access#77","z":"`ls` 可作为别名使用，因此 `pnpm access ls` 等同于 `pnpm access list packages`。"}
+{"b":"cli/access#78","z":"list collaborators"}
+{"b":"cli/access#79","z":"列出某个包上的协作者，可选地过滤到单个用户。"}
+{"b":"cli/access#80","z":"get status"}
+{"b":"cli/access#81","z":"显示某个包是公开还是受限。"}
+{"b":"cli/access#82","z":"set status"}
+{"b":"cli/access#83","z":"设置包的可见性。"}
+{"b":"cli/access#84","z":"只有带 scope 的包可以更改可见性。不带 scope 的包始终公开，尝试更改会失败并报 `ERR_PNPM_ACCESS_SET_STATUS_UNSCOPED`。"}
+{"b":"cli/access#85","z":"set mfa"}
+{"b":"cli/access#86","z":"设置发布某个包时的双因素认证要求。"}
+{"b":"cli/access#87","z":"`none` 关闭该要求，而 `publish` 和 `automation` 都要求发布时进行双因素认证。"}
+{"b":"cli/access#88","z":"grant"}
+{"b":"cli/access#89","z":"授予团队对某个包的只读或读写访问权限。"}
+{"b":"cli/access#90","z":"revoke"}
+{"b":"cli/access#91","z":"撤销团队对某个包的访问权限。"}
+{"b":"cli/access#92","z":"选项"}
+{"b":"cli/access#93","z":"--registry <url&gt;"}
+{"b":"cli/access#94","z":"此操作使用的 npm registry 的基础 URL。被修改的包会遵循按 scope 及具名 registry 的配置（通过 [registries](/docs/settings/dependency-resolution#registries) 和 [namedRegistries](/docs/settings/dependency-resolution#namedregistries) 配置）。"}
+{"b":"cli/access#95","z":"--json"}
+{"b":"cli/access#96","z":"以 JSON 格式输出结果。适用于 `list packages`、`list collaborators` 和 `get status`。"}
+{"b":"cli/access#97","z":"--otp <code&gt;"}
+{"b":"cli/access#98","z":"当 registry 要求双因素认证时，此选项提供一次性密码。它适用于会修改状态的子命令：`set status`、`set mfa`、`grant` 和 `revoke`。"}
+{"b":"cli/access@title","z":"pnpm access"}
+{"b":"cli/add#106","z":"安装一个包以及它所依赖的任何包。默认情况下，任何新包都作为生产依赖安装。"}
+{"b":"cli/add#107","z":"TL;DR"}
+{"b":"cli/add#108","z":"支持的包来源"}
+{"b":"cli/add#109","z":"pnpm 支持从各种来源安装包。详细文档见 [Supported package sources](/docs/package-sources) 页面，内容包括："}
+{"b":"cli/add#110","z":"npm registry"}
+{"b":"cli/add#111","z":"JSR registry"}
+{"b":"cli/add#112","z":"工作区包"}
+{"b":"cli/add#113","z":"本地文件系统（tarball 和目录）"}
+{"b":"cli/add#114","z":"远程 tarball"}
+{"b":"cli/add#115","z":"Git 仓库（支持 semver、子目录等）"}
+{"b":"cli/add#116","z":"添加包管理器或运行时"}
+{"b":"cli/add#117","z":"自 v12.0.0-rc.6 起提供（仅 pnpm v12）"}
+{"b":"cli/add#118","z":"指明一个[包管理器](/docs/package-managers)（`npm`、`yarn` 或 `bun`）会记录项目所使用的管理器，而不是安装与之同名的 npm 包："}
+{"b":"cli/add#119","z":"写入 `\"packageManager\": \"yarn@4.18.0\"`，其他每个包管理器都会作为范围记录在 [devEngines.packageManager](/docs/package_json#devenginespackagemanager) 中。指明一个运行时（`node`、`deno`）会将其记录在 `engines.runtime` 下，一如显式的 `node@runtime:22` 写法所做的那样。`bun` 二者皆是，除非你指明运行时（`pnpm add bun@runtime:1.3.0`），否则它被声明为项目的包管理器。"}
+{"b":"cli/add#120","z":"在全局环境下，`pnpm add -g yarn` 安装的是当前的 Yarn 系列，而不是仅支持 Classic 的 `yarn` 包；`pnpm add -g node@22` 安装的是那个 Node.js 版本，而不是一个下载版本的包装器。"}
+{"b":"cli/add#121","z":"用于定位某个包而非请求某个已发布版本的说明符（如 `pnpm add yarn@npm:yarn@1.22.22`、`pnpm add yarn@yarnpkg/berry`），会按普通依赖安装它所指向的包。"}
+{"b":"cli/add#122","z":"选项"}
+{"b":"cli/add#123","z":"--save-prod, -P, -p"}
+{"b":"cli/add#124","z":"将指定的包作为普通 `dependencies` 安装。"}
+{"b":"cli/add#125","z":"--save-dev, -D, -d"}
+{"b":"cli/add#126","z":"将指定的包作为 `devDependencies` 安装。"}
+{"b":"cli/add#127","z":"--save-optional, -O, -o"}
+{"b":"cli/add#128","z":"将指定的包作为 `optionalDependencies` 安装。"}
+{"b":"cli/add#129","z":"--save-exact, -E, -e"}
+{"b":"cli/add#130","z":"保存的依赖将配置为精确版本，而不是使用 pnpm 默认的 semver 范围运算符。"}
+{"b":"cli/add#131","z":"--save-peer"}
+{"b":"cli/add#132","z":"使用 `--save-peer` 会将一个或多个包加入 `peerDependencies` 并作为开发依赖安装。"}
+{"b":"cli/add#133","z":"--save-catalog"}
+{"b":"cli/add#134","z":"自 v10.12.1 起提供"}
+{"b":"cli/add#135","z":"将新依赖保存到默认 [catalog](/docs/catalogs)。"}
+{"b":"cli/add#136","z":"--save-catalog-name <catalog_name>"}
+{"b":"cli/add#137","z":"自 v10.12.1 起提供"}
+{"b":"cli/add#138","z":"将新依赖保存到指定的 [catalog](/docs/catalogs)。"}
+{"b":"cli/add#139","z":"--config"}
+{"b":"cli/add#140","z":"自 v10.8.0 起提供"}
+{"b":"cli/add#141","z":"将依赖保存到 [configDependencies](/docs/config-dependencies)。"}
+{"b":"cli/add#142","z":"--ignore-workspace-root-check"}
+{"b":"cli/add#143","z":"向工作区根包添加新依赖会失败，除非使用 `--ignore-workspace-root-check` 或 `-w` 标志。"}
+{"b":"cli/add#144","z":"例如，`pnpm add debug -w`。"}
+{"b":"cli/add#145","z":"--global, -g"}
+{"b":"cli/add#146","z":"全局安装一个包。详情见 [Global Packages](/docs/global-packages)。"}
+{"b":"cli/add#147","z":"每个以空格分隔的包都会安装到各自独立的隔离目录。若要把多个包捆绑进一次隔离安装（使它们共享依赖并一起被移除），请将它们以逗号分隔的列表传入，例如 `pnpm add -g eslint,prettier`。"}
+{"b":"cli/add#148","z":"--workspace"}
+{"b":"cli/add#149","z":"仅当在工作区中找到该新依赖时才添加。"}
+{"b":"cli/add#150","z":"--allow-build"}
+{"b":"cli/add#151","z":"自 v10.4.0 起提供"}
+{"b":"cli/add#152","z":"允许在安装期间运行 postinstall 脚本的包名列表。"}
+{"b":"cli/add#153","z":"这会运行 `esbuild` 的 postinstall 脚本，并将其加入 `pnpm-workspace.yaml` 的 `allowBuilds` 字段。因此 `esbuild` 今后将始终被允许运行其脚本。"}
+{"b":"cli/add#154","z":"--filter <package_selector>"}
+{"b":"cli/add#155","z":"--cpu=<name>"}
+{"b":"cli/add#156","z":"自 v10.14.0 起提供"}
+{"b":"cli/add#157","z":"覆盖所安装原生模块的 CPU 架构。可接受的值与 `package.json` 的 `cpu` 字段相同，后者来自 `process.arch`。"}
+{"b":"cli/add#158","z":"--os=<name>"}
+{"b":"cli/add#159","z":"自 v10.14.0 起提供"}
+{"b":"cli/add#160","z":"覆盖所安装原生模块的操作系统。可接受的值与 `package.json` 的 `os` 字段相同，后者来自 `process.platform`。"}
+{"b":"cli/add#161","z":"--libc=<name>"}
+{"b":"cli/add#162","z":"自 v10.14.0 起提供"}
+{"b":"cli/add#163","z":"覆盖所安装原生模块的 libc。可接受的值与 `package.json` 的 `libc` 字段相同。"}
+{"b":"cli/add@title","z":"pnpm add <pkg>"}
+{"b":"cli/approve-builds#54","z":"自 v10.1.0 起提供"}
+{"b":"cli/approve-builds#55","z":"批准依赖在安装期间运行脚本。"}
+{"b":"cli/approve-builds#56","z":"已批准的依赖会以 `true` 的值加入 `pnpm-workspace.yaml` 中的 [allowBuilds](/docs/settings/build#allowbuilds) 映射，未批准的则以 `false` 保存。如果你愿意，也可以手动更新这些设置。"}
+{"b":"cli/approve-builds#57","z":"用法"}
+{"b":"cli/approve-builds#58","z":"你可以在不带参数的情况下运行 `pnpm approve-builds` 以获得交互式提示，或将包名作为位置参数传入："}
+{"b":"cli/approve-builds#59","z":"在包名前加 `!` 以拒绝它。只有被提及的包会受影响，其余保持不变。"}
+{"b":"cli/approve-builds#60","z":"在安装期间，构建被忽略且尚未列入 `allowBuilds` 的包会自动以占位值加入 `pnpm-workspace.yaml`，因此你可以手动将它们设为 `true` 或 `false`。"}
+{"b":"cli/approve-builds#61","z":"自 v11.23.0 起，写入 `allowBuilds` 同时会从 `pnpm-workspace.yaml` 中移除 `onlyBuiltDependencies`、`onlyBuiltDependenciesFile`、`neverBuiltDependencies` 和 `ignoredBuiltDependencies`。`allowBuilds` 在 pnpm 11 中取代了这些设置，此后它们一直被忽略，因此从 pnpm 10 迁移过来的工作区会保留它们并看起来仍然生效。"}
+{"b":"cli/approve-builds#62","z":"选项"}
+{"b":"cli/approve-builds#63","z":"--all"}
+{"b":"cli/approve-builds#64","z":"自 v10.32.0 起提供"}
+{"b":"cli/approve-builds#65","z":"批准所有待处理构建，无需交互式提示。"}
+{"b":"cli/approve-builds#66","z":"--global, -g"}
+{"b":"cli/approve-builds#67","z":"为[全局安装的包](/docs/global-packages)批准构建。"}
+{"b":"cli/approve-builds#68","z":"pnpm 会在**每一个** [isolated install group](/docs/global-packages#isolated-installations) 中收集待批准的包，只询问一次，并把单一策略写入全局包目录的 `pnpm-workspace.yaml`。随后只有实际包含被批准包的组会被重建。"}
+{"b":"cli/approve-builds#69","z":"在 v11.0.0 移除，v11.24.0 恢复"}
+{"b":"cli/approve-builds#70","z":"隔离的全局安装曾让每个安装组拥有各自的清单，`pnpm approve-builds -g` 因此被移除，而不是去猜测该写入哪一个。自 v11.24.0 起它为所有组写入单一策略，所以又能用了。在此之间，以及若你更倾向于在安装时决定，可在安装全局包时使用 `--allow-build`（例如 `pnpm add -g --allow-build=esbuild esbuild`），或响应 pnpm 在全局安装期间显示的提示。"}
+{"b":"cli/approve-builds@title","z":"pnpm approve-builds"}
+{"b":"cli/audit#168","z":"检查已安装包中的已知安全问题。"}
+{"b":"cli/audit#169","z":"如果发现安全问题，尝试通过 `pnpm update` 更新你的依赖。如果简单更新无法修复所有问题，使用 [overrides](/docs/settings/dependency-resolution#overrides) 强制使用不含漏洞的版本。例如，如果 `lodash@<2.1.0` 存在漏洞，用此 override 强制 `lodash@^2.1.0`："}
+{"b":"cli/audit#170","z":"pnpm-workspace.yaml"}
+{"b":"cli/audit#171","z":"或者，运行 `pnpm audit --fix`。"}
+{"b":"cli/audit#172","z":"如果你愿意容忍某些不影响你项目的漏洞，可以使用 [audit.ignore](#auditignore) 设置。"}
+{"b":"cli/audit#173","z":"自 v11 起，`pnpm audit` 查询 registry 的 `/-/npm/v1/security/advisories/bulk` 端点。响应不包含 CVE 标识符，因此公告改为按 GitHub 公告 ID（GHSA）过滤。如果你之前在 `auditConfig.ignoreCves` 下列出了 CVE，请在 [audit.ignore](#auditignore) 下把每个条目替换为对应的 `GHSA-xxxx-xxxx-xxxx` 值（显示在 `pnpm audit` 输出的 `More info` 列中）。"}
+{"b":"cli/audit#174","z":"命令"}
+{"b":"cli/audit#175","z":"signatures"}
+{"b":"cli/audit#176","z":"自 v11.1.0 起提供"}
+{"b":"cli/audit#177","z":"针对每个 registry 在 `/-/npm/v1/keys` 发布的公钥，验证已安装包的 ECDSA registry 签名。通过 [registries](/docs/settings/dependency-resolution#registries) 配置的按 scope registry 会被遵循；不发布签名密钥的 registry 会被跳过。"}
+{"b":"cli/audit#178","z":"如果任何包拥有无效签名，或某个 registry 声明了签名密钥但某包发布时未附带签名，该命令以状态码 `1` 退出。结合 `--json` 可获得机器可读的输出。"}
+{"b":"cli/audit#179","z":"选项"}
+{"b":"cli/audit#180","z":"--audit-level <severity>"}
+{"b":"cli/audit#181","z":"类型：**low**、**moderate**、**high**、**critical**"}
+{"b":"cli/audit#182","z":"默认值：**low**"}
+{"b":"cli/audit#183","z":"只打印严重程度大于或等于 `<severity>` 的公告。"}
+{"b":"cli/audit#184","z":"这也可以通过 `pnpm-workspace.yaml` 中的 [audit.level](#auditlevel) 设置。"}
+{"b":"cli/audit#185","z":"--fix"}
+{"b":"cli/audit#186","z":"向 `pnpm-workspace.yaml` 文件添加 override，以强制使用依赖的不含漏洞版本。"}
+{"b":"cli/audit#187","z":"使用 `--fix=update`（自 v11.0.0 起提供）通过更新锁文件中的包来修复漏洞，而不是添加 override。"}
+{"b":"cli/audit#188","z":"当设置了 [minimumReleaseAge](/docs/settings/dependency-resolution#minimumreleaseage) 时，`--fix` 还会把每个公告的最小修补版本加入 `pnpm-workspace.yaml` 中的 [minimumReleaseAgeExclude](/docs/settings/dependency-resolution#minimumreleaseageexclude)，这样安全修复无需等待发布时长窗口即可安装。"}
+{"b":"cli/audit#189","z":"--interactive, -i"}
+{"b":"cli/audit#190","z":"自 v11.0.0 起提供"}
+{"b":"cli/audit#191","z":"审阅由 `--fix` 选中的公告并挑选要应用的项。只能与 `--fix` 一起使用。"}
+{"b":"cli/audit#192","z":"--json"}
+{"b":"cli/audit#193","z":"以 JSON 格式输出审计报告。"}
+{"b":"cli/audit#194","z":"对于没有已发布修复的公告，`patched_versions` 为 `null`，因此工具能够区分「无可用修复」与「在版本 X 有可用修复」。"}
+{"b":"cli/audit#195","z":"--dev, -D"}
+{"b":"cli/audit#196","z":"只审计开发依赖。"}
+{"b":"cli/audit#197","z":"--prod, -P"}
+{"b":"cli/audit#198","z":"只审计生产依赖。"}
+{"b":"cli/audit#199","z":"--no-optional"}
+{"b":"cli/audit#200","z":"不审计 `optionalDependencies`。"}
+{"b":"cli/audit#201","z":"--ignore-registry-errors"}
+{"b":"cli/audit#202","z":"如果 registry 返回非 200 状态码，进程应以 0 退出。这样进程只有在 registry 确实成功响应并发现了漏洞时才会失败。"}
+{"b":"cli/audit#203","z":"--ignore-unfixable"}
+{"b":"cli/audit#204","z":"自 v10.11.0 起提供"}
+{"b":"cli/audit#205","z":"忽略所有没有解决方案的公告。"}
+{"b":"cli/audit#206","z":"自 v11 起，无法修复的公告按 GHSA 而非 CVE 追踪。"}
+{"b":"cli/audit#207","z":"--ignore <vulnerability>"}
+{"b":"cli/audit#208","z":"自 v10.11.0 起提供"}
+{"b":"cli/audit#209","z":"通过其 GitHub 公告 ID（GHSA）忽略某个漏洞。在 v11 之前，此标志接受 CVE 标识符。"}
+{"b":"cli/audit#210","z":"配置"}
+{"b":"cli/audit#211","z":"`pnpm audit` 在 `pnpm-workspace.yaml` 的 `audit` 段中配置（自 v11.16.0 起提供）："}
+{"b":"cli/audit#212","z":"audit.level"}
+{"b":"cli/audit#213","z":"默认值：**low**"}
+{"b":"cli/audit#214","z":"类型：**low**、**moderate**、**high**、**critical**"}
+{"b":"cli/audit#215","z":"只打印严重程度大于或等于此级别的公告。与 [--audit-level](#--audit-level-severity) 标志相同。"}
+{"b":"cli/audit#216","z":"audit.ignore"}
+{"b":"cli/audit#217","z":"`pnpm audit` 命令将忽略的 GHSA 代码列表。"}
+{"b":"cli/audit#218","z":"audit.ignorePrune"}
+{"b":"cli/audit#219","z":"自 v12.0.0 起提供"}
+{"b":"cli/audit#220","z":"默认值：**false**"}
+{"b":"cli/audit#221","z":"类型：**Boolean**"}
+{"b":"cli/audit#222","z":"为 `true` 时，`pnpm audit --fix` 会移除 [audit.ignore](#auditignore) 中那些 GHSA 已不再出现在审计报告里的条目，这样被容忍的公告列表不会为早已不存在的依赖累积条目。"}
+{"b":"cli/audit#223","z":"在 v11.16.0 之前，这些设置名为 `auditLevel` 和 `auditConfig.ignoreGhsas`。已废弃的名称在下一个主版本前仍可使用；当两者都被设置时，`audit` 段优先并会打印一条警告。"}
+{"b":"cli/audit#224","z":"在 v11 之前，`auditConfig.ignoreCves` 用于按 CVE 标识符过滤公告。该设置不再被识别。"}
+{"b":"cli/audit@title","z":"pnpm audit"}
+{"b":"cli/bin#164","z":"打印依赖可执行文件链接到其中的目录。"}
+{"b":"cli/bin#165","z":"选项"}
+{"b":"cli/bin#166","z":"--global, -g"}
+{"b":"cli/bin#167","z":"打印全局安装的可执行文件所在位置。"}
+{"b":"cli/bin@title","z":"pnpm bin"}
+{"b":"cli/bugs#225","z":"自 v11.1.0 起提供"}
+{"b":"cli/bugs#226","z":"在浏览器中打开某个包的缺陷跟踪 URL。"}
+{"b":"cli/bugs#227","z":"别名"}
+{"b":"cli/bugs#228","z":"`pnpm issues`（自 v11.10.0 起提供）是 `pnpm bugs` 的别名。"}
+{"b":"cli/bugs#229","z":"在包目录内不带参数运行时，它会打开当前项目的缺陷跟踪器（使用 `package.json` 中的 `bugs` 字段）。"}
+{"b":"cli/bugs#230","z":"当传入一个或多个包名时，pnpm 从 registry 获取每个包的元数据并打开其缺陷跟踪器。"}
+{"b":"cli/bugs#231","z":"如果某个包未声明 `bugs` 字段，pnpm 会回退到由 `repository` 字段派生的 `<repository>/issues`。"}
+{"b":"cli/bugs#232","z":"示例"}
+{"b":"cli/bugs#233","z":"打开一个已发布包的缺陷跟踪器："}
+{"b":"cli/bugs#234","z":"一次性打开多个包的缺陷跟踪器："}
+{"b":"cli/bugs#235","z":"打开当前项目的缺陷跟踪器："}
+{"b":"cli/bugs@title","z":"pnpm bugs"}
+{"b":"cli/cache@title","z":"pnpm cache"}
+{"b":"cli/cache-delete#236","z":"此命令为实验性"}
+{"b":"cli/cache-delete#237","z":"为指定包删除元数据缓存。支持模式匹配。"}
+{"b":"cli/cache-delete@title","z":"pnpm cache delete"}
+{"b":"cli/cache-list#238","z":"此命令为实验性"}
+{"b":"cli/cache-list#239","z":"列出可用的包元数据缓存。支持按 glob 过滤。"}
+{"b":"cli/cache-list@title","z":"pnpm cache list"}
+{"b":"cli/cache-list-registries#240","z":"此命令为实验性"}
+{"b":"cli/cache-list-registries#241","z":"列出所有在本地拥有其元数据缓存的 registry。"}
+{"b":"cli/cache-list-registries@title","z":"pnpm cache list-registries"}
+{"b":"cli/cache-path#244","z":"自 v11.22.0 起提供"}
+{"b":"cli/cache-path#245","z":"打印 pnpm 用于其元数据缓存的目录，与 [pnpm store path](/docs/cli/store#path) 相对应。打印出的路径为绝对路径且经过词法清理，因此相对的 [cacheDir](/docs/settings/other#cachedir) 会产出一个其他工具可以消费的路径。"}
+{"b":"cli/cache-path#246","z":"pnpm 从平台和 `cacheDir` 设置派生此目录，因此想要缓存它的 CI 配置无需再手动复刻这一解析过程："}
+{"b":"cli/cache-path#247","z":".github/workflows/ci.yaml"}
+{"b":"cli/cache-path#248","z":"除了 registry 元数据和 [pnpm dlx](/docs/cli/pnx) 缓存，该目录还保存锁文件验证日志，即哪个锁文件通过了哪些[供应链安全策略](/docs/supply-chain-security)的记录。恢复它可以让任务在当前配置的策略下跳过重新验证日志已涵盖的锁文件，这在一旦存储预热后是 CI 中安装的主要开销。自 v11.22.0 起，[pnpm store prune](/docs/cli/store#prune) 不再删除该日志。"}
+{"b":"cli/cache-path#249","z":"只在受信任任务可写的位置缓存此目录。详情见 [cacheDir](/docs/settings/other#cachedir) 设置。"}
+{"b":"cli/cache-path@title","z":"pnpm cache path"}

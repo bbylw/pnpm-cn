@@ -1,0 +1,232 @@
+{"p":"cli/logout","b":"cli/logout#747","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/logout","b":"cli/logout#748","k":"para","t":"Log out of an npm registry. Revokes the authentication token on the registry and removes it from the local auth config file."}
+{"p":"cli/logout","b":"cli/logout#749","k":"para","t":"If a scope is provided, the registry associated with that scope is used."}
+{"p":"cli/logout","b":"cli/logout#750","k":"para","t":"pnpm 12.1 and newer removes a token written by `pnpm login` from the global [config.yaml](/docs/cli/config), and also checks [<pnpm config>/auth.ini](/docs/npmrc#auth-file-locations) for a token written by an earlier version. A token supplied by `.npmrc`, another config file, or the environment is revoked at the registry but must be removed from that source manually."}
+{"p":"cli/logout","b":"cli/logout#751","k":"heading","t":"Options"}
+{"p":"cli/logout","b":"cli/logout#752","k":"heading","t":"--registry <url>"}
+{"p":"cli/logout","b":"cli/logout#753","k":"para","t":"The registry to log out from. Defaults to the configured default registry."}
+{"p":"cli/logout","b":"cli/logout#754","k":"heading","t":"--scope <scope>"}
+{"p":"cli/logout","b":"cli/logout#755","k":"para","t":"Use the registry associated with the given scope."}
+{"p":"cli/logout","b":"cli/logout@title","k":"title","t":"pnpm logout"}
+{"p":"cli/outdated","b":"cli/outdated#721","k":"para","t":"Checks for outdated packages. The check can be limited to a subset of the installed packages by providing arguments (patterns are supported)."}
+{"p":"cli/outdated","b":"cli/outdated#722","k":"heading","t":"Options"}
+{"p":"cli/outdated","b":"cli/outdated#723","k":"heading","t":"--recursive, -r"}
+{"p":"cli/outdated","b":"cli/outdated#724","k":"para","t":"Check for outdated dependencies in every package found in subdirectories, or in every workspace package when executed inside a workspace."}
+{"p":"cli/outdated","b":"cli/outdated#725","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/outdated","b":"cli/outdated#726","k":"heading","t":"--global, -g"}
+{"p":"cli/outdated","b":"cli/outdated#727","k":"para","t":"List outdated global packages."}
+{"p":"cli/outdated","b":"cli/outdated#728","k":"heading","t":"--long"}
+{"p":"cli/outdated","b":"cli/outdated#729","k":"para","t":"Print details."}
+{"p":"cli/outdated","b":"cli/outdated#730","k":"heading","t":"--format <format>"}
+{"p":"cli/outdated","b":"cli/outdated#731","k":"li","t":"Default: **table**"}
+{"p":"cli/outdated","b":"cli/outdated#732","k":"li","t":"Type: **table**, **list**, **json**"}
+{"p":"cli/outdated","b":"cli/outdated#733","k":"para","t":"Prints the outdated dependencies in the given format."}
+{"p":"cli/outdated","b":"cli/outdated#734","k":"heading","t":"--compatible"}
+{"p":"cli/outdated","b":"cli/outdated#735","k":"para","t":"Prints only versions that satisfy specifications in `package.json`."}
+{"p":"cli/outdated","b":"cli/outdated#736","k":"heading","t":"--dev, -D"}
+{"p":"cli/outdated","b":"cli/outdated#737","k":"para","t":"Checks only `devDependencies`."}
+{"p":"cli/outdated","b":"cli/outdated#738","k":"heading","t":"--prod, -P"}
+{"p":"cli/outdated","b":"cli/outdated#739","k":"para","t":"Checks only `dependencies` and `optionalDependencies`."}
+{"p":"cli/outdated","b":"cli/outdated#740","k":"heading","t":"--no-optional"}
+{"p":"cli/outdated","b":"cli/outdated#741","k":"para","t":"Doesn't check `optionalDependencies`."}
+{"p":"cli/outdated","b":"cli/outdated#742","k":"heading","t":"--sort-by"}
+{"p":"cli/outdated","b":"cli/outdated#743","k":"para","t":"Specifies the order in which the output results are sorted. Currently only the value `name` is accepted."}
+{"p":"cli/outdated","b":"cli/outdated#744","k":"heading","t":"--include-github-actions"}
+{"p":"cli/outdated","b":"cli/outdated#745","k":"para","t":"Added in: v11.16.0"}
+{"p":"cli/outdated","b":"cli/outdated#746","k":"para","t":"Also check the GitHub Actions referenced by the repository's workflow files for updates. You can enable this by default by setting [update.githubActions](/docs/settings/dependency-resolution#updategithubactions) to `true` in `pnpm-workspace.yaml`. See [Updating GitHub Actions](/docs/cli/update#updating-github-actions)."}
+{"p":"cli/outdated","b":"cli/outdated@title","k":"title","t":"pnpm outdated"}
+{"p":"cli/owner","b":"cli/owner#756","k":"para","t":"Added in: v11.1.0"}
+{"p":"cli/owner","b":"cli/owner#757","k":"para","t":"Manages package owners on the registry."}
+{"p":"cli/owner","b":"cli/owner#758","k":"heading","t":"Commands"}
+{"p":"cli/owner","b":"cli/owner#759","k":"heading","t":"ls"}
+{"p":"cli/owner","b":"cli/owner#760","k":"para","t":"List all owners of a package. This is the default subcommand if no other subcommand is given."}
+{"p":"cli/owner","b":"cli/owner#761","k":"heading","t":"add"}
+{"p":"cli/owner","b":"cli/owner#762","k":"para","t":"Add a user as an owner of a package. Requires authentication."}
+{"p":"cli/owner","b":"cli/owner#763","k":"heading","t":"rm"}
+{"p":"cli/owner","b":"cli/owner#764","k":"para","t":"Remove a user from the list of owners of a package. Requires authentication."}
+{"p":"cli/owner","b":"cli/owner#765","k":"heading","t":"Options"}
+{"p":"cli/owner","b":"cli/owner#766","k":"heading","t":"--registry <url>"}
+{"p":"cli/owner","b":"cli/owner#767","k":"para","t":"The base URL of the npm registry to use for the operation. Per-scope and named registries (configured via [registries](/docs/settings/dependency-resolution#registries) and [namedRegistries](/docs/settings/dependency-resolution#namedregistries)) are respected for the package being modified."}
+{"p":"cli/owner","b":"cli/owner#768","k":"heading","t":"--otp <otp>"}
+{"p":"cli/owner","b":"cli/owner#769","k":"para","t":"When the registry requires two-factor authentication, this option supplies a one-time password."}
+{"p":"cli/owner","b":"cli/owner@title","k":"title","t":"pnpm owner"}
+{"p":"cli/pack","b":"cli/pack#842","k":"para","t":"Create a tarball from a package."}
+{"p":"cli/pack","b":"cli/pack#843","k":"heading","t":"Options"}
+{"p":"cli/pack","b":"cli/pack#844","k":"heading","t":"--recursive, -r"}
+{"p":"cli/pack","b":"cli/pack#845","k":"para","t":"Added in: v10.11.0"}
+{"p":"cli/pack","b":"cli/pack#846","k":"para","t":"Pack all packages from the workspace."}
+{"p":"cli/pack","b":"cli/pack#847","k":"heading","t":"--out <path>"}
+{"p":"cli/pack","b":"cli/pack#848","k":"para","t":"Customizes the output path for the tarball. Use `%s` and `%v` to include the package name and version, e.g., `%s.tgz` or `some-dir/%s-%v.tgz`. By default, the tarball is saved in the current working directory with the name `<package-name>-<version>.tgz`."}
+{"p":"cli/pack","b":"cli/pack#849","k":"heading","t":"--pack-destination <dir>"}
+{"p":"cli/pack","b":"cli/pack#850","k":"para","t":"Directory in which `pnpm pack` will save tarballs. The default is the current working directory."}
+{"p":"cli/pack","b":"cli/pack#851","k":"heading","t":"--pack-gzip-level <level>"}
+{"p":"cli/pack","b":"cli/pack#852","k":"para","t":"Specifying custom compression level."}
+{"p":"cli/pack","b":"cli/pack#853","k":"heading","t":"--json"}
+{"p":"cli/pack","b":"cli/pack#854","k":"para","t":"Log output in JSON format."}
+{"p":"cli/pack","b":"cli/pack#855","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/pack","b":"cli/pack#856","k":"para","t":"Added in: v10.11.0"}
+{"p":"cli/pack","b":"cli/pack#857","k":"heading","t":"--dry-run"}
+{"p":"cli/pack","b":"cli/pack#858","k":"para","t":"Added in: v10.26.0"}
+{"p":"cli/pack","b":"cli/pack#859","k":"para","t":"Does everything a normal run does, except actually packing the tarball. Useful for verifying the contents of the tarball."}
+{"p":"cli/pack","b":"cli/pack#860","k":"heading","t":"--skip-manifest-obfuscation"}
+{"p":"cli/pack","b":"cli/pack#861","k":"para","t":"Added in: v11.3.0"}
+{"p":"cli/pack","b":"cli/pack#862","k":"para","t":"Keep the original `packageManager` field and publish lifecycle scripts in the packed manifest instead of stripping them. The pnpm-specific `pnpm` field is still omitted."}
+{"p":"cli/pack","b":"cli/pack#863","k":"heading","t":"Life Cycle Scripts"}
+{"p":"cli/pack","b":"cli/pack#864","k":"para","t":"You can also use the [beforePacking hook](/docs/pnpmfile#hooksbeforepackingpkg-pkg--promisepkg) to programmatically modify the `package.json` contents before the tarball is created. This is useful for removing development-only fields or adding publication metadata without modifying your local `package.json`."}
+{"p":"cli/pack","b":"cli/pack@title","k":"title","t":"pnpm pack"}
+{"p":"cli/pack-app","b":"cli/pack-app#770","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/pack-app","b":"cli/pack-app#771","k":"para","t":"`pnpm pack-app` is experimental. Its flags, `pnpm.app` configuration schema, and output layout may change in future releases."}
+{"p":"cli/pack-app","b":"cli/pack-app#772","k":"para","t":"Pack a CommonJS entry file into a standalone executable for one or more target platforms, using the [Node.js Single Executable Applications](https://nodejs.org/api/single-executable-applications.html) API under the hood."}
+{"p":"cli/pack-app","b":"cli/pack-app#773","k":"para","t":"Each target produces an executable under `<output-dir>/<target>/` (default `dist-app/<target>/`). On Windows targets the output is suffixed with `.exe`; macOS outputs are ad-hoc signed automatically (via `codesign` on macOS hosts or `ldid` on Linux hosts) because SEA injection invalidates the existing code signature."}
+{"p":"cli/pack-app","b":"cli/pack-app#774","k":"heading","t":"Requirements"}
+{"p":"cli/pack-app","b":"cli/pack-app#775","k":"li","t":"The host must run Node.js v25.5+ to perform the SEA injection. If the running Node.js is older (or does not match the embedded runtime version — SEA blobs are not compatible across minor releases), pnpm downloads a matching builder automatically."}
+{"p":"cli/pack-app","b":"cli/pack-app#776","k":"li","t":"Cross-compiling macOS targets from Linux requires [ldid](https://github.com/ProcursusTeam/ldid) on `$PATH`. Windows hosts cannot ad-hoc sign macOS outputs; build macOS targets on macOS or Linux."}
+{"p":"cli/pack-app","b":"cli/pack-app#777","k":"heading","t":"Supported targets"}
+{"p":"cli/pack-app","b":"cli/pack-app#778","k":"para","t":"Targets use the format `<os>-<arch>[-<libc>]`:"}
+{"p":"cli/pack-app","b":"cli/pack-app#779","k":"para","t":"The `-musl` suffix is only valid for `linux` targets. The `<os>` segment matches `process.platform` values so the flag is consistent with pnpm's `--os` flag and with `supportedArchitectures.os` in `pnpm-workspace.yaml`."}
+{"p":"cli/pack-app","b":"cli/pack-app#780","k":"heading","t":"Known limitations"}
+{"p":"cli/pack-app","b":"cli/pack-app#781","k":"heading","t":"`darwin-x64` binaries crash on Intel Macs"}
+{"p":"cli/pack-app","b":"cli/pack-app#782","k":"para","t":"`darwin-x64` outputs segfault at startup on Intel Macs because of an upstream Node.js bug in the `--build-sea` injection step. LIEF's Mach-O surgery for x64 leaves `LC_DYLD_CHAINED_FIXUPS` chain entries pointing at stale targets after the SEA segment is inserted; dyld then dereferences a raw chain-encoded value as a pointer and the binary crashes in `__cxx_global_var_init` before any user code runs. This is reproducible with the canonical `node --build-sea` + `codesign --sign -` flow with no pnpm involvement."}
+{"p":"cli/pack-app","b":"cli/pack-app#783","k":"para","t":"The Node.js team has opted not to fix this on the grounds that x64 macOS is being phased out. Signature-related workarounds do not help — the corruption happens in the injection step, *before* signing, so swapping `ldid` for `codesign` (or vice versa) makes no difference. Re-signing produces a valid signature over already-broken bytes."}
+{"p":"cli/pack-app","b":"cli/pack-app#784","k":"li","t":"[nodejs/node#62893](https://github.com/nodejs/node/issues/62893) — minimal `node --build-sea` repro"}
+{"p":"cli/pack-app","b":"cli/pack-app#785","k":"li","t":"[nodejs/node#59553](https://github.com/nodejs/node/issues/59553) — long-running SEA test failures on macOS x64 with the same root cause"}
+{"p":"cli/pack-app","b":"cli/pack-app#786","k":"li","t":"[nodejs/node#60250](https://github.com/nodejs/node/pull/60250) — Node.js skipping the SEA tests on x64 macOS rather than fixing them"}
+{"p":"cli/pack-app","b":"cli/pack-app#787","k":"para","t":"If you need to ship a CLI that runs on Intel Macs, build the `darwin-x64` artifact with a non-SEA tool such as [@yao-pkg/pkg](https://github.com/yao-pkg/pkg) (which appends to the binary tail rather than mutating Mach-O sections). Note that Rosetta is *not* an escape hatch — it only translates x64 → arm64 (for Apple Silicon Macs running Intel binaries), not the other direction, so Intel Macs cannot run a `darwin-arm64` build."}
+{"p":"cli/pack-app","b":"cli/pack-app#788","k":"heading","t":"Examples"}
+{"p":"cli/pack-app","b":"cli/pack-app#789","k":"para","t":"Build for Linux and Windows at once:"}
+{"p":"cli/pack-app","b":"cli/pack-app#790","k":"para","t":"Embed a specific Node.js version:"}
+{"p":"cli/pack-app","b":"cli/pack-app#791","k":"heading","t":"Options"}
+{"p":"cli/pack-app","b":"cli/pack-app#792","k":"heading","t":"--entry <path>"}
+{"p":"cli/pack-app","b":"cli/pack-app#793","k":"para","t":"Path to the CJS entry file to embed in the executable. Required unless [pnpm.app.entry](#configuration) is set in `package.json`. A bare positional argument is also accepted (e.g. `pnpm pack-app dist/index.cjs`)."}
+{"p":"cli/pack-app","b":"cli/pack-app#794","k":"heading","t":"--target, -t <triplet>"}
+{"p":"cli/pack-app","b":"cli/pack-app#795","k":"para","t":"Target to build for. May be specified multiple times. See [Supported targets](#supported-targets) for the accepted values. Required unless [pnpm.app.targets](#configuration) is set. When passed on the CLI, `--target` entirely replaces the configured list so you can narrow the build at invocation time."}
+{"p":"cli/pack-app","b":"cli/pack-app#796","k":"heading","t":"--runtime <spec>"}
+{"p":"cli/pack-app","b":"cli/pack-app#797","k":"para","t":"Runtime to embed in the output executables, as a `<name>@<version>` spec (e.g. `node@25`, `node@25.5.0`). Only `node` is supported today; the `<name>@` prefix leaves room for future runtimes (`bun`, `deno`). The version must be >= v25.5 (the minimum that supports `--build-sea`). Defaults to the running Node.js version."}
+{"p":"cli/pack-app","b":"cli/pack-app#798","k":"heading","t":"--output-dir, -o <dir>"}
+{"p":"cli/pack-app","b":"cli/pack-app#799","k":"para","t":"Output directory for the built executables. Defaults to `dist-app`."}
+{"p":"cli/pack-app","b":"cli/pack-app#800","k":"heading","t":"--output-name <name>"}
+{"p":"cli/pack-app","b":"cli/pack-app#801","k":"para","t":"Name for the output executable (without extension). Defaults to the unscoped `name` from `package.json` (e.g. `my-cli` for `@acme/my-cli`)."}
+{"p":"cli/pack-app","b":"cli/pack-app#802","k":"heading","t":"Configuration"}
+{"p":"cli/pack-app","b":"cli/pack-app#803","k":"para","t":"Defaults for every flag can be set in `package.json` under `pnpm.app`. CLI flags override the config:"}
+{"p":"cli/pack-app","b":"cli/pack-app#804","k":"para","t":"package.json"}
+{"p":"cli/pack-app","b":"cli/pack-app#805","k":"para","t":"With this config in place, `pnpm pack-app` can be run with no arguments. `--target` on the CLI replaces the configured `targets` list, which is useful for narrowing a build (e.g. `pnpm pack-app --target linux-x64`)."}
+{"p":"cli/pack-app","b":"cli/pack-app@title","k":"title","t":"pnpm pack-app"}
+{"p":"cli/patch","b":"cli/patch#806","k":"para","t":"Prepare a package for patching (inspired by a similar command in Yarn)."}
+{"p":"cli/patch","b":"cli/patch#807","k":"para","t":"This command will cause a package to be extracted in a temporary directory intended to be editable at will."}
+{"p":"cli/patch","b":"cli/patch#808","k":"para","t":"Once you're done with your changes, run `pnpm patch-commit <path>` (with `<path>` being the temporary directory you received) to generate a patchfile and register it into your top-level manifest via the [patchedDependencies](#patcheddependencies) field."}
+{"p":"cli/patch","b":"cli/patch#809","k":"para","t":"If you want to change the dependencies of a package, don't use patching to modify the `package.json` file of the package. For overriding dependencies, use [overrides](/docs/settings/dependency-resolution#overrides) or a [package hook](/docs/pnpmfile#hooksreadpackagepkg-context-pkg--promisepkg)."}
+{"p":"cli/patch","b":"cli/patch#810","k":"heading","t":"Options"}
+{"p":"cli/patch","b":"cli/patch#811","k":"heading","t":"--edit-dir <dir>"}
+{"p":"cli/patch","b":"cli/patch#812","k":"para","t":"The package that needs to be patched will be extracted to this directory."}
+{"p":"cli/patch","b":"cli/patch#813","k":"heading","t":"--ignore-existing"}
+{"p":"cli/patch","b":"cli/patch#814","k":"para","t":"Ignore existing patch files when patching."}
+{"p":"cli/patch","b":"cli/patch#815","k":"heading","t":"Configuration"}
+{"p":"cli/patch","b":"cli/patch#816","k":"heading","t":"patchedDependencies"}
+{"p":"cli/patch","b":"cli/patch#817","k":"para","t":"This field is added/updated automatically when you run [pnpm patch-commit](/docs/cli/patch-commit). It defines patches for dependencies using a dictionary where:"}
+{"p":"cli/patch","b":"cli/patch#818","k":"li","t":"**Keys**: Package names with an exact version, a version range, or just the name."}
+{"p":"cli/patch","b":"cli/patch#819","k":"li","t":"**Values**: Relative paths to patch files."}
+{"p":"cli/patch","b":"cli/patch#820","k":"para","t":"Dependencies can be patched by version range. The priority order is:"}
+{"p":"cli/patch","b":"cli/patch#821","k":"li","t":"Exact versions (highest priority)"}
+{"p":"cli/patch","b":"cli/patch#822","k":"li","t":"Version ranges"}
+{"p":"cli/patch","b":"cli/patch#823","k":"li","t":"Name-only patches (applies to all versions unless overridden)"}
+{"p":"cli/patch","b":"cli/patch#824","k":"para","t":"A special case: the version range `*` behaves like a name-only patch but does not ignore patch failures."}
+{"p":"cli/patch","b":"cli/patch#825","k":"li","t":"`patches/foo-3.patch` is applied to `foo@2.1.0`."}
+{"p":"cli/patch","b":"cli/patch#826","k":"li","t":"`patches/foo-2.patch` applies to all foo versions matching `^2.0.0`, except `2.1.0`."}
+{"p":"cli/patch","b":"cli/patch#827","k":"li","t":"`patches/foo-1.patch` applies to all other foo versions."}
+{"p":"cli/patch","b":"cli/patch#828","k":"para","t":"Avoid overlapping version ranges. If you need to specialize a sub-range, explicitly exclude it from the broader range."}
+{"p":"cli/patch","b":"cli/patch#829","k":"para","t":"In most cases, defining an exact version is enough to override a broader range."}
+{"p":"cli/patch","b":"cli/patch#830","k":"heading","t":"allowUnusedPatches"}
+{"p":"cli/patch","b":"cli/patch#831","k":"para","t":"Added in: v10.7.0 (Previously named `allowNonAppliedPatches`)"}
+{"p":"cli/patch","b":"cli/patch#832","k":"li","t":"Default: **false**"}
+{"p":"cli/patch","b":"cli/patch#833","k":"li","t":"Type: **Boolean**"}
+{"p":"cli/patch","b":"cli/patch#834","k":"para","t":"When `true`, installation won't fail if some of the patches from the `patchedDependencies` field were not applied."}
+{"p":"cli/patch","b":"cli/patch#835","k":"para","t":"In v11, patch application failures always throw an error — the `ignorePatchFailures` setting has been removed. When multiple patches in a group are applied, a failure in one does not prevent the rest from being attempted; all patch errors are reported together at the end."}
+{"p":"cli/patch","b":"cli/patch@title","k":"title","t":"pnpm patch <pkg>"}
+{"p":"cli/patch-commit","b":"cli/patch-commit#836","k":"para","t":"Generate a patch out of a directory and save it (inspired by a similar command in Yarn)."}
+{"p":"cli/patch-commit","b":"cli/patch-commit#837","k":"para","t":"This command will compare the changes from `path` to the package it was supposed to patch, generate a patch file, save the a patch file to `patchesDir` (which can be customized by the `--patches-dir` option), and add an entry to [patchedDependencies](/docs/cli/patch#patcheddependencies)."}
+{"p":"cli/patch-commit","b":"cli/patch-commit#838","k":"li","t":"`path` is the path to a modified copy of the patch target package, it is usually a temporary directory generated by [pnpm patch](/docs/cli/patch)."}
+{"p":"cli/patch-commit","b":"cli/patch-commit#839","k":"heading","t":"Options"}
+{"p":"cli/patch-commit","b":"cli/patch-commit#840","k":"heading","t":"---patches-dir <patchesDir>"}
+{"p":"cli/patch-commit","b":"cli/patch-commit#841","k":"para","t":"The generated patch file will be saved to this directory. By default, patches are saved to the `patches` directory in the root of the project."}
+{"p":"cli/patch-commit","b":"cli/patch-commit@title","k":"title","t":"pnpm patch-commit <path>"}
+{"p":"cli/patch-remove","b":"cli/patch-remove#865","k":"para","t":"Remove existing patch files and settings in `patchedDependencies`."}
+{"p":"cli/patch-remove","b":"cli/patch-remove@title","k":"title","t":"pnpm patch-remove <pkg...>"}
+{"p":"cli/peers","b":"cli/peers#896","k":"heading","t":"Commands"}
+{"p":"cli/peers","b":"cli/peers#897","k":"heading","t":"check"}
+{"p":"cli/peers","b":"cli/peers#898","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/peers","b":"cli/peers#899","k":"para","t":"Checks for unmet and missing peer dependency issues by reading the lockfile."}
+{"p":"cli/peers","b":"cli/peers#900","k":"para","t":"This command analyzes the lockfile and reports any packages with unresolved or incompatible peer dependencies."}
+{"p":"cli/peers","b":"cli/peers@title","k":"title","t":"pnpm peers"}
+{"p":"cli/ping","b":"cli/ping#901","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/ping","b":"cli/ping#902","k":"para","t":"Ping the configured registry to verify connectivity."}
+{"p":"cli/ping","b":"cli/ping#903","k":"para","t":"On success, the registry's response is printed. This is useful for quickly confirming that the current machine can reach the registry without installing or publishing anything."}
+{"p":"cli/ping","b":"cli/ping#904","k":"heading","t":"Options"}
+{"p":"cli/ping","b":"cli/ping#905","k":"heading","t":"--registry <url>"}
+{"p":"cli/ping","b":"cli/ping#906","k":"para","t":"The registry to ping. Defaults to the configured default registry."}
+{"p":"cli/ping","b":"cli/ping@title","k":"title","t":"pnpm ping"}
+{"p":"cli/pkg","b":"cli/pkg#907","k":"para","t":"Added in: v11.3.0"}
+{"p":"cli/pkg","b":"cli/pkg#908","k":"para","t":"Manages the contents of `package.json` from the command line."}
+{"p":"cli/pkg","b":"cli/pkg#909","k":"para","t":"Nested fields are addressed with dot-separated paths (e.g. `scripts.test`, `repository.url`)."}
+{"p":"cli/pkg","b":"cli/pkg#910","k":"heading","t":"Commands"}
+{"p":"cli/pkg","b":"cli/pkg#911","k":"heading","t":"get"}
+{"p":"cli/pkg","b":"cli/pkg#912","k":"para","t":"Retrieves a value from `package.json`. With no arguments, prints the full manifest. With one or more keys, prints the requested fields."}
+{"p":"cli/pkg","b":"cli/pkg#913","k":"para","t":"When only one key is requested and it resolves to a string, the raw value is printed; otherwise the value is JSON-encoded. Pass `--json` to always print JSON."}
+{"p":"cli/pkg","b":"cli/pkg#914","k":"heading","t":"set"}
+{"p":"cli/pkg","b":"cli/pkg#915","k":"para","t":"Sets one or more values in `package.json`. Each argument has the `key=value` form."}
+{"p":"cli/pkg","b":"cli/pkg#916","k":"para","t":"By default the value is stored as a string. Pass `--json` to parse the value as JSON before storing it (useful for booleans, numbers, arrays, and objects):"}
+{"p":"cli/pkg","b":"cli/pkg#917","k":"heading","t":"delete"}
+{"p":"cli/pkg","b":"cli/pkg#918","k":"para","t":"Removes one or more keys from `package.json`."}
+{"p":"cli/pkg","b":"cli/pkg#919","k":"heading","t":"fix"}
+{"p":"cli/pkg","b":"cli/pkg#920","k":"para","t":"Auto-corrects common errors in `package.json` (e.g. removes a non-string `name` or `version`, drops dependency / `scripts` blocks whose values aren't objects, drops a `bin` field that's neither a string nor an object)."}
+{"p":"cli/pkg","b":"cli/pkg#921","k":"heading","t":"Options"}
+{"p":"cli/pkg","b":"cli/pkg#922","k":"heading","t":"--json"}
+{"p":"cli/pkg","b":"cli/pkg#923","k":"para","t":"When setting, parses each `value` as JSON before writing. When getting a single key, returns the JSON-encoded form instead of the raw value."}
+{"p":"cli/pkg","b":"cli/pkg#924","k":"heading","t":"--recursive, -r"}
+{"p":"cli/pkg","b":"cli/pkg#925","k":"para","t":"Runs the subcommand on every workspace project, or on every project selected by a `--filter`."}
+{"p":"cli/pkg","b":"cli/pkg#926","k":"para","t":"`pnpm -r pkg get` returns a JSON object keyed by package name; `set`, `delete`, and `fix` apply to each matched project."}
+{"p":"cli/pkg","b":"cli/pkg@title","k":"title","t":"pnpm pkg"}
+{"p":"cli/pm","b":"cli/pm#866","k":"para","t":"The `pnpm pm <command>` syntax always runs the built-in pnpm command, bypassing any same-named script in `package.json`."}
+{"p":"cli/pm","b":"cli/pm#867","k":"para","t":"Some built-in commands can be overridden by scripts. For example, if your project defines a `\"clean\"` script in `package.json`, then `pnpm clean` runs that script instead of the built-in [pnpm clean](/docs/cli/clean). Using `pnpm pm clean` forces the built-in command to run."}
+{"p":"cli/pm","b":"cli/pm#868","k":"heading","t":"Example"}
+{"p":"cli/pm","b":"cli/pm#869","k":"para","t":"package.json"}
+{"p":"cli/pm","b":"cli/pm@title","k":"title","t":"pnpm pm"}
+{"p":"cli/pnx","b":"cli/pnx#870","k":"para","t":"Fetches a package from the registry without installing it as a dependency, hotloads it, and runs whatever default command binary it exposes."}
+{"p":"cli/pnx","b":"cli/pnx#871","k":"para","t":"For example, to use `create-vue` anywhere to bootstrap a Vue project without needing to install it under another project, you can run:"}
+{"p":"cli/pnx","b":"cli/pnx#872","k":"para","t":"This will fetch `create-vue` from the registry and run it with the given arguments."}
+{"p":"cli/pnx","b":"cli/pnx#873","k":"para","t":"You may also specify which exact version of the package you'd like to use:"}
+{"p":"cli/pnx","b":"cli/pnx#874","k":"para","t":"The `catalog:` protocol is also supported, allowing you to use versions defined in your workspace catalogs:"}
+{"p":"cli/pnx","b":"cli/pnx#875","k":"heading","t":"Running a package manager or a runtime"}
+{"p":"cli/pnx","b":"cli/pnx#876","k":"para","t":"Added in: v12.0.0-rc.6 (pnpm v12 only)"}
+{"p":"cli/pnx","b":"cli/pnx#877","k":"para","t":"Naming one of the [package managers pnpm provisions](/docs/package-managers) (`npm`, `yarn`, `bun`), or a runtime (`node`, `deno`, `bun`), provisions the real thing instead of installing the npm package that shares its name:"}
+{"p":"cli/pnx","b":"cli/pnx#878","k":"para","t":"Those npm packages are either a different line of the tool or a wrapper that downloads it, so this is what naming them was always meant to do: `pnx yarn@4` used to fail with a missing version, since Yarn 4 is published as `@yarnpkg/cli-dist`, and `pnx node@22` used to run a wrapper that downloads a Node.js build rather than that release itself."}
+{"p":"cli/pnx","b":"cli/pnx#879","k":"para","t":"A specifier that locates a package rather than asking for a released version installs what it names, unchanged:"}
+{"p":"cli/pnx","b":"cli/pnx#880","k":"para","t":"`--package` naming a package manager picks which of its commands to run:"}
+{"p":"cli/pnx","b":"cli/pnx#881","k":"heading","t":"Options"}
+{"p":"cli/pnx","b":"cli/pnx#882","k":"heading","t":"--package <name>"}
+{"p":"cli/pnx","b":"cli/pnx#883","k":"para","t":"The package to install before running the command."}
+{"p":"cli/pnx","b":"cli/pnx#884","k":"para","t":"Multiple packages can be provided for installation:"}
+{"p":"cli/pnx","b":"cli/pnx#885","k":"heading","t":"--allow-build"}
+{"p":"cli/pnx","b":"cli/pnx#886","k":"para","t":"Added in: v10.2.0"}
+{"p":"cli/pnx","b":"cli/pnx#887","k":"para","t":"A list of package names that are allowed to run postinstall scripts during installation."}
+{"p":"cli/pnx","b":"cli/pnx#888","k":"para","t":"The actual packages executed by `dlx` are allowed to run postinstall scripts by default. So if in the above example `my-bundler` has to be built before execution, it will be built."}
+{"p":"cli/pnx","b":"cli/pnx#889","k":"heading","t":"--shell-mode, -c"}
+{"p":"cli/pnx","b":"cli/pnx#890","k":"para","t":"Runs the command inside of a shell. Uses `/bin/sh` on UNIX and `\\cmd.exe` on Windows."}
+{"p":"cli/pnx","b":"cli/pnx#891","k":"heading","t":"--silent, -s"}
+{"p":"cli/pnx","b":"cli/pnx#892","k":"para","t":"Only the output of the executed command is printed."}
+{"p":"cli/pnx","b":"cli/pnx#893","k":"heading","t":"Security and trust policies"}
+{"p":"cli/pnx","b":"cli/pnx#894","k":"para","t":"Since v11.0.0, `pnx` (and its `pnpm dlx` / `pnpx` aliases) honors the project-level security and trust policy settings when resolving and fetching the requested package:"}
+{"p":"cli/pnx","b":"cli/pnx#895","k":"para","t":"This means `pnx` will refuse to execute freshly published or insufficiently trusted packages the same way a regular `pnpm install` would."}
+{"p":"cli/prefix","b":"cli/prefix#927","k":"para","t":"Added in: v11.10.0"}
+{"p":"cli/prefix","b":"cli/prefix#928","k":"para","t":"Prints the current package prefix directory — the directory containing the closest `package.json`."}
+{"p":"cli/prefix","b":"cli/prefix#929","k":"heading","t":"Options"}
+{"p":"cli/prefix","b":"cli/prefix#930","k":"heading","t":"--global, -g"}
+{"p":"cli/prefix","b":"cli/prefix#931","k":"para","t":"Prints the global prefix directory instead."}
+{"p":"cli/prefix","b":"cli/prefix@title","k":"title","t":"pnpm prefix"}
+{"p":"cli/prune","b":"cli/prune#932","k":"para","t":"Removes unnecessary packages."}
+{"p":"cli/prune","b":"cli/prune#933","k":"heading","t":"Options"}
+{"p":"cli/prune","b":"cli/prune#934","k":"heading","t":"--prod"}
+{"p":"cli/prune","b":"cli/prune#935","k":"para","t":"Remove the packages specified in `devDependencies`."}
+{"p":"cli/prune","b":"cli/prune#936","k":"heading","t":"--no-optional"}
+{"p":"cli/prune","b":"cli/prune#937","k":"para","t":"Remove the packages specified in `optionalDependencies`."}
+{"p":"cli/prune","b":"cli/prune#938","k":"para","t":"The prune command does not support recursive execution on a monorepo currently. To only install production-dependencies in a monorepo `node_modules` folders can be deleted and then re-installed with `pnpm install --prod`."}
+{"p":"cli/prune","b":"cli/prune@title","k":"title","t":"pnpm prune"}

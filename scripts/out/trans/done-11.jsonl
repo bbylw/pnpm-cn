@@ -1,0 +1,107 @@
+{"b":"package-sources#2217","z":"pnpm 支持从多种源安装依赖包。这些源分为两类：**受信任的源**与**非常规源**。"}
+{"b":"package-sources#2218","z":"非常规源（如 Git 仓库或直接的 tarball URL）被传递依赖使用时可能引入供应链风险。将 [blockExoticSubdeps](/docs/settings/dependency-resolution#blockexoticsubdeps) 设为 `true`，即可阻止传递依赖使用非常规源。"}
+{"b":"package-sources#2219","z":"受信任的源"}
+{"b":"package-sources#2220","z":"无论直接依赖还是传递依赖，受信任的源都被视为安全的。"}
+{"b":"package-sources#2221","z":"npm registry"}
+{"b":"package-sources#2222","z":"默认情况下，`pnpm add package-name` 会从 [npm registry](https://www.npmjs.com/) 安装 `package-name` 的最新版本。"}
+{"b":"package-sources#2223","z":"如果在工作区中执行，此命令会先检查工作区内的其他项目是否使用了指定包。若有，则安装已在使用的版本范围。"}
+{"b":"package-sources#2224","z":"你还可以通过以下方式安装依赖包："}
+{"b":"package-sources#2225","z":"版本范围：`pnpm add express@2 react@\">=0.1.0 <0.2.0\"`"}
+{"b":"package-sources#2226","z":"JSR registry"}
+{"b":"package-sources#2227","z":"自 v10.9.0 起提供"}
+{"b":"package-sources#2228","z":"要从 [JSR](https://jsr.io/) registry 安装依赖包，使用 `jsr:` 协议前缀："}
+{"b":"package-sources#2229","z":"这与从 npm 安装一样，只是会告知 pnpm 转而通过 JSR 解析该包。"}
+{"b":"package-sources#2230","z":"命名 registry"}
+{"b":"package-sources#2231","z":"自 v11.1.0 起提供"}
+{"b":"package-sources#2232","z":"[命名 registry](/docs/settings/dependency-resolution#namedregistries) 别名会在指定的 registry 中解析依赖包，而不管默认 registry 是哪个："}
+{"b":"package-sources#2233","z":"`gh:`（GitHub Packages）以及自 v11.20.0 起的 `npmjs:`（公共 npm registry）无需配置即可使用。其他任何别名都必须在 `pnpm-workspace.yaml` 的 [namedRegistries](/docs/settings/dependency-resolution#namedregistries) 下映射，或自 v11.11.0 起在[全局配置文件](/docs/cli/config)（`config.yaml`）中映射。"}
+{"b":"package-sources#2234","z":"工作区"}
+{"b":"package-sources#2235","z":"注意，在[工作区](/docs/workspaces)内添加依赖时，包将从已配置的源安装，具体取决于是否设置了 [linkWorkspacePackages](/docs/workspaces#linkworkspacepackages)，以及是否使用了 [workspace: 范围协议](/docs/workspaces#workspace-protocol-workspace)。"}
+{"b":"package-sources#2236","z":"本地文件系统"}
+{"b":"package-sources#2237","z":"从本地文件系统安装有两种方式："}
+{"b":"package-sources#2238","z":"从 tarball 文件（`.tar`、`.tar.gz` 或 `.tgz`）"}
+{"b":"package-sources#2239","z":"从目录"}
+{"b":"package-sources#2240","z":"从目录安装时，会在当前项目的 `node_modules` 中创建符号链接，因此等同于运行 `pnpm link`。"}
+{"b":"package-sources#2241","z":"非常规源"}
+{"b":"package-sources#2242","z":"非常规源对开发很有用，但被传递依赖使用时可能存在供应链风险。"}
+{"b":"package-sources#2243","z":"远程 tarball"}
+{"b":"package-sources#2244","z":"参数必须是可拉取的 URL，以 \"http://\" 或 \"https://\" 开头。"}
+{"b":"package-sources#2245","z":"Git 仓库"}
+{"b":"package-sources#2246","z":"从给定 URL 的 Git 仓库安装依赖包。视仓库而定，pnpm 要么从 Git 托管方下载源码归档，要么使用 Git 克隆仓库，参见[Git 依赖如何解析](#how-git-dependencies-are-resolved)。"}
+{"b":"package-sources#2247","z":"你可以通过以下方式从 Git 安装依赖包："}
+{"b":"package-sources#2248","z":"默认分支的最新提交："}
+{"b":"package-sources#2249","z":"Git 提交哈希："}
+{"b":"package-sources#2250","z":"Git 分支："}
+{"b":"package-sources#2251","z":"相对于 refs 的 Git 分支："}
+{"b":"package-sources#2252","z":"Git 标签："}
+{"b":"package-sources#2253","z":"带 V 前缀的 Git 标签："}
+{"b":"package-sources#2254","z":"使用 semver 从 Git 仓库安装"}
+{"b":"package-sources#2255","z":"可以使用 `semver:` 参数指定要安装的版本（范围）。例如："}
+{"b":"package-sources#2256","z":"精确 semver："}
+{"b":"package-sources#2257","z":"带 V 前缀的精确 semver："}
+{"b":"package-sources#2258","z":"semver 版本范围："}
+{"b":"package-sources#2259","z":"带 V 前缀的 semver 版本范围："}
+{"b":"package-sources#2260","z":"从 Git 仓库的子目录安装"}
+{"b":"package-sources#2261","z":"也可以使用 `path:` 参数只安装 Git 托管 monorepo 中的某个子目录。例如："}
+{"b":"package-sources#2262","z":"通过完整 URL 从 Git 仓库安装"}
+{"b":"package-sources#2263","z":"如果想更明确，或使用了其他 Git 托管服务，可以写出完整的 Git URL："}
+{"b":"package-sources#2264","z":"使用托管服务商简写从 Git 仓库安装"}
+{"b":"package-sources#2265","z":"对某些 Git 服务商，可以使用协议简写 `[provider]:`："}
+{"b":"package-sources#2266","z":"省略 `[provider]:` 时，默认为 `github:`。"}
+{"b":"package-sources#2267","z":"组合不同参数从 Git 仓库安装"}
+{"b":"package-sources#2268","z":"可以用 `&` 分隔并组合多个参数。这对 monorepo 的 fork 很有用："}
+{"b":"package-sources#2269","z":"从 `beta` 分支安装，且仅安装 `/packages/simple-react-app` 子目录。"}
+{"b":"package-sources#2270","z":"Git 依赖如何解析"}
+{"b":"package-sources#2271","z":"自 v12.0.0 起提供（仅 pnpm v12）"}
+{"b":"package-sources#2272","z":"对于 GitHub、GitLab 和 Bitbucket 上的仓库，说明符是一种**标识**，而不是传输方式的选择。以下写法都指向同一个依赖，且解析结果完全相同："}
+{"b":"package-sources#2273","z":"每种写法都通过托管方的规范 HTTPS URL 解析，锁文件会记录以下两种形式之一："}
+{"b":"package-sources#2274","z":"**托管方的源码归档**，即普通的 tarball 下载。只有当对该归档 URL 的匿名请求成功时才会记录，因此被记录的归档 URL 必然可拉取。"}
+{"b":"package-sources#2275","z":"否则为**基于规范 HTTPS URL 的 git 解析**，任何能访问该仓库的机器都可拉取。"}
+{"b":"package-sources#2276","z":"pnpm 从不为这些托管方记录 SSH URL。某台机器用哪种传输方式访问托管方，属于该机器的 Git 配置，而不是项目的属性。"}
+{"b":"package-sources#2277","z":"pnpm 11 会将说明符的传输方式保留为记录 URL 的一部分，但自 v11.21.0 起，只有当说明符本身要求使用 SSH（`git+ssh://` 或 `git@host:...`）时才记录 SSH URL：`owner/repo` 这类简写会通过 HTTPS 解析并记录，因此在装有 SSH 密钥的机器上写入的锁文件，仍能安装到没有 SSH 密钥的 CI 运行器上。旧版 pnpm 记录的 SSH URL 可以通过 `pnpm update <package>` 以 HTTPS 重新记录。"}
+{"b":"package-sources#2278","z":"为私有仓库使用 SSH"}
+{"b":"package-sources#2279","z":"在机器上通过 Git 自身的配置设置 URL 重写："}
+{"b":"package-sources#2280","z":"pnpm 会调用外部的 `git`，因此该重写会自动应用于 pnpm 的所有 Git 操作。CI 上同理：给运行器配置 SSH 密钥加这条重写，或一个 HTTPS 凭据助手即可，两种情况下锁文件完全一致。"}
+{"b":"package-sources#2281","z":"其他托管方的仓库"}
+{"b":"package-sources#2282","z":"不指向已知托管方的 URL（自托管的 GitLab、Gitea 或任何内部 Git 服务器）会原样保留，包括传输方式。对这些 URL 而言，URL 本身*就是*标识。内嵌凭据的 URL 同样逐字保留，且永远不会解析为托管方的归档。"}
+{"b":"package-sources#2283","z":"在 pnpm v11 及更早版本中，解析过程会探测网络以在 HTTPS 和 SSH 之间做出选择。这可能会记录运行安装的机器上恰好可用的那种传输方式，最常见的是 `ssh://` URL，随后在没有 SSH 密钥的 CI 运行器上失败。pnpm v12 移除了探测。现有锁文件条目保持不变，上述规则仅在新增条目或重新解析时适用。"}
+{"b":"package-sources#2284","z":"Git 依赖的构建方式"}
+{"b":"package-sources#2285","z":"自 v12.0.0-rc.6 起提供（仅 pnpm v12）"}
+{"b":"package-sources#2286","z":"托管在 Git 上的依赖若交付的是源码而非构建好的包，必须先执行 prepare（安装其依赖并运行其构建脚本）才能被安装。pnpm 会使用该依赖自己要求的包管理器来准备它，而不是假定主机上装了正确的那一个："}
+{"b":"package-sources#2287","z":"依赖自身的 `packageManager` / [devEngines.packageManager](/docs/package_json#devenginespackagemanager) 锁定优先，其作者正是用它进行测试的；"}
+{"b":"package-sources#2288","z":"没有锁定时，其自带的锁文件会指明包管理器。`yarn.lock` 还会指明是*哪个* Yarn 系列：Yarn Berry 会在其写入的每个锁文件中打上 `__metadata:` 标记，两个系列无法互读对方的锁文件，因此 Berry 不再安装 Classic 锁文件。"}
+{"b":"package-sources#2289","z":"当依赖锁定了版本，或主机无法满足依赖所需时，pnpm 会[提供该包管理器](/docs/package-managers)。因此用 Yarn 构建的仓库也能在只装有 pnpm 的机器上安装；而主机若已装有合适的包管理器（覆盖构建可能调用的所有名称），则继续使用自己的。"}
+{"b":"package-sources@title","z":"支持的包源"}
+{"b":"pnpm-cli#2367","z":"短别名"}
+{"b":"pnpm-cli#2368","z":"自 v11.0.0 起提供"}
+{"b":"pnpm-cli#2369","z":"`pn` 是 `pnpm` 的短别名，[pnx](/docs/cli/pnx) 是 `pnpm dlx` 的短别名。凡是能用 `pnpm` 或 `pnpx` 的地方都可以使用它们："}
+{"b":"pnpm-cli#2370","z":"与 npm 的差异"}
+{"b":"pnpm-cli#2371","z":"与 npm 不同，pnpm 会校验所有选项。例如，`pnpm install --target_arch x64` 会失败，因为 `--target_arch` 不是 `pnpm install` 的有效选项。"}
+{"b":"pnpm-cli#2372","z":"不过，某些依赖可能使用 `npm_config_` 环境变量，该变量由 CLI 选项填充。这种情况下，你有以下选择："}
+{"b":"pnpm-cli#2373","z":"显式设置环境变量：`npm_config_target_arch=x64 pnpm install`"}
+{"b":"pnpm-cli#2374","z":"用 `--config.` 强制传入未知选项：`pnpm install --config.target_arch=x64`"}
+{"b":"pnpm-cli#2375","z":"选项"}
+{"b":"pnpm-cli#2376","z":"-C <path>, --dir <path>"}
+{"b":"pnpm-cli#2377","z":"视同 pnpm 从 `<path>` 而非当前工作目录启动来执行。"}
+{"b":"pnpm-cli#2378","z":"-w, --workspace-root"}
+{"b":"pnpm-cli#2379","z":"视同 pnpm 从[工作区](/docs/workspaces)根目录而非当前工作目录启动来执行。"}
+{"b":"pnpm-cli#2380","z":"命令"}
+{"b":"pnpm-cli#2381","z":"更多信息见各个 CLI 命令的文档。以下是一份实用的 npm 等价命令列表，供你快速上手："}
+{"b":"pnpm-cli#2382","z":"使用未知命令时，pnpm 会查找同名的脚本，因此 `pnpm run lint` 与 `pnpm lint` 等价。若不存在指定名称的脚本，pnpm 会将该命令作为 shell 脚本执行，所以你可以运行 `pnpm eslint` 这类命令（参见 [pnpm exec](/docs/cli/exec)）。"}
+{"b":"pnpm-cli#2383","z":"环境变量"}
+{"b":"pnpm-cli#2384","z":"一些与 pnpm 无关的环境变量也可能改变 pnpm 的行为："}
+{"b":"pnpm-cli#2385","z":"以下环境变量可能影响 pnpm 存储全局信息所使用的目录："}
+{"b":"pnpm-cli#2386","z":"你可以搜索文档，找到利用这些环境变量的设置。"}
+{"b":"pnpm-cli@title","z":"pnpm CLI"}
+{"b":"pnpm-vs-npm#2387","z":"npm 的扁平依赖树"}
+{"b":"pnpm-vs-npm#2388","z":"自 3 版本起，npm 维护一棵[扁平化的依赖树](https://github.com/npm/npm/issues/6912)。这减少了磁盘空间的浪费，副作用是 `node_modules` 目录变得混乱。"}
+{"b":"pnpm-vs-npm#2389","z":"另一方面，pnpm 通过硬链接和符号链接将 `node_modules` 关联到全局磁盘上的内容寻址存储来管理它。这样既能大幅减少磁盘占用，又保持了 `node_modules` 的整洁。想深入了解可以查看[存储布局](/docs/symlinked-node-modules-structure)文档。"}
+{"b":"pnpm-vs-npm#2390","z":"pnpm 规范的 `node_modules` 结构的好处在于，它让使用项目 `package.json` 中未指定的模块成为不可能，从而\"[有助于避免低级错误](https://www.kochan.io/nodejs/pnpms-strictness-helps-to-avoid-silly-bugs.html)\"。"}
+{"b":"pnpm-vs-npm#2391","z":"安装"}
+{"b":"pnpm-vs-npm#2392","z":"pnpm 不允许安装依赖包时不将其保存到 `package.json`。如果 `pnpm add` 未传入任何参数，包将作为普通依赖保存。与 npm 一样，可以使用 `--save-dev` 和 `--save-optional` 将包安装为开发依赖或可选依赖。"}
+{"b":"pnpm-vs-npm#2393","z":"这一限制带来的结果是，使用 pnpm 的项目不会有多余的包，除非删除了某个依赖而留下了孤立的包。这就是为什么 pnpm 的 [prune 命令](/docs/cli/prune)不允许指定要清理的包：它始终会移除所有多余的、孤立的包。"}
+{"b":"pnpm-vs-npm#2394","z":"目录依赖"}
+{"b":"pnpm-vs-npm#2395","z":"目录依赖以 `file:` 前缀开头，指向文件系统中的某个目录。与 npm 一样，pnpm 会为这些依赖创建符号链接。与 npm 不同的是，pnpm 不会对 file 依赖执行安装。"}
+{"b":"pnpm-vs-npm#2396","z":"这意味着，如果你有一个名为 `foo`（`<root>/foo`）的包，其依赖为 `bar@file:../bar`，那么对 `foo` 运行 `pnpm install` 时，pnpm 不会为 `<root>/bar` 执行安装。"}
+{"b":"pnpm-vs-npm#2397","z":"如果你需要同时在多个包中运行安装，例如在 monorepo 的场景下，可以查看 [pnpm -r](/docs/cli/recursive) 的文档。"}
+{"b":"pnpm-vs-npm@title","z":"pnpm vs npm"}

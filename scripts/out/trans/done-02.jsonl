@@ -1,0 +1,248 @@
+{"b":"cli/cache-view#242","z":"此命令为实验性功能"}
+{"b":"cli/cache-view#243","z":"查看指定包缓存中的信息。"}
+{"b":"cli/cache-view@title","z":"pnpm cache view"}
+{"b":"cli/cat-file#250","z":"根据索引文件中存储的哈希值打印文件内容。例如："}
+{"b":"cli/cat-file@title","z":"pnpm cat-file"}
+{"b":"cli/cat-index#251","z":"从存储中打印特定包的索引文件。该包通过名称和版本指定："}
+{"b":"cli/cat-index@title","z":"pnpm cat-index"}
+{"b":"cli/change#252","z":"自 v11.13.0 起提供"}
+{"b":"cli/change#253","z":"记录一个变更意图：变更影响哪些包、每个包的提升类型，以及会成为变更日志条目的摘要。意图文件以 [changesets](https://github.com/changesets/changesets) 格式写入 `.changeset/`。"}
+{"b":"cli/change#254","z":"变更意图稍后由 [pnpm version -r](/docs/cli/version#recursive-releases) 消费。整个工作流参见[发布管理](/docs/versioning)。"}
+{"b":"cli/change#255","z":"用法"}
+{"b":"cli/change#256","z":"不带参数运行以交互式记录一个意图："}
+{"b":"cli/change#257","z":"系统会问你三个问题："}
+{"b":"cli/change#258","z":"**此变更影响哪些包？** 自与 `main`（或 `master`）的合并基点以来发生变更的包会被预选。"}
+{"b":"cli/change#259","z":"**哪些包应做 major 提升？**，随后对 `minor` 做同样的询问。剩下的都按 `patch` 提升。"}
+{"b":"cli/change#260","z":"**变更摘要**，它会成为变更日志条目。"}
+{"b":"cli/change#261","z":"结果是一个形如 `.changeset/calm-cats-resolve.md` 的文件："}
+{"b":"cli/change#262","z":"将此文件与你的变更一起提交。"}
+{"b":"cli/change#263","z":"将包名与 `--bump` 和 `--summary` 一起传入，可在不提示的情况下记录一个意图，这在脚本中很有用："}
+{"b":"cli/change#264","z":"子命令"}
+{"b":"cli/change#265","z":"status"}
+{"b":"cli/change#266","z":"显示待处理的变更意图及其生成的发布计划。"}
+{"b":"cli/change#267","z":"每次提升的原因属于以下之一：`intent`（变更意图点名了该包）、`dependencies`（依赖方被传播拉入）、`fixed`（某个[固定组](/docs/versioning#fixed-groups)的伴随项），或 `epic`（[epic](/docs/versioning#epics) 的重新基线）。"}
+{"b":"cli/change#268","z":"选项"}
+{"b":"cli/change#269","z":"--bump <type>"}
+{"b":"cli/change#270","z":"被点名包的提升类型：`none`、`patch`、`minor` 或 `major`。`none` 记录一次明确的拒绝，表示该变更无需发布。"}
+{"b":"cli/change#271","z":"--summary <text>"}
+{"b":"cli/change#272","z":"变更日志条目的摘要。与包名一起使用时，以非交互方式运行该命令。"}
+{"b":"cli/change#273","z":"按目录引用包"}
+{"b":"cli/change#274","z":"当两个工作区项目发布相同的名称时，可改为通过工作区相对目录来引用某个包，并带有 `./` 前缀："}
+{"b":"cli/change#275","z":"这是 pnpm 对 changesets 格式所做的唯一一项附加扩展。当名称有歧义时，`pnpm change` 会自动写入它。"}
+{"b":"cli/change@title","z":"pnpm change"}
+{"b":"cli/ci#276","z":"自 v11.0.0 起提供"}
+{"b":"cli/ci#277","z":"执行一次干净安装。该命令先运行 [pnpm clean](/docs/cli/clean)，接着运行 [pnpm install --frozen-lockfile](/docs/cli/install)。"}
+{"b":"cli/ci#278","z":"专为可复现构建至关重要的 CI/CD 环境设计。"}
+{"b":"cli/ci@title","z":"pnpm ci"}
+{"b":"cli/clean#279","z":"安全地从所有工作区项目移除 `node_modules` 内容。使用 Node.js 移除目录，可正确处理 Windows 上的 NTFS junction，而不会跟随其进入目标。"}
+{"b":"cli/clean#280","z":"在工作区中，会清理根目录和每个工作区包中的 `node_modules` 目录。`node_modules` 内非 pnpm 的隐藏条目（例如 `.cache`）会被保留。"}
+{"b":"cli/clean#281","z":"如果配置了自定义的 [virtualStoreDir](/docs/settings/node-modules#virtualstoredir)，且它位于项目根目录内（但在 `node_modules` 之外），它也会被移除。"}
+{"b":"cli/clean#282","z":"选项"}
+{"b":"cli/clean#283","z":"--lockfile, -l"}
+{"b":"cli/clean#284","z":"同时移除 `pnpm-lock.yaml` 文件。"}
+{"b":"cli/clean@title","z":"pnpm clean"}
+{"b":"cli/config#285","z":"管理配置文件。"}
+{"b":"cli/config#286","z":"pnpm 设置分布在两类配置文件中："}
+{"b":"cli/config#287","z":"**与 npm 兼容的传统 registry/认证设置** 存放在 INI 文件中，包括全局 `rc` 文件、`auth.ini` 以及本地的 `.npmrc` 文件。"}
+{"b":"cli/config#288","z":"**pnpm 设置** 存放在 YAML 文件中，包括全局 `config.yaml` 和每个项目的 `pnpm-workspace.yaml`。全局文件还可能保存 pnpm 12.1 及更高版本在 `pnpm login` 期间写入的结构化 [_auth](/docs/npmrc#_auth) 和 [registry](/docs/registries) 值。"}
+{"b":"cli/config#289","z":"本地工作区配置文件位于项目根目录，名为 `pnpm-workspace.yaml`。全局 YAML 配置文件（`config.yaml`）位于："}
+{"b":"cli/config#290","z":"如果设置了 **$XDG_CONFIG_HOME** 环境变量，则为 **$XDG_CONFIG_HOME/pnpm/config.yaml**"}
+{"b":"cli/config#291","z":"在 Windows 上：**~/AppData/Local/pnpm/config/config.yaml**"}
+{"b":"cli/config#292","z":"在 macOS 上：**~/Library/Preferences/pnpm/config.yaml**"}
+{"b":"cli/config#293","z":"在 Linux 上：**~/.config/pnpm/config.yaml**"}
+{"b":"cli/config#294","z":"全局 `rc` 文件（仅 registry/认证设置）位于："}
+{"b":"cli/config#295","z":"如果设置了 **$XDG_CONFIG_HOME** 环境变量，则为 **$XDG_CONFIG_HOME/pnpm/rc**"}
+{"b":"cli/config#296","z":"在 Windows 上：**~/AppData/Local/pnpm/config/rc**"}
+{"b":"cli/config#297","z":"在 macOS 上：**~/Library/Preferences/pnpm/rc**"}
+{"b":"cli/config#298","z":"在 Linux 上：**~/.config/pnpm/rc**"}
+{"b":"cli/config#299","z":"你还可以通过运行以下命令来获取全局配置文件的路径（自 v10.21.0 起提供）："}
+{"b":"cli/config#300","z":"命令"}
+{"b":"cli/config#301","z":"set <key> <value>"}
+{"b":"cli/config#302","z":"将配置键设置为所提供的值。"}
+{"b":"cli/config#303","z":"不带 `--json` 标志时，将值解析为普通字符串："}
+{"b":"cli/config#304","z":"带 `--json` 标志时，将值解析为 JSON："}
+{"b":"cli/config#305","z":"`--json` 标志还允许 `pnpm config set` 创建数组和对象："}
+{"b":"cli/config#306","z":"`set` 命令不接受属性路径。"}
+{"b":"cli/config#307","z":"`pnpm config set` 拒绝把一个 pnpm 不会从该处读取的设置写入项目的 `pnpm-workspace.yaml`，包括 `configDir`、`pnpmHomeDir`、`stateDir` 以及其他指代机器级状态的设置。自 v12.1.0 起，这也包括 `scope`，它控制 `pnpm login` 的全机器默认值。当某设置有其归属位置时，该命令会以 `ERR_PNPM_CONFIG_SET_NOT_A_PROJECT_SETTING` 失败并指出该设置应放在何处。`pnpm config delete` 仍会从已包含该键的文件中清除此类键。"}
+{"b":"cli/config#308","z":"get <key>"}
+{"b":"cli/config#309","z":"打印所提供键对应的配置值。"}
+{"b":"cli/config#310","z":"`key` 可以是一个简单的键："}
+{"b":"cli/config#311","z":"它也可以是一个属性路径："}
+{"b":"cli/config#312","z":"属性路径的语法模拟 JavaScript 属性路径。"}
+{"b":"cli/config#313","z":"delete <key>"}
+{"b":"cli/config#314","z":"从配置文件中移除该配置键。"}
+{"b":"cli/config#315","z":"list"}
+{"b":"cli/config#316","z":"显示所有配置设置。输出为一个 JSON 对象。"}
+{"b":"cli/config#317","z":"与认证相关的设置不会显示在输出中；使用 `pnpm config get <key>` 显式读取它们。"}
+{"b":"cli/config#318","z":"自 v11 起，`pnpm config get`（不带 `--json`）不再输出 INI 格式文本。它对对象和数组输出 JSON，对字符串、数字、布尔值和 null 输出原始字符串。`pnpm config get --json` 将所有值输出为 JSON。`pnpm config list` 始终输出一个 JSON 对象。"}
+{"b":"cli/config#319","z":"选项"}
+{"b":"cli/config#320","z":"--global, -g"}
+{"b":"cli/config#321","z":"在全局配置文件中设置该配置。"}
+{"b":"cli/config#322","z":"--location"}
+{"b":"cli/config#323","z":"默认情况下，`--location` 设置为 `global`。"}
+{"b":"cli/config#324","z":"设置为 `project` 时，pnpm 将该设置写入工作区根目录的 `pnpm-workspace.yaml`（对于 registry/认证设置，则写入工作区根目录的 `.npmrc`）。"}
+{"b":"cli/config#325","z":"设置为 `global` 时，行为等同于传入 `--global` 选项。"}
+{"b":"cli/config#326","z":"--json"}
+{"b":"cli/config#327","z":"让 `get` 和 `list` 以 JSON 格式显示所有配置设置，并让 `set` 将值解析为 JSON。"}
+{"b":"cli/config@title","z":"pnpm config"}
+{"b":"cli/create#328","z":"从 `create-*` 或 `@foo/create-*` 起步模板创建项目。"}
+{"b":"cli/create#329","z":"示例"}
+{"b":"cli/create#330","z":"选项"}
+{"b":"cli/create#331","z":"--allow-build"}
+{"b":"cli/create#332","z":"自 v10.2.0 起提供"}
+{"b":"cli/create#333","z":"允许在安装期间运行 postinstall 脚本的包名列表。"}
+{"b":"cli/create#334","z":"安全与信任策略"}
+{"b":"cli/create#335","z":"自 v11.0.0 起，`pnpm create` 在解析和拉取起步模板时会遵循项目级的安全与信任策略设置，即 [minimumReleaseAge](/docs/settings/dependency-resolution#minimumreleaseage)（及其 `Exclude`/`Strict` 伴随项）和 [trustPolicy](/docs/settings/dependency-resolution#trustpolicy)（及其 `Exclude`/`IgnoreAfter` 伴随项）。"}
+{"b":"cli/create@title","z":"pnpm create"}
+{"b":"cli/dedupe#362","z":"执行一次安装，如果可以使用更新的版本，则移除锁文件中较旧的依赖。"}
+{"b":"cli/dedupe#363","z":"选项"}
+{"b":"cli/dedupe#364","z":"`--check`"}
+{"b":"cli/dedupe#365","z":"检查运行去重是否会产生变更，而不安装任何包或编辑锁文件。如果可能有变更，则以非零状态码退出。"}
+{"b":"cli/dedupe@title","z":"pnpm dedupe"}
+{"b":"cli/deploy#336","z":"从工作区部署一个包。部署期间，被部署包的文件会被复制到目标目录。被部署包的所有依赖（包括来自工作区的依赖）都会安装在目标目录下隔离的 `node_modules` 目录中。目标目录将包含一个可移植的包，可直接复制到服务器并执行，无需额外步骤。"}
+{"b":"cli/deploy#337","z":"默认情况下，deploy 命令仅适用于将 `inject-workspace-packages` 设置设为 `true` 的工作区。如果你想在没有\"注入依赖\"的情况下使用 deploy，请使用 `--legacy` 标志或将 `force-legacy-deploy` 设为 `true`。"}
+{"b":"cli/deploy#338","z":"设置了 [enableGlobalVirtualStore](/docs/settings/node-modules#enableglobalvirtualstore) 选项时，`pnpm deploy` 会忽略它，并始终在部署目录内创建一个本地化的虚拟存储。这使部署目录保持自包含且可移植。"}
+{"b":"cli/deploy#339","z":"如果你在部署前先构建项目，还应使用 `--prod` 选项以跳过 `devDependencies` 的安装。"}
+{"b":"cli/deploy#340","z":"在 docker 镜像中的用法。在构建完 monorepo 中的所有内容后，在一个将 monorepo 基础镜像作为构建上下文的第二个镜像中，或在额外的构建阶段中执行以下操作："}
+{"b":"cli/deploy#341","z":"选项"}
+{"b":"cli/deploy#342","z":"--dev, -D"}
+{"b":"cli/deploy#343","z":"仅安装 `devDependencies`。"}
+{"b":"cli/deploy#344","z":"--no-optional"}
+{"b":"cli/deploy#345","z":"不安装 `optionalDependencies`。"}
+{"b":"cli/deploy#346","z":"--prod, -P"}
+{"b":"cli/deploy#347","z":"不安装 `devDependencies` 中的包。"}
+{"b":"cli/deploy#348","z":"--filter <package_selector>"}
+{"b":"cli/deploy#349","z":"--legacy"}
+{"b":"cli/deploy#350","z":"强制使用旧版部署实现。"}
+{"b":"cli/deploy#351","z":"默认情况下，`pnpm deploy` 会尝试为部署从共享锁文件创建一个专用锁文件。`--legacy` 标志会禁用此行为，并允许在未设置 `inject-workspace-packages=true` 的情况下使用 deploy 命令。"}
+{"b":"cli/deploy#352","z":"部署项目中包含的文件"}
+{"b":"cli/deploy#353","z":"默认情况下，部署期间会复制项目的所有文件，但可通过以下*一种*方式修改，这些方式按顺序解析："}
+{"b":"cli/deploy#354","z":"项目的 `package.json` 可以包含一个 \"files\" 字段，列出应被复制的文件和目录。"}
+{"b":"cli/deploy#355","z":"如果应用目录中有 `.npmignore` 文件，则此处列出的任何文件都会被忽略。"}
+{"b":"cli/deploy#356","z":"如果应用目录中有 `.gitignore` 文件，则此处列出的任何文件都会被忽略。"}
+{"b":"cli/deploy#357","z":"配置"}
+{"b":"cli/deploy#358","z":"forceLegacyDeploy"}
+{"b":"cli/deploy#359","z":"默认值：**false**"}
+{"b":"cli/deploy#360","z":"类型：**Boolean**"}
+{"b":"cli/deploy#361","z":"默认情况下，`pnpm deploy` 会尝试为部署从共享锁文件创建一个专用锁文件。如果将此设置设为 `true`，则使用旧版 `deploy` 行为。"}
+{"b":"cli/deploy@title","z":"pnpm deploy"}
+{"b":"cli/deprecate#366","z":"自 v11.0.0 起提供"}
+{"b":"cli/deprecate#367","z":"为已发布的包版本设置一条废弃消息。运行 `pnpm install` 的使用者在安装到匹配版本时会看到此消息。"}
+{"b":"cli/deprecate#368","z":"要清除废弃消息，请使用 [pnpm undeprecate](#pnpm-undeprecate) 或传入一个空字符串："}
+{"b":"cli/deprecate#369","z":"示例"}
+{"b":"cli/deprecate#370","z":"标记废弃单个版本："}
+{"b":"cli/deprecate#371","z":"标记废弃某个范围内的版本："}
+{"b":"cli/deprecate#372","z":"标记废弃所有版本："}
+{"b":"cli/deprecate#373","z":"选项"}
+{"b":"cli/deprecate#374","z":"--registry <url>"}
+{"b":"cli/deprecate#375","z":"要发布到的 registry。默认为该包所配置的 registry。"}
+{"b":"cli/deprecate#376","z":"--otp <code>"}
+{"b":"cli/deprecate#377","z":"当 registry 要求双因素认证时，通过此标志或 `PNPM_CONFIG_OTP` 环境变量提供一次性密码。"}
+{"b":"cli/deprecate#378","z":"pnpm undeprecate"}
+{"b":"cli/deprecate#379","z":"从某个包版本移除废弃消息。等同于运行 `pnpm deprecate <pkg>[@<version-range>] \"\"`。"}
+{"b":"cli/deprecate@title","z":"pnpm deprecate"}
+{"b":"cli/dist-tag#380","z":"自 v11.0.0 起提供"}
+{"b":"cli/dist-tag#381","z":"管理某个包的分发标签。dist-tag 提供人类可读的别名（如 `latest`、`next`、`beta`），指向 registry 上特定的包版本。"}
+{"b":"cli/dist-tag#382","z":"子命令"}
+{"b":"cli/dist-tag#383","z":"add <pkg>@<version> [<tag>]"}
+{"b":"cli/dist-tag#384","z":"用 dist-tag 为包的指定版本打标签。如果省略 `<tag>`，则使用 [tag](/docs/settings/other#tag) 设置的值（默认为 `latest`）。"}
+{"b":"cli/dist-tag#385","z":"rm <pkg> <tag>"}
+{"b":"cli/dist-tag#386","z":"从某个包移除一个 dist-tag。"}
+{"b":"cli/dist-tag#387","z":"ls [<pkg>]"}
+{"b":"cli/dist-tag#388","z":"列出某个包的所有 dist-tag。如果未给出包名，则显示当前包的 dist-tag（从本地 `package.json` 读取）。"}
+{"b":"cli/dist-tag#389","z":"选项"}
+{"b":"cli/dist-tag#390","z":"--registry <url>"}
+{"b":"cli/dist-tag#391","z":"要操作的 registry。默认为该包所配置的 registry。"}
+{"b":"cli/dist-tag#392","z":"--otp <code>"}
+{"b":"cli/dist-tag#393","z":"当 registry 要求双因素认证时，通过此标志或 `PNPM_CONFIG_OTP` 环境变量提供一次性密码。"}
+{"b":"cli/dist-tag@title","z":"pnpm dist-tag"}
+{"b":"cli/docs#394","z":"自 v11.0.0 起提供"}
+{"b":"cli/docs#395","z":"在浏览器中打开某个包的文档（或主页）。"}
+{"b":"cli/docs#396","z":"在包目录内不带参数运行时，会打开当前项目的文档。"}
+{"b":"cli/docs#397","z":"如果包未声明有效的 `homepage`，pnpm 会退回到 `https://npmx.dev/package/<name>`。"}
+{"b":"cli/docs#398","z":"示例"}
+{"b":"cli/docs#399","z":"打开某个已发布包的文档："}
+{"b":"cli/docs#400","z":"一次打开多个包的文档："}
+{"b":"cli/docs#401","z":"打开当前项目的文档："}
+{"b":"cli/docs@title","z":"pnpm docs"}
+{"b":"cli/doctor#402","z":"自 v11.14.0 起提供"}
+{"b":"cli/doctor#403","z":"对 pnpm 安装及其运行环境进行诊断。"}
+{"b":"cli/doctor#404","z":"每项检查都会报告如何修复其发现的问题，当任何检查失败时该命令以非零代码退出。警告不会导致命令失败。"}
+{"b":"cli/doctor#405","z":"检查项"}
+{"b":"cli/doctor#406","z":"版本"}
+{"b":"cli/doctor#407","z":"报告正在运行的 pnpm 和 Node.js 版本。"}
+{"b":"cli/doctor#408","z":"安装方式"}
+{"b":"cli/doctor#409","z":"报告 pnpm 的安装方式，即作为 `pnpm` 包还是 `@pnpm/exe` 独立构建；并在 pnpm 由 Corepack 运行时发出警告，因为 Corepack 自行管理 pnpm 版本并导致 `pnpm self-update` 不可用。"}
+{"b":"cli/doctor#410","z":"全局 bin 目录"}
+{"b":"cli/doctor#411","z":"检查 pnpm 链接全局可执行文件所在的目录是否在 `PATH` 中且可写。如果它不在 `PATH` 中，修复方法是运行 [pnpm setup](/docs/cli/setup)。"}
+{"b":"cli/doctor#412","z":"缓存目录"}
+{"b":"cli/doctor#413","z":"检查[缓存目录](/docs/settings/other#cachedir)是否可写。"}
+{"b":"cli/doctor#414","z":"存储目录"}
+{"b":"cli/doctor#415","z":"检查[存储目录](/docs/settings/store#storedir)是否可写。未配置存储目录时跳过。"}
+{"b":"cli/doctor#416","z":"文件系统"}
+{"b":"cli/doctor#417","z":"探测从存储所在卷可用的链接策略：引用链接（写时复制）、硬链接和符号链接。这决定了包如何落到 `node_modules` 中以及安装有多快，引用链接或硬链接几乎零开销，而普通复制则不然。"}
+{"b":"cli/doctor#418","z":"如果引用链接和硬链接都不起作用，该检查会警告安装将退回到复制，并建议将存储放在与你的项目相同的文件系统上。"}
+{"b":"cli/doctor#419","z":"registry 连通性"}
+{"b":"cli/doctor#420","z":"以 15 秒超时 ping 所配置的 registry 并报告往返时间。如果无法访问 registry 或它返回错误状态，则判定失败，这通常指向网络、代理或认证配置问题。"}
+{"b":"cli/doctor#421","z":"使用 `--offline` 时跳过。"}
+{"b":"cli/doctor#422","z":"安装冒烟测试"}
+{"b":"cli/doctor#423","z":"在临时目录中完全离线地将一个一次性包作为 `file:` 依赖安装。这会端到端地演练解析、存储和链接路径，并确认正在运行的二进制文件确实能执行安装。"}
+{"b":"cli/doctor#424","z":"此检查从设计上就始终是离线的，因此 `--offline` 不会跳过它。"}
+{"b":"cli/doctor#425","z":"选项"}
+{"b":"cli/doctor#426","z":"--offline"}
+{"b":"cli/doctor#427","z":"跳过需要网络访问的检查。"}
+{"b":"cli/doctor#428","z":"--benchmark"}
+{"b":"cli/doctor#429","z":"同时对文件系统和安装检查计时，并在每个结果旁报告耗时。"}
+{"b":"cli/doctor#430","z":"--json"}
+{"b":"cli/doctor#431","z":"以 JSON 报告结果。输出是一个包含单个 `checks` 数组的对象，每个条目都有 `title`、`status`（`pass`、`warn` 或 `fail`），以及可选的 `detail`、`fix` 和 `durationMs`。"}
+{"b":"cli/doctor@title","z":"pnpm doctor"}
+{"b":"cli/env#432","z":"`pnpm env` 已废弃。请改用 [pnpm runtime](/docs/cli/runtime)。例如，`pnpm env use --global lts` 变为 `pnpm runtime set node lts -g`。"}
+{"b":"cli/env#433","z":"管理 Node.js 环境。"}
+{"b":"cli/env#434","z":"命令"}
+{"b":"cli/env#435","z":"use"}
+{"b":"cli/env#436","z":"安装并使用指定版本的 Node.js"}
+{"b":"cli/env#437","z":"安装 Node.js 的 LTS 版本："}
+{"b":"cli/env#438","z":"安装 Node.js v16："}
+{"b":"cli/env#439","z":"安装 Node.js 的预发布版本："}
+{"b":"cli/env#440","z":"安装 Node.js 的最新版本："}
+{"b":"cli/env#441","z":"使用其[代号](https://github.com/nodejs/Release/blob/main/CODENAMES.md)安装 Node.js 的 LTS 版本："}
+{"b":"cli/env#442","z":"add"}
+{"b":"cli/env#443","z":"安装指定版本的 Node.js，但不将其激活为当前版本。"}
+{"b":"cli/env#444","z":"remove, rm"}
+{"b":"cli/env#445","z":"移除指定版本的 Node.js。"}
+{"b":"cli/env#446","z":"用法示例："}
+{"b":"cli/env#447","z":"list, ls"}
+{"b":"cli/env#448","z":"列出本地或远程可用的 Node.js 版本。"}
+{"b":"cli/env#449","z":"打印本地已安装的版本："}
+{"b":"cli/env#450","z":"打印远程可用的 Node.js 版本："}
+{"b":"cli/env#451","z":"打印远程可用的 Node.js v16 版本："}
+{"b":"cli/env#452","z":"选项"}
+{"b":"cli/env#453","z":"--global, -g"}
+{"b":"cli/env#454","z":"更改会全局生效。"}
+{"b":"cli/env@title","z":"pnpm env <cmd>"}
+{"b":"cli/exec#455","z":"在某个项目范围内执行 shell 命令。"}
+{"b":"cli/exec#456","z":"`node_modules/.bin` 会被添加到 `PATH` 中，因此 `pnpm exec` 允许执行依赖的命令。"}
+{"b":"cli/exec#457","z":"示例"}
+{"b":"cli/exec#458","z":"如果你的项目将 Jest 作为依赖，就无需全局安装 Jest，直接用 `pnpm exec` 运行它即可："}
+{"b":"cli/exec#459","z":"当命令与内置 pnpm 命令不冲突时，`exec` 部分其实是可选的，因此你也可以直接运行："}
+{"b":"cli/exec#460","z":"选项"}
+{"b":"cli/exec#461","z":"`exec` 命令的任何选项都应列在 `exec` 关键字之前。列在 `exec` 关键字之后的选项会传给被执行的命令。"}
+{"b":"cli/exec#462","z":"正确。pnpm 会递归运行："}
+{"b":"cli/exec#463","z":"错误，pnpm 不会递归运行，但 `jest` 会带着 `-r` 选项被执行："}
+{"b":"cli/exec#464","z":"--recursive, -r"}
+{"b":"cli/exec#465","z":"在工作区的每个项目中执行该 shell 命令。"}
+{"b":"cli/exec#466","z":"当前包的名称可通过环境变量 `PNPM_PACKAGE_NAME` 获取。"}
+{"b":"cli/exec#467","z":"示例"}
+{"b":"cli/exec#468","z":"清理所有包的 `node_modules` 安装："}
+{"b":"cli/exec#469","z":"查看所有包的包信息。为了让环境变量生效，这应与 `--shell-mode`（或 `-c`）选项一起使用。"}
+{"b":"cli/exec#470","z":"--no-reporter-hide-prefix"}
+{"b":"cli/exec#471","z":"并行运行命令时不隐藏前缀。"}
+{"b":"cli/exec#472","z":"--resume-from <package_name>"}
+{"b":"cli/exec#473","z":"从某个特定项目恢复执行。pnpm 会跳过之前递归 `exec` 的匹配记录中已显示通过的项目。若没有这样的记录，它会省略被点名项目的传递性依赖，但仍会运行被点名的项目、它的依赖方以及所选图中无关的项目。参见[工作区任务\n编排](/docs/workspace-task-orchestration#--resume-from-package_name)。"}
+{"b":"cli/exec#474","z":"--parallel"}
+{"b":"cli/exec#475","z":"完全忽略并发和拓扑排序，在所有匹配的包中立即运行给定脚本。对于跨越许多包的长时间运行进程，例如冗长的构建过程，这是首选标志。"}
+{"b":"cli/exec#476","z":"--shell-mode, -c"}
+{"b":"cli/exec#477","z":"在 shell 中运行命令。在 UNIX 上使用 `/bin/sh`，在 Windows 上使用 `\\cmd.exe`。"}
+{"b":"cli/exec#478","z":"--report-summary"}
+{"b":"cli/exec#479","z":"--filter <package_selector>"}
+{"b":"cli/exec@title","z":"pnpm exec"}

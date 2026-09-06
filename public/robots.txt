@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pnpm.ndjp.net/sitemap-index.xml

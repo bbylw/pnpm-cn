@@ -1,0 +1,89 @@
+{"p":"workspaces","b":"workspaces#3706","k":"para","t":"pnpm has built-in support for monorepositories (AKA multi-package repositories, multi-project repositories, or monolithic repositories). You can create a workspace to unite multiple projects inside a single repository."}
+{"p":"workspaces","b":"workspaces#3707","k":"para","t":"A workspace must have a [pnpm-workspace.yaml](/docs/settings) file in its root."}
+{"p":"workspaces","b":"workspaces#3708","k":"para","t":"If you are looking into monorepo management, you might also want to look into [Bit](https://bit.dev/?utm_source=pnpm&utm_medium=workspace_page). Bit uses pnpm under the hood but automates a lot of the things that are currently done manually in a traditional workspace managed by pnpm/npm/Yarn. There's an article about `bit install` that talks about it: [Painless Monorepo Dependency Management with Bit](https://bit.dev/blog/painless-monorepo-dependency-management-with-bit-l4f9fzyw?utm_source=pnpm&utm_medium=workspace_page)."}
+{"p":"workspaces","b":"workspaces#3709","k":"heading","t":"Workspace protocol (workspace:)"}
+{"p":"workspaces","b":"workspaces#3710","k":"para","t":"If [linkWorkspacePackages](#linkworkspacepackages) is set to `true`, pnpm will link packages from the workspace if the available packages match the declared ranges. For instance, `foo@1.0.0` is linked into `bar` if `bar` has `\"foo\": \"^1.0.0\"` in its dependencies and `foo@1.0.0` is in the workspace. However, if `bar` has `\"foo\": \"2.0.0\"` in dependencies and `foo@2.0.0` is not in the workspace, `foo@2.0.0` will be installed from the registry. This behavior introduces some uncertainty."}
+{"p":"workspaces","b":"workspaces#3711","k":"para","t":"Luckily, pnpm supports the `workspace:` protocol. When this protocol is used, pnpm will refuse to resolve to anything other than a local workspace package. So, if you set `\"foo\": \"workspace:2.0.0\"`, this time installation will fail because `\"foo@2.0.0\"` isn't present in the workspace."}
+{"p":"workspaces","b":"workspaces#3712","k":"para","t":"This protocol is especially useful when the [linkWorkspacePackages](#linkworkspacepackages) option is set to `false`. In that case, pnpm will only link packages from the workspace if the `workspace:` protocol is used."}
+{"p":"workspaces","b":"workspaces#3713","k":"heading","t":"Referencing workspace packages through aliases"}
+{"p":"workspaces","b":"workspaces#3714","k":"para","t":"Let's say you have a package in the workspace named `foo`. Usually, you would reference it as `\"foo\": \"workspace:*\"`."}
+{"p":"workspaces","b":"workspaces#3715","k":"para","t":"If you want to use a different alias, the following syntax will work too: `\"bar\": \"workspace:foo@*\"`."}
+{"p":"workspaces","b":"workspaces#3716","k":"para","t":"Before publish, aliases are converted to regular aliased dependencies. The above example will become: `\"bar\": \"npm:foo@1.0.0\"`."}
+{"p":"workspaces","b":"workspaces#3717","k":"heading","t":"Referencing workspace packages through their relative path"}
+{"p":"workspaces","b":"workspaces#3718","k":"para","t":"In a workspace with 2 packages:"}
+{"p":"workspaces","b":"workspaces#3719","k":"para","t":"`bar` may have `foo` in its dependencies declared as `\"foo\": \"workspace:../foo\"`. Before publishing, these specs are converted to regular version specs supported by all package managers."}
+{"p":"workspaces","b":"workspaces#3720","k":"heading","t":"Publishing workspace packages"}
+{"p":"workspaces","b":"workspaces#3721","k":"para","t":"When a workspace package is packed into an archive (whether it's through `pnpm pack` or one of the publish commands like `pnpm publish`), we dynamically replace any `workspace:` dependency by:"}
+{"p":"workspaces","b":"workspaces#3722","k":"li","t":"The corresponding version in the target workspace (if you use `workspace:`, `workspace:*`, `workspace:~`, or `workspace:^`)"}
+{"p":"workspaces","b":"workspaces#3723","k":"li","t":"The associated semver range (for any other range type)"}
+{"p":"workspaces","b":"workspaces#3724","k":"para","t":"A bare `workspace:` without a version range is treated as `workspace:*`."}
+{"p":"workspaces","b":"workspaces#3725","k":"para","t":"So for example, if we have `foo`, `bar`, `qar`, `zoo` in the workspace and they all are at version `1.5.0`, the following:"}
+{"p":"workspaces","b":"workspaces#3726","k":"para","t":"Will be transformed into:"}
+{"p":"workspaces","b":"workspaces#3727","k":"para","t":"This feature allows you to depend on your local workspace packages while still being able to publish the resulting packages to the remote registry without needing intermediary publish steps - your consumers will be able to use your published workspaces as any other package, still benefitting from the guarantees semver offers."}
+{"p":"workspaces","b":"workspaces#3728","k":"heading","t":"Release workflow"}
+{"p":"workspaces","b":"workspaces#3729","k":"para","t":"Versioning packages inside a workspace is a complex task and pnpm currently does not provide a built-in solution for it. However, there are 2 well tested tools that handle versioning and support pnpm:"}
+{"p":"workspaces","b":"workspaces#3730","k":"para","t":"For how to set up a repository using Rush, read [this page](https://rushjs.io/pages/maintainer/setup_new_repo)."}
+{"p":"workspaces","b":"workspaces#3731","k":"para","t":"For using Changesets with pnpm, read [this guide](/docs/using-changesets)."}
+{"p":"workspaces","b":"workspaces#3732","k":"heading","t":"Troubleshooting"}
+{"p":"workspaces","b":"workspaces#3733","k":"para","t":"pnpm cannot guarantee that scripts will be run in topological order if there are cycles between workspace dependencies. If pnpm detects cyclic dependencies during installation, it will produce a warning. If pnpm is able to find out which dependencies are causing the cycles, it will display them too."}
+{"p":"workspaces","b":"workspaces#3734","k":"para","t":"If you see the message `There are cyclic workspace dependencies`, please inspect workspace dependencies declared in `dependencies`, `optionalDependencies` and `devDependencies`."}
+{"p":"workspaces","b":"workspaces#3735","k":"heading","t":"Usage examples"}
+{"p":"workspaces","b":"workspaces#3736","k":"para","t":"Here are a few of the most popular open source projects that use the workspace feature of pnpm:"}
+{"p":"workspaces","b":"workspaces#3737","k":"heading","t":"Configuration"}
+{"p":"workspaces","b":"workspaces#3738","k":"heading","t":"linkWorkspacePackages"}
+{"p":"workspaces","b":"workspaces#3739","k":"li","t":"Default: **false**"}
+{"p":"workspaces","b":"workspaces#3740","k":"li","t":"Type: **true**, **false**, **deep**"}
+{"p":"workspaces","b":"workspaces#3741","k":"para","t":"If this is enabled, locally available packages are linked to `node_modules` instead of being downloaded from the registry. This is very convenient in a monorepo. If you need local packages to also be linked to subdependencies, you can use the `deep` setting."}
+{"p":"workspaces","b":"workspaces#3742","k":"para","t":"Else, packages are downloaded and installed from the registry. However, workspace packages can still be linked by using the `workspace:` range protocol."}
+{"p":"workspaces","b":"workspaces#3743","k":"para","t":"Packages are only linked if their versions satisfy the dependency ranges."}
+{"p":"workspaces","b":"workspaces#3744","k":"heading","t":"injectWorkspacePackages"}
+{"p":"workspaces","b":"workspaces#3745","k":"li","t":"Default: **false**"}
+{"p":"workspaces","b":"workspaces#3746","k":"li","t":"Type: **Boolean**"}
+{"p":"workspaces","b":"workspaces#3747","k":"para","t":"Enables hard-linking of all local workspace dependencies instead of symlinking them. Alternatively, this can be achieved using [dependenciesMeta.injected](/docs/package_json#dependenciesmetainjected), which allows to selectively enable hard-linking for specific dependencies."}
+{"p":"workspaces","b":"workspaces#3748","k":"para","t":"Even if this setting is enabled, pnpm will prefer to deduplicate injected dependencies using symlinks—unless multiple dependency graphs are required due to mismatched peer dependencies. This behaviour is controlled by the `dedupeInjectedDeps` setting."}
+{"p":"workspaces","b":"workspaces#3749","k":"heading","t":"dedupeInjectedDeps"}
+{"p":"workspaces","b":"workspaces#3750","k":"li","t":"Default: **true**"}
+{"p":"workspaces","b":"workspaces#3751","k":"li","t":"Type: **Boolean**"}
+{"p":"workspaces","b":"workspaces#3752","k":"para","t":"When this setting is enabled, [dependencies that are injected](/docs/package_json#dependenciesmetainjected) will be symlinked from the workspace whenever possible. If the dependent project and the injected dependency reference the same peer dependencies, then it is not necessary to physically copy the injected dependency into the dependent's `node_modules`; a symlink is sufficient."}
+{"p":"workspaces","b":"workspaces#3753","k":"heading","t":"syncInjectedDepsAfterScripts"}
+{"p":"workspaces","b":"workspaces#3754","k":"para","t":"Added in: v10.5.0"}
+{"p":"workspaces","b":"workspaces#3755","k":"li","t":"Default: **undefined**"}
+{"p":"workspaces","b":"workspaces#3756","k":"li","t":"Type: **String[]**"}
+{"p":"workspaces","b":"workspaces#3757","k":"para","t":"Injected workspace dependencies are collections of hardlinks, which don't add or remove the files when their sources change. This causes problems in packages that need to be built (such as in TypeScript projects)."}
+{"p":"workspaces","b":"workspaces#3758","k":"para","t":"This setting is a list of script names. When any of these scripts are executed in a workspace package, the injected dependencies inside `node_modules` will also be synchronized."}
+{"p":"workspaces","b":"workspaces#3759","k":"heading","t":"preferWorkspacePackages"}
+{"p":"workspaces","b":"workspaces#3760","k":"li","t":"Default: **false**"}
+{"p":"workspaces","b":"workspaces#3761","k":"li","t":"Type: **Boolean**"}
+{"p":"workspaces","b":"workspaces#3762","k":"para","t":"If this is enabled, local packages from the workspace are preferred over packages from the registry, even if there is a newer version of the package in the registry."}
+{"p":"workspaces","b":"workspaces#3763","k":"para","t":"This setting is only useful if the workspace doesn't use `saveWorkspaceProtocol`."}
+{"p":"workspaces","b":"workspaces#3764","k":"heading","t":"sharedWorkspaceLockfile"}
+{"p":"workspaces","b":"workspaces#3765","k":"li","t":"Default: **true**"}
+{"p":"workspaces","b":"workspaces#3766","k":"li","t":"Type: **Boolean**"}
+{"p":"workspaces","b":"workspaces#3767","k":"para","t":"If this is enabled, pnpm creates a single `pnpm-lock.yaml` file in the root of the workspace. This also means that all dependencies of workspace packages will be in a single `node_modules` (and get symlinked to their package `node_modules` folder for Node's module resolution)."}
+{"p":"workspaces","b":"workspaces#3768","k":"para","t":"Advantages of this option:"}
+{"p":"workspaces","b":"workspaces#3769","k":"li","t":"every dependency is a singleton"}
+{"p":"workspaces","b":"workspaces#3770","k":"li","t":"faster installations in a monorepo"}
+{"p":"workspaces","b":"workspaces#3771","k":"li","t":"fewer changes in code reviews as they are all in one file"}
+{"p":"workspaces","b":"workspaces#3772","k":"para","t":"Even though all the dependencies will be hard linked into the root `node_modules`, packages will have access only to those dependencies that are declared in their `package.json`, so pnpm's strictness is preserved. This is a result of the aforementioned symbolic linking."}
+{"p":"workspaces","b":"workspaces#3773","k":"heading","t":"saveWorkspaceProtocol"}
+{"p":"workspaces","b":"workspaces#3774","k":"li","t":"Default: **rolling**"}
+{"p":"workspaces","b":"workspaces#3775","k":"li","t":"Type: **true**, **false**, **rolling**"}
+{"p":"workspaces","b":"workspaces#3776","k":"para","t":"This setting controls how dependencies that are linked from the workspace are added to `package.json`."}
+{"p":"workspaces","b":"workspaces#3777","k":"para","t":"If `foo@1.0.0` is in the workspace and you run `pnpm add foo` in another project of the workspace, below is how `foo` will be added to the dependencies field. The `savePrefix` setting also influences how the spec is created."}
+{"p":"workspaces","b":"workspaces#3778","k":"heading","t":"includeWorkspaceRoot"}
+{"p":"workspaces","b":"workspaces#3779","k":"li","t":"Default: **false**"}
+{"p":"workspaces","b":"workspaces#3780","k":"li","t":"Type: **Boolean**"}
+{"p":"workspaces","b":"workspaces#3781","k":"para","t":"When executing commands recursively in a workspace, execute them on the root workspace project as well."}
+{"p":"workspaces","b":"workspaces#3782","k":"heading","t":"ignoreWorkspaceCycles"}
+{"p":"workspaces","b":"workspaces#3783","k":"li","t":"Default: **false**"}
+{"p":"workspaces","b":"workspaces#3784","k":"li","t":"Type: **Boolean**"}
+{"p":"workspaces","b":"workspaces#3785","k":"para","t":"When set to `true`, no workspace dependency cycle warnings will be printed. It also downgrades an `ERR_PNPM_TASK_CYCLE` from a recursive run to a warning. The tasks in that cycle then have no guaranteed order relative to each other. See [Workspace task orchestration](/docs/workspace-task-orchestration#cycles)."}
+{"p":"workspaces","b":"workspaces#3786","k":"heading","t":"disallowWorkspaceCycles"}
+{"p":"workspaces","b":"workspaces#3787","k":"li","t":"Default: **false**"}
+{"p":"workspaces","b":"workspaces#3788","k":"li","t":"Type: **Boolean**"}
+{"p":"workspaces","b":"workspaces#3789","k":"para","t":"When set to `true`, installation will fail if the workspace has cycles."}
+{"p":"workspaces","b":"workspaces#3790","k":"heading","t":"failIfNoMatch"}
+{"p":"workspaces","b":"workspaces#3791","k":"li","t":"Default: **false**"}
+{"p":"workspaces","b":"workspaces#3792","k":"li","t":"Type: **Boolean**"}
+{"p":"workspaces","b":"workspaces#3793","k":"para","t":"When set to `true`, the CLI will exit with a non-zero code if no packages match the provided filters."}
+{"p":"workspaces","b":"workspaces#3794","k":"para","t":"For example, the following command will exit with a non-zero code because `bad-pkg-name` is not present in the workspace:"}
