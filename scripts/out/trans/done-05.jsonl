@@ -1,0 +1,256 @@
+{"b":"cli/publish#944","z":"将包发布到 registry。"}
+{"b":"cli/publish#945","z":"自 v11 起，`pnpm publish` 由 pnpm 原生实现，不再委托给 `npm` CLI。若你依赖的某个功能现已缺失，可前往 [pnpm/pnpm](https://github.com/pnpm/pnpm/issues) 提交 issue。作为变通方案，你仍可运行 `pnpm pack && npm publish *.tgz`。"}
+{"b":"cli/publish#946","z":"在[工作区](/docs/workspaces)内发布包时，工作区根目录的 LICENSE 文件会随包一起打包（除非该包自带许可证）。"}
+{"b":"cli/publish#947","z":"发布前，你可以通过 `package.json` 中的 [publishConfig](/docs/package_json#publishconfig) 字段覆盖部分字段。你还可以使用 [publishConfig.directory](/docs/package_json#publishconfigdirectory) 自定义要发布的子目录（通常配合第三方构建工具使用）。"}
+{"b":"cli/publish#948","z":"递归运行此命令（`pnpm -r publish`）时，pnpm 会发布所有版本尚未发布到 registry 的包。"}
+{"b":"cli/publish#949","z":"选项"}
+{"b":"cli/publish#950","z":"--recursive, -r"}
+{"b":"cli/publish#951","z":"发布工作区中的所有包。"}
+{"b":"cli/publish#952","z":"--json"}
+{"b":"cli/publish#953","z":"以 JSON 格式显示信息。"}
+{"b":"cli/publish#954","z":"--tag <tag>"}
+{"b":"cli/publish#955","z":"使用指定的 tag 发布包。默认情况下，`pnpm publish` 会更新 `latest` tag。"}
+{"b":"cli/publish#956","z":"例如："}
+{"b":"cli/publish#957","z":"--access <public|restricted>"}
+{"b":"cli/publish#958","z":"告知 registry 发布的包应为公开还是受限。"}
+{"b":"cli/publish#959","z":"--no-git-checks"}
+{"b":"cli/publish#960","z":"不检查当前分支是否为发布分支、是否干净以及与远程是否保持同步。"}
+{"b":"cli/publish#961","z":"--publish-branch <branch>"}
+{"b":"cli/publish#962","z":"默认值：**master** 和 **main**"}
+{"b":"cli/publish#963","z":"类型：**字符串**"}
+{"b":"cli/publish#964","z":"用于发布最新变更的仓库主分支。"}
+{"b":"cli/publish#965","z":"--force"}
+{"b":"cli/publish#966","z":"即使包的当前版本已存在于 registry 中，也尝试发布。"}
+{"b":"cli/publish#967","z":"--batch"}
+{"b":"cli/publish#968","z":"自 v11.7.0 起提供"}
+{"b":"cli/publish#969","z":"递归发布（`pnpm -r publish`）时，将所有选中的包通过单个 `PUT /-/pnpm/v1/publish` 请求发送到 registry，而不是每个包一个请求。"}
+{"b":"cli/publish#970","z":"目标 registry 必须实现批量发布端点（[pnpr](https://github.com/pnpm/pnpm/tree/main/pnpr) 已实现）；未实现该端点的 registry 会报 `ERR_PNPM_BATCH_PUBLISH_UNSUPPORTED` 错误。批处理遵循全有或全无：只要批中任一包校验失败，所有包都不会发布。"}
+{"b":"cli/publish#971","z":"自 v11.24.0 起，选中的包会按各自发布目标 registry 分组，每组发送一个请求。同组内的每个包必须使用同一凭据认证，共享同一个按 scope 配置的 token 即可；若某 registry 的凭据不匹配，会在*任何内容发布之前*就被拒绝，而不是在部分发布出去之后。每组完成后会运行 `publish` 和 `postpublish` 脚本。"}
+{"b":"cli/publish#972","z":"--skip-manifest-obfuscation"}
+{"b":"cli/publish#973","z":"自 v11.3.0 起提供"}
+{"b":"cli/publish#974","z":"在发布的 manifest 中保留原始 `packageManager` 字段和发布生命周期脚本，而不是将其剥离。pnpm 专有的 `pnpm` 字段仍会被省略。"}
+{"b":"cli/publish#975","z":"--report-summary"}
+{"b":"cli/publish#976","z":"将已发布包列表保存到 `pnpm-publish-summary.json`。当需要借助其他工具报告已发布包列表时很有用。"}
+{"b":"cli/publish#977","z":"`pnpm-publish-summary.json` 文件示例："}
+{"b":"cli/publish#978","z":"--dry-run"}
+{"b":"cli/publish#979","z":"执行发布所做的全部事情，但不实际发布到 registry。"}
+{"b":"cli/publish#980","z":"--otp"}
+{"b":"cli/publish#981","z":"发布需要双因素认证的包时，可用此选项指定一次性密码。"}
+{"b":"cli/publish#982","z":"你也可以通过 `PNPM_CONFIG_OTP` 环境变量提供 OTP："}
+{"b":"cli/publish#983","z":"如果 registry 要求 OTP，而你未通过环境变量或 `--otp` 标志提供，pnpm 会直接提示你输入 OTP 代码。"}
+{"b":"cli/publish#984","z":"如果 registry 要求基于 Web 的认证，pnpm 会打印一个可扫描的二维码及 URL。"}
+{"b":"cli/publish#985","z":"--provenance"}
+{"b":"cli/publish#986","z":"从受支持的云 CI/CD 系统发布时，包会被公开链接到其构建与发布的来源位置。"}
+{"b":"cli/publish#987","z":"--filter <package_selector>"}
+{"b":"cli/publish#988","z":"配置"}
+{"b":"cli/publish#989","z":"你也可以在 `pnpm-workspace.yaml` 文件中设置 `gitChecks`、`publishBranch` 选项。"}
+{"b":"cli/publish#990","z":"例如："}
+{"b":"cli/publish#991","z":"pnpm-workspace.yaml"}
+{"b":"cli/publish#992","z":"生命周期脚本"}
+{"b":"cli/publish@title","z":"pnpm publish"}
+{"b":"cli/rebuild#939","z":"重新构建一个包。"}
+{"b":"cli/rebuild#940","z":"选项"}
+{"b":"cli/rebuild#941","z":"--recursive, -r"}
+{"b":"cli/rebuild#942","z":"此命令会在 monorepo 的每个包中运行 **pnpm rebuild** 命令。"}
+{"b":"cli/rebuild#943","z":"--filter <package_selector>"}
+{"b":"cli/rebuild@title","z":"pnpm rebuild"}
+{"b":"cli/recursive#993","z":"与以下命令搭配使用时，在工作区的每个项目中运行命令："}
+{"b":"cli/recursive#994","z":"与以下命令搭配使用时，在工作区的每个项目（不含根项目）中运行命令："}
+{"b":"cli/recursive#995","z":"如果希望运行脚本时也包含根项目，将 [includeWorkspaceRoot](/docs/workspaces#includeworkspaceroot) 设置为 `true`。"}
+{"b":"cli/recursive#996","z":"用法示例："}
+{"b":"cli/recursive#997","z":"选项"}
+{"b":"cli/recursive#998","z":"--link-workspace-packages"}
+{"b":"cli/recursive#999","z":"默认值：**false**"}
+{"b":"cli/recursive#1000","z":"类型：**true, false, deep**"}
+{"b":"cli/recursive#1001","z":"将 monorepo 工作区中本地可用的包链接到 `node_modules`，而不是从 registry 重新下载。这模拟了与 `yarn workspaces` 类似的功能。"}
+{"b":"cli/recursive#1002","z":"将其设为 deep 时，本地包也可以链接到子依赖。"}
+{"b":"cli/recursive#1003","z":"建议改为在 [pnpm-workspace.yaml](/docs/workspaces#linkworkspacepackages) 中设置此项，以便在所有环境中强制相同行为。此选项的存在只是为了让你在必要时进行覆盖。"}
+{"b":"cli/recursive#1004","z":"--workspace-concurrency"}
+{"b":"cli/recursive#1005","z":"类型：**数字**"}
+{"b":"cli/recursive#1006","z":"设置同时运行的最大任务数。如需不限并发，使用 `Infinity`。"}
+{"b":"cli/recursive#1007","z":"你可以将 `workspace-concurrency` 设为 `<= 0`，此时按宿主机核心数使用：`max(1, (number of cores) - abs(workspace-concurrency))`"}
+{"b":"cli/recursive#1008","z":"--[no-]bail"}
+{"b":"cli/recursive#1009","z":"默认值：**true**"}
+{"b":"cli/recursive#1010","z":"类型：**布尔值**"}
+{"b":"cli/recursive#1011","z":"为 true 时，任一任务抛出错误即停止。"}
+{"b":"cli/recursive#1012","z":"此配置不影响退出码。即使使用 `--no-bail`，所有任务也会全部完成，但若其中任一任务失败，命令仍以非零码退出。"}
+{"b":"cli/recursive#1013","z":"示例（在每个包中运行测试，其中一个失败时继续）："}
+{"b":"cli/recursive#1014","z":"--[no-]sort"}
+{"b":"cli/recursive#1015","z":"默认值：**true**"}
+{"b":"cli/recursive#1016","z":"类型：**布尔值**"}
+{"b":"cli/recursive#1017","z":"为 `true` 时，命令遵循工作区依赖图。递归 `run` 还会应用 [tasks 设置](/docs/workspace-task-orchestration) 中的关系。传入 `--no-sort` 可移除图排序，这同时会使 `tasks`、`--reverse` 和 `--resume-from` 不再适用。"}
+{"b":"cli/recursive#1018","z":"--reverse"}
+{"b":"cli/recursive#1019","z":"默认值：**false**"}
+{"b":"cli/recursive#1020","z":"类型：**布尔值**"}
+{"b":"cli/recursive#1021","z":"为 `true` 时，依赖边会被反转。对于递归 `run`，这会反转解析后的任务图，包括通过 `dependsOn` 声明的关系。"}
+{"b":"cli/recursive#1022","z":"--filter <package_selector>"}
+{"b":"cli/recursive@title","z":"pnpm -r, --recursive"}
+{"b":"cli/remove#1023","z":"从 `node_modules` 和项目的 `package.json` 中移除包。"}
+{"b":"cli/remove#1024","z":"选项"}
+{"b":"cli/remove#1025","z":"--recursive, -r"}
+{"b":"cli/remove#1026","z":"在[工作区](/docs/workspaces)内使用时，从每个工作区包中移除某个依赖（或某些依赖）。"}
+{"b":"cli/remove#1027","z":"不在工作区内使用时，从所有子目录中发现的每个包中移除某个依赖（或某些依赖）。"}
+{"b":"cli/remove#1028","z":"--global, -g"}
+{"b":"cli/remove#1029","z":"移除一个全局包。"}
+{"b":"cli/remove#1030","z":"--save-dev, -D"}
+{"b":"cli/remove#1031","z":"仅从 `devDependencies` 中移除该依赖。"}
+{"b":"cli/remove#1032","z":"--save-optional, -O"}
+{"b":"cli/remove#1033","z":"仅从 `optionalDependencies` 中移除该依赖。"}
+{"b":"cli/remove#1034","z":"--save-prod, -P"}
+{"b":"cli/remove#1035","z":"仅从 `dependencies` 中移除该依赖。"}
+{"b":"cli/remove#1036","z":"--filter <package_selector>"}
+{"b":"cli/remove@title","z":"pnpm remove"}
+{"b":"cli/repo#1037","z":"自 v11.3.0 起提供"}
+{"b":"cli/repo#1038","z":"在浏览器中打开包的仓库 URL。"}
+{"b":"cli/repo#1039","z":"不带参数时，打开当前项目的仓库（读取自 `package.json` 的 `repository` 字段）。"}
+{"b":"cli/repo#1040","z":"带有一个或多个包名时，从 registry 拉取每个包的元数据并打开其仓库 URL。"}
+{"b":"cli/repo#1041","z":"仓库 URL 会归一化为对应的 Web 地址，例如 `git+ssh://git@github.com/foo/bar.git` 会打开为 `https://github.com/foo/bar`。当 `repository` 字段包含 `directory` 时，URL 指向仓库内的该子目录。"}
+{"b":"cli/repo#1042","z":"示例"}
+{"b":"cli/repo#1043","z":"选项"}
+{"b":"cli/repo#1044","z":"--registry <url>"}
+{"b":"cli/repo#1045","z":"给出显式包名时，从中拉取包元数据的 registry。按 scope 与命名的 registry（通过 [registries](/docs/settings/dependency-resolution#registries) 和 [namedRegistries](/docs/settings/dependency-resolution#namedregistries) 配置）均会被遵循。"}
+{"b":"cli/repo@title","z":"pnpm repo"}
+{"b":"cli/root#1046","z":"打印生效的模块目录。"}
+{"b":"cli/root#1047","z":"选项"}
+{"b":"cli/root#1048","z":"--global, -g"}
+{"b":"cli/root#1049","z":"打印全局包的模块目录。"}
+{"b":"cli/root@title","z":"pnpm root"}
+{"b":"cli/run#1112","z":"运行包 manifest 文件中定义的脚本。"}
+{"b":"cli/run#1113","z":"示例"}
+{"b":"cli/run#1114","z":"假设你在 `package.json` 中配置了 `watch` 脚本，如下所示："}
+{"b":"cli/run#1115","z":"现在你可以用 `pnpm run watch` 运行该脚本！很简单，对吧？对于想少按键、省时间的人，另需注意：所有脚本都会被别名为 pnpm 命令，因此 `pnpm watch` 只是 `pnpm run watch` 的简写（仅限与现有 pnpm 命令不同名的脚本）。"}
+{"b":"cli/run#1116","z":"运行多个脚本"}
+{"b":"cli/run#1117","z":"你可以用正则表达式代替脚本名，同时运行多个脚本。"}
+{"b":"cli/run#1118","z":"运行所有以 `watch:` 开头的脚本："}
+{"b":"cli/run#1119","z":"选择器必须写成正则表达式字面量（即用斜杠包裹）并加上引号，以免被 shell 破坏。普通字符串始终被视为字面脚本名，名称与参数完全匹配的脚本优先于正则匹配。"}
+{"b":"cli/run#1120","z":"匹配不锚定，因此 `\"/build:.*/\"` 也会匹配 `prebuild:web`。需要精确前缀时，用 `^` 和 `$` 锚定模式。"}
+{"b":"cli/run#1121","z":"匹配到的脚本按字典序运行，因此无论脚本在 `package.json` 中以何种顺序出现，选择结果都是确定性的。如需严格逐个运行，添加 [--sequential](#--sequential--s)。"}
+{"b":"cli/run#1122","z":"不支持正则表达式标志：`pnpm run \"/^build:.*/i\"` 会失败并报 `ERR_PNPM_UNSUPPORTED_SCRIPT_COMMAND_FORMAT` 错误。"}
+{"b":"cli/run#1123","z":"详情"}
+{"b":"cli/run#1124","z":"除了 shell 原有的 `PATH` 之外，`pnpm run` 还会将 `node_modules/.bin` 包含在提供给 `scripts` 的 `PATH` 中。这意味着只要安装了某个包，你就可以在脚本中像使用常规命令一样使用它。例如，如果你安装了 `eslint`，可以这样编写脚本："}
+{"b":"cli/run#1125","z":"即使 `eslint` 没有在 shell 中全局安装，它也能运行。"}
+{"b":"cli/run#1126","z":"对于工作区，`<workspace root>/node_modules/.bin` 也会被添加到 `PATH` 中，因此只要工具安装在工作区根目录，它就可以在任意工作区包的 `scripts` 中被调用。"}
+{"b":"cli/run#1127","z":"环境"}
+{"b":"cli/run#1128","z":"pnpm 会为被执行的脚本自动创建一些环境变量。你可以使用这些环境变量获取运行进程的上下文信息。"}
+{"b":"cli/run#1129","z":"以下是 pnpm 创建的环境变量："}
+{"b":"cli/run#1130","z":"**npm_command** - 包含被执行的命令名。如果执行的命令是 `pnpm run`，则该变量的值为 \"run-script\"。"}
+{"b":"cli/run#1131","z":"选项"}
+{"b":"cli/run#1132","z":"`run` 命令的任何选项都应写在脚本名之前。写在脚本名之后的选项会传给被执行的脚本。"}
+{"b":"cli/run#1133","z":"以下写法都会以 `--silent` 选项运行 pnpm CLI："}
+{"b":"cli/run#1134","z":"命令名之后的任何参数都会追加给被执行的脚本。因此如果 `watch` 运行的是 `webpack --watch`，那么此命令："}
+{"b":"cli/run#1135","z":"将运行："}
+{"b":"cli/run#1136","z":"--recursive, -r"}
+{"b":"cli/run#1137","z":"这会运行每个包 \"scripts\" 对象中的任意命令。如果某个包没有该命令，则跳过它。如果所有包都没有该命令，则命令失败。"}
+{"b":"cli/run#1138","z":"默认情况下，递归运行使用感知依赖的任务图。通过 [tasks 设置](/docs/workspace-task-orchestration) 配置脚本之间的关系。`--no-sort` 以及隐含它的 `--parallel` 会移除该排序，并随之忽略 `tasks` 声明。"}
+{"b":"cli/run#1139","z":"--if-present"}
+{"b":"cli/run#1140","z":"你可以使用 `--if-present` 标志，避免脚本未定义时以非零退出码退出。这让你可以运行可能未定义的脚本而不中断执行链。"}
+{"b":"cli/run#1141","z":"--no-bail"}
+{"b":"cli/run#1142","z":"即使其中一个失败，也继续运行其余匹配的脚本。只要有脚本失败，命令仍以非零退出码退出。"}
+{"b":"cli/run#1143","z":"--parallel"}
+{"b":"cli/run#1144","z":"完全忽略并发与拓扑排序，立即在所有匹配的包中运行给定脚本，并以带前缀的流式方式输出。对于要在许多包中长期运行的进程，这是首选标志，例如耗时的构建过程。"}
+{"b":"cli/run#1145","z":"--sequential, -s"}
+{"b":"cli/run#1146","z":"自 v11.14.0 起提供"}
+{"b":"cli/run#1147","z":"逐个运行选中的脚本。这会将 [--workspace-concurrency](/docs/cli/recursive#--workspace-concurrency) 强制设为 `1`，因此 [正则选择器](#running-multiple-scripts) 匹配到的脚本绝不会重叠运行，无论是在不同工作区包之间还是在单个包内。"}
+{"b":"cli/run#1148","z":"在递归运行中，这会在各工作区项目之间以及每个项目内部串行化脚本。`--sequential` 优先于 `--parallel`：只要设置了它，并发数就被固定为 `1`，与两个标志出现的顺序无关。"}
+{"b":"cli/run#1149","z":"对于 `pnpm run`，`-s` 是 `--sequential` 的简写。在 CLI 的其他所有位置，`-s` 仍是 `--reporter=silent` 的简写。长格式 `--silent` 在所有命令中均不受影响。"}
+{"b":"cli/run#1150","z":"--stream"}
+{"b":"cli/run#1151","z":"立即流式输出子进程的输出，并以来源包目录作为前缀。这允许不同包的输出交错出现。"}
+{"b":"cli/run#1152","z":"--aggregate-output"}
+{"b":"cli/run#1153","z":"聚合并行运行的子进程的输出，仅在子进程结束后打印。这让在使用 `--parallel` 或 `--workspace-concurrency=<number>` 运行 `pnpm -r <command>` 后阅读大量日志变得容易得多（尤其在 CI 上）。仅支持 `--reporter=append-only`。"}
+{"b":"cli/run#1154","z":"--resume-from <package_name>"}
+{"b":"cli/run#1155","z":"从指定包被请求的任务处恢复运行。pnpm 会跳过上次运行的匹配记录中已通过的任务；若没有这样的记录，则改为省略该任务的传递依赖，将其视为已完成。无论哪种情况，该任务本身、依赖它的任务以及所选图中的无关任务仍会运行。参见[工作区任务编排](/docs/workspace-task-orchestration#--resume-from-package_name)。"}
+{"b":"cli/run#1156","z":"--dry-run"}
+{"b":"cli/run#1157","z":"解析递归运行的任务图但不执行脚本。普通输出是一种稳定的拓扑顺序，并非对独立任务派发顺序的预测。"}
+{"b":"cli/run#1158","z":"`--dry-run` 仅支持递归运行。"}
+{"b":"cli/run#1159","z":"--json"}
+{"b":"cli/run#1160","z":"配合 `--dry-run` 使用时，以 JSON 打印解析出的任务及其依赖边。结构定义与示例见[检查任务图](/docs/workspace-task-orchestration#inspect-the-task-graph)。"}
+{"b":"cli/run#1161","z":"--report-summary"}
+{"b":"cli/run#1162","z":"将脚本执行结果记录到 `pnpm-exec-summary.json` 文件。"}
+{"b":"cli/run#1163","z":"`pnpm-exec-summary.json` 文件示例："}
+{"b":"cli/run#1164","z":"`status` 的可能取值：'passed'、'queued'、'running'。"}
+{"b":"cli/run#1165","z":"--reporter-hide-prefix"}
+{"b":"cli/run#1166","z":"隐藏并行运行的子进程输出中的工作区前缀，仅打印原始输出。在 CI 上运行且输出必须为不带任何前缀的特定格式时，这会很有用（例如 [GitHub Actions 注解](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message)）。仅支持 `--reporter=append-only`。"}
+{"b":"cli/run#1167","z":"--filter <package_selector>"}
+{"b":"cli/run#1168","z":"pnpm-workspace.yaml 设置"}
+{"b":"cli/run#1169","z":"[tasks 设置](/docs/workspace-task-orchestration) 为递归运行配置依赖关系和单任务并发上限。"}
+{"b":"cli/run#1170","z":"enablePrePostScripts"}
+{"b":"cli/run#1171","z":"默认值：**true**"}
+{"b":"cli/run#1172","z":"类型：**布尔值**"}
+{"b":"cli/run#1173","z":"为 `true` 时，pnpm 会自动运行任何前后脚本。因此运行 `pnpm foo` 相当于运行 `pnpm prefoo && pnpm foo && pnpm postfoo`。"}
+{"b":"cli/run#1174","z":"scriptShell"}
+{"b":"cli/run#1175","z":"默认值：**null**"}
+{"b":"cli/run#1176","z":"类型：**路径**"}
+{"b":"cli/run#1177","z":"使用 `pnpm run` 命令运行脚本时所用的 shell。"}
+{"b":"cli/run#1178","z":"例如，要在 Windows 上强制使用 Git Bash："}
+{"b":"cli/run#1179","z":"shellEmulator"}
+{"b":"cli/run#1180","z":"默认值：**false**"}
+{"b":"cli/run#1181","z":"类型：**布尔值**"}
+{"b":"cli/run#1182","z":"为 `true` 时，pnpm 会使用 [类 bash shell](https://www.npmjs.com/package/@yarnpkg/shell) 的 JavaScript 实现来执行脚本。"}
+{"b":"cli/run#1183","z":"此选项简化了跨平台脚本编写。例如，默认情况下，以下脚本会在非 POSIX 兼容系统上失败："}
+{"b":"cli/run#1184","z":"但如果将 `shellEmulator` 设置为 `true`，它就能在所有平台上工作。"}
+{"b":"cli/run#1185","z":"Node.js 22 及更高版本支持在不借助 pnpm 的情况下运行脚本。对于上面的示例，你可以用 `node --run test` 运行 `test` 脚本。但 `shellEmulator` 选项对此无效。依赖 POSIX 特性的脚本必须用 `pnpm run` 而非 `node --run` 运行，才能在非 POSIX 兼容环境中工作。"}
+{"b":"cli/run@title","z":"pnpm run"}
+{"b":"cli/runtime#1050","z":"管理运行时。"}
+{"b":"cli/runtime#1051","z":"命令"}
+{"b":"cli/runtime#1052","z":"set"}
+{"b":"cli/runtime#1053","z":"安装指定版本的运行时。"}
+{"b":"cli/runtime#1054","z":"支持的运行时"}
+{"b":"cli/runtime#1055","z":"`node` - Node.js"}
+{"b":"cli/runtime#1056","z":"自 v11.0.0 起，安装 Node.js 运行时（通过 `pnpm runtime set node …` 或 `node@runtime:<version>`）时，不会从 Node.js 归档中提取自带的 `npm`、`npx` 和 `corepack`。这使运行时安装期间 pnpm 需要计算哈希、写入内容寻址存储并建立链接的文件数大约减半。如果你仍需要 `npm`，用 `pnpm add -g npm` 单独安装。"}
+{"b":"cli/runtime#1057","z":"自 v11.22.0 起，解析 Node.js 版本（通过 [devEngines.runtime](/docs/package_json#devenginesruntime) 或 `runtime:` 说明符）快了很多。每个版本的发布元数据在签名验证通过后会被缓存到[缓存目录](/docs/cli/cache-path)，形如 `runtime:22.23.2` 的精确稳定版本不再下载 Node.js 发布索引。对于已获取过一次元数据的被锁定运行时，解析完全无需联网，从而消除了锁定已下载运行时的项目中首次调用 `node` 的延迟。"}
+{"b":"cli/runtime#1058","z":"示例"}
+{"b":"cli/runtime#1059","z":"全局安装 Node.js v22："}
+{"b":"cli/runtime#1060","z":"安装 Node.js 的 LTS 版本："}
+{"b":"cli/runtime#1061","z":"安装 Node.js 的最新版本："}
+{"b":"cli/runtime#1062","z":"安装 Node.js 的预发布版本："}
+{"b":"cli/runtime#1063","z":"使用[代号](https://github.com/nodejs/Release/blob/main/CODENAMES.md)安装 Node.js 的 LTS 版本："}
+{"b":"cli/runtime#1064","z":"安装 Deno："}
+{"b":"cli/runtime#1065","z":"安装 Bun："}
+{"b":"cli/runtime#1066","z":"选项"}
+{"b":"cli/runtime#1067","z":"--global, -g"}
+{"b":"cli/runtime#1068","z":"全局安装运行时。"}
+{"b":"cli/runtime@title","z":"pnpm runtime <cmd>"}
+{"b":"cli/sbom#1069","z":"自 v11.0.0 起提供"}
+{"b":"cli/sbom#1070","z":"为项目生成软件物料清单（SBOM）。"}
+{"b":"cli/sbom#1071","z":"支持的格式："}
+{"b":"cli/sbom#1072","z":"**CycloneDX 1.7**（JSON）"}
+{"b":"cli/sbom#1073","z":"**SPDX 2.3**（JSON）"}
+{"b":"cli/sbom#1074","z":"用法"}
+{"b":"cli/sbom#1075","z":"在工作区内，`pnpm sbom` 支持过滤。当只选中一个工作区包时，SBOM 中的根组件使用该包的元数据。"}
+{"b":"cli/sbom#1076","z":"自 v11.20.0 起，从[命名 registry](/docs/settings/dependency-resolution#namedregistries) 解析出的组件会带上 purl 的 `repository_url` 限定符（例如 `pkg:npm/foo@1.0.0?repository_url=https%3A%2F%2Fnpm.work.example.com%2F`），因此两个 registry 提供的同名同版本包不会被合并为一个组件。`namedRegistries` URL 中可能嵌入的凭据（userinfo 或查询字符串）会从限定符中剥离，而来源与路径会被保留，因为两个 registry 可能仅在路径上不同。"}
+{"b":"cli/sbom#1077","z":"CycloneDX 输出会将仅通过 `devDependencies` 可达的组件标记为 `scope: \"excluded\"` 并附加 `cdx:npm:package:development` 属性。运行时组件（包括已安装的可选依赖）使用默认的 required 作用域。"}
+{"b":"cli/sbom#1078","z":"选项"}
+{"b":"cli/sbom#1079","z":"--sbom-format <cyclonedx|spdx>"}
+{"b":"cli/sbom#1080","z":"SBOM 输出格式。此选项必填。支持的值：`cyclonedx`、`spdx`。"}
+{"b":"cli/sbom#1081","z":"--sbom-type <library|application>"}
+{"b":"cli/sbom#1082","z":"默认值：**library**"}
+{"b":"cli/sbom#1083","z":"根包的组件类型。"}
+{"b":"cli/sbom#1084","z":"--sbom-spec-version <version>"}
+{"b":"cli/sbom#1085","z":"自 v11.1.0 起提供"}
+{"b":"cli/sbom#1086","z":"输出的 CycloneDX 规范版本。仅在与 `--sbom-format cyclonedx` 搭配时有效。"}
+{"b":"cli/sbom#1087","z":"--lockfile-only"}
+{"b":"cli/sbom#1088","z":"仅使用锁文件数据（跳过从存储读取）。"}
+{"b":"cli/sbom#1089","z":"--sbom-authors <names>"}
+{"b":"cli/sbom#1090","z":"以逗号分隔的 SBOM 作者列表。将写入 CycloneDX 输出的 `metadata.authors`。"}
+{"b":"cli/sbom#1091","z":"--sbom-supplier <name>"}
+{"b":"cli/sbom#1092","z":"SBOM 供应商名称。将写入 CycloneDX 输出的 `metadata.supplier`。"}
+{"b":"cli/sbom#1093","z":"--out <path>"}
+{"b":"cli/sbom#1094","z":"自 v11.8.0 起提供"}
+{"b":"cli/sbom#1095","z":"将 SBOM 写入文件而不是 stdout。"}
+{"b":"cli/sbom#1096","z":"在路径中，`%s` 用作包名的占位符，`%v` 用作包版本的占位符。在工作区中，包含 `%s` 的路径会为每个选中的包各写一份 SBOM："}
+{"b":"cli/sbom#1097","z":"--split"}
+{"b":"cli/sbom#1098","z":"自 v11.8.0 起提供"}
+{"b":"cli/sbom#1099","z":"为每个选中的工作区包分别生成 SBOM。不使用 `--out` 时，SBOM 会以 NDJSON 形式打印到 stdout，每行一个 JSON 文档。"}
+{"b":"cli/sbom#1100","z":"当 `--split` 与 `--out` 搭配使用时，输出路径必须包含 `%s`。"}
+{"b":"cli/sbom#1101","z":"--exclude-peers"}
+{"b":"cli/sbom#1102","z":"自 v11.9.0 起提供"}
+{"b":"cli/sbom#1103","z":"从 SBOM 中排除对等依赖。仅通过这些对等依赖可达的依赖也会被排除。"}
+{"b":"cli/sbom#1104","z":"这在配合 `auto-install-peers` 时很有用，因为对等依赖会被解析进锁文件，否则看起来与普通依赖无异。"}
+{"b":"cli/sbom#1105","z":"--prod, -P"}
+{"b":"cli/sbom#1106","z":"仅包含 `dependencies` 和 `optionalDependencies`。"}
+{"b":"cli/sbom#1107","z":"--dev, -D"}
+{"b":"cli/sbom#1108","z":"仅包含 `devDependencies`。"}
+{"b":"cli/sbom#1109","z":"--no-optional"}
+{"b":"cli/sbom#1110","z":"不包含 `optionalDependencies`。"}
+{"b":"cli/sbom#1111","z":"--filter <package_selector>"}
+{"b":"cli/sbom@title","z":"pnpm sbom"}

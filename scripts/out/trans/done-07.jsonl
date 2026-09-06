@@ -1,0 +1,236 @@
+{"b":"cli/version#1416","z":"自 v11.0.0 起提供"}
+{"b":"cli/version#1417","z":"升级包的版本号。"}
+{"b":"cli/version#1418","z":"`<newversion>` 可以是上述任意一种版本提升类型，也可以是明确的 semver 版本（如 `1.2.3`）。支持工作区和 `workspace:` 协议，因此工作区包之间的交叉引用会被正确更新。"}
+{"b":"cli/version#1419","z":"在 git 仓库内运行时，`pnpm version` 会为这次升级创建一个 git 提交和一个附注标签。工作树必须是干净的（见下文的 `--no-git-checks`），并且可以用 `--no-git-tag-version` 禁用提交/标签。递归模式下总是跳过 git 提交和标签，因为单次运行中多个包可能被升级到不同的版本。"}
+{"b":"cli/version#1420","z":"用法"}
+{"b":"cli/version#1421","z":"递归发布"}
+{"b":"cli/version#1422","z":"自 v11.13.0 起提供"}
+{"b":"cli/version#1423","z":"使用 `-r` 且**不带版本参数**运行，以消费 [pnpm change](/docs/cli/change) 记录的待处理变更意图："}
+{"b":"cli/version#1424","z":"该命令根据 `.changeset/*.md` 意图文件组装出发布计划并加以执行：意图点名的每个包都会升级，凡是通过 `workspace:` 范围依赖它们的包也同样升级。随后写入 changelog，并在 `.changeset/ledger.yaml` 中记录已消费的意图。"}
+{"b":"cli/version#1425","z":"预览计划而不改动任何内容："}
+{"b":"cli/version#1426","z":"用 `--filter` 可将其缩小到工作区的一部分。选择集会被持续扩展直至稳定，因此固定组伙伴包，以及升级使其依赖范围失效的下游依赖包，都会被自动纳入。"}
+{"b":"cli/version#1427","z":"除非传入 `--dry-run` 或 `--no-git-checks`，否则工作树必须是干净的。完整流程见[发布管理](/docs/versioning)。"}
+{"b":"cli/version#1428","z":"选项"}
+{"b":"cli/version#1429","z":"--preid <prerelease-id>"}
+{"b":"cli/version#1430","z":"用作 semver 预发布部分前缀的「预发布标识符」。"}
+{"b":"cli/version#1431","z":"--message, -m <message>"}
+{"b":"cli/version#1432","z":"提交信息。消息中的任意 `%s` 会被替换为新版本。默认值为 `%s`。"}
+{"b":"cli/version#1433","z":"--tag-version-prefix <prefix>"}
+{"b":"cli/version#1434","z":"创建 git 标签时使用的前缀。默认值为 `v`（如 `v1.2.3`）。设为空字符串可完全去掉前缀。"}
+{"b":"cli/version#1435","z":"--no-git-tag-version"}
+{"b":"cli/version#1436","z":"不为版本变更创建 git 提交或标签。"}
+{"b":"cli/version#1437","z":"--no-commit-hooks"}
+{"b":"cli/version#1438","z":"提交版本升级时跳过 git 提交钩子（`--no-verify`）。"}
+{"b":"cli/version#1439","z":"--sign-git-tag"}
+{"b":"cli/version#1440","z":"用 GPG 对生成的 git 标签签名（`git tag -s`）。"}
+{"b":"cli/version#1441","z":"--no-git-checks"}
+{"b":"cli/version#1442","z":"升级版本前不检查工作树是否干净。"}
+{"b":"cli/version#1443","z":"--allow-same-version"}
+{"b":"cli/version#1444","z":"允许将版本设置为当前版本。这对 CI 流水线很有用。"}
+{"b":"cli/version#1445","z":"--recursive, -r"}
+{"b":"cli/version#1446","z":"将版本升级应用到工作区中的每个包（可用 `--filter` 缩小范围）。递归模式下会跳过 git 提交和标签的创建。"}
+{"b":"cli/version#1447","z":"--json"}
+{"b":"cli/version#1448","z":"以 JSON 格式输出被升级的包列表。"}
+{"b":"cli/version@title","z":"pnpm version"}
+{"b":"cli/view#1449","z":"自 v11.0.0 起提供"}
+{"b":"cli/view#1450","z":"从 registry 查看包元数据。"}
+{"b":"cli/view#1451","z":"用法"}
+{"b":"cli/view#1452","z":"显示某个包的全部元数据："}
+{"b":"cli/view#1453","z":"显示特定字段："}
+{"b":"cli/view#1454","z":"显示特定版本的元数据："}
+{"b":"cli/view#1455","z":"未提供包名时，`pnpm view` 会向上查找最近的项目清单文件（`package.json`、`package.yaml` 或 `package.json5`）并使用其 `name` 字段。若清单文件存在但没有 `name`，命令将失败。"}
+{"b":"cli/view#1456","z":"选项"}
+{"b":"cli/view#1457","z":"--json"}
+{"b":"cli/view#1458","z":"以 JSON 格式输出元数据。"}
+{"b":"cli/view@title","z":"pnpm view"}
+{"b":"cli/whoami#1459","z":"自 v11.0.0 起提供"}
+{"b":"cli/whoami#1460","z":"打印与当前 registry 凭据关联的用户名。"}
+{"b":"cli/whoami#1461","z":"如果未登录，命令将以错误退出。先使用 [pnpm login](/docs/cli/login) 进行身份验证。"}
+{"b":"cli/whoami#1462","z":"选项"}
+{"b":"cli/whoami#1463","z":"--registry <url>"}
+{"b":"cli/whoami#1464","z":"要检查的 registry。默认使用配置的默认 registry。"}
+{"b":"cli/whoami@title","z":"pnpm whoami"}
+{"b":"cli/why#1476","z":"显示所有依赖指定包的包。"}
+{"b":"cli/why#1477","z":"输出是一棵反向依赖树：被查找的包位于根部，其依赖方作为分支，一路回溯到工作区根。"}
+{"b":"cli/why#1478","z":"重复的子树会在输出中去重，并显示为「deduped」。"}
+{"b":"cli/why#1479","z":"选项"}
+{"b":"cli/why#1480","z":"--recursive, -r"}
+{"b":"cli/why#1481","z":"为子目录中的每个包显示指定包的依赖树；在工作区内执行时，为每个工作区包显示。"}
+{"b":"cli/why#1482","z":"--json"}
+{"b":"cli/why#1483","z":"以 JSON 格式显示信息。"}
+{"b":"cli/why#1484","z":"--long"}
+{"b":"cli/why#1485","z":"显示详细输出。"}
+{"b":"cli/why#1486","z":"--parseable"}
+{"b":"cli/why#1487","z":"显示可解析的输出而非树视图。"}
+{"b":"cli/why#1488","z":"--global, -g"}
+{"b":"cli/why#1489","z":"列出全局安装目录中的包，而非当前项目中的包。"}
+{"b":"cli/why#1490","z":"--prod, -P"}
+{"b":"cli/why#1491","z":"仅显示 `dependencies` 中包的依赖树。"}
+{"b":"cli/why#1492","z":"--dev, -D"}
+{"b":"cli/why#1493","z":"仅显示 `devDependencies` 中包的依赖树。"}
+{"b":"cli/why#1494","z":"--depth <number>"}
+{"b":"cli/why#1495","z":"仅显示特定深度内的依赖。"}
+{"b":"cli/why#1496","z":"--only-projects"}
+{"b":"cli/why#1497","z":"仅显示同时也是工作区内项目的依赖。"}
+{"b":"cli/why#1498","z":"--exclude-peers"}
+{"b":"cli/why#1499","z":"从结果中排除对等依赖（但对等依赖的依赖不会被忽略）。"}
+{"b":"cli/why#1500","z":"--filter <package_selector>"}
+{"b":"cli/why#1501","z":"--find-by <finder_name>"}
+{"b":"cli/why#1502","z":"自 v10.16.0 起提供"}
+{"b":"cli/why#1503","z":"使用在 `.pnpmfile.mjs` 中定义的 [finder 函数](/docs/finders)，按名称之外的属性匹配依赖。"}
+{"b":"cli/why@title","z":"pnpm why"}
+{"b":"cli/with#1465","z":"自 v11.0.0 起提供"}
+{"b":"cli/with#1466","z":"在单次调用中按指定版本（或当前正在运行的版本）运行 pnpm，忽略项目清单的 `packageManager` 和 `devEngines.packageManager` 字段。"}
+{"b":"cli/with#1467","z":"下载的 pnpm 使用与 [pnpm self-update](/docs/cli/self-update) 相同的机制安装，并缓存到全局虚拟存储中，供后续运行复用。"}
+{"b":"cli/with#1468","z":"示例"}
+{"b":"cli/with#1469","z":"运行全局安装的 pnpm，忽略清单中锁定的版本："}
+{"b":"cli/with#1470","z":"运行指定版本："}
+{"b":"cli/with#1471","z":"使用 dist-tag："}
+{"b":"cli/with#1472","z":"相关设置"}
+{"b":"cli/with#1473","z":"pmOnFail"}
+{"b":"cli/with#1474","z":"如果想永久跳过 `packageManager` / `devEngines.packageManager` 检查（例如因为版本管理由 asdf、mise、Volta 或类似工具处理），可将 [pmOnFail](/docs/settings/cli#pmonfail) 设置设为 `ignore`，而不必让每条命令都通过 `pnpm with` 运行："}
+{"b":"cli/with#1475","z":"pnpm-workspace.yaml"}
+{"b":"cli/with@title","z":"pnpm with"}
+{"b":"completion#1504","z":"pnpm v9+ 的补全与旧版 pnpm 的补全不兼容。如果你已为早于 v9 的版本安装过 pnpm 补全，必须先将其卸载，以确保 v9+ 的补全正常工作。方法是删除你的 dot 配置文件（以点开头的配置文件）中包含 `__tabtab` 的那段代码。"}
+{"b":"completion#1505","z":"不同于通常需要插件的其他流行包管理器，pnpm 原生支持 Bash、Zsh、Fish 及类似 shell 的命令行 tab 补全。"}
+{"b":"completion#1506","z":"要为 Bash 设置自动补全，运行："}
+{"b":"completion#1507","z":"要为 Fish 设置自动补全，运行："}
+{"b":"completion#1508","z":"g-plane/pnpm-shell-completion"}
+{"b":"completion#1509","z":"[pnpm-shell-completion](https://github.com/g-plane/pnpm-shell-completion) 是由 Pig Fang 在 Github 上维护的一个 shell 插件。"}
+{"b":"completion#1510","z":"为 `pnpm --filter <package>` 提供补全。"}
+{"b":"completion#1511","z":"为 `pnpm remove` 命令提供补全，包括工作区中的包（通过指定 `--filter` 选项）。"}
+{"b":"completion#1512","z":"为 `package.json` 中的脚本提供补全。"}
+{"b":"completion@title","z":"命令行 tab 补全"}
+{"b":"config-dependencies#1513","z":"配置依赖（config dependencies）允许你在多个项目之间共享并集中管理配置文件、设置和钩子。它们在所有常规依赖（「dependencies」「devDependencies」「optionalDependencies」）之前安装，因此非常适合用于设置自定义钩子、补丁和 catalog 条目。"}
+{"b":"config-dependencies#1514","z":"配置依赖帮助你把钩子、设置、补丁、覆盖、catalog、规则集中在一处，并在多个仓库之间使用。"}
+{"b":"config-dependencies#1515","z":"如果你的配置依赖按 `pnpm-plugin-*`、`@*/pnpm-plugin-*` 或 `@pnpm/plugin-*` 模式命名，pnpm 会自动从包根目录加载其 `pnpmfile.mjs`（回退到 `pnpmfile.cjs`）。"}
+{"b":"config-dependencies#1516","z":"如何添加配置依赖"}
+{"b":"config-dependencies#1517","z":"配置依赖定义在你的 `pnpm-workspace.yaml` 中。其完整性校验和存储在 `pnpm-lock.yaml`（位于专门的 [env 锁文件文档](/docs/lockfile)中）。"}
+{"b":"config-dependencies#1518","z":"例如，运行 `pnpm add --config my-configs` 会将以下条目添加到你的 `pnpm-workspace.yaml`："}
+{"b":"config-dependencies#1519","z":"pnpm-workspace.yaml"}
+{"b":"config-dependencies#1520","z":"配置依赖**不能**拥有自己的常规 `dependencies`。**可以**声明 `optionalDependencies`，但只有一层，`optionalDependencies` 的 `optionalDependencies` 会被忽略。"}
+{"b":"config-dependencies#1521","z":"配置依赖**不能**定义生命周期脚本（如 `preinstall`、`postinstall` 等）。"}
+{"b":"config-dependencies#1522","z":"通过 `optionalDependencies` 提供平台特定二进制"}
+{"b":"config-dependencies#1523","z":"配置依赖可以像 esbuild、swc 等工具一样，通过 `optionalDependencies` 分发平台特定二进制。每个平台二进制包用 `os`、`cpu` 和/或 `libc` 字段声明其支持的平台，pnpm 只安装与当前主机匹配的变体。匹配的二进制会以符号链接放置在全局虚拟存储中父配置依赖的旁边，因此在配置依赖内部调用 `require('my-config-platform-arch')` 可在运行时解析。"}
+{"b":"config-dependencies#1524","z":"env 锁文件会记录所有平台变体，与主机平台无关，因此锁文件可以跨机器移植。"}
+{"b":"config-dependencies#1525","z":"`optionalDependencies` 中的每个条目都必须以**确切**版本声明（如 `\"1.2.3\"`），不接受范围（`\"^1.0.0\"`、`\"~1.0.0\"`）和标签（`\"latest\"`）。这保证了配置依赖的安装可复现：对于被完整性校验锁定的父包，其解析出的子依赖不会在不同机器之间漂移。"}
+{"b":"config-dependencies#1526","z":"用法"}
+{"b":"config-dependencies#1527","z":"安装钩子中使用的依赖"}
+{"b":"config-dependencies#1528","z":"配置依赖会在你的 [.pnpmfile.mjs](/docs/pnpmfile) 中的钩子被加载**之前**安装，因此你可以从配置包中导入逻辑。"}
+{"b":"config-dependencies#1529","z":".pnpmfile.mjs"}
+{"b":"config-dependencies#1530","z":"动态更新 pnpm 设置"}
+{"b":"config-dependencies#1531","z":"借助 [updateConfig](/docs/pnpmfile#hooksupdateconfigconfig-config--promiseconfig) 钩子，你可以利用配置依赖动态更新 pnpm 的设置。"}
+{"b":"config-dependencies#1532","z":"例如，以下 `pnpmfile` 会向 pnpm 配置添加一个新的 [catalog](/docs/catalogs) 条目："}
+{"b":"config-dependencies#1533","z":"@myorg/pnpm-plugin-my-catalogs/pnpmfile.mjs"}
+{"b":"config-dependencies#1534","z":"如果你将其作为配置依赖安装："}
+{"b":"config-dependencies#1535","z":"然后即可运行："}
+{"b":"config-dependencies#1536","z":"这将安装 `is-odd@1.0.0` 并在你的 `package.json` 中添加以下内容："}
+{"b":"config-dependencies#1537","z":"这让跨项目维护和共享集中式配置与依赖版本变得简单。"}
+{"b":"config-dependencies#1538","z":"加载补丁文件"}
+{"b":"config-dependencies#1539","z":"你可以引用存储在配置依赖内部的[补丁文件](/docs/cli/patch)。"}
+{"b":"config-dependencies#1540","z":"pnpm-workspace.yaml"}
+{"b":"config-dependencies@title","z":"配置依赖"}
+{"b":"configuring#1541","z":"pnpm 设置分为两类："}
+{"b":"configuring#1542","z":"**认证与证书设置**存储在 INI 文件中。它们包含敏感凭据，不应提交到你的仓库。详见[认证设置](/docs/npmrc#auth-file-locations)。"}
+{"b":"configuring#1543","z":"**其余所有设置**存储在 YAML 文件中：项目的 `pnpm-workspace.yaml` 和全局的 `config.yaml`。"}
+{"b":"configuring#1544","z":"pnpm 也不再读取 `package.json` 中 `pnpm` 字段的设置。设置应定义在 `pnpm-workspace.yaml` 中。"}
+{"b":"configuring#1545","z":"本地项目配置"}
+{"b":"configuring#1546","z":"项目级设置写在 `pnpm-workspace.yaml` 中："}
+{"b":"configuring#1547","z":"pnpm-workspace.yaml"}
+{"b":"configuring#1548","z":"全局配置"}
+{"b":"configuring#1549","z":"全局 YAML 配置文件（`config.yaml`）位于以下路径之一："}
+{"b":"configuring#1550","z":"如果设置了 **$XDG_CONFIG_HOME** 环境变量，则为 **$XDG_CONFIG_HOME/pnpm/config.yaml**"}
+{"b":"configuring#1551","z":"Windows 上：**~/AppData/Local/pnpm/config/config.yaml**"}
+{"b":"configuring#1552","z":"macOS 上：**~/Library/Preferences/pnpm/config.yaml**"}
+{"b":"configuring#1553","z":"Linux 上：**~/.config/pnpm/config.yaml**"}
+{"b":"configuring#1554","z":"全局 `rc` 文件（仅用于 registry 和认证设置）位于："}
+{"b":"configuring#1555","z":"如果设置了 **$XDG_CONFIG_HOME** 环境变量，则为 **$XDG_CONFIG_HOME/pnpm/rc**"}
+{"b":"configuring#1556","z":"Windows 上：**~/AppData/Local/pnpm/config/rc**"}
+{"b":"configuring#1557","z":"macOS 上：**~/Library/Preferences/pnpm/rc**"}
+{"b":"configuring#1558","z":"Linux 上：**~/.config/pnpm/rc**"}
+{"b":"configuring#1559","z":"环境变量"}
+{"b":"configuring#1560","z":"名称以 `pnpm_config_`（或 `PNPM_CONFIG_`）开头的环境变量会被载入配置。它们会覆盖来自 `pnpm-workspace.yaml` 的设置，但不会覆盖 CLI 参数。"}
+{"b":"configuring#1561","z":"pnpm 不再读取 `npm_config_*` 环境变量。改用 `pnpm_config_*` 环境变量（例如用 `pnpm_config_registry` 而非 `npm_config_registry`）。"}
+{"b":"configuring#1562","z":"例如："}
+{"b":"configuring#1563","z":"如果你需要 pnpm 在多个硬盘或文件系统之间工作，可阅读[常见问题](/docs/faq#does-pnpm-work-across-multiple-drives-or-filesystems)。"}
+{"b":"configuring#1564","z":"关于管理配置的更多信息，见 [config 命令](/docs/cli/config)。"}
+{"b":"continuous-integration#1565","z":"pnpm 可以轻松地用于各种持续集成系统。"}
+{"b":"continuous-integration#1566","z":"安装 pnpm"}
+{"b":"continuous-integration#1567","z":"除 GitHub Actions（它有[自己的 action](#github-actions)）之外，使用独立脚本安装 pnpm："}
+{"b":"continuous-integration#1568","z":"有两点让这在 CI 中很方便："}
+{"b":"continuous-integration#1569","z":"**不需要 Node.js。** pnpm 是自包含的可执行文件，之后可以用 `pnpm runtime set node lts -g` 为你安装运行时，因此任务一开始并不需要 Node.js 镜像。"}
+{"b":"continuous-integration#1570","z":"**跟随项目的版本。** 引导过程安装最新的 pnpm 12，随后如果你的 `package.json` 中有 `packageManager` 或 `devEngines.packageManager` 字段，pnpm 会在首次使用时切换到该版本，因此流水线不必在两处锁定版本。"}
+{"b":"continuous-integration#1571","z":"脚本安装到 `PNPM_HOME` 并向 shell 配置文件追加内容，而 CI 任务从不重新加载这些配置。你需要自行声明 `PNPM_HOME` 并把 `$PNPM_HOME/bin` 加入 `PATH`，使用平台提供的任意机制即可，下面的示例对每个平台都做了演示。"}
+{"b":"continuous-integration#1572","z":"本页面早期版本使用 Corepack。Corepack 会安装一个 JavaScript shim 来代替 pnpm，因此每次调用 `pnpm` 都要先启动 Node.js 来运行 shim，之后 pnpm 本身才启动，这是每次调用都要付出的开销，而 CI 任务会进行大量调用。直接安装 pnpm 则完全避免了这一点。"}
+{"b":"continuous-integration#1573","z":"所有提供的配置文件中都缓存了存储。不过这并非必需，缓存存储也不保证能加快安装。因此你可以不在任务中缓存 pnpm 存储。"}
+{"b":"continuous-integration#1574","z":"同时缓存元数据缓存"}
+{"b":"continuous-integration#1575","z":"自 v11.22.0 起，[pnpm cache path](/docs/cli/cache-path) 会输出 pnpm 用于元数据缓存的目录，任务可以直接缓存它，无需复刻 pnpm 自身的路径解析。该目录还保存着锁文件校验日志，使任务可以跳过对未变更锁文件相对已配置[供应链策略](/docs/supply-chain-security)的重复检查。在存储预热之后，这是 CI 中安装开销的主要来源。"}
+{"b":"continuous-integration#1576","z":"只在受信任任务可写的位置缓存 pnpm 的存储与缓存目录。不要让不受信任的 CI 任务写入受信任任务随后会还原的存储或元数据缓存。这些目录属于受信任缓存，详见 [storeDir](/docs/settings/store#storedir) 和 [cacheDir](/docs/settings/other#cachedir) 设置。"}
+{"b":"continuous-integration#1577","z":"CI 中的锁文件行为"}
+{"b":"continuous-integration#1578","z":"当 pnpm 检测到自己在 CI 中运行时，会自动切换到冻结锁文件模式。自 v11 起，pnpm 在 CI 中遇到不兼容锁文件也会失败：如果锁文件由更新的 pnpm 主版本写入，安装将报错，而不是悄悄重写它。把 CI 中的 pnpm 版本升级到与生成锁文件时所用的版本一致。"}
+{"b":"continuous-integration#1579","z":"AppVeyor"}
+{"b":"continuous-integration#1580","z":"在 [AppVeyor](https://www.appveyor.com) 上，把以下内容加入你的 `appveyor.yml` 即可使用 pnpm 安装依赖："}
+{"b":"continuous-integration#1581","z":"appveyor.yml"}
+{"b":"continuous-integration#1582","z":"pnpm 自带运行时，因此不再需要 `Install-Product node`。如果你的构建脚本直接调用 `node`，添加 `pnpm runtime set node lts -g`。"}
+{"b":"continuous-integration#1583","z":"Azure Pipelines"}
+{"b":"continuous-integration#1584","z":"在 Azure Pipelines 上，把以下内容加入你的 `azure-pipelines.yml` 即可使用 pnpm 安装并缓存依赖："}
+{"b":"continuous-integration#1585","z":"azure-pipelines.yml"}
+{"b":"continuous-integration#1586","z":"`task.prependpath` 会将 pnpm 加入 `PATH` 供后续步骤使用；在执行安装的那个步骤内，需用完整路径调用它。"}
+{"b":"continuous-integration#1587","z":"Bitbucket Pipelines"}
+{"b":"continuous-integration#1588","z":"你可以使用 pnpm 安装并缓存依赖："}
+{"b":"continuous-integration#1589","z":".bitbucket-pipelines.yml"}
+{"b":"continuous-integration#1590","z":"一个步骤中的所有行在同一个 shell 中运行，因此 `export` 会延续到后面的行，`store-dir` 也指向缓存保存的目录。"}
+{"b":"continuous-integration#1591","z":"该示例从纯净镜像开始，让 pnpm 安装 Node.js。如果你不想更换，可以保留现有的 `node` 镜像并去掉 `pnpm runtime set` 这一行。"}
+{"b":"continuous-integration#1592","z":"CircleCI"}
+{"b":"continuous-integration#1593","z":"在 CircleCI 上，把以下内容加入你的 `.circleci/config.yml` 即可使用 pnpm 安装并缓存依赖："}
+{"b":"continuous-integration#1594","z":".circleci/config.yml"}
+{"b":"continuous-integration#1595","z":"CircleCI 在每个步骤前都会加载 `$BASH_ENV`，pnpm 由此对后续步骤生效。"}
+{"b":"continuous-integration#1596","z":"GitHub Actions"}
+{"b":"continuous-integration#1597","z":"在 GitHub Actions 上，可以按如下方式使用 pnpm 安装并缓存依赖（写入 `.github/workflows/NAME.yml`）："}
+{"b":"continuous-integration#1598","z":".github/workflows/NAME.yml"}
+{"b":"continuous-integration#1599","z":"[pnpm/setup](https://github.com/pnpm/setup) 会安装 pnpm，然后用它安装所请求的运行时，因此不需要单独的 `actions/setup-node` 步骤。它还会为你运行 `pnpm install`，`cache: true` 会在多次运行之间缓存 pnpm 存储。如果你更想自己执行安装，设为 `install: false`。"}
+{"b":"continuous-integration#1600","z":"pnpm 版本来自你的 `package.json` 中的 `packageManager` 或 `devEngines.packageManager` 字段，因此修改版本后工作流无需更新。如果你的 `package.json` 两者都没有，添加一个 `version` 输入。"}
+{"b":"continuous-integration#1601","z":"GitLab CI"}
+{"b":"continuous-integration#1602","z":"在 GitLab 上，可以按如下方式使用 pnpm 安装并缓存依赖（写入 `.gitlab-ci.yml`）："}
+{"b":"continuous-integration#1603","z":".gitlab-ci.yml"}
+{"b":"continuous-integration#1604","z":"Jenkins"}
+{"b":"continuous-integration#1605","z":"你可以使用 pnpm 安装并缓存依赖："}
+{"b":"continuous-integration#1606","z":"每个 `sh` 步骤都在独立的 shell 中运行，因此 `PATH` 在流水线的 `environment` 块中设置，而不是在步骤内部 export。"}
+{"b":"continuous-integration#1607","z":"Semaphore"}
+{"b":"continuous-integration#1608","z":"在 [Semaphore](https://semaphoreci.com) 上，把以下内容加入你的 `.semaphore/semaphore.yml` 文件即可使用 pnpm 安装并缓存依赖："}
+{"b":"continuous-integration#1609","z":".semaphore/semaphore.yml"}
+{"b":"continuous-integration#1610","z":"Travis"}
+{"b":"continuous-integration#1611","z":"在 [Travis CI](https://travis-ci.org) 上，把以下内容加入你的 `.travis.yml` 文件即可使用 pnpm 安装依赖："}
+{"b":"continuous-integration#1612","z":".travis.yml"}
+{"b":"continuous-integration@title","z":"持续集成"}
+{"b":"docker#1613","z":"在构建期间，无法在 Docker 容器与主机文件系统之间创建引用链接或硬链接。次优做法是使用 BuildKit 缓存挂载在多次构建之间共享缓存。另一种选择是使用 [podman](/docs/podman)，因为它可以在构建期间挂载 Btrfs 卷。如果使用 BuildKit 缓存挂载，请将 pnpm 存储缓存限定在相互信任的构建范围内。能被不受信任构建写入的存储缓存不应被受信任构建复用。"}
+{"b":"docker#1614","z":"pnpm 官方基础镜像"}
+{"b":"docker#1615","z":"pnpm 官方基础镜像以 [ghcr.io/pnpm/pnpm](https://github.com/pnpm/pnpm/pkgs/container/pnpm) 的形式发布在 GitHub Container Registry 上。它基于 `debian:stable-slim`，仅包含 pnpm 的[独立二进制](/docs/installation#using-a-standalone-script)，**不**捆绑 Node.js。这样你可以自行选择 Node.js 版本（在 Dockerfile 内或运行时），而不必受基础镜像自带 Node 版本的限制。"}
+{"b":"docker#1616","z":"标签"}
+{"b":"docker#1617","z":"支持的平台：`linux/amd64`、`linux/arm64`。"}
+{"b":"docker#1618","z":"安装 Node.js"}
+{"b":"docker#1619","z":"让 pnpm 根据 `package.json` 中的 [devEngines.runtime](/docs/package_json#devenginesruntime) 自动安装 Node.js："}
+{"b":"docker#1620","z":"package.json"}
+{"b":"docker#1621","z":"何时使用此镜像"}
+{"b":"docker#1622","z":"你希望 Node.js 版本由项目通过 `devEngines.runtime` 锁定，而不是由基础镜像决定。"}
+{"b":"docker#1623","z":"你希望独立升级 pnpm 和 Node.js。"}
+{"b":"docker#1624","z":"你偏好不含 Node.js 构建工具链的极简 Debian 基础镜像。"}
+{"b":"docker#1625","z":"本页面后面的实用配方都从该镜像开始并让 pnpm 安装 Node.js。如果你更想使用自己的 Node.js 基础镜像，保留配方的其余部分，改为在该镜像中[安装 pnpm](/docs/installation)。"}
+{"b":"docker#1626","z":"最小化 Docker 镜像体积与构建时间"}
+{"b":"docker#1627","z":"使用小镜像，例如 `ghcr.io/pnpm/pnpm` 或 `node:XX-slim`。"}
+{"b":"docker#1628","z":"在可行且合理的情况下利用多阶段构建。"}
+{"b":"docker#1629","z":"利用 BuildKit 缓存挂载。"}
+{"b":"docker#1630","z":"以下配方使用官方 pnpm 镜像，它已设置 `PNPM_HOME=/pnpm` 并将 `/pnpm/bin` 加入 `PATH`，因此缓存挂载指向的存储位于 `/pnpm/store`。"}
+{"b":"docker#1631","z":"把预热好的存储烘焙进镜像层（在构建期间运行安装，使后续容器无需下载）并不能让链接变成零成本。对下层镜像中文件的硬链接可以创建成功，但 overlayfs 会先把该文件复制到容器的可写层，因此安装实际上把存储的大部分内容从镜像中复制了出来，却报告为硬链接。在这种配置下，[packageImportMethod: copy](/docs/settings/node-modules#a-store-baked-into-a-container-image-layer) 通常更快，在 ext4 上更是能明显测出差异。BuildKit 缓存挂载没有这个问题，因为存储是一个挂载点而不是镜像层。"}
+{"b":"docker#1632","z":"示例 1：在 Docker 容器中构建 bundle"}
+{"b":"docker#1633","z":"由于 `devDependencies` 仅在构建 bundle 时需要，`pnpm install --prod` 会作为与 `pnpm install` 和 `pnpm run build` 分离的阶段，使最终阶段只从早期阶段复制必要的文件，从而将最终镜像的体积降到最低。"}
+{"b":"docker#1634","z":"示例 2：在 monorepo 中构建多个 Docker 镜像"}
+{"b":"docker#1635","z":"假设你有一个包含 3 个包的 monorepo：app1、app2 和 common；app1 和 app2 依赖 common，但彼此不依赖。"}
+{"b":"docker#1636","z":"如果你只想为每个包保留必要的依赖，`pnpm deploy` 可以帮你只复制必要的文件和包。"}
+{"b":"docker#1637","z":"monorepo 结构"}
+{"b":"docker#1638","z":"pnpm-workspace.yaml"}
+{"b":"docker#1639","z":"运行以下命令为 app1 和 app2 构建镜像："}
+{"b":"docker#1640","z":"示例 3：在 CI/CD 中构建"}
+{"b":"docker#1641","z":"在 CI 或 CD 环境中，BuildKit 缓存挂载可能不可用，因为虚拟机或容器是临时的，只有普通的 docker 缓存能起作用。"}
+{"b":"docker#1642","z":"因此替代方案是使用按层逐步构建的常规 Dockerfile。在这种场景下，`pnpm fetch` 是最佳选择，因为它只需要 `pnpm-lock.yaml` 文件，且只有在你更改依赖时才会丢失层缓存。"}
+{"b":"docker@title","z":"使用 Docker"}

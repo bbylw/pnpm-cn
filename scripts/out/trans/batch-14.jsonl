@@ -1,0 +1,243 @@
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2871","k":"heading","t":"overrides"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2872","k":"para","t":"This field allows you to instruct pnpm to override any dependency in the dependency graph, including peer dependencies. This is useful for enforcing all your packages to use a single version of a dependency, backporting a fix, replacing a dependency with a fork, or removing an unused dependency."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2873","k":"para","t":"Note that the overrides field can only be set at the root of the project."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2874","k":"para","t":"An example of the `overrides` field:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2875","k":"para","t":"You may specify the package the overridden dependency belongs to by separating the package selector from the dependency selector with a \">\", for example `qar@1>zoo` will only override the `zoo` dependency of `qar@1`, not for any other dependencies."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2876","k":"para","t":"To keep an overridden version in sync with the version used elsewhere in your workspace, define the version in a [catalog](/docs/catalogs) and reference it with the `catalog:` protocol. This way the version is maintained in a single place and referenced from both your dependencies and your overrides:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2877","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2878","k":"para","t":"You may also reference a named catalog with `catalog:<name>`. See [Catalogs](/docs/catalogs) for more details."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2879","k":"para","t":"If you find that your use of a certain package doesn't require one of its dependencies, you may use `-` to remove it. For example, if package `foo@1.0.0` requires a large package named `bar` for a function that you don't use, removing it could reduce install time:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2880","k":"para","t":"This feature is especially useful with `optionalDependencies`, where most optional packages can be safely skipped."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2881","k":"heading","t":"Convergence overrides"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2882","k":"para","t":"Added in: v11.13.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2883","k":"para","t":"A selector with an **empty range** — `\"pkg@\"` — is a convergence override. Unlike a regular override, which rewrites every matching edge unconditionally, a convergence override rewrites a dependency edge only when its version satisfies the range that edge declares:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2884","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2885","k":"para","t":"With the above, a dependency that declares `form-data: \"^4.0.5\"` is pinned to `4.0.6`, while one that declares `^3.0.0` keeps its own resolution. This lets compatible consumers converge on a single version — now and for any dependent added in the future — without forcing an incompatible version on the rest of the graph."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2886","k":"li","t":"The value must be an **exact version**. A range, a dist-tag, or a `-` removal fails with `ERR_PNPM_INVALID_CONVERGENCE_OVERRIDE`. A `catalog:` reference is allowed as long as the catalog entry resolves to an exact version."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2887","k":"li","t":"Only plain semver edges participate. Edges declared with `workspace:`, `catalog:`, `npm:`, a dist-tag, or a git/URL specifier have no meaningful \"satisfies\" relation and are left untouched."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2888","k":"li","t":"Convergence overrides cannot be combined with a parent selector: `\"parent>pkg@\"` is rejected."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2889","k":"li","t":"A regular override always wins over a convergence override for the same edge."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2890","k":"para","t":"When a full resolution finds that every declared range also admits a newer version, pnpm warns that the override is stale and names the version to converge on instead."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2891","k":"para","t":"Before v11.13.0, an empty range in an override selector was undocumented and behaved like a bare (unscoped) override."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2892","k":"heading","t":"Overriding peer dependencies"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2893","k":"para","t":"Overrides also apply to `peerDependencies`. The behavior depends on the type of version specifier used in the override:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2894","k":"li","t":"**Semver ranges** (e.g., `^1.0.0`), **workspace**, and **catalog** protocols: the peer dependency is overridden and remains a peer dependency."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2895","k":"li","t":"**Non-range specifiers** such as `link:` or `file:` protocols: the peer dependency is overridden and moved to `dependencies`, since these are not valid peer dependency ranges."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2896","k":"li","t":"**Removal** (`-`): the peer dependency is removed entirely."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2897","k":"para","t":"For example, to override the `react` peer dependency of `react-dom`:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2898","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2899","k":"heading","t":"packageExtensions"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2900","k":"para","t":"The `packageExtensions` fields offer a way to extend the existing package definitions with additional information. For example, if `react-redux` should have `react-dom` in its `peerDependencies` but it has not, it is possible to patch `react-redux` using `packageExtensions`:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2901","k":"para","t":"The keys in `packageExtensions` are package names or package names and semver ranges, so it is possible to patch only some versions of a package:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2902","k":"para","t":"The following fields may be extended using `packageExtensions`: `dependencies`, `optionalDependencies`, `peerDependencies`, and `peerDependenciesMeta`."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2903","k":"para","t":"A bigger example:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2904","k":"para","t":"Together with Yarn, we maintain a database of `packageExtensions` to patch broken packages in the ecosystem. If you use `packageExtensions`, consider sending a PR upstream and contributing your extension to the [@yarnpkg/extensions](https://github.com/yarnpkg/berry/blob/master/packages/yarnpkg-extensions/sources/index.ts) database."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2905","k":"heading","t":"allowedDeprecatedVersions"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2906","k":"para","t":"This setting allows muting deprecation warnings of specific packages."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2907","k":"para","t":"With the above configuration pnpm will not print deprecation warnings about any version of `request` and about v1 of `express`."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2908","k":"heading","t":"update"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2909","k":"para","t":"Added in: v11.16.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2910","k":"para","t":"Settings in this section tune the [pnpm update](/docs/cli/update) and [pnpm outdated](/docs/cli/outdated) commands."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2911","k":"heading","t":"update.ignoreDeps"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2912","k":"para","t":"Sometimes you can't update a dependency. For instance, the latest version of the dependency started to use ESM but your project is not yet in ESM. Annoyingly, such a package will be always printed out by the `pnpm outdated` command and updated, when running `pnpm update --latest`. However, you may list packages that you don't want to upgrade in the `ignoreDeps` field:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2913","k":"para","t":"Patterns are also supported, so you may ignore any packages from a scope: `@babel/*`."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2914","k":"heading","t":"update.changeset"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2915","k":"para","t":"Added in: v11.16.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2916","k":"li","t":"Default: **false**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2917","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2918","k":"para","t":"When `true`, `pnpm update` writes a [change intent](/docs/versioning) after updating workspace manifests, declaring a `patch` bump for every workspace package whose `dependencies` or `optionalDependencies` were changed by the update and a `major` bump when its `peerDependencies` changed. Same as passing [--changeset](/docs/cli/update#--changeset); pass `--no-changeset` to override the setting for a single run."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2919","k":"heading","t":"update.githubActions"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2920","k":"para","t":"Added in: v11.16.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2921","k":"li","t":"Default: **false**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2922","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2923","k":"para","t":"When `true`, `pnpm update` and `pnpm outdated` also check the GitHub Actions referenced by the repository's workflow files. Same as passing [--include-github-actions](/docs/cli/update#--include-github-actions). See [Updating GitHub Actions](/docs/cli/update#updating-github-actions)."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2924","k":"heading","t":"update.githubActionsServer"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2925","k":"para","t":"Added in: v11.17.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2926","k":"li","t":"Default: the `GITHUB_SERVER_URL` environment variable, falling back to **https://github.com**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2927","k":"li","t":"Type: **URL**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2928","k":"para","t":"The base URL of the GitHub server that hosts the repositories of the GitHub Actions referenced by the workflow files (for example, a GitHub Enterprise Server). The URL must use the `https://` or `http://` protocol. Only use `http://` for a trusted server on a trusted network: the refs used to pin actions to commit hashes are fetched over this URL, and unencrypted traffic can be tampered with."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2929","k":"para","t":"Before v11.16.0, `update.ignoreDeps` was named `updateConfig.ignoreDependencies`. The deprecated `updateConfig` setting keeps working until the next major version; when both are set, the `update` section takes precedence and a warning is printed."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2930","k":"heading","t":"supportedArchitectures"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2931","k":"para","t":"You can specify architectures for which you'd like to install optional dependencies, even if they don't match the architecture of the system running the install."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2932","k":"para","t":"For example, the following configuration tells to install optional dependencies for Windows x64:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2933","k":"para","t":"Whereas this configuration will install optional dependencies for Windows, macOS, and the architecture of the system currently running the install. It includes artifacts for both x64 and arm64 CPUs:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2934","k":"para","t":"Additionally, `supportedArchitectures` also supports specifying the `libc` of the system."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2935","k":"heading","t":"ignoredOptionalDependencies"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2936","k":"para","t":"If an optional dependency has its name included in this array, it will be skipped. For example:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2937","k":"heading","t":"minimumReleaseAge"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2938","k":"para","t":"Added in: v10.16.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2939","k":"li","t":"Default: **1440** (since v11), **0** (before v11)"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2940","k":"li","t":"Type: **number (minutes)**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2941","k":"para","t":"To reduce the risk of installing compromised packages, you can delay the installation of newly published versions. In most cases, malicious releases are discovered and removed from the registry within an hour."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2942","k":"para","t":"`minimumReleaseAge` defines the minimum number of minutes that must pass after a version is published before pnpm will install it. This applies to **all dependencies**, including transitive ones."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2943","k":"para","t":"For example, the following setting ensures that only packages released at least one day ago can be installed:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2944","k":"heading","t":"minimumReleaseAgeExclude"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2945","k":"para","t":"Added in: v10.16.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2946","k":"li","t":"Default: **undefined**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2947","k":"li","t":"Type: **string[]**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2948","k":"para","t":"If you set `minimumReleaseAge` but need certain dependencies to always install the newest version immediately, you can list them under `minimumReleaseAgeExclude`. The exclusion works by **package name** and applies to all versions of that package."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2949","k":"para","t":"In this case, all dependencies must be at least a day old, except `webpack` and `react`, which are installed immediately upon release."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2950","k":"para","t":"Added in: v10.17.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2951","k":"para","t":"You may also use patterns. For instance, allow all packages from your org:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2952","k":"para","t":"Added in: v10.19.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2953","k":"para","t":"You may also exempt specific versions (or a list of specific versions using a disjunction with `||`). This allows pinning exceptions to mature-time rules:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2954","k":"heading","t":"minimumReleaseAgeExcludePrune"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2955","k":"para","t":"Added in: v11.22.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2956","k":"li","t":"Default: **false**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2957","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2958","k":"para","t":"When set to `true`, `pnpm add`, `pnpm update`, and `pnpm remove` prune the entries of [minimumReleaseAgeExclude](#minimumreleaseageexclude) in `pnpm-workspace.yaml` that the freshly written lockfile no longer resolves: a version that is gone is dropped (an entry is removed once none of its versions remain), and an entry for a package that is no longer in the lockfile is removed too. Name patterns (`@myorg/*`) are always kept."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2959","k":"para","t":"The cleanup is skipped when the install's lockfile does not cover the whole workspace ([sharedWorkspaceLockfile: false](/docs/workspaces#sharedworkspacelockfile)), since entries another project still needs would look stale."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2960","k":"heading","t":"minimumReleaseAgeIgnoreMissingTime"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2961","k":"para","t":"Added in: v11.0.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2962","k":"li","t":"Default: **true**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2963","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2964","k":"para","t":"When `true`, pnpm skips the [minimumReleaseAge](#minimumreleaseage) check for a package whose registry metadata does not include the `time` field (some private registries and mirrors omit it). Set to `false` to fail resolution in that case instead of installing the package."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2965","k":"para","t":"Since v11.23.0, the setting also governs [trustPolicy](#trustpolicy), which reads the same publish dates: `trustPolicy: no-downgrade` skips a package the registry cannot date, with a warning, rather than failing the install with `ERR_PNPM_MISSING_TIME`."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2966","k":"para","t":"The opt-in covers a registry that cannot date its releases, not a package a registry says it never published: during [lockfile verification](/docs/supply-chain-security), a lockfile entry missing from a packument that does date every version it lists remains a hard failure."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2967","k":"heading","t":"minimumReleaseAgeStrict"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2968","k":"para","t":"Added in: v11.0.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2969","k":"li","t":"Default: **true** if [minimumReleaseAge](#minimumreleaseage) is explicitly configured, **false** otherwise"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2970","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2971","k":"para","t":"Controls how pnpm behaves when no version of a dependency satisfies the [minimumReleaseAge](#minimumreleaseage) constraint within the requested range. When `false`, pnpm falls back to a version that doesn't meet the `minimumReleaseAge` constraint so installation can still succeed. When `true`, pnpm fails resolution instead."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2972","k":"para","t":"The default depends on whether you configured `minimumReleaseAge` yourself: if you set it explicitly (via `pnpm-workspace.yaml`, the CLI, or environment variables), strict mode is on by default so the setting is enforced. The built-in default of `minimumReleaseAge` (1440 minutes) is non-strict for backward compatibility."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2973","k":"heading","t":"trustPolicy"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2974","k":"para","t":"Added in: v10.21.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2975","k":"li","t":"Default: **off**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2976","k":"li","t":"Type: **no-downgrade** | **off**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2977","k":"para","t":"When set to `no-downgrade`, pnpm will fail if a package's trust level has decreased compared to previous releases. For example, if a package was previously published by a trusted publisher but now only has provenance or no trust evidence, installation will fail. This helps prevent installing potentially compromised versions. Trust checks are based solely on publish date, not semver. A package cannot be installed if any earlier-published version had stronger trust evidence. Starting in v10.24.0, prerelease versions are ignored when evaluating trust evidence for a non-prerelease install, so a trusted prerelease cannot block a stable release that lacks trust evidence."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2978","k":"heading","t":"trustPolicyExclude"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2979","k":"para","t":"Added in: v10.22.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2980","k":"li","t":"Type: **string[]**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2981","k":"para","t":"A list of package selectors that should be excluded from the trust policy check. This allows you to install specific packages or versions even if they don't satisfy the `trustPolicy` requirement."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2982","k":"para","t":"For example:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2983","k":"heading","t":"trustPolicyIgnoreAfter"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2984","k":"para","t":"Added in: v10.27.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2985","k":"li","t":"Default: **undefined**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2986","k":"li","t":"Type: **number (minutes)**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2987","k":"para","t":"Allows ignoring the trust policy check for packages published more than the specified number of minutes ago. This is useful when enabling strict trust policies, as it allows older versions of packages (which may lack a process for publishing with signatures or provenance) to be installed without manual exclusion, assuming they are safe due to their age."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2988","k":"heading","t":"trustLockfile"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2989","k":"para","t":"Added in: v11.3.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2990","k":"li","t":"Default: **false**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2991","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2992","k":"para","t":"When `true`, `pnpm install` skips the supply-chain verification pass that re-applies [minimumReleaseAge](#minimumreleaseage) and [trustPolicy](#trustpolicy) to every entry in the loaded lockfile. The install treats the lockfile as already trusted."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2993","k":"para","t":"Useful in environments where the lockfile is effectively part of the trusted base — closed-source projects where every commit comes from a trusted author. A poisoned lockfile (one a contributor authored under a weaker policy than CI enforces) can slip through, so leave this `false` whenever outside collaborators can edit the lockfile."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2994","k":"para","t":"On large workspaces the verification pass holds per-package registry metadata in memory for the duration of the install; disabling it cuts memory usage at the cost of the supply-chain check. Most projects with the default `frozenLockfile` CI workflow do not need to set this."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2995","k":"heading","t":"blockExoticSubdeps"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2996","k":"para","t":"Added in: v10.26.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2997","k":"li","t":"Default: **true**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2998","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#2999","k":"para","t":"When set to `true`, only direct dependencies (those listed in your root `package.json`) may use exotic sources (like git repositories or direct tarball URLs). All transitive dependencies must be resolved from a trusted source, such as the configured registry, local file paths, workspace links, or trusted GitHub repositories (node, bun, deno)."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3000","k":"para","t":"This setting helps secure the dependency supply chain by preventing transitive dependencies from pulling in code from untrusted locations."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3001","k":"para","t":"Exotic sources include:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3002","k":"li","t":"Git repositories (`git+ssh://...`)"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3003","k":"li","t":"Direct URL links to tarballs (`https://.../package.tgz`)"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3004","k":"heading","t":"registries"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3005","k":"para","t":"Added in: v11.0.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3006","k":"li","t":"Default: **undefined**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3007","k":"li","t":"Type: **Record<string, RegistryDeclaration>** or **Record<string, string>**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3008","k":"para","t":"Declares the registries the project installs from. Since v11.23.0, each registry is declared once, keyed by its URL, with everything pnpm knows about it in the entry: the `scopes` routed to it, the bare-specifier `prefix` it answers to, and how the server lays out tarball URLs (`serverType`, `supportsTimeField`). The full description of each field is on the dedicated [Registries](/docs/registries) page."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3009","k":"para","t":"The older shape, mapping scopes to URLs, is still accepted. The `default` key sets the main registry (equivalent to the `registry` `.npmrc` setting), and scoped keys configure registries for specific package scopes:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3010","k":"para","t":"The two shapes cannot be mixed in one map."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3011","k":"para","t":"Since v11.11.0, this setting may also be defined in the [global configuration file](/docs/cli/config) (`config.yaml`), which is useful for registries that should apply to every project on the machine rather than to a single repository. Only the routes (`scopes` and `prefix`) are read from there; `serverType` and `supportsTimeField` shape the lockfile, so they are read only from `pnpm-workspace.yaml` — see [where the setting may live](/docs/registries#where-the-setting-may-live)."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3012","k":"heading","t":"namedRegistries"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3013","k":"para","t":"Added in: v11.1.0"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3014","k":"li","t":"Default: **undefined**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3015","k":"li","t":"Type: **Record<string, string>**"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3016","k":"para","t":"Deprecated since v11.23.0: declare a `prefix` in [registries](#registries) instead — see the [Registries](/docs/registries) page. `namedRegistries` is still read, but only for prefixes that `registries` does not declare; when both settings declare prefixes, pnpm warns. Everything below about aliases — the built-in ones, reserved names, and the lockfile keys — applies to `prefix`-declared aliases the same way."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3017","k":"para","t":"Defines named registry aliases that can be used as a prefix when installing packages, in the style of [vlt's named-registry aliases](https://docs.vlt.sh/cli/registries). For example, with the following configuration:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3018","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3019","k":"para","t":"`pnpm add work:@corp/lib@^2.0.0` resolves `@corp/lib@^2.0.0` against `https://npm.work.example.com/`."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3020","k":"para","t":"Authentication is picked up from the existing per-URL `.npmrc` entries (e.g. `//npm.pkg.github.com/:_authToken=...`), so no separate auth mechanism is required."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3021","k":"para","t":"Since v11.11.0, this setting may also be defined in the [global configuration file](/docs/cli/config) (`config.yaml`), so an alias like `work:` can be shared across every project on the machine."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3022","k":"heading","t":"Built-in aliases"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3023","k":"para","t":"Two aliases work without any configuration:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3024","k":"para","t":"Entries you define under `namedRegistries` are merged on top of these, so either one can be overridden — GitHub Enterprise Server users point `gh` at their own host, and an organization that mirrors or proxies npmjs should point `npmjs` at the mirror:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3025","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3026","k":"para","t":"`npmjs:` pins a dependency to the public registry even when the default [registry](#registries) points somewhere else, such as an internal proxy:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3027","k":"para","t":"package.json"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3028","k":"para","t":"The `npm:` prefix cannot do this — it is the [alias protocol](/docs/aliases) (`npm:<name>@<range>`) and resolves through whatever `registry` points at."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3029","k":"para","t":"The built-in URLs are also the prefixes that a tarball URL recorded in the lockfile is matched against when pnpm verifies a package. If you proxy npmjs and do not override the alias, an entry whose tarball URL is on `registry.npmjs.org` is verified against the public registry rather than against your mirror. This only affects lockfiles that record such a URL — a canonical URL for your configured registry is omitted from the lockfile — and only when a tarball-URL, [minimumReleaseAge](#minimumreleaseage), or [trustPolicy](#trustpolicy) check runs."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3030","k":"heading","t":"Reserved alias names"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3031","k":"para","t":"Since v11.20.0, an alias that shadows a reserved dependency specifier prefix (`file`, `link`, `workspace`, `runtime`, `npm`, `jsr`, `git`, `github`, `gitlab`, `bitbucket`, `catalog`, `custom`, `http`, `https`, `ssh`) is rejected with `ERR_PNPM_RESERVED_NAMED_REGISTRY_NAME`. Previously such an alias was silently shadowed by the corresponding resolver. An alias must also start with a letter and contain only letters, digits, `.`, `_`, and `-`."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3032","k":"heading","t":"Named registries in the lockfile"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3033","k":"para","t":"Since v11.20.0, a package resolved from a named registry is recorded in `pnpm-lock.yaml` under a registry-qualified key, `<name>@<registryName>:<version>`:"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3034","k":"para","t":"pnpm-lock.yaml"}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3035","k":"para","t":"Before v11.20.0, packages were keyed by `name@version` alone, so the same name and version served by two registries collapsed onto a single entry and whichever resolved first decided the tarball that every consumer got. That is a package-substitution risk: a package you expect from your private registry could be installed from another registry that publishes the same name and version, with nothing in the lockfile to reveal it. Registry-qualified keys give each registry its own entry and pin which one a dependency came from."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3036","k":"para","t":"The lockfile format version is unchanged, and qualified keys appear only for packages resolved from a named registry — including the built-in `gh:` and `npmjs:` aliases, which need no `namedRegistries` entry. A project that installs nothing through an alias sees no difference, and older pnpm versions keep reading the file."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3037","k":"para","t":"If any dependency is installed through an alias, your first non-frozen install on v11.20.0 or newer re-keys those entries, which shows up as a lockfile diff. Commit it — that diff is the fix being applied. Review it too: an entry that moves to a registry you did not expect is worth investigating."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3038","k":"para","t":"Have everyone working on the project move to v11.20.0 or newer first. An older pnpm reads the re-keyed lockfile fine, and frozen installs are unaffected, but it does not produce registry-qualified keys itself: any install that updates the lockfile writes those entries back to the old shape, and the next install on a current pnpm re-qualifies them. The lockfile then flips back and forth, and while it is in the old shape the project is exposed again. Because the lockfile format version is deliberately unchanged, pnpm cannot detect this and warn you."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3039","k":"para","t":"There is no setting to keep the old behavior — the old shape is the vulnerability."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3040","k":"para","t":"Every non-built-in alias that the lockfile references must stay declared — through `prefix` in [registries](#registries) or through `namedRegistries`. Reading an entry whose alias is gone fails with `ERR_PNPM_MISSING_NAMED_REGISTRY` rather than falling back to the default registry, since that would fetch a different package. Renaming an alias re-resolves the packages that used it."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution#3041","k":"para","t":"Tarball URLs that follow the standard registry layout are no longer written to the lockfile for named-registry packages; they are recomputed from the alias's declared URL on demand."}
+{"p":"settings/dependency-resolution","b":"settings/dependency-resolution@title","k":"title","t":"Dependency Resolution Settings"}
+{"p":"settings/network","b":"settings/network#3042","k":"heading","t":"Network Settings"}
+{"p":"settings/network","b":"settings/network#3043","k":"heading","t":"httpsProxy"}
+{"p":"settings/network","b":"settings/network#3044","k":"li","t":"Default: **null**"}
+{"p":"settings/network","b":"settings/network#3045","k":"li","t":"Type: **url**"}
+{"p":"settings/network","b":"settings/network#3046","k":"para","t":"A proxy to use for outgoing HTTPS requests. If the `HTTPS_PROXY`, `https_proxy`, `HTTP_PROXY` or `http_proxy` environment variables are set, their values will be used instead."}
+{"p":"settings/network","b":"settings/network#3047","k":"para","t":"If your proxy URL contains a username and password, make sure to URL-encode them. For instance:"}
+{"p":"settings/network","b":"settings/network#3048","k":"para","t":"Do not encode the colon (`:`) between the username and password."}
+{"p":"settings/network","b":"settings/network#3049","k":"para","t":"Since v11.20.0, an empty value reads as unset instead of failing the install with `ERR_PNPM_INVALID_PROXY`, so a shell that exports `HTTPS_PROXY=` simply disables the proxy. Setting the value to `false` or `null` in `pnpm-workspace.yaml` or the `.npmrc` also turns proxying off. On the command line, `false` and `null` are ordinary host names, since a flag carries its value verbatim."}
+{"p":"settings/network","b":"settings/network#3050","k":"heading","t":"httpProxy"}
+{"p":"settings/network","b":"settings/network#3051","k":"li","t":"Default: **null**"}
+{"p":"settings/network","b":"settings/network#3052","k":"li","t":"Type: **url**"}
+{"p":"settings/network","b":"settings/network#3053","k":"para","t":"A proxy to use for outgoing HTTP requests. If the `HTTP_PROXY` or `http_proxy` environment variables are set, proxy settings will be honored by the underlying request library."}
+{"p":"settings/network","b":"settings/network#3054","k":"para","t":"Empty, `false`, and `null` values behave as described for [httpsProxy](#httpsproxy)."}
+{"p":"settings/network","b":"settings/network#3055","k":"para","t":"The `.npmrc` also supports npm's legacy `proxy` setting, which is used as the fallback for both `https-proxy` and `http-proxy`. Since v11.20.0, an empty `proxy=` reads as unset and therefore no longer suppresses the `HTTPS_PROXY` environment variable, and `proxy=false` (or `proxy: false` in `pnpm-workspace.yaml`) turns proxying off instead of being read as a proxy host named `false` ([#13533](https://github.com/pnpm/pnpm/issues/13533))."}
+{"p":"settings/network","b":"settings/network#3056","k":"heading","t":"noProxy"}
+{"p":"settings/network","b":"settings/network#3057","k":"li","t":"Default: **null**"}
+{"p":"settings/network","b":"settings/network#3058","k":"li","t":"Type: **String**"}
+{"p":"settings/network","b":"settings/network#3059","k":"para","t":"A comma-separated string of domain extensions that a proxy should not be used for."}
+{"p":"settings/network","b":"settings/network#3060","k":"para","t":"Empty, `false`, and `null` values behave as described for [httpsProxy](#httpsproxy)."}
+{"p":"settings/network","b":"settings/network#3061","k":"heading","t":"localAddress"}
+{"p":"settings/network","b":"settings/network#3062","k":"li","t":"Default: **undefined**"}
+{"p":"settings/network","b":"settings/network#3063","k":"li","t":"Type: **IP Address**"}
+{"p":"settings/network","b":"settings/network#3064","k":"para","t":"The IP address of the local interface to use when making connections to the npm registry."}
+{"p":"settings/network","b":"settings/network#3065","k":"heading","t":"maxsockets"}
+{"p":"settings/network","b":"settings/network#3066","k":"li","t":"Default: **networkConcurrency x 3**"}
+{"p":"settings/network","b":"settings/network#3067","k":"li","t":"Type: **Number**"}
+{"p":"settings/network","b":"settings/network#3068","k":"para","t":"The maximum number of connections to use per origin (protocol/host/port combination)."}
+{"p":"settings/network","b":"settings/network#3069","k":"para","t":"`maxSockets` is accepted as an alias. Both spellings are read from `pnpm-workspace.yaml`, the global configuration file, the environment, and the command line, in that increasing order of precedence — so a value passed on the command line wins even when the two sides spelled the setting differently."}
+{"p":"settings/network","b":"settings/network#3070","k":"heading","t":"strictSsl"}
+{"p":"settings/network","b":"settings/network#3071","k":"li","t":"Default: **true**"}
+{"p":"settings/network","b":"settings/network#3072","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/network","b":"settings/network#3073","k":"para","t":"Whether or not to do SSL key validation when making requests to the registry via HTTPS."}
+{"p":"settings/network","b":"settings/network#3074","k":"heading","t":"Request Settings"}
+{"p":"settings/network","b":"settings/network#3075","k":"heading","t":"gitShallowHosts"}
+{"p":"settings/network","b":"settings/network#3076","k":"li","t":"Default: **['github.com', 'gist.github.com', 'gitlab.com', 'bitbucket.com', 'bitbucket.org']**"}
+{"p":"settings/network","b":"settings/network#3077","k":"li","t":"Type: **string[]**"}
+{"p":"settings/network","b":"settings/network#3078","k":"para","t":"When fetching dependencies that are Git repositories, if the host is listed in this setting, pnpm will use shallow cloning to fetch only the needed commit, not all the history."}
+{"p":"settings/network","b":"settings/network#3079","k":"heading","t":"networkConcurrency"}
+{"p":"settings/network","b":"settings/network#3080","k":"li","t":"Default: **auto (workers × 3 clamped to 16-64)**"}
+{"p":"settings/network","b":"settings/network#3081","k":"li","t":"Type: **Number**"}
+{"p":"settings/network","b":"settings/network#3082","k":"para","t":"Controls the maximum number of HTTP(S) requests to process simultaneously."}
+{"p":"settings/network","b":"settings/network#3083","k":"para","t":"As of v10.24.0, pnpm automatically selects a value between 16 and 64 based on the number of workers (networkConcurrency = clamp(workers × 3, 16, 64)). Set this value explicitly to override the automatic scaling."}
+{"p":"settings/network","b":"settings/network#3084","k":"heading","t":"fetchRetries"}
+{"p":"settings/network","b":"settings/network#3085","k":"li","t":"Type: **Number**"}
+{"p":"settings/network","b":"settings/network#3086","k":"para","t":"How many times to retry if pnpm fails to fetch from the registry."}
+{"p":"settings/network","b":"settings/network#3087","k":"heading","t":"fetchRetryFactor"}
+{"p":"settings/network","b":"settings/network#3088","k":"li","t":"Type: **Number**"}
+{"p":"settings/network","b":"settings/network#3089","k":"para","t":"The exponential factor for retry backoff."}
+{"p":"settings/network","b":"settings/network#3090","k":"heading","t":"fetchRetryMintimeout"}
+{"p":"settings/network","b":"settings/network#3091","k":"li","t":"Default: **10000 (10 seconds)**"}
+{"p":"settings/network","b":"settings/network#3092","k":"li","t":"Type: **Number**"}
+{"p":"settings/network","b":"settings/network#3093","k":"para","t":"The lower bound (in milliseconds) of the retry exponential backoff."}
+{"p":"settings/network","b":"settings/network#3094","k":"heading","t":"fetchRetryMaxtimeout"}
+{"p":"settings/network","b":"settings/network#3095","k":"li","t":"Default: **60000 (1 minute)**"}
+{"p":"settings/network","b":"settings/network#3096","k":"li","t":"Type: **Number**"}
+{"p":"settings/network","b":"settings/network#3097","k":"para","t":"The upper bound (in milliseconds) of the retry exponential backoff."}
+{"p":"settings/network","b":"settings/network#3098","k":"heading","t":"fetchTimeout"}
+{"p":"settings/network","b":"settings/network#3099","k":"li","t":"Default: **60000 (1 minute)**"}
+{"p":"settings/network","b":"settings/network#3100","k":"li","t":"Type: **Number**"}
+{"p":"settings/network","b":"settings/network#3101","k":"para","t":"The maximum amount of time to wait for HTTP requests to connect and complete. This time should be enough to download the largest package over a reasonable connection."}
+{"p":"settings/network","b":"settings/network#3102","k":"heading","t":"fetchWarnTimeoutMs"}
+{"p":"settings/network","b":"settings/network#3103","k":"para","t":"Added in: v10.18.0"}
+{"p":"settings/network","b":"settings/network#3104","k":"li","t":"Default: **10000 ms (10 seconds)**"}
+{"p":"settings/network","b":"settings/network#3105","k":"li","t":"Type: **Number**"}
+{"p":"settings/network","b":"settings/network#3106","k":"para","t":"A warning message is displayed if a metadata request to the registry takes longer than the specified threshold (in milliseconds)."}
+{"p":"settings/network","b":"settings/network#3107","k":"heading","t":"fetchMinSpeedKiBps"}
+{"p":"settings/network","b":"settings/network#3108","k":"para","t":"Added in: v10.18.0"}
+{"p":"settings/network","b":"settings/network#3109","k":"li","t":"Default: **50 KiB/s**"}
+{"p":"settings/network","b":"settings/network#3110","k":"li","t":"Type: **Number**"}
+{"p":"settings/network","b":"settings/network#3111","k":"para","t":"A warning message is displayed if the download speed of a tarball from the registry falls below the specified threshold (in KiB/s)."}
+{"p":"settings/network","b":"settings/network@title","k":"title","t":"Network & Request Settings"}

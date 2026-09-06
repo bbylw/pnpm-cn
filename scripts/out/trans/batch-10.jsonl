@@ -1,0 +1,221 @@
+{"p":"npmrc","b":"npmrc#2077","k":"para","t":"The settings on this page contain sensitive credentials. Most use npm-compatible INI files; the structured [_auth](#_auth) setting lives in the global YAML config. Do not commit credential files to your repository."}
+{"p":"npmrc","b":"npmrc#2078","k":"para","t":"For non-sensitive settings (proxy, SSL, registries, etc.), see [Settings (pnpm-workspace.yaml)](/docs/settings)."}
+{"p":"npmrc","b":"npmrc#2079","k":"heading","t":"Auth file locations"}
+{"p":"npmrc","b":"npmrc#2080","k":"para","t":"pnpm reads npm-compatible INI authentication settings from the following files, in order of priority (highest first):"}
+{"p":"npmrc","b":"npmrc#2081","k":"li","t":"**<workspace root>/.npmrc** — project-level auth. This file should be listed in `.gitignore`."}
+{"p":"npmrc","b":"npmrc#2082","k":"li","t":"**<pnpm config>/auth.ini** — the legacy user-level auth file. pnpm 11 writes login tokens here; pnpm 12.1 and newer writes structured `_auth` to the global `config.yaml` instead, but continues to read this file."}
+{"p":"npmrc","b":"npmrc#2083","k":"li","t":"**~/.npmrc** — read as a fallback for easier migration from npm. Use the [npmrcAuthFile](/docs/settings/other#npmrcauthfile) setting to point to a different file."}
+{"p":"npmrc","b":"npmrc#2084","k":"para","t":"The global `config.yaml` may additionally carry pnpm's structured [_auth](#_auth) setting. pnpm 12.1 and newer writes login tokens there."}
+{"p":"npmrc","b":"npmrc#2085","k":"para","t":"The `<pnpm config>` directory is:"}
+{"p":"npmrc","b":"npmrc#2086","k":"li","t":"If the **$XDG_CONFIG_HOME** env variable is set: **$XDG_CONFIG_HOME/pnpm/**"}
+{"p":"npmrc","b":"npmrc#2087","k":"li","t":"On Windows: **~/AppData/Local/pnpm/config/**"}
+{"p":"npmrc","b":"npmrc#2088","k":"li","t":"On macOS: **~/Library/Preferences/pnpm/**"}
+{"p":"npmrc","b":"npmrc#2089","k":"li","t":"On Linux: **~/.config/pnpm/**"}
+{"p":"npmrc","b":"npmrc#2090","k":"heading","t":"Environment variables in auth settings"}
+{"p":"npmrc","b":"npmrc#2091","k":"para","t":"Values in the **user-level** auth files (`<pnpm config>/auth.ini` and the user `.npmrc`) may reference environment variables using the `${NAME}` syntax:"}
+{"p":"npmrc","b":"npmrc#2092","k":"para","t":"Since v11.5.3, environment variables are **not** expanded in the **project-level** `.npmrc` at the workspace root for the following settings:"}
+{"p":"npmrc","b":"npmrc#2093","k":"li","t":"registry and proxy URLs (`registry`, `@scope:registry`, proxy settings);"}
+{"p":"npmrc","b":"npmrc#2094","k":"li","t":"URL-scoped keys (keys starting with `//`);"}
+{"p":"npmrc","b":"npmrc#2095","k":"li","t":"credential values (`_authToken`, `_auth`, `_password`, `username`, `tokenHelper`, `cert`, `key`)."}
+{"p":"npmrc","b":"npmrc#2096","k":"para","t":"A setting that contains a `${...}` placeholder in any of these positions is ignored, and pnpm prints a warning. The project `.npmrc` is checked out together with the repository, so expanding environment variables there would allow a malicious repository to exfiltrate secrets from your environment (such as CI tokens) to an attacker-controlled registry during installation ([GHSA-3qhv-2rgh-x77r](https://github.com/pnpm/pnpm/security/advisories/GHSA-3qhv-2rgh-x77r))."}
+{"p":"npmrc","b":"npmrc#2097","k":"para","t":"If your project relied on a committed `.npmrc` containing a line like `//registry.npmjs.org/:_authToken=${NPM_TOKEN}`, move the token to a trusted location instead:"}
+{"p":"npmrc","b":"npmrc#2098","k":"para","t":"Write the token to the user-level auth file before installing (for example, in a CI step):"}
+{"p":"npmrc","b":"npmrc#2099","k":"para","t":"`pnpm config set` writes to the global location by default (`<pnpm config>/auth.ini` for auth settings), not to the project `.npmrc`, so the token never ends up in the repository."}
+{"p":"npmrc","b":"npmrc#2100","k":"para","t":"**Set the credential through an environment variable, with no .npmrc file at all** (since v11.6). pnpm reads URL-scoped registry settings from `pnpm_config_//…` environment variables:"}
+{"p":"npmrc","b":"npmrc#2101","k":"para","t":"The variable name contains `/`, `:`, and `.`, which `export` and the `NAME=value` shell assignment syntax reject as invalid identifiers. Use the `env` utility (as shown above) to pass it to a single command, or set it through a tool that accepts arbitrary variable names (for example, your CI provider's environment settings or Node's `process.env`)."}
+{"p":"npmrc","b":"npmrc#2102","k":"para","t":"This is the most direct, file-free replacement for a committed `//registry.npmjs.org/:_authToken=${NPM_TOKEN}` line. Because the registry the credential applies to is encoded in the (trusted) variable name, a malicious repository cannot redirect it to another host. Such an environment value overrides the project `.npmrc` but is itself overridden by a command-line option. The `tokenHelper` setting is intentionally not read from environment variables."}
+{"p":"npmrc","b":"npmrc#2103","k":"para","t":"Or keep the `${NPM_TOKEN}` placeholder line, but put it in the user-level `~/.npmrc` (or the file referenced by [npmrcAuthFile](/docs/settings/other#npmrcauthfile)) instead of the repository."}
+{"p":"npmrc","b":"npmrc#2104","k":"para","t":"In GitHub Actions, `actions/setup-node` with the `registry-url` input writes the auth setting to a user-level `.npmrc` (referenced by the `NPM_CONFIG_USERCONFIG` environment variable, which pnpm honors), so authentication via the `NODE_AUTH_TOKEN` environment variable continues to work."}
+{"p":"npmrc","b":"npmrc#2105","k":"para","t":"If you cannot easily modify each CI pipeline, you may declare the project `.npmrc` trusted by setting a single environment variable in the CI environment (for example, at the organization or workspace level):"}
+{"p":"npmrc","b":"npmrc#2106","k":"para","t":"This is the env form of the [npmrcAuthFile](/docs/settings/other#npmrcauthfile) setting: it makes pnpm read the project's `.npmrc` as the user-level auth file (a relative path is resolved against the working directory), so environment variables in it are expanded as before. Because the trust declaration comes from the environment — not from the repository — a malicious repository cannot set it for you. The npm-style `NPM_CONFIG_USERCONFIG` variable is also honored as a fallback."}
+{"p":"npmrc","b":"npmrc#2107","k":"para","t":"Only use this in environments that exclusively build trusted repositories. It disables this protection entirely for the checked-out repository, including the restriction that `tokenHelper` may only be set in user-level config."}
+{"p":"npmrc","b":"npmrc#2108","k":"para","t":"The same rule applies to **registry and proxy URLs** in a project `.npmrc` (`registry`, `@scope:registry`, `proxy`, `https-proxy`, `http-proxy`). If you used an environment variable to build a registry URL, move the setting to a trusted source — your user-level `~/.npmrc`, or `pnpm config set \"<key>\" <value>`. If the URL is not secret, you can also write the resolved value directly in the project `.npmrc`, since only `${...}` placeholders are ignored. For registry settings in `pnpm-workspace.yaml`, see [Settings](/docs/settings/dependency-resolution#registries)."}
+{"p":"npmrc","b":"npmrc#2109","k":"heading","t":"Authentication Settings"}
+{"p":"npmrc","b":"npmrc#2110","k":"heading","t":"<URL>:_authToken"}
+{"p":"npmrc","b":"npmrc#2111","k":"para","t":"Define the authentication bearer token to use when accessing the specified registry. For example:"}
+{"p":"npmrc","b":"npmrc#2112","k":"para","t":"You may also use an environment variable. For example:"}
+{"p":"npmrc","b":"npmrc#2113","k":"para","t":"Environment variables are only expanded in user-level auth files, not in the project-level `.npmrc`. See [Environment variables in auth settings](#environment-variables-in-auth-settings)."}
+{"p":"npmrc","b":"npmrc#2114","k":"heading","t":"Scope-specific auth tokens"}
+{"p":"npmrc","b":"npmrc#2115","k":"para","t":"Added in: v11.7.0"}
+{"p":"npmrc","b":"npmrc#2116","k":"para","t":"pnpm can use different auth tokens for different package scopes, even when those scopes point to the same registry URL. Add the package scope after the registry URL in the auth key:"}
+{"p":"npmrc","b":"npmrc#2117","k":"para","t":"When installing or publishing `@org-a/*`, pnpm uses `ORG_A_TOKEN`; for `@org-b/*`, it uses `ORG_B_TOKEN`. Optionally, packages without a matching scope fall back to the registry-wide token (`FALLBACK_TOKEN` above), when provided."}
+{"p":"npmrc","b":"npmrc#2118","k":"para","t":"On pnpm 11, `pnpm login --registry=https://npm.pkg.github.com --scope=@org-a` writes the token to the same scope-specific auth key. pnpm 12.1 and newer writes the equivalent scoped entry under `_auth` in the global `config.yaml` and adds the scope to that registry's global `registries` declaration."}
+{"p":"npmrc","b":"npmrc#2119","k":"para","t":"This is useful for registries (such as GitHub Packages) that issue tokens per organization or per scope. Previously, auth was selected only by registry URL, so two scopes sharing a registry had to share a token."}
+{"p":"npmrc","b":"npmrc#2120","k":"heading","t":"<URL>:tokenHelper"}
+{"p":"npmrc","b":"npmrc#2121","k":"para","t":"A token helper is an executable which outputs an auth token. This can be used in situations where the authToken is not a constant value but is something that refreshes regularly, where a script or other tool can use an existing refresh token to obtain a new access token."}
+{"p":"npmrc","b":"npmrc#2122","k":"para","t":"The configuration for the path to the helper must be an absolute path, with no arguments. In order to be secure, it is only permitted to set this value in the user `.npmrc`. Otherwise a project could place a value in a project's local `.npmrc` and run arbitrary executables."}
+{"p":"npmrc","b":"npmrc#2123","k":"para","t":"Setting a token helper for the default registry:"}
+{"p":"npmrc","b":"npmrc#2124","k":"para","t":"Setting a token helper for the specified registry:"}
+{"p":"npmrc","b":"npmrc#2125","k":"heading","t":"_auth"}
+{"p":"npmrc","b":"npmrc#2126","k":"para","t":"Added in: v11.10.0"}
+{"p":"npmrc","b":"npmrc#2127","k":"para","t":"Configures registry authentication as a single structured value, keyed by registry URL. This is an alternative to the many `//host/:_authToken=…` entries and is designed for CI, where the URL-scoped form (whose variable name contains `/`, `:`, and `.`) cannot be passed through an environment variable on some runners."}
+{"p":"npmrc","b":"npmrc#2128","k":"para","t":"`_auth` is honored **only** from two trusted locations:"}
+{"p":"npmrc","b":"npmrc#2129","k":"li","t":"the **global** pnpm config (`config.yaml`);"}
+{"p":"npmrc","b":"npmrc#2130","k":"li","t":"the `pnpm_config__auth` environment variable (for CI)."}
+{"p":"npmrc","b":"npmrc#2131","k":"para","t":"It is **ignored** in a project `pnpm-workspace.yaml` or `.npmrc`, so a checked-out repository can never supply registry auth."}
+{"p":"npmrc","b":"npmrc#2132","k":"para","t":"The value is keyed by registry URL, so each secret is explicitly bound to the host that may receive it. Registry URL keys must use `http` or `https` and must not include credentials, query strings, or fragments. Within each registry URL, `@` means registry-wide (default) credentials, and a package scope such as `@org` binds credentials to that scope on the same host. The only supported credential field is `authToken` (it maps to `_authToken` / bearer auth); the deprecated `basicAuth` / `username` + `password` forms and `tokenHelper` are not accepted here."}
+{"p":"npmrc","b":"npmrc#2133","k":"para","t":"In the global `config.yaml`:"}
+{"p":"npmrc","b":"npmrc#2134","k":"para","t":"The equivalent environment variable (a JSON string):"}
+{"p":"npmrc","b":"npmrc#2135","k":"para","t":"Both `pnpm_config__auth` (lowercase) and `PNPM_CONFIG__AUTH` (all-caps, the convention some CI runners apply) are honored. If both are set, lowercase wins unless it is empty, in which case uppercase is used."}
+{"p":"npmrc","b":"npmrc#2136","k":"para","t":"Each entry also infers a trusted registry route: `@` routes the default registry (and `pnpm add <pkg>` resolves there), and `@org` routes that scope. Because the credential and its destination host arrive in one trusted value, repo-controlled config cannot redirect the token to a different host."}
+{"p":"npmrc","b":"npmrc#2137","k":"para","t":"Since v12.1.0, `pnpm login` writes the token in this shape. An unscoped login adds an `@` credential without changing the machine's default registry. A scoped login adds that scope to the same URL under the global `registries` setting; logging the scope into another registry moves both its credential and its route. `pnpm logout` removes credentials pnpm wrote from `config.yaml` and from the legacy `auth.ini`, while leaving registry routes in place."}
+{"p":"npmrc","b":"npmrc#2138","k":"para","t":"The `pnpm_config__auth` / `PNPM_CONFIG__AUTH` environment value may deliberately route a scope or the default registry and overrides repository configuration, which lets CI mandate a proxy. A route inferred from `_auth` stored in the global `config.yaml` is only a fallback: an explicit `registry` or `registries` declaration in `pnpm-workspace.yaml` or the global config wins. The stored credential still authenticates requests to its URL; it simply does not redirect packages away from an explicitly selected registry. CLI registry flags remain the highest-priority route."}
+{"p":"npmrc","b":"npmrc#2139","k":"para","t":"Parsing is strict: a malformed value (bad JSON, wrong shape, an invalid registry URL or scope, or an unsupported credential field) fails fast with an error rather than being silently dropped."}
+{"p":"npmrc","b":"npmrc#2140","k":"heading","t":"Certificate Settings"}
+{"p":"npmrc","b":"npmrc#2141","k":"heading","t":"ca"}
+{"p":"npmrc","b":"npmrc#2142","k":"li","t":"Default: **The npm CA certificate**"}
+{"p":"npmrc","b":"npmrc#2143","k":"li","t":"Type: **String, Array or null**"}
+{"p":"npmrc","b":"npmrc#2144","k":"para","t":"The Certificate Authority signing certificate that is trusted for SSL connections to the registry. Values should be in PEM format (AKA \"Base-64 encoded X.509 (.CER)\"). For example:"}
+{"p":"npmrc","b":"npmrc#2145","k":"para","t":"Set to null to only allow known registrars, or to a specific CA cert to trust only that specific signing authority."}
+{"p":"npmrc","b":"npmrc#2146","k":"para","t":"Multiple CAs can be trusted by specifying an array of certificates:"}
+{"p":"npmrc","b":"npmrc#2147","k":"para","t":"See also the [strictSsl](/docs/settings/network#strictssl) setting."}
+{"p":"npmrc","b":"npmrc#2148","k":"heading","t":"cafile"}
+{"p":"npmrc","b":"npmrc#2149","k":"li","t":"Default: **null**"}
+{"p":"npmrc","b":"npmrc#2150","k":"li","t":"Type: **path**"}
+{"p":"npmrc","b":"npmrc#2151","k":"para","t":"A path to a file containing one or multiple Certificate Authority signing certificates. Similar to the `ca` setting, but allows for multiple CAs, as well as for the CA information to be stored in a file instead of being specified via CLI."}
+{"p":"npmrc","b":"npmrc#2152","k":"heading","t":"<URL>:cafile"}
+{"p":"npmrc","b":"npmrc#2153","k":"para","t":"Define the path to a Certificate Authority file to use when accessing the specified registry. For example:"}
+{"p":"npmrc","b":"npmrc#2154","k":"heading","t":"<URL>:ca"}
+{"p":"npmrc","b":"npmrc#2155","k":"para","t":"Added in: v10.25.0"}
+{"p":"npmrc","b":"npmrc#2156","k":"para","t":"Define an inline Certificate Authority certificate for the specified registry. The value must be PEM-encoded, like the global `ca` setting, but it only applies to the matching registry URL."}
+{"p":"npmrc","b":"npmrc#2157","k":"heading","t":"cert"}
+{"p":"npmrc","b":"npmrc#2158","k":"li","t":"Default: **null**"}
+{"p":"npmrc","b":"npmrc#2159","k":"li","t":"Type: **String**"}
+{"p":"npmrc","b":"npmrc#2160","k":"para","t":"A client certificate to pass when accessing the registry. Values should be in PEM format (AKA \"Base-64 encoded X.509 (.CER)\"). For example:"}
+{"p":"npmrc","b":"npmrc#2161","k":"para","t":"It is not the path to a certificate file."}
+{"p":"npmrc","b":"npmrc#2162","k":"heading","t":"<URL>:cert"}
+{"p":"npmrc","b":"npmrc#2163","k":"para","t":"Added in: v10.25.0"}
+{"p":"npmrc","b":"npmrc#2164","k":"para","t":"Define an inline client certificate to use when accessing the specified registry. Example:"}
+{"p":"npmrc","b":"npmrc#2165","k":"heading","t":"<URL>:certfile"}
+{"p":"npmrc","b":"npmrc#2166","k":"para","t":"Define the path to a certificate file to use when accessing the specified registry. For example:"}
+{"p":"npmrc","b":"npmrc#2167","k":"heading","t":"key"}
+{"p":"npmrc","b":"npmrc#2168","k":"li","t":"Default: **null**"}
+{"p":"npmrc","b":"npmrc#2169","k":"li","t":"Type: **String**"}
+{"p":"npmrc","b":"npmrc#2170","k":"para","t":"A client key to pass when accessing the registry. Values should be in PEM format (AKA \"Base-64 encoded X.509 (.CER)\"). For example:"}
+{"p":"npmrc","b":"npmrc#2171","k":"para","t":"It is not the path to a key file. Use `<URL>&#58;keyfile` if you need to reference the file system instead of inlining the key."}
+{"p":"npmrc","b":"npmrc#2172","k":"para","t":"This setting contains sensitive information. Don't write it to a local `.npmrc` file committed to the repository."}
+{"p":"npmrc","b":"npmrc#2173","k":"heading","t":"<URL>:key"}
+{"p":"npmrc","b":"npmrc#2174","k":"para","t":"Added in: v10.25.0"}
+{"p":"npmrc","b":"npmrc#2175","k":"para","t":"Define an inline client key for the specified registry URL."}
+{"p":"npmrc","b":"npmrc#2176","k":"heading","t":"<URL>:keyfile"}
+{"p":"npmrc","b":"npmrc#2177","k":"para","t":"Define the path to a client key file to use when accessing the specified registry. For example:"}
+{"p":"npmrc","b":"npmrc@title","k":"title","t":"Authentication Settings"}
+{"p":"only-allow-pnpm","b":"only-allow-pnpm#2178","k":"para","t":"When you use pnpm on a project, you don't want others to accidentally run `npm install` or `yarn`. To prevent devs from using other package managers, you can add the following `preinstall` script to your `package.json`:"}
+{"p":"only-allow-pnpm","b":"only-allow-pnpm#2179","k":"para","t":"Now, whenever someone runs `npm install` or `yarn`, they'll get an error instead and installation will not proceed."}
+{"p":"only-allow-pnpm","b":"only-allow-pnpm#2180","k":"para","t":"If you use npm v7, use `npx -y` instead."}
+{"p":"only-allow-pnpm","b":"only-allow-pnpm@title","k":"title","t":"Only allow pnpm"}
+{"p":"package_json","b":"package_json#2290","k":"para","t":"The manifest file of a package. It contains all the package's metadata, including dependencies, title, author, et cetera. This is a standard preserved across all major Node.js package managers, including pnpm."}
+{"p":"package_json","b":"package_json#2291","k":"para","t":"In addition to the traditional `package.json` format, pnpm also supports `package.json5` (via [json5](https://www.npmjs.com/package/json5)) and `package.yaml` (via [js-yaml](https://www.npmjs.com/package/@zkochan/js-yaml))."}
+{"p":"package_json","b":"package_json#2292","k":"para","t":"Since v11, pnpm no longer reads settings from the `pnpm` field of `package.json`. Settings must be defined in `pnpm-workspace.yaml` instead. See [Configuring](/docs/configuring)."}
+{"p":"package_json","b":"package_json#2293","k":"heading","t":"engines"}
+{"p":"package_json","b":"package_json#2294","k":"para","t":"You can specify the version of Node and pnpm that your software works on:"}
+{"p":"package_json","b":"package_json#2295","k":"para","t":"During local development, pnpm will always fail with an error message if its version does not match the one specified in the `engines` field."}
+{"p":"package_json","b":"package_json#2296","k":"para","t":"Unless the user has set the `engineStrict` config flag (see [settings](/docs/settings/cli#enginestrict)), this field is advisory only and will only produce warnings when your package is installed as a dependency."}
+{"p":"package_json","b":"package_json#2297","k":"heading","t":"engines.runtime"}
+{"p":"package_json","b":"package_json#2298","k":"para","t":"Added in: v10.21.0"}
+{"p":"package_json","b":"package_json#2299","k":"para","t":"Specifies the Node.js runtime required by a dependency. When declared, pnpm will automatically install the specified Node.js version."}
+{"p":"package_json","b":"package_json#2300","k":"para","t":"When a package declares a runtime:"}
+{"p":"package_json","b":"package_json#2301","k":"li","t":"**For CLI apps**: pnpm binds the CLI to the required Node.js version, ensuring it uses the correct runtime regardless of the globally installed Node.js instance."}
+{"p":"package_json","b":"package_json#2302","k":"li","t":"**For packages with postinstall scripts**: The script executes using the specified Node.js version."}
+{"p":"package_json","b":"package_json#2303","k":"para","t":"This is particularly useful for dependencies that require specific Node.js versions to function correctly."}
+{"p":"package_json","b":"package_json#2304","k":"heading","t":"devEngines.runtime"}
+{"p":"package_json","b":"package_json#2305","k":"para","t":"Added in: v10.14"}
+{"p":"package_json","b":"package_json#2306","k":"para","t":"Allows to specify one or more JavaScript runtime engines used by the project. Supported runtimes are Node.js, Deno, and Bun."}
+{"p":"package_json","b":"package_json#2307","k":"para","t":"For instance, here is how to add `node@^24.4.0` to your dependencies:"}
+{"p":"package_json","b":"package_json#2308","k":"para","t":"You can also add multiple runtimes to the same `package.json`:"}
+{"p":"package_json","b":"package_json#2309","k":"para","t":"How it works:"}
+{"p":"package_json","b":"package_json#2310","k":"li","t":"`pnpm install` resolves your specified range to the latest matching runtime version."}
+{"p":"package_json","b":"package_json#2311","k":"li","t":"The exact version (and checksum) is saved in the lockfile."}
+{"p":"package_json","b":"package_json#2312","k":"li","t":"Scripts use the local runtime, ensuring consistency across environments."}
+{"p":"package_json","b":"package_json#2313","k":"para","t":"To override the declared `onFail` behavior without editing the manifest, use the [runtimeOnFail](/docs/settings/cli#runtimeonfail) setting."}
+{"p":"package_json","b":"package_json#2314","k":"para","t":"Since v12.0.0-rc.2, a bare `node` (or `deno`/`bun`) run from inside the project also follows this pin, not just scripts. This can be turned off with the [globalShims](/docs/settings/other#globalshims) setting, or skipped for a single command with `PNPM_SHIM_BYPASS=1`. See [project-aware global bins](/docs/global-packages#project-aware-global-bins)."}
+{"p":"package_json","b":"package_json#2315","k":"heading","t":"devEngines.packageManager"}
+{"p":"package_json","b":"package_json#2316","k":"para","t":"Added in: v11.0.0"}
+{"p":"package_json","b":"package_json#2317","k":"para","t":"Allows specifying the pnpm version via `devEngines.packageManager` in `package.json`. Unlike the `packageManager` field, this supports version ranges. The resolved version is stored in `pnpm-lock.yaml` under `packageManagerDependencies` and reused if it still satisfies the range."}
+{"p":"package_json","b":"package_json#2318","k":"para","t":"When pnpm 12 is declared via the legacy `packageManager` field and [pmOnFail](/docs/settings/cli#pmonfail) is not set to `ignore`, its resolution info is written to `pnpm-lock.yaml`. The lockfile then gains a leading [env lockfile document](/docs/lockfile)."}
+{"p":"package_json","b":"package_json#2319","k":"para","t":"Since v12.0.0-rc.6, the field can also name [another package manager](/docs/package-managers) — `npm`, `yarn` or `bun` — which is what `pnpm add npm@11` writes. For those, nothing is recorded in `pnpm-lock.yaml`: `packageManagerDependencies` holds pnpm's own pin, and another package manager is pinned in an environment lockfile of its own under the pnpm home."}
+{"p":"package_json","b":"package_json#2320","k":"para","t":"To override the `onFail` behavior without editing the manifest, see the [pmOnFail](/docs/settings/cli#pmonfail) setting."}
+{"p":"package_json","b":"package_json#2321","k":"heading","t":"dependenciesMeta"}
+{"p":"package_json","b":"package_json#2322","k":"para","t":"Additional meta information used for dependencies declared inside `dependencies`, `optionalDependencies`, and `devDependencies`."}
+{"p":"package_json","b":"package_json#2323","k":"heading","t":"dependenciesMeta.*.injected"}
+{"p":"package_json","b":"package_json#2324","k":"para","t":"If this is set to `true` for a dependency that is a local workspace package, that package will be installed by creating a hard linked copy in the virtual store (`node_modules/.pnpm`)."}
+{"p":"package_json","b":"package_json#2325","k":"para","t":"If this is set to `false` or not set, then the dependency will instead be installed by creating a `node_modules` symlink that points to the package's source directory in the workspace. This is the default, as it is faster and ensures that any modifications to the dependency will be immediately visible to its consumers."}
+{"p":"package_json","b":"package_json#2326","k":"para","t":"For example, suppose the following `package.json` is a local workspace package:"}
+{"p":"package_json","b":"package_json#2327","k":"para","t":"The `button` dependency will normally be installed by creating a symlink in the `node_modules` directory of `card`, pointing to the development directory for `button`."}
+{"p":"package_json","b":"package_json#2328","k":"para","t":"But what if `button` specifies `react` in its `peerDependencies`? If all projects in the monorepo use the same version of `react`, then there is no problem. But what if `button` is required by `card` that uses `react@16` and `form` that uses `react@17`? Normally you'd have to choose a single version of `react` and specify it using `devDependencies` of `button`. Symlinking does not provide a way for the `react` peer dependency to be satisfied differently by different consumers such as `card` and `form`."}
+{"p":"package_json","b":"package_json#2329","k":"para","t":"The `injected` field solves this problem by installing a hard linked copies of `button` in the virtual store. To accomplish this, the `package.json` of `card` could be configured as follows:"}
+{"p":"package_json","b":"package_json#2330","k":"para","t":"Whereas the `package.json` of `form` could be configured as follows:"}
+{"p":"package_json","b":"package_json#2331","k":"para","t":"With these changes, we say that `button` is an \"injected dependency\" of `card` and `form`. When `button` imports `react`, it will resolve to `react@16` in the context of `card`, but resolve to `react@17` in the context of `form`."}
+{"p":"package_json","b":"package_json#2332","k":"para","t":"Because injected dependencies produce copies of their workspace source directory, these copies must be updated somehow whenever the code is modified; otherwise, the new state will not be reflected for consumers. When building multiple projects with a command such as `pnpm --recursive run build`, this update must occur after each injected package is rebuilt but before its consumers are rebuilt. For simple use cases, it can be accomplished by invoking `pnpm install` again, perhaps using a `package.json` lifecycle script such as `\"prepare\": \"pnpm run build\"` to rebuild that one project. Third party tools such as [pnpm-sync](https://www.npmjs.com/package/pnpm-sync-lib) and [pnpm-sync-dependencies-meta-injected](https://www.npmjs.com/package/pnpm-sync-dependencies-meta-injected) provide a more robust and efficient solution for updating injected dependencies, as well as watch mode support."}
+{"p":"package_json","b":"package_json#2333","k":"heading","t":"peerDependencies"}
+{"p":"package_json","b":"package_json#2334","k":"para","t":"Peer dependency values are normally semver ranges (`^1.0.0`), or a [workspace:](/docs/workspaces#workspace-protocol-workspace) or [catalog:](/docs/catalogs) specifier."}
+{"p":"package_json","b":"package_json#2335","k":"para","t":"Since v11.14.0, a peer dependency may also be declared with a specifier that carries a scheme:"}
+{"p":"package_json","b":"package_json#2336","k":"para","t":"Accepted forms are a [named-registry](/docs/settings/dependency-resolution#namedregistries) spec (`<registry>:<version>`), an `npm:` alias, and a `file:`, git, or URL spec."}
+{"p":"package_json","b":"package_json#2337","k":"para","t":"Such a specifier is matched against the semver range it carries — `work:5.x.x` is checked as `5.x.x` and `npm:other-lib@^5` as `^5`. A specifier that carries no version, such as `file:../lib-c`, is matched against `*`, so any version satisfies it. Meanwhile the original specifier is what selects the package when [autoInstallPeers](/docs/settings/peer-dependencies#autoinstallpeers) installs a missing peer, so the peer is fetched from the aliased name, registry, or source you named."}
+{"p":"package_json","b":"package_json#2338","k":"para","t":"Bare `name@version` values are still rejected with `ERR_PNPM_INVALID_PEER_DEPENDENCY_SPECIFICATION`, as they are almost always a mistake:"}
+{"p":"package_json","b":"package_json#2339","k":"heading","t":"peerDependenciesMeta"}
+{"p":"package_json","b":"package_json#2340","k":"para","t":"This field lists some extra information related to the dependencies listed in the `peerDependencies` field."}
+{"p":"package_json","b":"package_json#2341","k":"heading","t":"peerDependenciesMeta.*.optional"}
+{"p":"package_json","b":"package_json#2342","k":"para","t":"If this is set to true, the selected peer dependency will be marked as optional by the package manager. Therefore, the consumer omitting it will no longer be reported as an error."}
+{"p":"package_json","b":"package_json#2343","k":"para","t":"For example:"}
+{"p":"package_json","b":"package_json#2344","k":"para","t":"Note that even though `bar` was not specified in `peerDependencies`, it is marked as optional. pnpm will therefore assume that any version of bar is fine. However, `foo` is optional, but only to the required version specification."}
+{"p":"package_json","b":"package_json#2345","k":"heading","t":"publishConfig"}
+{"p":"package_json","b":"package_json#2346","k":"para","t":"It is possible to override some fields in the manifest before the package is packed. The following fields may be overridden:"}
+{"p":"package_json","b":"package_json#2347","k":"li","t":"`engines` (Added in v10.22.0)"}
+{"p":"package_json","b":"package_json#2348","k":"li","t":"[name](#publishconfigname) (Added in v11.18.0)"}
+{"p":"package_json","b":"package_json#2349","k":"para","t":"To override a field, add the publish version of the field to `publishConfig`."}
+{"p":"package_json","b":"package_json#2350","k":"para","t":"For instance, the following `package.json`:"}
+{"p":"package_json","b":"package_json#2351","k":"para","t":"Will be published as:"}
+{"p":"package_json","b":"package_json#2352","k":"heading","t":"publishConfig.name"}
+{"p":"package_json","b":"package_json#2353","k":"para","t":"Added in: v11.18.0"}
+{"p":"package_json","b":"package_json#2354","k":"para","t":"Publishes the package under a different name than the one its manifest carries in the workspace. This is for a project whose published name is already taken by a sibling project, which otherwise has to be renamed by a build step just before publishing."}
+{"p":"package_json","b":"package_json#2355","k":"para","t":"Only the published artifact is renamed — dependents, `pnpm-lock.yaml`, and release tooling keep addressing the project by its manifest name. The new name reaches the packed manifest, the tarball filename, and everything that addresses the package at the registry: the already-published check of `pnpm publish -r`, its registry selection, and the release-planning probes of `pnpm change status` and `pnpm version -r`."}
+{"p":"package_json","b":"package_json#2356","k":"heading","t":"publishConfig.executableFiles"}
+{"p":"package_json","b":"package_json#2357","k":"para","t":"By default, for portability reasons, no files except those listed in the bin field will be marked as executable in the resulting package archive. The `executableFiles` field lets you declare additional files that must have the executable flag (+x) set even if they aren't directly accessible through the bin field."}
+{"p":"package_json","b":"package_json#2358","k":"heading","t":"publishConfig.directory"}
+{"p":"package_json","b":"package_json#2359","k":"para","t":"You also can use the field `publishConfig.directory` to customize the published subdirectory relative to the current `package.json`."}
+{"p":"package_json","b":"package_json#2360","k":"para","t":"It is expected to have a modified version of the current package in the specified directory (usually using third party build tools)."}
+{"p":"package_json","b":"package_json#2361","k":"para","t":"In this example the `\"dist\"` folder must contain a `package.json`"}
+{"p":"package_json","b":"package_json#2362","k":"heading","t":"publishConfig.linkDirectory"}
+{"p":"package_json","b":"package_json#2363","k":"li","t":"Default: **true**"}
+{"p":"package_json","b":"package_json#2364","k":"li","t":"Type: **Boolean**"}
+{"p":"package_json","b":"package_json#2365","k":"para","t":"When set to `true`, the project will be symlinked from the `publishConfig.directory` location during local development."}
+{"p":"package_json","b":"package_json#2366","k":"para","t":"For example:"}
+{"p":"package_json","b":"package_json@title","k":"title","t":"package.json"}
+{"p":"package-managers","b":"package-managers#2181","k":"para","t":"Added in: v12.0.0-rc.6 (pnpm v12 only)"}
+{"p":"package-managers","b":"package-managers#2182","k":"para","t":"pnpm installs the other package managers, not just itself: **npm**, **Yarn Classic**, **Yarn Berry**, **Yarn 6** (`yarnpkg/zpm`) and **Bun**. The npm-published ones are resolved and fetched through the trusted package-manager registries, and verified against npm's signature for the exact version before that version is executed — the same standard that lets pnpm switch its own version without asking. Yarn 6 and Bun ship as platform archives from their own projects instead, pinned by a publisher checksum."}
+{"p":"package-managers","b":"package-managers#2183","k":"para","t":"A JavaScript package manager on a machine without Node.js gets a managed LTS runtime to run on, so none of this requires a Node.js installation of your own."}
+{"p":"package-managers","b":"package-managers#2184","k":"para","t":"Three things use it:"}
+{"p":"package-managers","b":"package-managers#2185","k":"li","t":"a **git-hosted dependency** is prepared with the package manager it asks for — see [Preparing a git-hosted dependency](#preparing-a-git-hosted-dependency);"}
+{"p":"package-managers","b":"package-managers#2186","k":"li","t":"[pnpm dlx](/docs/cli/pnx#running-a-package-manager-or-a-runtime) (`pnx`) runs one for a single command;"}
+{"p":"package-managers","b":"package-managers#2187","k":"li","t":"[pnpm shim add](/docs/cli/shim) links a command that runs whatever version the current project pins."}
+{"p":"package-managers","b":"package-managers#2188","k":"heading","t":"Where each one comes from"}
+{"p":"package-managers","b":"package-managers#2189","k":"para","t":"The registry-published ones go through the same resolve, verify and install pipeline as pnpm's own engine. The ones that ship as platform archives are pinned by a publisher checksum, like the [managed runtimes](/docs/cli/runtime)."}
+{"p":"package-managers","b":"package-managers#2190","k":"para","t":"Each package manager resolves into its own environment lockfile under the pnpm home, so one package manager's pins never rewrite another's."}
+{"p":"package-managers","b":"package-managers#2191","k":"heading","t":"Declaring the package manager of a project"}
+{"p":"package-managers","b":"package-managers#2192","k":"para","t":"Naming a package manager in `pnpm add` records which one the project uses instead of installing the npm package that shares the name:"}
+{"p":"package-managers","b":"package-managers#2193","k":"para","t":"The declaration goes where the package manager reads it:"}
+{"p":"package-managers","b":"package-managers#2194","k":"li","t":"**Yarn** is started from a project pin through the `packageManager` field, which accepts only an exact version. So the requested line is resolved before it is written: `pnpm add yarn@4` records `\"packageManager\": \"yarn@4.18.0\"`. On the Yarn Classic line (`<2`), where the pinned artifact is the npm tarball, the value also carries that tarball's `+sha512.…` integrity — `\"packageManager\": \"yarn@1.22.22+sha512.…\"`."}
+{"p":"package-managers","b":"package-managers#2195","k":"li","t":"**Every other package manager** is recorded in [devEngines.packageManager](/docs/package_json#devenginespackagemanager), which holds a range."}
+{"p":"package-managers","b":"package-managers#2196","k":"para","t":"Only one of the two fields is ever left behind: they declare the same thing, and a project whose two declarations disagree is one the version switchers refuse to run."}
+{"p":"package-managers","b":"package-managers#2197","k":"para","t":"package.json"}
+{"p":"package-managers","b":"package-managers#2198","k":"para","t":"Two things are deliberately not covered by this:"}
+{"p":"package-managers","b":"package-managers#2199","k":"li","t":"**pnpm itself.** Changing pnpm's own pin makes the next command switch the running CLI, which is [pnpm self-update](/docs/cli/self-update)'s job to do deliberately rather than an `add`'s to do as a side effect."}
+{"p":"package-managers","b":"package-managers#2200","k":"li","t":"**A filtered selection.** Which package manager a project uses is that project's own declaration, so `pnpm add yarn --filter …` fails with `ERR_PNPM_PACKAGE_MANAGER_IN_SELECTION`. Run the command in the project itself."}
+{"p":"package-managers","b":"package-managers#2201","k":"para","t":"A specifier that locates a *package* rather than asking for a released version still installs what it names, as an ordinary dependency:"}
+{"p":"package-managers","b":"package-managers#2202","k":"para","t":"The resolved version of a package manager other than pnpm is not written to `pnpm-lock.yaml`: it is pinned in an environment lockfile of its own under the pnpm home. Only pnpm's own pin is recorded in the project's lockfile, under `packageManagerDependencies`."}
+{"p":"package-managers","b":"package-managers#2203","k":"heading","t":"Runtimes"}
+{"p":"package-managers","b":"package-managers#2204","k":"para","t":"`pnpm add` follows the same rule for the runtimes: naming `node` or `deno` records it under `engines.runtime`, the way the explicit `node@runtime:22` spelling already did."}
+{"p":"package-managers","b":"package-managers#2205","k":"para","t":"`bun` is both a runtime and a package manager, and the package manager answers first: `pnpm add bun` declares it as the project's package manager. To add it as a runtime, ask for one — `pnpm add bun@runtime:1.3.0`."}
+{"p":"package-managers","b":"package-managers#2206","k":"heading","t":"Installing one globally"}
+{"p":"package-managers","b":"package-managers#2207","k":"para","t":"installs the current Yarn line — not the Classic-only `yarn` package on npm — and `pnpm add -g node@22` / `pnpm add -g deno@2` install that Node.js or Deno release rather than a wrapper package that downloads one."}
+{"p":"package-managers","b":"package-managers#2208","k":"para","t":"A globally installed package manager also follows a project's pin, the way a globally installed Node.js already follows [devEngines.runtime](/docs/package_json#devenginesruntime): the pinned version runs where a project pins one, and the globally installed copy is the fallback everywhere else. pnpm records this by adding a [globalShims](/docs/settings/other#globalshims) entry for the package manager, unless you already decided about it — an explicit entry, including `false`, is left as you set it."}
+{"p":"package-managers","b":"package-managers#2209","k":"para","t":"See [Project-aware global bins](/docs/global-packages#project-aware-global-bins) for how a version is chosen and when pnpm asks for confirmation."}
+{"p":"package-managers","b":"package-managers#2210","k":"heading","t":"Running one for a single command"}
+{"p":"package-managers","b":"package-managers#2211","k":"heading","t":"Preparing a git-hosted dependency"}
+{"p":"package-managers","b":"package-managers#2212","k":"para","t":"A [git-hosted dependency](/docs/package-sources#git-repository) that has to be built before it can be installed is prepared with the package manager it asks for, rather than with whatever the host happens to have:"}
+{"p":"package-managers","b":"package-managers#2213","k":"li","t":"its `packageManager` / `devEngines.packageManager` pin is honored;"}
+{"p":"package-managers","b":"package-managers#2214","k":"li","t":"failing a pin, the lockfile it ships names the package manager — and a `yarn.lock` written by Yarn Classic is no longer installed by Yarn Berry. Berry stamps `__metadata:` into every lockfile it writes and neither line can read the other's, so which one wrote it is a constraint, not a preference."}
+{"p":"package-managers","b":"package-managers#2215","k":"para","t":"pnpm provides that package manager when the dependency pinned a version, or when the host cannot satisfy what the dependency needs — so a repository built with Yarn now installs on a machine that has only pnpm, while a host that already has a suitable one keeps using its own."}
+{"p":"package-managers","b":"package-managers#2216","k":"heading","t":"What changes for a project coming from v11"}
+{"p":"package-managers","b":"package-managers@title","k":"title","t":"Other package managers"}

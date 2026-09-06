@@ -1,0 +1,830 @@
+{
+ "catalogs": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 54,
+  "url": "https://pnpm.io/catalogs"
+ },
+ "cli/approve-builds": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 18,
+  "url": "https://pnpm.io/cli/approve-builds"
+ },
+ "cli/access": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 29,
+  "url": "https://pnpm.io/cli/access"
+ },
+ "aliases": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 7,
+  "url": "https://pnpm.io/aliases"
+ },
+ "cli/add": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 59,
+  "url": "https://pnpm.io/cli/add"
+ },
+ "cli/bin": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 5,
+  "url": "https://pnpm.io/cli/bin"
+ },
+ "cli/audit": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 58,
+  "url": "https://pnpm.io/cli/audit"
+ },
+ "cli/bugs": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 12,
+  "url": "https://pnpm.io/cli/bugs"
+ },
+ "cli/cache": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 1,
+  "url": "https://pnpm.io/cli/cache"
+ },
+ "cli/cache-delete": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 3,
+  "url": "https://pnpm.io/cli/cache-delete"
+ },
+ "cli/cache-list": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 3,
+  "url": "https://pnpm.io/cli/cache-list"
+ },
+ "cli/cache-list-registries": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 3,
+  "url": "https://pnpm.io/cli/cache-list-registries"
+ },
+ "cli/cache-view": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 3,
+  "url": "https://pnpm.io/cli/cache-view"
+ },
+ "cli/cache-path": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 7,
+  "url": "https://pnpm.io/cli/cache-path"
+ },
+ "cli/cat-file": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 2,
+  "url": "https://pnpm.io/cli/cat-file"
+ },
+ "cli/cat-index": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 2,
+  "url": "https://pnpm.io/cli/cat-index"
+ },
+ "cli/change": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 25,
+  "url": "https://pnpm.io/cli/change"
+ },
+ "cli/ci": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 4,
+  "url": "https://pnpm.io/cli/ci"
+ },
+ "cli/clean": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 7,
+  "url": "https://pnpm.io/cli/clean"
+ },
+ "cli/config": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 44,
+  "url": "https://pnpm.io/cli/config"
+ },
+ "cli/create": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 9,
+  "url": "https://pnpm.io/cli/create"
+ },
+ "cli/deploy": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 27,
+  "url": "https://pnpm.io/cli/deploy"
+ },
+ "cli/dedupe": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 5,
+  "url": "https://pnpm.io/cli/dedupe"
+ },
+ "cli/deprecate": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 15,
+  "url": "https://pnpm.io/cli/deprecate"
+ },
+ "cli/dist-tag": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 15,
+  "url": "https://pnpm.io/cli/dist-tag"
+ },
+ "cli/docs": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 9,
+  "url": "https://pnpm.io/cli/docs"
+ },
+ "cli/doctor": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 31,
+  "url": "https://pnpm.io/cli/doctor"
+ },
+ "cli/env": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 24,
+  "url": "https://pnpm.io/cli/env"
+ },
+ "cli/exec": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 26,
+  "url": "https://pnpm.io/cli/exec"
+ },
+ "cli/fetch": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 19,
+  "url": "https://pnpm.io/cli/fetch"
+ },
+ "cli/find-hash": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 3,
+  "url": "https://pnpm.io/cli/find-hash"
+ },
+ "cli/help": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 6,
+  "url": "https://pnpm.io/cli/help"
+ },
+ "cli/ignored-builds": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 3,
+  "url": "https://pnpm.io/cli/ignored-builds"
+ },
+ "cli/import": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 3,
+  "url": "https://pnpm.io/cli/import"
+ },
+ "cli/init": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 29,
+  "url": "https://pnpm.io/cli/init"
+ },
+ "cli/install": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 88,
+  "url": "https://pnpm.io/cli/install"
+ },
+ "cli/install-test": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 2,
+  "url": "https://pnpm.io/cli/install-test"
+ },
+ "cli/lane": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 18,
+  "url": "https://pnpm.io/cli/lane"
+ },
+ "cli/licenses": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 17,
+  "url": "https://pnpm.io/cli/licenses"
+ },
+ "cli/list": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 34,
+  "url": "https://pnpm.io/cli/list"
+ },
+ "cli/link": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 20,
+  "url": "https://pnpm.io/cli/link"
+ },
+ "cli/login": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 12,
+  "url": "https://pnpm.io/cli/login"
+ },
+ "cli/outdated": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 27,
+  "url": "https://pnpm.io/cli/outdated"
+ },
+ "cli/logout": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 10,
+  "url": "https://pnpm.io/cli/logout"
+ },
+ "cli/owner": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 15,
+  "url": "https://pnpm.io/cli/owner"
+ },
+ "cli/pack-app": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 37,
+  "url": "https://pnpm.io/cli/pack-app"
+ },
+ "cli/patch": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 31,
+  "url": "https://pnpm.io/cli/patch"
+ },
+ "cli/patch-commit": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 7,
+  "url": "https://pnpm.io/cli/patch-commit"
+ },
+ "cli/pack": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 24,
+  "url": "https://pnpm.io/cli/pack"
+ },
+ "cli/patch-remove": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 2,
+  "url": "https://pnpm.io/cli/patch-remove"
+ },
+ "cli/pm": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 5,
+  "url": "https://pnpm.io/cli/pm"
+ },
+ "cli/pnx": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 26,
+  "url": "https://pnpm.io/cli/pnx"
+ },
+ "cli/peers": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 6,
+  "url": "https://pnpm.io/cli/peers"
+ },
+ "cli/ping": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 7,
+  "url": "https://pnpm.io/cli/ping"
+ },
+ "cli/pkg": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 21,
+  "url": "https://pnpm.io/cli/pkg"
+ },
+ "cli/prefix": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 6,
+  "url": "https://pnpm.io/cli/prefix"
+ },
+ "cli/prune": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 8,
+  "url": "https://pnpm.io/cli/prune"
+ },
+ "cli/rebuild": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 6,
+  "url": "https://pnpm.io/cli/rebuild"
+ },
+ "cli/publish": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 50,
+  "url": "https://pnpm.io/cli/publish"
+ },
+ "cli/recursive": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 31,
+  "url": "https://pnpm.io/cli/recursive"
+ },
+ "cli/remove": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 15,
+  "url": "https://pnpm.io/cli/remove"
+ },
+ "cli/repo": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 10,
+  "url": "https://pnpm.io/cli/repo"
+ },
+ "cli/root": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 5,
+  "url": "https://pnpm.io/cli/root"
+ },
+ "cli/runtime": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 20,
+  "url": "https://pnpm.io/cli/runtime"
+ },
+ "cli/sbom": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 44,
+  "url": "https://pnpm.io/cli/sbom"
+ },
+ "cli/run": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 75,
+  "url": "https://pnpm.io/cli/run"
+ },
+ "cli/self-update": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 17,
+  "url": "https://pnpm.io/cli/self-update"
+ },
+ "cli/search": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 9,
+  "url": "https://pnpm.io/cli/search"
+ },
+ "cli/setup": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 8,
+  "url": "https://pnpm.io/cli/setup"
+ },
+ "cli/set-script": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 9,
+  "url": "https://pnpm.io/cli/set-script"
+ },
+ "cli/shim": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 22,
+  "url": "https://pnpm.io/cli/shim"
+ },
+ "cli/stage": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 37,
+  "url": "https://pnpm.io/cli/stage"
+ },
+ "cli/star": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 8,
+  "url": "https://pnpm.io/cli/star"
+ },
+ "cli/start": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 3,
+  "url": "https://pnpm.io/cli/start"
+ },
+ "cli/store": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 18,
+  "url": "https://pnpm.io/cli/store"
+ },
+ "cli/team": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 25,
+  "url": "https://pnpm.io/cli/team"
+ },
+ "cli/update": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 60,
+  "url": "https://pnpm.io/cli/update"
+ },
+ "cli/unlink": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 9,
+  "url": "https://pnpm.io/cli/unlink"
+ },
+ "cli/test": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 3,
+  "url": "https://pnpm.io/cli/test"
+ },
+ "cli/unpublish": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 16,
+  "url": "https://pnpm.io/cli/unpublish"
+ },
+ "cli/version": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 34,
+  "url": "https://pnpm.io/cli/version"
+ },
+ "cli/view": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 11,
+  "url": "https://pnpm.io/cli/view"
+ },
+ "cli/whoami": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 7,
+  "url": "https://pnpm.io/cli/whoami"
+ },
+ "cli/with": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 12,
+  "url": "https://pnpm.io/cli/with"
+ },
+ "cli/why": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 29,
+  "url": "https://pnpm.io/cli/why"
+ },
+ "completion": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 10,
+  "url": "https://pnpm.io/completion"
+ },
+ "config-dependencies": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 29,
+  "url": "https://pnpm.io/config-dependencies"
+ },
+ "configuring": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 24,
+  "url": "https://pnpm.io/configuring"
+ },
+ "continuous-integration": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 49,
+  "url": "https://pnpm.io/continuous-integration"
+ },
+ "docker": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 31,
+  "url": "https://pnpm.io/docker"
+ },
+ "errors": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 39,
+  "url": "https://pnpm.io/errors"
+ },
+ "faq": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 42,
+  "url": "https://pnpm.io/faq"
+ },
+ "feature-comparison": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 2,
+  "url": "https://pnpm.io/feature-comparison"
+ },
+ "finders": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 21,
+  "url": "https://pnpm.io/finders"
+ },
+ "filtering": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 48,
+  "url": "https://pnpm.io/filtering"
+ },
+ "git": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 8,
+  "url": "https://pnpm.io/git"
+ },
+ "git_branch_lockfiles": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 14,
+  "url": "https://pnpm.io/git_branch_lockfiles"
+ },
+ "git-worktrees": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 37,
+  "url": "https://pnpm.io/git-worktrees"
+ },
+ "global-virtual-store": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 22,
+  "url": "https://pnpm.io/global-virtual-store"
+ },
+ "global-packages": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 77,
+  "url": "https://pnpm.io/global-packages"
+ },
+ "how-peers-are-resolved": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 16,
+  "url": "https://pnpm.io/how-peers-are-resolved"
+ },
+ "installation": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 34,
+  "url": "https://pnpm.io/installation"
+ },
+ "limitations": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 3,
+  "url": "https://pnpm.io/limitations"
+ },
+ "lockfile": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 35,
+  "url": "https://pnpm.io/lockfile"
+ },
+ "logos": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 4,
+  "url": "https://pnpm.io/logos"
+ },
+ "migration": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 22,
+  "url": "https://pnpm.io/migration"
+ },
+ "motivation": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 20,
+  "url": "https://pnpm.io/motivation"
+ },
+ "npmrc": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 102,
+  "url": "https://pnpm.io/npmrc"
+ },
+ "only-allow-pnpm": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 4,
+  "url": "https://pnpm.io/only-allow-pnpm"
+ },
+ "package-managers": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 37,
+  "url": "https://pnpm.io/package-managers"
+ },
+ "package-sources": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 74,
+  "url": "https://pnpm.io/package-sources"
+ },
+ "package_json": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 78,
+  "url": "https://pnpm.io/package_json"
+ },
+ "pnpm-cli": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 21,
+  "url": "https://pnpm.io/pnpm-cli"
+ },
+ "pnpm-vs-npm": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 12,
+  "url": "https://pnpm.io/pnpm-vs-npm"
+ },
+ "pnpmfile": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 175,
+  "url": "https://pnpm.io/pnpmfile"
+ },
+ "podman": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 9,
+  "url": "https://pnpm.io/podman"
+ },
+ "production": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 2,
+  "url": "https://pnpm.io/production"
+ },
+ "registries": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 39,
+  "url": "https://pnpm.io/registries"
+ },
+ "registry-revisions": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 38,
+  "url": "https://pnpm.io/registry-revisions"
+ },
+ "scripts": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 20,
+  "url": "https://pnpm.io/scripts"
+ },
+ "settings": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 43,
+  "url": "https://pnpm.io/settings"
+ },
+ "settings/build": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 86,
+  "url": "https://pnpm.io/settings/build"
+ },
+ "settings/cli": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 67,
+  "url": "https://pnpm.io/settings/cli"
+ },
+ "settings/dependency-resolution": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 172,
+  "url": "https://pnpm.io/settings/dependency-resolution"
+ },
+ "settings/network": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 71,
+  "url": "https://pnpm.io/settings/network"
+ },
+ "settings/node-modules": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 151,
+  "url": "https://pnpm.io/settings/node-modules"
+ },
+ "settings/other": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 158,
+  "url": "https://pnpm.io/settings/other"
+ },
+ "settings/peer-dependencies": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 45,
+  "url": "https://pnpm.io/settings/peer-dependencies"
+ },
+ "settings/store": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 63,
+  "url": "https://pnpm.io/settings/store"
+ },
+ "settings/versioning": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 36,
+  "url": "https://pnpm.io/settings/versioning"
+ },
+ "supply-chain-security": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 17,
+  "url": "https://pnpm.io/supply-chain-security"
+ },
+ "symlinked-node-modules-structure": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 16,
+  "url": "https://pnpm.io/symlinked-node-modules-structure"
+ },
+ "typescript": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 7,
+  "url": "https://pnpm.io/typescript"
+ },
+ "uninstall": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 12,
+  "url": "https://pnpm.io/uninstall"
+ },
+ "using-changesets": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 23,
+  "url": "https://pnpm.io/using-changesets"
+ },
+ "versioning": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 35,
+  "url": "https://pnpm.io/versioning"
+ },
+ "workspace-task-orchestration": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 43,
+  "url": "https://pnpm.io/workspace-task-orchestration"
+ },
+ "workspaces": {
+  "source": "en",
+  "coverage": 0,
+  "flagged": 89,
+  "url": "https://pnpm.io/workspaces"
+ }
+}

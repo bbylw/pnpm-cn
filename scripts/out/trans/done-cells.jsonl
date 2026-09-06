@@ -1,0 +1,125 @@
+{"b":"cell#0000","z":"克隆 → 硬链接 → 复制"}
+{"b":"cell#0001","z":"精确、不可变（如 `12.0.0`）。包含预发布版本。"}
+{"b":"cell#0002","z":"跟踪该主版本内的最新稳定版（如 `12`）。"}
+{"b":"cell#0003","z":"最新的 pnpm 稳定版。不随预发布版本更新。"}
+{"b":"cell#0004","z":"pnpm 中的默认行为。"}
+{"b":"cell#0005","z":"npm 中的默认行为。"}
+{"b":"cell#0006","z":"Plug'n'Play"}
+{"b":"cell#0007","z":"有锁文件"}
+{"b":"cell#0008","z":"内容寻址存储"}
+{"b":"cell#0009","z":"pnpm 通过 `pnpm licenses list` 支持它。"}
+{"b":"cell#0010","z":"**类型/示例**"}
+{"b":"cell#0011","z":"包名。"}
+{"b":"cell#0012","z":"包版本。"}
+{"b":"cell#0013","z":"返回 `package.json` 对象"}
+{"b":"cell#0014","z":"加载包清单（用于读取 `peerDependencies`、`license`、`engines` 等字段）。"}
+{"b":"cell#0015","z":"全局安装一个包"}
+{"b":"cell#0016","z":"移除全局安装的包（若它被打包进某个安装组，则整个组都会被移除）"}
+{"b":"cell#0017","z":"更新全局包（重新安装到新的隔离目录中）"}
+{"b":"cell#0018","z":"列出所有全局安装的包"}
+{"b":"cell#0019","z":"**Node.js**"}
+{"b":"cell#0020","z":"Node.js 14"}
+{"b":"cell#0021","z":"Node.js 16"}
+{"b":"cell#0022","z":"Node.js 18"}
+{"b":"cell#0023","z":"Node.js 20"}
+{"b":"cell#0024","z":"Node.js 22"}
+{"b":"cell#0025","z":"Node.js 24"}
+{"b":"cell#0026","z":"Node.js 26"}
+{"b":"cell#0027","z":"**env 锁文件**（第一个，存在时）"}
+{"b":"cell#0028","z":"[配置依赖](/docs/config-dependencies)以及为项目解析出的 pnpm 版本，记录在 `configDependencies` 与 `packageManagerDependencies` 下，连同它们所需的 `packages` 和 `snapshots` 条目"}
+{"b":"cell#0029","z":"**项目锁文件**（最后一个，始终存在）"}
+{"b":"cell#0030","z":"项目自身的依赖图：`importers` 及其 `dependencies`，以及与之匹配的 `packages` 和 `snapshots`"}
+{"b":"cell#0031","z":"**包管理器**"}
+{"b":"cell#0032","z":"**提供方**"}
+{"b":"cell#0033","z":"registry 上的 `npm` 包"}
+{"b":"cell#0034","z":"Yarn Classic (`<2`)"}
+{"b":"cell#0035","z":"registry 上的 `yarn` 包"}
+{"b":"cell#0036","z":"Yarn Berry (`2` – `5`)"}
+{"b":"cell#0037","z":"registry 上的 `@yarnpkg/cli-dist` 包"}
+{"b":"cell#0038","z":"`yarnpkg/zpm` 发布归档"}
+{"b":"cell#0039","z":"`oven-sh/bun` 发布归档"}
+{"b":"cell#0040","z":"安装名为 `yarn` 的 npm 包"}
+{"b":"cell#0041","z":"记录项目的包管理器（该包仍可通过 `pnpm add yarn@npm:yarn@1.22.22` 安装）"}
+{"b":"cell#0042","z":"安装 Yarn Classic"}
+{"b":"cell#0043","z":"安装当前的 Yarn 发布线"}
+{"b":"cell#0044","z":"安装一个下载构建产物的包装包"}
+{"b":"cell#0045","z":"安装对应的 Node.js 或 Deno 发行版"}
+{"b":"cell#0046","z":"运行包装包"}
+{"b":"cell#0047","z":"运行该发行版"}
+{"b":"cell#0048","z":"全局安装的包管理器"}
+{"b":"cell#0049","z":"始终使用全局副本"}
+{"b":"cell#0050","z":"在项目有锁定时遵循项目的锁定"}
+{"b":"cell#0051","z":"**npm 命令**"}
+{"b":"cell#0052","z":"**pnpm 等价命令**"}
+{"b":"cell#0053","z":"**钩子函数**"}
+{"b":"cell#0054","z":"在 pnpm 解析依赖的包清单之后调用"}
+{"b":"cell#0055","z":"允许你修改某个依赖的 `package.json`。"}
+{"b":"cell#0056","z":"在依赖解析完成之后调用。"}
+{"b":"cell#0057","z":"允许你修改锁文件。"}
+{"b":"cell#0058","z":"在 pack/publish 过程中创建 tarball 之前调用"}
+{"b":"cell#0059","z":"允许你自定义发布出去的 `package.json`"}
+{"b":"cell#0060","z":"在包解析期间调用。"}
+{"b":"cell#0061","z":"允许你注册自定义的包解析器。"}
+{"b":"cell#0062","z":"在拉取包期间调用。"}
+{"b":"cell#0063","z":"允许你注册自定义的包拉取器。"}
+{"b":"cell#0064","z":"**声明内容**"}
+{"b":"cell#0065","z":"路由到该 registry 的包 scope。"}
+{"b":"cell#0066","z":"该 registry 响应的裸说明符前缀。"}
+{"b":"cell#0067","z":"服务器如何排布 tarball URL：`npm` 或 `artifactory`。"}
+{"b":"cell#0068","z":"服务器的简化元数据是否携带 `time` 字段。"}
+{"b":"cell#0069","z":"严格：只有当 tarball URL 恰好是标准 npm 布局的 URL（`<registry>/<name>/-/<scopeless-name>-<version>.tgz`）时才会被省略。除 `registry.npmjs.org` 外，所有 registry 默认都按此方式读取。"}
+{"b":"cell#0070","z":"服务器行为类似 `registry.npmjs.org`：它既从百分号编码路径（`/@acme%2Fwidget/...`）提供带 scope 的包，也从未编码路径提供。公共 registry 的忠实镜像或缓存代理即属此类，`registry.npmjs.org` 自身内置该类型。"}
+{"b":"cell#0071","z":"服务器会在带 scope 的包的 tarball 文件名中重复该 scope：`@acme/widget/-/@acme/widget-1.0.0.tgz`；而 npm 布局会去掉 scope（`@acme/widget/-/widget-1.0.0.tgz`）。"}
+{"b":"cell#0072","z":"JFrog Artifactory"}
+{"b":"cell#0073","z":"GitLab package registry"}
+{"b":"cell#0074","z":"`artifactory`——使用相同布局，在文件名中重复 scope。"}
+{"b":"cell#0075","z":"npm registry 的忠实镜像或缓存代理"}
+{"b":"cell#0076","z":"Verdaccio, Sonatype Nexus, Azure Artifacts"}
+{"b":"cell#0077","z":"无需声明——它们提供的就是标准 npm 布局，严格的默认值已经能重建该布局。"}
+{"b":"cell#0078","z":"GitHub Packages"}
+{"b":"cell#0079","z":"无需声明——其下载 URL 含有无法从包身份推导出的内容摘要，因此这些 URL 会保留在锁文件中。"}
+{"b":"cell#0080","z":"GitHub Enterprise Server"}
+{"b":"cell#0081","z":"无需声明——它只从百分号编码路径提供带 scope 的包，严格的默认值会把这些 URL 保留在锁文件中并按原样请求。"}
+{"b":"cell#0082","z":"同一项目中的 `build` 任务"}
+{"b":"cell#0083","z":"项目每个被选中的工作区依赖中的 `build` 任务"}
+{"b":"cell#0084","z":"**迁移日期**"}
+{"b":"cell#0085","z":"**迁移提交**"}
+{"b":"cell#0086","z":"保存到 `dependencies`"}
+{"b":"cell#0087","z":"保存到 `devDependencies`"}
+{"b":"cell#0088","z":"保存到 `optionalDependencies`"}
+{"b":"cell#0089","z":"全局安装包"}
+{"b":"cell#0090","z":"从 `next` tag 安装"}
+{"b":"cell#0091","z":"指定版本 `3.0.0`"}
+{"b":"cell#0092","z":"仅从存储进行离线安装"}
+{"b":"cell#0093","z":"不会更新 `pnpm-lock.yaml`"}
+{"b":"cell#0094","z":"只更新 `pnpm-lock.yaml`"}
+{"b":"cell#0095","z":"预览改动但不写入"}
+{"b":"cell#0096","z":"**当前版本**"}
+{"b":"cell#0097","z":"**待定意图**"}
+{"b":"cell#0098","z":"**新版本**"}
+{"b":"cell#0099","z":"符号链接/硬链接"}
+{"b":"cell#0100","z":"硬链接"}
+{"b":"cell#0101","z":"反映源代码的修改"}
+{"b":"cell#0102","z":"安装被链接包的依赖"}
+{"b":"cell#0103","z":"否（需手动安装）"}
+{"b":"cell#0104","z":"是（覆盖被链接包的 `node_modules`）"}
+{"b":"cell#0105","z":"为依赖使用不同的包管理器"}
+{"b":"cell#0106","z":"可以（例如对被链接的包使用 `npm`）"}
+{"b":"cell#0107","z":"不可以，它仍会使用 pnpm"}
+{"b":"cell#0108","z":"更新所有依赖，遵循 `package.json` 中声明的范围"}
+{"b":"cell#0109","z":"把所有依赖更新到最新版本"}
+{"b":"cell#0110","z":"把 `foo` 更新到 v2 上的最新版本"}
+{"b":"cell#0111","z":"更新 `@babel` scope 下的所有依赖"}
+{"b":"cell#0112","z":"**已移除的设置**"}
+{"b":"cell#0113","z":"**替换为**"}
+{"b":"cell#0114","z":"即 [GitHub Packages npm registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry)。"}
+{"b":"cell#0115","z":"即公共 npm registry。自 v11.20.0 起提供。"}
+{"b":"cell#0116","z":"硬链接 → 克隆 → 复制"}
+{"b":"cell#0117","z":"**链接阶段**"}
+{"b":"cell#0118","z":"**系统时间**"}
+{"b":"cell#0119","z":"复制上来 36.7k 个文件，共 366 MB"}
+{"b":"cell#0120","z":"874 MB，没有文件被复制上来"}
+{"b":"cell#0121","z":"当候选版本带有发布者签名认证时自动切换；否则询问一次以确认。"}
+{"b":"cell#0122","z":"让每个候选版本都经过确认环节，包括已通过签名验证的版本。回答仍会被记住，因此每个项目与候选版本各询问一次，而不是每次运行时都问。"}
+{"b":"cell#0123","z":"始终切换，从不询问。适用于 CI：在 CI 中一旦弹出提示，就会回退到全局版本。"}
+{"b":"cell#0124","z":"对该包禁用项目感知的 shim。"}

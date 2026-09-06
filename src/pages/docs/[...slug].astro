@@ -1,0 +1,66 @@
+---
+import fs from "node:fs";
+import { getCollection, render } from "astro:content";
+import DocsLayout from "../../layouts/DocsLayout.astro";
+
+export async function getStaticPaths() {
+  const docs = await getCollection("docs");
+  /* 取正文首个完整段落作为 meta description（纯文本，<=150 字） */
+  const excerptFrom = (raw: string): string => {
+    const body = raw.replace(/^---[\s\S]*?---/, "").split("\n");
+    const clean = (s: string) =>
+      s
+        .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+        .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+        .replace(/`([^`]*)`/g, "$1")
+        .replace(/[*_~#>|]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    let buf: string[] = [];
+    let inFence = false;
+    let out = "";
+    const flush = () => {
+      const text = clean(buf.join(" "));
+      buf = [];
+      if (!out && text.length >= 20) out = text.slice(0, 150);
+    };
+    for (const line of body) {
+      if (out) break;
+      const t = line.trim();
+      if (/^```/.test(t)) {
+        inFence = !inFence;
+        continue;
+      }
+      if (inFence) continue;
+      if (!t || /^#|^\||^[->]|^<!--/.test(t)) {
+        flush();
+        continue;
+      }
+      buf.push(t);
+      if (/[。．！？!?]$/.test(t)) flush();
+    }
+    flush();
+    return out;
+  };
+  return docs.map((d) => {
+    const id = d.id;
+    let raw = "";
+    try {
+      raw = fs.readFileSync(`src/content/docs/${id}.md`, "utf8");
+    } catch {
+      /* 读取失败时退回标题式描述 */
+    }
+    const desc =
+      d.data.desc || (raw ? excerptFrom(raw) : "") || `${String(d.data.title).replaceAll("`", "")}：pnpm 中文文档。`;
+    return { params: { slug: id }, props: { doc: d, docIds: docs.map((x) => x.id), desc } };
+  });
+}
+
+const { doc, docIds, desc } = Astro.props;
+const { Content, headings } = await render(doc);
+const frontmatter = doc.data;
+---
+
+<DocsLayout title={frontmatter.title} desc={desc} id={doc.id} headings={headings} docIds={docIds}>
+  <Content />
+</DocsLayout>

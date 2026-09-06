@@ -1,0 +1,225 @@
+{"b":"pnpmfile#2398","z":"pnpm 允许你通过特殊函数（钩子）直接介入安装过程。钩子可以在名为 `.pnpmfile.mjs`（ESM）或 `.pnpmfile.cjs`（CommonJS）的文件中声明。"}
+{"b":"pnpmfile#2399","z":"默认情况下，`.pnpmfile.mjs` 应与锁文件位于同一目录。例如，在共享锁文件的 [工作区](/docs/workspaces) 中，`.pnpmfile.mjs` 应位于 monorepo 的根目录。"}
+{"b":"pnpmfile#2400","z":"钩子"}
+{"b":"pnpmfile#2401","z":"TL;DR"}
+{"b":"pnpmfile#2402","z":"`hooks.readPackage(pkg, context): pkg | Promise<pkg>`"}
+{"b":"pnpmfile#2403","z":"允许你在解析之后、依赖解析之前修改某个依赖的 `package.json`。这些改动不会写入文件系统，但会影响锁文件中的解析结果，从而影响安装的内容。"}
+{"b":"pnpmfile#2404","z":"注意，如果你要修改的依赖已经被解析过，需要先删除 `pnpm-lock.yaml`。"}
+{"b":"pnpmfile#2405","z":"如果需要将 `package.json` 的改动保存到文件系统，就要使用 [pnpm patch](/docs/cli/patch) 命令对 `package.json` 文件打补丁。例如，当你想移除某个依赖的 `bin` 字段时，这种方式会很有用。"}
+{"b":"pnpmfile#2406","z":"参数"}
+{"b":"pnpmfile#2407","z":"`pkg` - 包的 manifest，即来自 registry 的响应或 `package.json` 的内容"}
+{"b":"pnpmfile#2408","z":"`context` - 该步骤的上下文对象。`#log(msg)` 方法允许你在该步骤中使用调试日志"}
+{"b":"pnpmfile#2409","z":"用法"}
+{"b":"pnpmfile#2410","z":"示例 `.pnpmfile.mjs`（修改某个依赖的依赖）："}
+{"b":"pnpmfile#2411","z":"已知限制"}
+{"b":"pnpmfile#2412","z":"通过 `readPackage` 从依赖的 manifest 中移除 `scripts` 字段，并不会阻止 pnpm 构建该依赖。pnpm 构建依赖时读取的是包归档中的 `package.json`，不受钩子影响。要想跳过某个包的构建，使用 [allowBuilds](/docs/settings/build#allowbuilds) 字段。"}
+{"b":"pnpmfile#2413","z":"`hooks.updateConfig(config): config | Promise<config>`"}
+{"b":"pnpmfile#2414","z":"自 v10.8.0 起提供"}
+{"b":"pnpmfile#2415","z":"允许你修改 pnpm 使用的配置项。此钩子与 [configDependencies](/docs/config-dependencies) 配合使用时最为有用，可以让你在不同的 Git 仓库之间共享和复用设置。"}
+{"b":"pnpmfile#2416","z":"例如，[@pnpm/plugin-better-defaults](https://github.com/pnpm/plugin-better-defaults) 使用 `updateConfig` 钩子来应用一组精心挑选的推荐设置。"}
+{"b":"pnpmfile#2417","z":"用法示例"}
+{"b":"pnpmfile#2418","z":".pnpmfile.mjs"}
+{"b":"pnpmfile#2419","z":"`hooks.afterAllResolved(lockfile, context): lockfile | Promise<lockfile>`"}
+{"b":"pnpmfile#2420","z":"允许你在锁文件被序列化之前修改其输出内容。"}
+{"b":"pnpmfile#2421","z":"参数"}
+{"b":"pnpmfile#2422","z":"`lockfile` - 被序列化到 `pnpm-lock.yaml` 的锁文件解析结果对象"}
+{"b":"pnpmfile#2423","z":"`context` - 该步骤的上下文对象。`#log(msg)` 方法允许你在该步骤中使用调试日志"}
+{"b":"pnpmfile#2424","z":"用法示例"}
+{"b":"pnpmfile#2425","z":".pnpmfile.mjs"}
+{"b":"pnpmfile#2426","z":"已知限制"}
+{"b":"pnpmfile#2427","z":"没有限制：凡是能对锁文件做的修改，都可以通过此函数完成，你甚至可以扩展锁文件的功能。"}
+{"b":"pnpmfile#2428","z":"`hooks.beforePacking(pkg): pkg | Promise<pkg>`"}
+{"b":"pnpmfile#2429","z":"自 v10.28.0 起提供"}
+{"b":"pnpmfile#2430","z":"允许你在 `pnpm pack` 或 `pnpm publish` 期间，于 `package.json` manifest 被打包进 tarball 之前修改它。这适合用于定制要发布的包，同时不影响本地开发用的 `package.json`。"}
+{"b":"pnpmfile#2431","z":"与修改安装期间依赖解析方式的 `hooks.readPackage` 不同，`beforePacking` 只影响最终发布的 tarball 的内容。"}
+{"b":"pnpmfile#2432","z":"参数"}
+{"b":"pnpmfile#2433","z":"`pkg` - 将包含在发布 tarball 中的包 manifest 对象"}
+{"b":"pnpmfile#2434","z":"用法示例"}
+{"b":"pnpmfile#2435","z":".pnpmfile.mjs"}
+{"b":"pnpmfile#2436","z":"此钩子所做的修改只影响 tarball 内部的 `package.json`，你本地的 `package.json` 文件保持不变。"}
+{"b":"pnpmfile#2437","z":"`hooks.preResolution(options): Promise<void>`"}
+{"b":"pnpmfile#2438","z":"此钩子在读取并解析项目的锁文件之后、解析依赖之前执行，允许修改锁文件对象。"}
+{"b":"pnpmfile#2439","z":"参数"}
+{"b":"pnpmfile#2440","z":"`options.existsCurrentLockfile` - 布尔值，当 `node_modules/.pnpm/lock.yaml` 处的锁文件存在时为 true"}
+{"b":"pnpmfile#2441","z":"`options.currentLockfile` - 来自 `node_modules/.pnpm/lock.yaml` 的锁文件对象"}
+{"b":"pnpmfile#2442","z":"`options.existsNonEmptyWantedLockfile` - 布尔值，当 `pnpm-lock.yaml` 处的锁文件存在时为 true"}
+{"b":"pnpmfile#2443","z":"`options.wantedLockfile` - 来自 `pnpm-lock.yaml` 的锁文件对象"}
+{"b":"pnpmfile#2444","z":"`options.lockfileDir` - 期望锁文件所在的目录"}
+{"b":"pnpmfile#2445","z":"`options.storeDir` - 存储目录的位置"}
+{"b":"pnpmfile#2446","z":"`options.registries` - 从 scope 到 registry URL 的映射"}
+{"b":"pnpmfile#2447","z":"`hooks.importPackage(destinationDir, options): Promise<string | undefined>`"}
+{"b":"pnpmfile#2448","z":"自 v11.23.0 起废弃"}
+{"b":"pnpmfile#2449","z":"`importPackage` 已被废弃，将在下一个 major 版本中移除。当 pnpmfile 定义了它时，pnpm 会发出警告，且定义它会使安装退出并行包导入器，导致安装变慢。如果你依赖此钩子，请到 [#14101](https://github.com/pnpm/pnpm/issues/14101) 下留言。"}
+{"b":"pnpmfile#2450","z":"此钩子允许你更改包写入 `node_modules` 的方式。返回值是可选的，用于说明导入依赖时使用的方法，例如克隆、硬链接。"}
+{"b":"pnpmfile#2451","z":"参数"}
+{"b":"pnpmfile#2452","z":"`destinationDir` - 包应写入的目标目录"}
+{"b":"pnpmfile#2453","z":"`hooks.filterLog(log): boolean`"}
+{"b":"pnpmfile#2454","z":"自 v12.0.0 起废弃"}
+{"b":"pnpmfile#2455","z":"`filterLog` 通过针对某条日志返回 `false`，将其排除在 pnpm 的报告输出之外。pnpm 12 会忽略该钩子，并在 pnpmfile 定义它时发出警告，因此应移除它而不是依赖它。使用 [loglevel](/docs/settings/cli#loglevel) 来选择 pnpm 的报告详细程度。"}
+{"b":"pnpmfile#2456","z":"`hooks.fetchers`"}
+{"b":"pnpmfile#2457","z":"已在 v11.0.0 中移除"}
+{"b":"pnpmfile#2458","z":"`hooks.fetchers` 已被移除。改用顶层的 `fetchers`。新 API 见[自定义拉取器](#custom-fetchers)一节。"}
+{"b":"pnpmfile#2459","z":"查找器（Finders）"}
+{"b":"pnpmfile#2460","z":"自 v10.16.0 起提供"}
+{"b":"pnpmfile#2461","z":"Finder 函数通过 `--find-by` 标志配合 `pnpm list` 和 `pnpm why` 使用。"}
+{"b":"pnpmfile#2462","z":".pnpmfile.mjs"}
+{"b":"pnpmfile#2463","z":"更多细节见 [Finders](/docs/finders)。"}
+{"b":"pnpmfile#2464","z":"自定义解析器与拉取器"}
+{"b":"pnpmfile#2465","z":"自 v11.0.0 起提供"}
+{"b":"pnpmfile#2466","z":"自定义解析器与拉取器允许你为新的包标识方案（如 `my-protocol:package-name`）实现自定义的包解析与拉取逻辑。它们以顶层导出的形式注册在 `.pnpmfile.cjs` 中："}
+{"b":"pnpmfile#2467","z":"TypeScript 接口"}
+{"b":"pnpmfile#2468","z":"自定义解析器"}
+{"b":"pnpmfile#2469","z":"自定义解析器将包描述符（如 `foo@^1.0.0`）转换为存储在锁文件中的解析结果。"}
+{"b":"pnpmfile#2470","z":"解析器接口"}
+{"b":"pnpmfile#2471","z":"自定义解析器是一个对象，可以实现以下方法的任意组合："}
+{"b":"pnpmfile#2472","z":"`canResolve(wantedDependency): boolean | Promise<boolean>`"}
+{"b":"pnpmfile#2473","z":"判断此解析器能否解析给定的 wanted 依赖。"}
+{"b":"pnpmfile#2474","z":"- 包含以下字段的对象："}
+{"b":"pnpmfile#2475","z":"`alias` - 在 package.json 中出现的包名或别名"}
+{"b":"pnpmfile#2476","z":"`bareSpecifier` - 版本范围、git URL、文件路径或其他说明符"}
+{"b":"pnpmfile#2477","z":"**返回：** 若此解析器能处理该包则返回 `true`，否则返回 `false`。这决定了 `resolve` 是否会被调用。"}
+{"b":"pnpmfile#2478","z":"`resolve(wantedDependency, opts): ResolveResult | Promise<ResolveResult>`"}
+{"b":"pnpmfile#2479","z":"将 wanted 依赖解析为具体的包元数据和解析结果信息。"}
+{"b":"pnpmfile#2480","z":"`wantedDependency` - wanted 依赖（与 `canResolve` 中的相同）"}
+{"b":"pnpmfile#2481","z":"- 包含以下字段的对象："}
+{"b":"pnpmfile#2482","z":"`lockfileDir` - 包含锁文件的目录"}
+{"b":"pnpmfile#2483","z":"`projectDir` - 项目根目录"}
+{"b":"pnpmfile#2484","z":"`preferredVersions` - 从包名到首选版本的映射"}
+{"b":"pnpmfile#2485","z":"**返回：** 包含以下字段的对象："}
+{"b":"pnpmfile#2486","z":"`id` - 唯一的包标识符（如 `'custom-pkg@1.0.0'`）"}
+{"b":"pnpmfile#2487","z":"- 解析结果的元数据，可以是："}
+{"b":"pnpmfile#2488","z":"标准解析结果，如 `{ tarball: 'https://...', integrity: '...' }`"}
+{"b":"pnpmfile#2489","z":"自定义解析结果：`{ type: 'custom:cdn', url: '...' }`"}
+{"b":"pnpmfile#2490","z":"自定义解析结果必须由对应的自定义拉取器处理。"}
+{"b":"pnpmfile#2491","z":"自定义解析结果类型"}
+{"b":"pnpmfile#2492","z":"自定义解析结果必须在 type 字段中使用 `custom:` 前缀（如 `custom:cdn`、`custom:artifactory`），以区别于 pnpm 内置的解析结果类型。"}
+{"b":"pnpmfile#2493","z":"`shouldRefreshResolution(depPath, pkgSnapshot): boolean | Promise<boolean>`"}
+{"b":"pnpmfile#2494","z":"返回 `true` 可触发对所有包的完整解析，跳过「Lockfile is up to date」优化。这适合用于实现基于时间的缓存失效或其他自定义重新解析逻辑。"}
+{"b":"pnpmfile#2495","z":"`depPath` - 包标识符字符串（如 `lodash@4.17.21`）"}
+{"b":"pnpmfile#2496","z":"`pkgSnapshot` - 该包的锁文件条目，可直接访问解析结果、依赖等信息"}
+{"b":"pnpmfile#2497","z":"**返回：** 返回 `true` 强制重新解析，否则返回 `false`。"}
+{"b":"pnpmfile#2498","z":"在 frozen lockfile 安装期间会跳过 `shouldRefreshResolution`，因为该模式不允许进行解析。"}
+{"b":"pnpmfile#2499","z":"自定义拉取器"}
+{"b":"pnpmfile#2500","z":"自定义拉取器完全负责自定义包类型的拉取，从自定义来源下载包内容，并将其存储到 pnpm 的内容寻址文件系统中。"}
+{"b":"pnpmfile#2501","z":"拉取器接口"}
+{"b":"pnpmfile#2502","z":"自定义拉取器是可以实现以下方法的对象："}
+{"b":"pnpmfile#2503","z":"`canFetch(pkgId, resolution): boolean | Promise<boolean>`"}
+{"b":"pnpmfile#2504","z":"判断此拉取器能否按给定的解析结果拉取某个包。"}
+{"b":"pnpmfile#2505","z":"`pkgId` - 来自解析阶段的唯一包标识符"}
+{"b":"pnpmfile#2506","z":"`resolution` - 解析器的 `resolve` 方法返回的解析结果对象"}
+{"b":"pnpmfile#2507","z":"**返回：** 若此拉取器能处理该包的拉取则返回 `true`，否则返回 `false`。"}
+{"b":"pnpmfile#2508","z":"`fetch(cafs, resolution, opts, fetchers): FetchResult | CustomFetcherDelegation | Promise<FetchResult | CustomFetcherDelegation>`"}
+{"b":"pnpmfile#2509","z":"拉取包文件并返回所拉取包的元数据。"}
+{"b":"pnpmfile#2510","z":"`cafs` - 用于存储文件的内容寻址文件系统接口"}
+{"b":"pnpmfile#2511","z":"`resolution` - 解析结果对象（与传给 `canFetch` 的相同）"}
+{"b":"pnpmfile#2512","z":"- 拉取选项，包括："}
+{"b":"pnpmfile#2513","z":"`lockfileDir` - 包含锁文件的目录"}
+{"b":"pnpmfile#2514","z":"`filesIndexFile` - 文件索引的路径"}
+{"b":"pnpmfile#2515","z":"`onStart` - 拉取开始时的可选回调"}
+{"b":"pnpmfile#2516","z":"`onProgress` - 可选的进度回调"}
+{"b":"pnpmfile#2517","z":"- 包含 pnpm 标准拉取器的对象，用于委托："}
+{"b":"pnpmfile#2518","z":"`remoteTarball` - 远程 tarball 的拉取器"}
+{"b":"pnpmfile#2519","z":"`localTarball` - 本地 tarball 的拉取器"}
+{"b":"pnpmfile#2520","z":"`gitHostedTarball` - GitHub/GitLab/Bitbucket tarball 的拉取器"}
+{"b":"pnpmfile#2521","z":"`directory` - 本地目录的拉取器"}
+{"b":"pnpmfile#2522","z":"`git` - git 仓库的拉取器"}
+{"b":"pnpmfile#2523","z":"**返回：** 拉取结果，或一个[委托信封](#delegating-to-the-built-in-fetchers)。"}
+{"b":"pnpmfile#2524","z":"拉取结果是一个包含以下字段的对象："}
+{"b":"pnpmfile#2525","z":"`filesIndex` - 从相对文件路径到其物理位置的映射。对于远程包，这些是 pnpm 内容寻址存储（CAFS）中的路径；对于本地包（当 `local: true` 时），这些是磁盘上文件的绝对路径。"}
+{"b":"pnpmfile#2526","z":"`manifest` - 可选。所拉取包的 package.json。若不提供，pnpm 会在需要时从磁盘读取。提供它可以省去一次额外的文件 I/O，当你手头已有 manifest 数据时（例如拉取过程中已经解析过）建议提供。"}
+{"b":"pnpmfile#2527","z":"`requiresBuild` - 布尔值，指示该包是否有需要执行的构建脚本。当包包含 `preinstall`、`install` 或 `postinstall` 脚本，或含有 `binding.gyp`、`.hooks/` 文件时，设为 `true`。标准拉取器会根据 manifest 和文件列表自动判断。"}
+{"b":"pnpmfile#2528","z":"`local` - 可选。设为 `true` 时直接从磁盘加载包，不复制到 pnpm 的存储中。为 `true` 时，`filesIndex` 应包含磁盘上文件的绝对路径，pnpm 会将它们硬链接到 `node_modules` 而不是复制。directory 拉取器就是这样处理本地依赖的（如 `file:../my-package`）。"}
+{"b":"pnpmfile#2529","z":"委托给内置拉取器"}
+{"b":"pnpmfile#2530","z":"自 v11.12.0 起提供"}
+{"b":"pnpmfile#2531","z":"自定义拉取器可以不亲自拉取包，而是把这项工作交还给 pnpm。有两种方式可以做到这一点。"}
+{"b":"pnpmfile#2532","z":"**返回 { delegate } 信封。** 不返回拉取结果，而是返回一个只含 `delegate` 键的对象，其值是 pnpm 应改用的解析结果。pnpm 会将该包的解析结果改写为该形式，并走内置的拉取路径："}
+{"b":"pnpmfile#2533","z":".pnpmfile.cjs"}
+{"b":"pnpmfile#2534","z":"被委托的解析结果必须是完整、可拉取的形式（例如 `{ tarball, integrity }`）。委托只有一步：`delegate` 本身若为自定义类型会被拒绝。"}
+{"b":"pnpmfile#2535","z":"**直接调用 fetchers.*。** `fetchers` 参数提供 pnpm 的标准拉取器，因此你可以自行转换解析结果并调用其中一个。"}
+{"b":"pnpmfile#2536","z":"为可移植性优先使用信封"}
+{"b":"pnpmfile#2537","z":"`{ delegate }` 信封是唯一在 pnpm 和 [pacquet](https://pnpm.io/blog/releases/12.0)（pnpm 的 Rust 移植版）中都能工作的委托形式。pacquet 通过 IPC 调用 pnpmfile 拉取器，此时 `cafs` 与 `fetchers` 无法存在，都会以 `null` 传入。要在任一技术栈上运行的拉取器必须返回信封，而不是调用 `fetchers.*`。"}
+{"b":"pnpmfile#2538","z":"用法示例"}
+{"b":"pnpmfile#2539","z":"基础自定义解析器"}
+{"b":"pnpmfile#2540","z":"此示例展示一个从自定义 registry 解析包的自定义解析器："}
+{"b":"pnpmfile#2541","z":".pnpmfile.cjs"}
+{"b":"pnpmfile#2542","z":"结合 `shouldRefreshResolution` 的自定义解析器与拉取器"}
+{"b":"pnpmfile#2543","z":"此示例展示解析器与拉取器协同工作，配合自定义解析结果类型和基于时间的缓存失效："}
+{"b":"pnpmfile#2544","z":".pnpmfile.cjs"}
+{"b":"pnpmfile#2545","z":"基础自定义拉取器"}
+{"b":"pnpmfile#2546","z":"此示例展示从另一来源拉取特定包的自定义拉取器："}
+{"b":"pnpmfile#2547","z":".pnpmfile.cjs"}
+{"b":"pnpmfile#2548","z":"解析器与拉取器配合的自定义解析结果类型"}
+{"b":"pnpmfile#2549","z":"此示例展示解析器与拉取器通过自定义解析结果类型协同工作："}
+{"b":"pnpmfile#2550","z":".pnpmfile.cjs"}
+{"b":"pnpmfile#2551","z":"优先级与顺序"}
+{"b":"pnpmfile#2552","z":"注册多个解析器时，会按顺序依次检查。第一个 `canResolve` 返回 `true` 的解析器将用于解析。拉取器同理：拉取阶段会使用第一个 `canFetch` 返回 `true` 的拉取器。"}
+{"b":"pnpmfile#2553","z":"自定义解析器会在 pnpm 内置解析器（npm、git、tarball 等）之前尝试，让你完全掌控包的解析。"}
+{"b":"pnpmfile#2554","z":"性能考量"}
+{"b":"pnpmfile#2555","z":"`canResolve()`、`canFetch()` 和 `shouldRefreshResolution()` 应当是低开销的检查（最好为同步），因为解析期间会为每个依赖调用它们。"}
+{"b":"pnpmfile#2556","z":"相关配置"}
+{"b":"pnpmfile#2557","z":"ignorePnpmfile"}
+{"b":"pnpmfile#2558","z":"默认值：**false**"}
+{"b":"pnpmfile#2559","z":"类型：**布尔值**"}
+{"b":"pnpmfile#2560","z":"pnpmfile 将被忽略。与 `--ignore-scripts` 搭配使用，可确保安装期间不执行任何脚本。"}
+{"b":"pnpmfile#2561","z":"pnpmfile"}
+{"b":"pnpmfile#2562","z":"默认值：**['.pnpmfile.mjs']**"}
+{"b":"pnpmfile#2563","z":"类型：**路径[]**"}
+{"b":"pnpmfile#2564","z":"示例：**['.pnpm/.pnpmfile.mjs']**"}
+{"b":"pnpmfile#2565","z":"本地 pnpmfile 的位置。"}
+{"b":"pnpmfile#2566","z":"globalPnpmfile"}
+{"b":"pnpmfile#2567","z":"默认值：**null**"}
+{"b":"pnpmfile#2568","z":"类型：**路径**"}
+{"b":"pnpmfile#2569","z":"示例：**~/.pnpm/global_pnpmfile.mjs**"}
+{"b":"pnpmfile#2570","z":"全局 pnpmfile 的位置。所有项目在安装期间都会使用全局 pnpmfile。"}
+{"b":"pnpmfile#2571","z":"推荐使用本地 pnpmfile。只有当你在不以 pnpm 为主要包管理器的项目中使用 pnpm 时，才使用全局 pnpmfile。"}
+{"b":"pnpmfile@title","z":".pnpmfile.mjs"}
+{"b":"podman#2572","z":"在容器与宿主机的 Btrfs 文件系统之间共享文件"}
+{"b":"podman#2573","z":"此方法仅在 Podman 支持的写时复制文件系统（如 Btrfs）上有效。对于其他文件系统（如 Ext4），pnpm 会改为复制文件。"}
+{"b":"podman#2574","z":"Podman 支持 Btrfs 这类写时复制文件系统。在 Btrfs 上，容器运行时为挂载卷创建真正的 Btrfs 子卷。pnpm 可以利用这一行为，在不同挂载卷之间创建引用链接（reflink）。"}
+{"b":"podman#2575","z":"要在宿主机与容器之间共享文件，请将宿主机上的存储目录和 `node_modules` 目录挂载到容器中。这样容器内的 pnpm 就能以引用链接的形式自然复用宿主机的文件。"}
+{"b":"podman#2576","z":"只将宿主机上的 pnpm 存储挂载到你信任的容器。对挂载存储有写权限的容器，可能影响后续复用该存储的安装。"}
+{"b":"podman#2577","z":"以下是一个用于演示的容器配置示例："}
+{"b":"podman#2578","z":"在 `package.json` 的 [devEngines.runtime](/docs/package_json#devenginesruntime) 中声明 Node.js。下方的 `pnpm install` 命令会自动安装声明的版本。"}
+{"b":"podman#2579","z":"运行以下命令构建 podman 镜像："}
+{"b":"podman@title","z":"与 Podman 配合使用"}
+{"b":"production#2580","z":"使用 pnpm 在生产环境中部署依赖有两种方式。一种是提交锁文件，然后在生产环境中运行 `pnpm install`。它会依据锁文件构建依赖树，也就是说依赖版本与锁文件提交时保持一致。这是确保依赖树在各环境间保持一致的最有效方式，也是我们推荐的方式。"}
+{"b":"production#2581","z":"另一种方式是提交锁文件并把包存储复制到生产环境（可通过[存储位置选项](/docs/settings/store#storedir)更改位置）。之后运行 `pnpm install --offline`，pnpm 会使用全局存储中的包，不会向 registry 发出任何请求。**仅**当环境因故无法访问外部 registry 时，才推荐这种方式。"}
+{"b":"registries#2582","z":"自 v11.23.0 起提供"}
+{"b":"registries#2583","z":"`pnpm-workspace.yaml` 中的 [registries](/docs/settings/dependency-resolution#registries) 设置声明项目安装所依赖的每个 registry，每条以该 registry 的 URL 为键。pnpm 关于某个 registry 的全部信息都存放在其条目中：路由到它的 scope、它所响应的裸说明符前缀，以及其后端服务器的情况。"}
+{"b":"registries#2584","z":"pnpm-workspace.yaml"}
+{"b":"registries#2585","z":"以 URL 为键，是因为条目中的每条事实都是关于该服务器的事实。如果 tarball 布局改以 scope 为键，它就会绑定到 scope 当前指向的对象，而两个 scope 解析结果不同的开发者写出的锁文件，会对哪些 URL 可以省略产生分歧。"}
+{"b":"registries#2586","z":"条目可以包含："}
+{"b":"registries#2587","z":"其他任何字段都会被拒绝。具体来说，凭据（`_authToken`、`_auth`、`_password`、`username`、`tokenHelper`）和 TLS 材料（`ca`、`cafile`、`cert`、`certfile`、`key`、`keyfile`）会被直接拒绝而不是静默忽略。`pnpm-workspace.yaml` 会提交到仓库，因此这些内容应放在 [.npmrc](/docs/npmrc) 中（例如 `//npm.corp.example.com/:_authToken=...`）。内嵌 `user:pass@` 凭据的 URL 键出于同样的原因也会被拒绝。"}
+{"b":"registries#2588","z":"将包路由到某个 registry"}
+{"b":"registries#2589","z":"scopes"}
+{"b":"registries#2590","z":"包从该 registry 解析的 scope，需带 `@` 前缀。单独的 `\"@\"` 会路由到无 scope 的默认 registry，即 `registry` 设置所指定的同一个 registry："}
+{"b":"registries#2591","z":"pnpm-workspace.yaml"}
+{"b":"registries#2592","z":"一个 scope 只解析到一个 registry，因此在两个条目中路由同一个 scope 是错误的。"}
+{"b":"registries#2593","z":"prefix"}
+{"b":"registries#2594","z":"该 registry 响应的[具名 registry](/docs/package-sources#named-registries)前缀，如 `\"lib\": \"work:^2.0.0\"`："}
+{"b":"registries#2595","z":"pnpm-workspace.yaml"}
+{"b":"registries#2596","z":"每个条目最多声明一个前缀，且两个条目不能声明同一个前缀：前缀是 registry 在锁文件包键中的标识（`foo@work:1.0.0`），因此再写一种拼法会让同一个 registry 的同一个包出现两个键。"}
+{"b":"registries#2597","z":"此处声明的前缀遵循与其所取代的已废弃 [namedRegistries](/docs/settings/dependency-resolution#namedregistries) 设置相同的规则：可以通过在自己的 URL 上声明前缀来覆盖内置的 `gh:` 和 `npmjs:` 别名，[保留名称](/docs/settings/dependency-resolution#reserved-alias-names)会被拒绝，通过前缀解析的包会获得[带 registry 限定的锁文件键](/docs/settings/dependency-resolution#named-registries-in-the-lockfile)。"}
+{"b":"registries#2598","z":"描述服务器"}
+{"b":"registries#2599","z":"serverType"}
+{"b":"registries#2600","z":"并非所有 registry 都按 npm registry 的方式排布 tarball URL。当 pnpm 能从包名、版本和 registry 重建 URL 时，就会从 `pnpm-lock.yaml` 中省略该 tarball URL。这样锁文件就不会为该包保留特定于主机的 URL，重命名或迁移 registry 也不会导致锁文件频繁变动。pnpm 能否重建 URL 取决于服务器，`serverType` 就是你声明它的地方，它有三种取值："}
+{"b":"registries#2601","z":"对于 JFrog Artifactory registry，这决定了锁文件是为**每个带 scope 的包**记录特定于主机的 tarball URL，还是一个都不记录："}
+{"b":"registries#2602","z":"pnpm-workspace.yaml"}
+{"b":"registries#2603","z":"常见服务器的取值："}
+{"b":"registries#2604","z":"布局需要声明，不会被推断：虚拟仓库可以同时提供两种布局，取决于每个包是从上游同步而来还是在本地发布，因此不存在 pnpm 可以探测的 registry 级信号。声明它还能让错误的取值成为一个可修复的错误配置，而不是悄无声息的故障。"}
+{"b":"registries#2605","z":"`serverType` 是一项只有服务器运营方才能做出的声明，且锁文件依赖它：被省略的 tarball URL 会在每次安装时用声明的布局重建，包括 `--frozen-lockfile` 安装。应当声明服务器实际提供的布局，并预期声明后会出现一次性的锁文件 diff：pnpm 现在能够重建的 URL 会在下一次写入锁文件的安装中从锁文件里消失。"}
+{"b":"registries#2606","z":"supportsTimeField"}
+{"b":"registries#2607","z":"该 registry 的简化元数据是否携带 `time` 字段。`registry.npmjs.org` 不携带，这就是默认值为 `false` 的原因，也是 [minimumReleaseAge](/docs/settings/dependency-resolution#minimumreleaseage) 等基于时间的解析特性会退回使用大得多的完整元数据文档的原因。对于确实携带 `time` 字段的 registry（如 Verdaccio v5.15.1+ 和若干代理），值得进行声明："}
+{"b":"registries#2608","z":"pnpm-workspace.yaml"}
+{"b":"registries#2609","z":"这是 [registrySupportsTimeField](/docs/settings/other#registrysupportstimefield) 设置的按 registry 形式。回退行为按 registry 分别决定：某个 registry 需要完整元数据，不再牵连其他 registry；而对于项目未描述的 registry，仍以 `registrySupportsTimeField` 为准。"}
+{"b":"registries#2610","z":"设置可以存放的位置"}
+{"b":"registries#2611","z":"该设置应放在 `pnpm-workspace.yaml` 中，而不是 `.npmrc` 或全局配置中，因为锁文件依赖它：如果某个开发者省略的 tarball URL 与另一个开发者重建出的结果不同，frozen 安装就会失败。"}
+{"b":"registries#2612","z":"[全局配置文件](/docs/cli/config)（`config.yaml`）可以声明*路由*，即 `scopes` 和 `prefix`，从而使 `work:` 这类 scope 或别名作用于机器上的所有项目。出于上述原因，服务器描述（`serverType` 和 `supportsTimeField`）只从 `pnpm-workspace.yaml` 读取。"}
+{"b":"registries#2613","z":"自 v12.1.0 起，[pnpm login --scope <scope>](/docs/cli/login#--scope-scope) 在把凭据记录到 `_auth` 下的同时，会把该机器级的 scope 路由添加到全局 `registries` 设置中。之后对同一 scope 再次登录会移动该路由，而不是在两个 registry 中重复声明。"}
+{"b":"registries#2614","z":"未声明任何路由的条目，描述的是在其他位置配置的 registry，例如 `.npmrc` 中设置的默认 registry。此类条目只有在其 URL 确实是项目实际从中解析的 registry 时才生效；pnpm 会对不匹配任何已配置 registry 的条目发出警告，否则它们会处于无效状态（过期的 URL、迁移过的 scope）。"}
+{"b":"registries#2615","z":"该设置的 URL 键中**不会**展开环境变量，原因与其他 [pnpm-workspace.yaml 中的 registry URL](/docs/settings)不展开环境变量相同：该文件会被提交，若把环境变量展开到请求目标地址，可能将机密泄露给攻击者控制的主机。包含 `${...}` 占位符的键会被忽略。"}
+{"b":"registries#2616","z":"较早的形式"}
+{"b":"registries#2617","z":"在 v11.23.0 之前，`registries` 将 scope 映射到 URL，并用 `default` 键指定主 registry："}
+{"b":"registries#2618","z":"pnpm-workspace.yaml"}
+{"b":"registries#2619","z":"这种形式仍然被接受，行为一如以往。两种形式不能混在同一个映射中：值为字符串的条目是 scope 路由，而以 URL 为键的 scope 路由则是错误。"}
+{"b":"registries#2620","z":"[namedRegistries](/docs/settings/dependency-resolution#namedregistries) 设置已废弃，改用 `prefix`。它仍会被读取，但仅用于 `registries` 未声明的前缀；当两者都声明前缀时，pnpm 会发出警告。"}

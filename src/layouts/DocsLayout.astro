@@ -1,0 +1,317 @@
+---
+import Icon from "../components/Icon.astro";
+import SideItem from "../components/SideItem.astro";
+import Base from "./Base.astro";
+import nav from "../data/nav.json";
+
+interface NavItem {
+  id: string;
+  label: string;
+  collapsed?: boolean;
+  children?: NavItem[];
+}
+
+interface Props {
+  title: string;
+  desc?: string;
+  id: string;
+  headings: { depth: number; text: string; slug: string }[];
+  docIds: string[];
+}
+
+const props = Astro.props;
+const current = "/docs/" + props.id;
+const docSet = new Set(props.docIds);
+const groups = nav as { id: string; label: string; items: NavItem[] }[];
+
+/* 展平（含分组链接页）得到序列与相邻页 */
+const flat: { id: string; label: string }[] = [];
+(function collect(items: NavItem[]) {
+  for (const it of items) {
+    if (docSet.has(it.id) && !flat.some((f) => f.id === it.id)) flat.push({ id: it.id, label: it.label });
+    if (it.children) collect(it.children);
+  }
+})(groups.flatMap((g) => g.items));
+const idx = flat.findIndex((f) => f.id === props.id);
+const prev = idx > 0 ? flat[idx - 1] : null;
+const next = idx >= 0 && idx < flat.length - 1 ? flat[idx + 1] : null;
+
+/* 面包屑路径 */
+function findPath(items: NavItem[], trail: { label: string; id: string }[]): { label: string; id: string }[] | null {
+  for (const it of items) {
+    if (it.id === props.id) return [...trail, { label: it.label, id: it.id }];
+    if (it.children) {
+      const r = findPath(it.children, [...trail, { label: it.label, id: it.id }]);
+      if (r) return r;
+    }
+  }
+  return null;
+}
+let crumbs: { label: string; id: string }[] = [];
+for (const g of groups) {
+  const r = findPath(g.items, [{ label: g.label, id: "" }]);
+  if (r) {
+    crumbs = r;
+    break;
+  }
+}
+
+const titleText = props.title.replaceAll("`", "");
+const toc = props.headings.filter((h) => h.depth <= 3);
+
+/* BreadcrumbList JSON-LD（首页 + 分组轨迹 + 当前页） */
+const siteUrl = (p: string) => new URL(p, Astro.site).href;
+const ldBreadcrumbs = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "pnpm", item: siteUrl("/") },
+    ...crumbs
+      .filter((c) => c.label)
+      .map((c, i) => ({
+        "@type": "ListItem",
+        position: i + 2,
+        name: c.label,
+        ...(c.id && docSet.has(c.id) ? { item: siteUrl("/docs/" + c.id) } : {}),
+      })),
+    { "@type": "ListItem", position: crumbs.length + 2, name: titleText, item: siteUrl("/docs/" + props.id) },
+  ],
+};
+---
+
+<Base title={`${titleText}｜pnpm`} desc={props.desc || `${titleText}：pnpm 中文文档。`} jsonLd={ldBreadcrumbs}>
+  <div class="mx-auto flex w-full max-w-[1440px]">
+    <aside
+      class="sticky top-16 hidden h-[calc(100vh-4rem)] w-[300px] shrink-0 overflow-y-auto border-r border-line px-5 py-8 lg:block thin-scrollbar"
+      aria-label="文档导航"
+    >
+      <div id="sidebar-tree">
+        {
+          groups.map((g) => (
+            <div class="mb-7">
+              <h2 class="mb-2 font-display text-[0.76rem] font-bold uppercase tracking-[0.16em] text-muted">{g.label}</h2>
+              <ul class="space-y-px">
+                {g.items.map((it) => (
+                  <SideItem item={it} depth={0} current={current} docSet={[...docSet]} activeTrail={crumbs.some((c) => c.id === it.id)} />
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </aside>
+
+    <div class="min-w-0 flex-1">
+      <details id="doc-toc-details" class="border-b border-line bg-raise px-4 py-2.5 lg:hidden">
+        <summary class="flex cursor-pointer list-none items-center gap-2 text-[0.92rem] font-semibold">
+          <span class="flex items-center gap-2"><Icon name="list" size="1.1em" /> 文档目录</span>
+          <Icon name="arrow-right" size="1em" class="doc-toc-arrow ml-auto opacity-60" />
+        </summary>
+        <div id="mobile-sidebar-tree" class="max-h-[55vh] overflow-y-auto py-3"></div>
+        <noscript>
+          <p class="px-2 pb-2 text-[0.85rem] leading-relaxed text-muted">
+            侧栏目录需要启用 JavaScript；可改用页头菜单，或页面底部的「上一页 / 下一页」继续浏览。
+          </p>
+        </noscript>
+      </details>
+
+      <div class="mx-auto flex max-w-[1010px] gap-12 px-4 sm:px-6">
+        <article class="min-w-0 flex-1 py-10">
+          <nav class="flex flex-wrap items-center gap-1.5 text-[0.82rem] text-muted" aria-label="面包屑">
+            {
+              crumbs.map((c, i) => (
+                <>
+                  {i > 0 && <span aria-hidden="true">/</span>}
+                  {c.id && i < crumbs.length - 1 && docSet.has(c.id) ? (
+                    <a class="no-underline hover:text-ink" href={`/docs/${c.id}`}>{c.label}</a>
+                  ) : (
+                    <span>{c.label}</span>
+                  )}
+                </>
+              ))
+            }
+          </nav>
+          <h1 class="mt-3 font-display text-[clamp(1.8rem,3.6vw,2.45rem)] font-extrabold leading-tight tracking-tight">{titleText}</h1>
+          <p class="mt-2 font-mono text-[0.75rem]">
+            <a href={`https://pnpm.io/${props.id}`} rel="noopener" class="text-accent no-underline hover:underline">查看英文原文 ↗</a>
+          </p>
+          <div class="doc-body mt-8">
+            <slot />
+          </div>
+
+          <nav class="mt-14 grid gap-3 border-t border-line pt-8 sm:grid-cols-2" aria-label="文档翻页">
+            {
+              prev ? (
+                <a href={`/docs/${prev.id}`} class="group rounded-lg border border-line bg-raise px-4 py-3.5 no-underline hover:border-accent-line">
+                  <span class="flex items-center gap-1 text-[0.75rem] text-muted"><Icon name="arrow-right" size="0.95em" class="rotate-180" /> 上一页</span>
+                  <span class="mt-1 block font-display text-[0.95rem] font-bold text-ink group-hover:text-accent">{prev.label.replaceAll("`", "")}</span>
+                </a>
+              ) : (
+                <span aria-hidden="true" />
+              )
+            }
+            {
+              next ? (
+                <a href={`/docs/${next.id}`} class="group rounded-lg border border-line bg-raise px-4 py-3.5 text-right no-underline hover:border-accent-line sm:justify-self-end">
+                  <span class="flex items-center justify-end gap-1 text-[0.75rem] text-muted">下一页 <Icon name="arrow-right" size="0.95em" /></span>
+                  <span class="mt-1 block font-display text-[0.95rem] font-bold text-ink group-hover:text-accent">{next.label.replaceAll("`", "")}</span>
+                </a>
+              ) : (
+                <span aria-hidden="true" />
+              )
+            }
+          </nav>
+
+          <p class="mt-10 text-[0.82rem] leading-relaxed text-muted">
+            本页内容译自
+            <a class="text-accent" href={`https://github.com/pnpm/pnpm.io/blob/main/docs/${props.id}.md`} rel="noopener">pnpm 官方文档</a>
+            （MIT License），如有出入以英文原文为准。
+          </p>
+        </article>
+
+        {
+          toc.length > 1 && (
+            <aside class="sticky top-16 hidden max-h-[calc(100vh-4rem)] w-[220px] shrink-0 overflow-y-auto py-10 xl:block thin-scrollbar" aria-label="本页目录">
+              <h2 class="font-mono text-[0.72rem] uppercase tracking-[0.16em] text-muted">本页</h2>
+              <ul class="toc-list mt-3 space-y-1 border-l border-line text-[0.84rem]">
+                {
+                  toc.map((h) => (
+                    <li class={h.depth === 3 ? "pl-5" : "pl-3"}>
+                      <a href={`#${h.slug}`} data-slug={h.slug} class="toc-link block py-1 leading-snug text-muted no-underline hover:text-ink">
+                        {h.text.replaceAll("`", "")}
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </aside>
+          )
+        }
+      </div>
+    </div>
+  </div>
+
+  <script slot="head" is:inline>
+    const links = Array.from(document.querySelectorAll(".toc-link"));
+    if (links.length) {
+      const spy = new IntersectionObserver(
+        (es) => {
+          for (const e of es) {
+            if (!e.isIntersecting) continue;
+            for (const l of links) {
+              const on = l.getAttribute("data-slug") === e.target.id;
+              const el = l;
+              el.style.borderColor = on ? "var(--color-accent-line)" : "transparent";
+              el.style.color = on ? "var(--color-ink)" : "";
+            }
+          }
+        },
+        { rootMargin: "-72px 0px -70% 0px" }
+      );
+      for (const l of links) {
+        const el = document.getElementById(l.getAttribute("data-slug") || "");
+        if (el) spy.observe(el);
+      }
+    }
+  </script>
+</Base>
+
+<style is:global>
+  .toc-list a {
+    border-left: 2px solid transparent;
+    margin-left: -1px;
+  }
+  .doc-body pre {
+    position: relative;
+  }
+  .codcopy {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.06);
+    color: #c9c5bd;
+    border-radius: 6px;
+    padding: 4px 6px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .doc-body pre:hover .codcopy,
+  .codcopy:focus-visible {
+    opacity: 1;
+  }
+  .codcopy.is-ok::after {
+    content: "已复制";
+    font-size: 10px;
+    margin-left: 4px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .codcopy {
+      opacity: 0.6;
+    }
+  }
+  /* 触屏无悬停：代码复制按钮常显 */
+  @media (hover: none) {
+    .codcopy {
+      opacity: 0.85;
+    }
+  }
+  /* 移动端目录箭头：收起时指向下，展开时指向上 */
+  #doc-toc-details summary > .doc-toc-arrow {
+    transition: transform 0.2s ease;
+    transform: rotate(90deg);
+  }
+  #doc-toc-details[open] summary > .doc-toc-arrow {
+    transform: rotate(-90deg);
+  }
+</style>
+
+<script>
+  for (const pre of document.querySelectorAll(".doc-body pre")) {
+    const text = pre.textContent || "";
+    if (text.length < 40 && !text.includes("\n")) continue;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "codcopy";
+    btn.setAttribute("aria-label", "复制代码");
+    btn.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="14" height="14" fill="currentColor"><path d="M216,64V40a8,8,0,0,0-8-8H48A16,16,0,0,0,32,48V184a16,16,0,0,0,16,16H80v24a8,8,0,0,0,8,8H216a8,8,0,0,0,8-8V72A8,8,0,0,0,216,64ZM80,168,48,168V48H200V64H80A16,16,0,0,0,64,80v88Zm32,56V192h96V80H112Z"></path></svg>';
+    pre.appendChild(btn);
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.classList.add("is-ok");
+        setTimeout(() => btn.classList.remove("is-ok"), 1200);
+      } catch {}
+    });
+  }
+</script>
+
+<script>
+  /* 侧栏只渲染一份（桌面 <aside>），移动端目录打开时克隆进来，避免 HTML 双份大导航 */
+  const sidebarTree = document.getElementById("sidebar-tree");
+  const mobileTree = document.getElementById("mobile-sidebar-tree");
+  if (sidebarTree && mobileTree) {
+    const fill = () => {
+      if (mobileTree.childElementCount === 0) mobileTree.appendChild(sidebarTree.cloneNode(true));
+    };
+    const clear = () => {
+      if (mobileTree.childElementCount > 0) mobileTree.replaceChildren();
+    };
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const sync = () => (mq.matches ? fill() : clear());
+    sync();
+    if (typeof mq.addEventListener === "function") mq.addEventListener("change", sync);
+  }
+</script>
+
+<script>
+  /* 侧栏定位：让当前页条目在桌面侧栏中垂直居中可见 */
+  const activeNavLink = document.querySelector('#sidebar-tree a[aria-current="page"]') as HTMLElement | null;
+  const navAside = document.querySelector('aside[aria-label="文档导航"]') as HTMLElement | null;
+  if (activeNavLink && navAside) {
+    const top = activeNavLink.offsetTop - navAside.clientHeight / 2 + activeNavLink.clientHeight / 2;
+    if (top > 0) navAside.scrollTo({ top: Math.max(top, 0), behavior: "auto" });
+  }
+</script>

@@ -1,0 +1,665 @@
+[
+ {
+  "id": "Introduction",
+  "label": "开始了解",
+  "items": [
+   {
+    "id": "motivation",
+    "label": "为什么选择 pnpm"
+   },
+   {
+    "id": "feature-comparison",
+    "label": "功能对比"
+   },
+   {
+    "id": "installation",
+    "label": "安装"
+   }
+  ]
+ },
+ {
+  "id": "Usage",
+  "label": "使用指南",
+  "items": [
+   {
+    "id": "pnpm-cli",
+    "label": "pnpm CLI"
+   },
+   {
+    "id": "configuring",
+    "label": "配置"
+   },
+   {
+    "id": "filtering",
+    "label": "过滤"
+   },
+   {
+    "id": "scripts",
+    "label": "脚本"
+   }
+  ]
+ },
+ {
+  "id": "CLI commands",
+  "label": "CLI 命令",
+  "items": [
+   {
+    "id": "Manage dependencies",
+    "label": "管理依赖",
+    "collapsed": true,
+    "children": [
+     {
+      "id": "cli/add",
+      "label": "pnpm add <pkg>"
+     },
+     {
+      "id": "cli/install",
+      "label": "pnpm install"
+     },
+     {
+      "id": "cli/update",
+      "label": "pnpm update"
+     },
+     {
+      "id": "cli/remove",
+      "label": "pnpm remove"
+     },
+     {
+      "id": "cli/link",
+      "label": "pnpm link"
+     },
+     {
+      "id": "cli/unlink",
+      "label": "pnpm unlink"
+     },
+     {
+      "id": "cli/import",
+      "label": "pnpm import"
+     },
+     {
+      "id": "cli/rebuild",
+      "label": "pnpm rebuild"
+     },
+     {
+      "id": "cli/prune",
+      "label": "pnpm prune"
+     },
+     {
+      "id": "cli/clean",
+      "label": "pnpm clean"
+     },
+     {
+      "id": "cli/ci",
+      "label": "pnpm ci"
+     },
+     {
+      "id": "cli/fetch",
+      "label": "pnpm fetch"
+     },
+     {
+      "id": "cli/install-test",
+      "label": "pnpm install-test"
+     },
+     {
+      "id": "cli/dedupe",
+      "label": "pnpm dedupe"
+     }
+    ]
+   },
+   {
+    "id": "Patch dependencies",
+    "label": "依赖补丁",
+    "collapsed": true,
+    "children": [
+     {
+      "id": "cli/patch",
+      "label": "pnpm patch <pkg>"
+     },
+     {
+      "id": "cli/patch-commit",
+      "label": "pnpm patch-commit <path>"
+     },
+     {
+      "id": "cli/patch-remove",
+      "label": "pnpm patch-remove <pkg...>"
+     }
+    ]
+   },
+   {
+    "id": "Review dependencies",
+    "label": "审查依赖",
+    "collapsed": true,
+    "children": [
+     {
+      "id": "cli/audit",
+      "label": "pnpm audit"
+     },
+     {
+      "id": "cli/sbom",
+      "label": "pnpm sbom"
+     },
+     {
+      "id": "cli/list",
+      "label": "pnpm list"
+     },
+     {
+      "id": "cli/outdated",
+      "label": "pnpm outdated"
+     },
+     {
+      "id": "cli/why",
+      "label": "pnpm why"
+     },
+     {
+      "id": "cli/licenses",
+      "label": "pnpm licenses"
+     },
+     {
+      "id": "cli/peers",
+      "label": "pnpm peers"
+     },
+     {
+      "id": "cli/view",
+      "label": "pnpm view"
+     },
+     {
+      "id": "cli/search",
+      "label": "pnpm search"
+     },
+     {
+      "id": "cli/docs",
+      "label": "pnpm docs"
+     },
+     {
+      "id": "cli/bugs",
+      "label": "pnpm bugs"
+     }
+    ]
+   },
+   {
+    "id": "Run scripts",
+    "label": "运行脚本",
+    "collapsed": true,
+    "children": [
+     {
+      "id": "cli/run",
+      "label": "pnpm run"
+     },
+     {
+      "id": "cli/test",
+      "label": "pnpm test"
+     },
+     {
+      "id": "cli/exec",
+      "label": "pnpm exec"
+     },
+     {
+      "id": "cli/pnx",
+      "label": "pnx"
+     },
+     {
+      "id": "cli/create",
+      "label": "pnpm create"
+     },
+     {
+      "id": "cli/start",
+      "label": "pnpm start"
+     },
+     {
+      "id": "cli/approve-builds",
+      "label": "pnpm approve-builds"
+     },
+     {
+      "id": "cli/ignored-builds",
+      "label": "pnpm ignored-builds"
+     }
+    ]
+   },
+   {
+    "id": "Releasing",
+    "label": "发布",
+    "collapsed": true,
+    "children": [
+     {
+      "id": "cli/change",
+      "label": "pnpm change"
+     },
+     {
+      "id": "cli/lane",
+      "label": "pnpm lane"
+     },
+     {
+      "id": "cli/version",
+      "label": "pnpm version"
+     },
+     {
+      "id": "cli/publish",
+      "label": "pnpm publish"
+     },
+     {
+      "id": "cli/stage",
+      "label": "pnpm stage"
+     },
+     {
+      "id": "cli/pack",
+      "label": "pnpm pack"
+     },
+     {
+      "id": "cli/dist-tag",
+      "label": "pnpm dist-tag"
+     },
+     {
+      "id": "cli/deprecate",
+      "label": "pnpm deprecate"
+     },
+     {
+      "id": "cli/unpublish",
+      "label": "pnpm unpublish"
+     }
+    ]
+   },
+   {
+    "id": "Registry",
+    "label": "Registry 操作",
+    "collapsed": true,
+    "children": [
+     {
+      "id": "cli/login",
+      "label": "pnpm login"
+     },
+     {
+      "id": "cli/logout",
+      "label": "pnpm logout"
+     },
+     {
+      "id": "cli/whoami",
+      "label": "pnpm whoami"
+     },
+     {
+      "id": "cli/access",
+      "label": "pnpm access"
+     },
+     {
+      "id": "cli/owner",
+      "label": "pnpm owner"
+     },
+     {
+      "id": "cli/team",
+      "label": "pnpm team"
+     },
+     {
+      "id": "cli/star",
+      "label": "pnpm star"
+     },
+     {
+      "id": "cli/ping",
+      "label": "pnpm ping"
+     }
+    ]
+   },
+   {
+    "id": "Manage environments",
+    "label": "管理环境",
+    "collapsed": true,
+    "children": [
+     {
+      "id": "cli/runtime",
+      "label": "pnpm runtime <cmd>"
+     },
+     {
+      "id": "cli/shim",
+      "label": "pnpm shim <cmd>"
+     },
+     {
+      "id": "cli/env",
+      "label": "pnpm env <cmd>"
+     }
+    ]
+   },
+   {
+    "id": "Inspect the store",
+    "label": "检查存储",
+    "collapsed": true,
+    "children": [
+     {
+      "id": "cli/cat-file",
+      "label": "pnpm cat-file"
+     },
+     {
+      "id": "cli/cat-index",
+      "label": "pnpm cat-index"
+     },
+     {
+      "id": "cli/find-hash",
+      "label": "pnpm find-hash"
+     }
+    ]
+   },
+   {
+    "id": "Manage cache",
+    "label": "缓存管理",
+    "collapsed": true,
+    "children": [
+     {
+      "id": "cli/cache-list",
+      "label": "pnpm cache list"
+     },
+     {
+      "id": "cli/cache-list-registries",
+      "label": "pnpm cache list-registries"
+     },
+     {
+      "id": "cli/cache-view",
+      "label": "pnpm cache view"
+     },
+     {
+      "id": "cli/cache-delete",
+      "label": "pnpm cache delete"
+     },
+     {
+      "id": "cli/cache-path",
+      "label": "pnpm cache path"
+     }
+    ]
+   },
+   {
+    "id": "Misc.",
+    "label": "更多",
+    "collapsed": true,
+    "children": [
+     {
+      "id": "cli/self-update",
+      "label": "pnpm self-update"
+     },
+     {
+      "id": "cli/with",
+      "label": "pnpm with"
+     },
+     {
+      "id": "cli/pack-app",
+      "label": "pnpm pack-app"
+     },
+     {
+      "id": "cli/recursive",
+      "label": "pnpm -r, --recursive"
+     },
+     {
+      "id": "cli/store",
+      "label": "pnpm store"
+     },
+     {
+      "id": "cli/root",
+      "label": "pnpm root"
+     },
+     {
+      "id": "cli/bin",
+      "label": "pnpm bin"
+     },
+     {
+      "id": "cli/prefix",
+      "label": "pnpm prefix"
+     },
+     {
+      "id": "cli/setup",
+      "label": "pnpm setup"
+     },
+     {
+      "id": "cli/init",
+      "label": "pnpm init"
+     },
+     {
+      "id": "cli/deploy",
+      "label": "pnpm deploy"
+     },
+     {
+      "id": "cli/doctor",
+      "label": "pnpm doctor"
+     },
+     {
+      "id": "cli/pm",
+      "label": "pnpm pm"
+     },
+     {
+      "id": "cli/pkg",
+      "label": "pnpm pkg"
+     },
+     {
+      "id": "cli/repo",
+      "label": "pnpm repo"
+     },
+     {
+      "id": "cli/set-script",
+      "label": "pnpm set-script"
+     },
+     {
+      "id": "cli/config",
+      "label": "pnpm config"
+     },
+     {
+      "id": "cli/help",
+      "label": "pnpm help <command>"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "Configuration",
+  "label": "配置",
+  "items": [
+   {
+    "id": "package_json",
+    "label": "package.json"
+   },
+   {
+    "id": "settings",
+    "label": "设置（pnpm-workspace.yaml）",
+    "collapsed": true,
+    "children": [
+     {
+      "id": "settings/dependency-resolution",
+      "label": "依赖解析设置"
+     },
+     {
+      "id": "settings/node-modules",
+      "label": "node_modules 与依赖提升设置"
+     },
+     {
+      "id": "settings/store",
+      "label": "存储与锁文件设置"
+     },
+     {
+      "id": "settings/network",
+      "label": "网络与请求设置"
+     },
+     {
+      "id": "settings/peer-dependencies",
+      "label": "对等依赖设置"
+     },
+     {
+      "id": "settings/cli",
+      "label": "CLI 与 Node.js 设置"
+     },
+     {
+      "id": "settings/build",
+      "label": "构建设置"
+     },
+     {
+      "id": "settings/versioning",
+      "label": "版本管理设置"
+     },
+     {
+      "id": "settings/other",
+      "label": "其他设置"
+     }
+    ]
+   },
+   {
+    "id": "npmrc",
+    "label": "认证设置"
+   },
+   {
+    "id": "pnpmfile",
+    "label": ".pnpmfile.mjs"
+   }
+  ]
+ },
+ {
+  "id": "Features",
+  "label": "功能",
+  "items": [
+   {
+    "id": "package-sources",
+    "label": "支持的包源"
+   },
+   {
+    "id": "registries",
+    "label": "使用多个 registry"
+   },
+   {
+    "id": "registry-revisions",
+    "label": "Registry 修订版"
+   },
+   {
+    "id": "workspaces",
+    "label": "工作区"
+   },
+   {
+    "id": "workspace-task-orchestration",
+    "label": "工作区任务编排"
+   },
+   {
+    "id": "catalogs",
+    "label": "目录（catalogs）"
+   },
+   {
+    "id": "config-dependencies",
+    "label": "配置依赖"
+   },
+   {
+    "id": "aliases",
+    "label": "别名"
+   },
+   {
+    "id": "completion",
+    "label": "命令行 tab 补全"
+   },
+   {
+    "id": "git_branch_lockfiles",
+    "label": "Git 分支锁文件"
+   },
+   {
+    "id": "finders",
+    "label": "查找器"
+   },
+   {
+    "id": "global-packages",
+    "label": "全局包"
+   },
+   {
+    "id": "global-virtual-store",
+    "label": "全局虚拟存储"
+   },
+   {
+    "id": "package-managers",
+    "label": "其他包管理器"
+   },
+   {
+    "id": "versioning",
+    "label": "发布管理"
+   }
+  ]
+ },
+ {
+  "id": "Recipes",
+  "label": "实用配方",
+  "items": [
+   {
+    "id": "using-changesets",
+    "label": "在 pnpm 中使用 Changesets"
+   },
+   {
+    "id": "continuous-integration",
+    "label": "持续集成"
+   },
+   {
+    "id": "supply-chain-security",
+    "label": "缓解供应链攻击"
+   },
+   {
+    "id": "typescript",
+    "label": "与 TypeScript 配合使用"
+   },
+   {
+    "id": "git",
+    "label": "使用 Git"
+   },
+   {
+    "id": "git-worktrees",
+    "label": "pnpm + Git 工作树实现多代理开发"
+   },
+   {
+    "id": "docker",
+    "label": "使用 Docker"
+   },
+   {
+    "id": "podman",
+    "label": "与 Podman 配合使用"
+   }
+  ]
+ },
+ {
+  "id": "Advanced",
+  "label": "进阶",
+  "items": [
+   {
+    "id": "migration",
+    "label": "从 v10 迁移"
+   },
+   {
+    "id": "errors",
+    "label": "错误码"
+   },
+   {
+    "id": "logos",
+    "label": "标志素材"
+   },
+   {
+    "id": "limitations",
+    "label": "局限性"
+   },
+   {
+    "id": "symlinked-node-modules-structure",
+    "label": "符号链接的 `node_modules` 结构"
+   },
+   {
+    "id": "how-peers-are-resolved",
+    "label": "对等依赖的解析方式"
+   },
+   {
+    "id": "lockfile",
+    "label": "读取 pnpm-lock.yaml"
+   },
+   {
+    "id": "uninstall",
+    "label": "卸载 pnpm"
+   },
+   {
+    "id": "pnpm-vs-npm",
+    "label": "pnpm vs npm"
+   },
+   {
+    "id": "faq",
+    "label": "常见问题"
+   },
+   {
+    "id": "only-allow-pnpm",
+    "label": "仅允许 pnpm"
+   },
+   {
+    "id": "production",
+    "label": "生产环境"
+   }
+  ]
+ }
+]

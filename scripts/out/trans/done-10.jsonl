@@ -1,0 +1,221 @@
+{"b":"npmrc#2077","z":"本页的设置包含敏感凭据。大多数设置使用 npm 兼容的 INI 文件；结构化的 [_auth](#_auth) 设置位于全局 YAML 配置中。不要把凭据文件提交到你的仓库。"}
+{"b":"npmrc#2078","z":"非敏感设置（代理、SSL、registry 等）参见 [Settings (pnpm-workspace.yaml)](/docs/settings)。"}
+{"b":"npmrc#2079","z":"认证文件位置"}
+{"b":"npmrc#2080","z":"pnpm 按优先级从高到低，从以下文件中读取 npm 兼容的 INI 认证设置："}
+{"b":"npmrc#2081","z":"**<workspace root>/.npmrc** — 项目级认证。此文件应列入 `.gitignore`。"}
+{"b":"npmrc#2082","z":"**<pnpm config>/auth.ini** — 旧版用户级认证文件。pnpm 11 将登录令牌写入此处；pnpm 12.1 及更高版本改为把结构化的 `_auth` 写入全局 `config.yaml`，但仍会继续读取此文件。"}
+{"b":"npmrc#2083","z":"**~/.npmrc** — 作为回退读取，便于从 npm 迁移。使用 [npmrcAuthFile](/docs/settings/other#npmrcauthfile) 设置可指向其他文件。"}
+{"b":"npmrc#2084","z":"全局 `config.yaml` 还可承载 pnpm 结构化的 [_auth](#_auth) 设置。pnpm 12.1 及更高版本会将登录令牌写入其中。"}
+{"b":"npmrc#2085","z":"`<pnpm config>` 目录为："}
+{"b":"npmrc#2086","z":"设置了 **$XDG_CONFIG_HOME** 环境变量时：**$XDG_CONFIG_HOME/pnpm/**"}
+{"b":"npmrc#2087","z":"在 Windows 上：**~/AppData/Local/pnpm/config/**"}
+{"b":"npmrc#2088","z":"在 macOS 上：**~/Library/Preferences/pnpm/**"}
+{"b":"npmrc#2089","z":"在 Linux 上：**~/.config/pnpm/**"}
+{"b":"npmrc#2090","z":"认证设置中的环境变量"}
+{"b":"npmrc#2091","z":"**用户级**认证文件（`<pnpm config>/auth.ini` 和用户的 `.npmrc`）中的值，可以用 `${NAME}` 语法引用环境变量："}
+{"b":"npmrc#2092","z":"自 v11.5.3 起，工作区根目录的**项目级** `.npmrc` 中，以下设置**不会**展开环境变量："}
+{"b":"npmrc#2093","z":"registry 与代理 URL（`registry`、`@scope:registry`、代理设置）；"}
+{"b":"npmrc#2094","z":"URL 作用域的键（以 `//` 开头的键）；"}
+{"b":"npmrc#2095","z":"凭据值（`_authToken`、`_auth`、`_password`、`username`、`tokenHelper`、`cert`、`key`）。"}
+{"b":"npmrc#2096","z":"只要这些位置中的任何一个含有 `${...}` 占位符，该设置就会被忽略，pnpm 会打印一条警告。项目的 `.npmrc` 随仓库一起检出，如果在其中展开环境变量，恶意仓库就能在安装期间把环境中的机密（如 CI 令牌）外传到攻击者控制的 registry（[GHSA-3qhv-2rgh-x77r](https://github.com/pnpm/pnpm/security/advisories/GHSA-3qhv-2rgh-x77r)）。"}
+{"b":"npmrc#2097","z":"如果你的项目依赖了提交在仓库中的 `.npmrc`，其中包含类似 `//registry.npmjs.org/:_authToken=${NPM_TOKEN}` 的行，则把令牌移到受信任的位置："}
+{"b":"npmrc#2098","z":"在安装之前，把令牌写入用户级认证文件（例如，在某个 CI 步骤中）："}
+{"b":"npmrc#2099","z":"`pnpm config set` 默认写入全局位置（认证设置写入 `<pnpm config>/auth.ini`），而不是项目的 `.npmrc`，因此令牌绝不会进入仓库。"}
+{"b":"npmrc#2100","z":"**通过环境变量设置凭据，完全不使用任何 .npmrc 文件**（自 v11.6 起）。pnpm 从 `pnpm_config_//…` 环境变量读取 URL 作用域的 registry 设置："}
+{"b":"npmrc#2101","z":"变量名中包含 `/`、`:` 和 `.`，`export` 和 `NAME=value` 的 shell 赋值语法会以无效标识符为由拒绝它。使用 `env` 工具（如上所示）把它传给单条命令，或通过支持任意变量名的工具设置（例如你的 CI 服务商的环境变量设置，或 Node 的 `process.env`）。"}
+{"b":"npmrc#2102","z":"对于提交在仓库中的 `//registry.npmjs.org/:_authToken=${NPM_TOKEN}` 行，这是最直接的免文件替代方案。由于凭据适用的 registry 编码在（受信任的）变量名中，恶意仓库无法把它重定向到其他主机。此类环境变量的值会覆盖项目的 `.npmrc`，但其本身又会被命令行选项覆盖。`tokenHelper` 设置有意不从环境变量读取。"}
+{"b":"npmrc#2103","z":"或者，保留 `${NPM_TOKEN}` 占位符行，但把它放进用户级的 `~/.npmrc`（或 [npmrcAuthFile](/docs/settings/other#npmrcauthfile) 指向的文件），而不是放在仓库里。"}
+{"b":"npmrc#2104","z":"在 GitHub Actions 中，带 `registry-url` 输入的 `actions/setup-node` 会把认证设置写入用户级 `.npmrc`（由 `NPM_CONFIG_USERCONFIG` 环境变量指向，pnpm 会遵循该变量），因此通过 `NODE_AUTH_TOKEN` 环境变量认证依然有效。"}
+{"b":"npmrc#2105","z":"如果你难以逐条修改 CI 流水线，可以在 CI 环境中设置一个环境变量（例如在组织或工作区级别），把项目的 `.npmrc` 声明为受信任："}
+{"b":"npmrc#2106","z":"这是 [npmrcAuthFile](/docs/settings/other#npmrcauthfile) 设置的环境变量形式：它让 pnpm 把项目的 `.npmrc` 作为用户级认证文件读取（相对路径基于工作目录解析），因此其中的环境变量会像以前一样展开。由于信任声明来自环境而非仓库，恶意仓库无法替你设置它。npm 风格的 `NPM_CONFIG_USERCONFIG` 变量也会作为回退被遵循。"}
+{"b":"npmrc#2107","z":"只在专门构建受信任仓库的环境中使用。这会对检出的仓库完全禁用此保护，包括 `tokenHelper` 只能设置在用户级配置中的限制。"}
+{"b":"npmrc#2108","z":"同样的规则也适用于项目 `.npmrc` 中的 **registry 与代理 URL**（`registry`、`@scope:registry`、`proxy`、`https-proxy`、`http-proxy`）。如果你曾用环境变量拼出 registry URL，把该设置移到受信任的来源：你的用户级 `~/.npmrc`，或 `pnpm config set \"<key>\" <value>`。如果 URL 不是机密，也可以把解析后的值直接写进项目的 `.npmrc`，因为只有 `${...}` 占位符会被忽略。关于 `pnpm-workspace.yaml` 中的 registry 设置，参见 [Settings](/docs/settings/dependency-resolution#registries)。"}
+{"b":"npmrc#2109","z":"认证设置"}
+{"b":"npmrc#2110","z":"<URL>:_authToken"}
+{"b":"npmrc#2111","z":"定义访问指定 registry 时使用的认证 bearer 令牌。例如："}
+{"b":"npmrc#2112","z":"你也可以使用环境变量。例如："}
+{"b":"npmrc#2113","z":"环境变量只在用户级认证文件中展开，不会在项目级 `.npmrc` 中展开。参见[认证设置中的环境变量](#environment-variables-in-auth-settings)。"}
+{"b":"npmrc#2114","z":"作用域专属的认证令牌"}
+{"b":"npmrc#2115","z":"自 v11.7.0 起提供"}
+{"b":"npmrc#2116","z":"pnpm 可以为不同的包作用域使用不同的认证令牌，即使这些作用域指向同一个 registry URL。在认证键中，把包作用域追加在 registry URL 之后："}
+{"b":"npmrc#2117","z":"安装或发布 `@org-a/*` 时，pnpm 使用 `ORG_A_TOKEN`；对于 `@org-b/*`，使用 `ORG_B_TOKEN`。可选地，没有匹配作用域的包会回退到 registry 级令牌（即上面的 `FALLBACK_TOKEN`），前提是提供了该令牌。"}
+{"b":"npmrc#2118","z":"在 pnpm 11 中，`pnpm login --registry=https://npm.pkg.github.com --scope=@org-a` 会把令牌写入同样的作用域专属认证键。pnpm 12.1 及更高版本改为在全局 `config.yaml` 的 `_auth` 下写入等效的作用域条目，并把该作用域加入此 registry 的全局 `registries` 声明。"}
+{"b":"npmrc#2119","z":"这对按组织或按作用域颁发令牌的 registry（如 GitHub Packages）很有用。此前，认证只按 registry URL 选择，因此共享同一 registry 的两个作用域必须共享同一个令牌。"}
+{"b":"npmrc#2120","z":"<URL>:tokenHelper"}
+{"b":"npmrc#2121","z":"令牌助手（token helper）是一个输出认证令牌的可执行程序。它适用于 authToken 不是固定值、而是需要定期刷新的情形：脚本或其他工具可以用现有的刷新令牌换取新的访问令牌。"}
+{"b":"npmrc#2122","z":"助手路径的配置必须是绝对路径，不能带参数。出于安全考虑，此值只允许设置在用户级 `.npmrc` 中。否则，项目可以在其本地 `.npmrc` 中填入某个值来运行任意可执行文件。"}
+{"b":"npmrc#2123","z":"为默认 registry 设置令牌助手："}
+{"b":"npmrc#2124","z":"为指定 registry 设置令牌助手："}
+{"b":"npmrc#2125","z":"_auth"}
+{"b":"npmrc#2126","z":"自 v11.10.0 起提供"}
+{"b":"npmrc#2127","z":"以 registry URL 为键，用单个结构化值配置 registry 认证。它是大量 `//host/:_authToken=…` 条目的替代形式，专为 CI 设计：在某些 runner 上，URL 作用域形式（其变量名包含 `/`、`:` 和 `.`）无法通过环境变量传入。"}
+{"b":"npmrc#2128","z":"`_auth` **仅**从以下两个受信任位置生效："}
+{"b":"npmrc#2129","z":"**全局** pnpm 配置（`config.yaml`）；"}
+{"b":"npmrc#2130","z":"`pnpm_config__auth` 环境变量（用于 CI）。"}
+{"b":"npmrc#2131","z":"它在项目的 `pnpm-workspace.yaml` 或 `.npmrc` 中会被**忽略**，因此检出的仓库永远无法提供 registry 认证。"}
+{"b":"npmrc#2132","z":"该值以 registry URL 为键，因此每个机密都显式绑定到可能接收它的主机。registry URL 键必须使用 `http` 或 `https`，且不得包含凭据、查询字符串或片段。在每个 registry URL 内，`@` 表示 registry 级（默认）凭据，`@org` 之类的包作用域则把凭据绑定到同一主机上的该作用域。唯一支持的凭据字段是 `authToken`（对应 `_authToken` / bearer 认证）；已废弃的 `basicAuth` / `username` + `password` 形式和 `tokenHelper` 在此不被接受。"}
+{"b":"npmrc#2133","z":"在全局 `config.yaml` 中："}
+{"b":"npmrc#2134","z":"等效的环境变量（一个 JSON 字符串）："}
+{"b":"npmrc#2135","z":"`pnpm_config__auth`（小写）和 `PNPM_CONFIG__AUTH`（全大写，某些 CI runner 采用的约定）都会被遵循。若两者都已设置，以小写为准，除非其为空，此时使用大写。"}
+{"b":"npmrc#2136","z":"每个条目还会推断一条受信任的 registry 路由：`@` 路由到默认 registry（`pnpm add <pkg>` 也会在那里解析），`@org` 路由到该作用域。由于凭据及其目标主机在同一个受信任的值中到达，仓库控制的配置无法把令牌重定向到其他主机。"}
+{"b":"npmrc#2137","z":"自 v12.1.0 起，`pnpm login` 以此形式写入令牌。不带作用域的登录会添加一个 `@` 凭据，而不更改机器的默认 registry。带作用域的登录会把该作用域以同一 URL 加入全局 `registries` 设置；把某个作用域登录到另一个 registry 时，其凭据和路由都会移动。`pnpm logout` 会移除 pnpm 写入 `config.yaml` 以及旧版 `auth.ini` 的凭据，但保留 registry 路由。"}
+{"b":"npmrc#2138","z":"`pnpm_config__auth` / `PNPM_CONFIG__AUTH` 环境变量的值可以有意地路由某个作用域或默认 registry，并覆盖仓库配置，这使 CI 可以强制使用代理。从存于全局 `config.yaml` 的 `_auth` 推断出的路由只是回退：`pnpm-workspace.yaml` 或全局配置中显式的 `registry` 或 `registries` 声明优先。存储的凭据仍会为其 URL 认证请求，只是不会把包从显式选定的 registry 重定向走。命令行 registry 参数仍是最高优先级路由。"}
+{"b":"npmrc#2139","z":"解析是严格的：格式错误的值（无效 JSON、结构错误、registry URL 或作用域无效、不受支持的凭据字段）会立即报错失败，而不会被静默丢弃。"}
+{"b":"npmrc#2140","z":"证书设置"}
+{"b":"npmrc#2141","z":"ca"}
+{"b":"npmrc#2142","z":"默认值：**npm CA 证书**"}
+{"b":"npmrc#2143","z":"类型：**字符串、数组或 null**"}
+{"b":"npmrc#2144","z":"对 registry 的 SSL 连接所信任的证书颁发机构签名证书。值应为 PEM 格式（即 \"Base-64 encoded X.509 (.CER)\"）。例如："}
+{"b":"npmrc#2145","z":"设为 null 则只允许已知的注册机构；设为某个特定 CA 证书则只信任该特定签名机构。"}
+{"b":"npmrc#2146","z":"可以通过指定证书数组来信任多个 CA："}
+{"b":"npmrc#2147","z":"另见 [strictSsl](/docs/settings/network#strictssl) 设置。"}
+{"b":"npmrc#2148","z":"cafile"}
+{"b":"npmrc#2149","z":"默认值：**null**"}
+{"b":"npmrc#2150","z":"类型：**路径**"}
+{"b":"npmrc#2151","z":"指向某个文件的路径，该文件包含一个或多个证书颁发机构签名证书。与 `ca` 设置类似，但支持多个 CA，且 CA 信息存储在文件中，而不是通过命令行指定。"}
+{"b":"npmrc#2152","z":"<URL>:cafile"}
+{"b":"npmrc#2153","z":"定义访问指定 registry 时使用的证书颁发机构文件的路径。例如："}
+{"b":"npmrc#2154","z":"<URL>:ca"}
+{"b":"npmrc#2155","z":"自 v10.25.0 起提供"}
+{"b":"npmrc#2156","z":"为指定 registry 定义内联的证书颁发机构证书。与全局 `ca` 设置一样，值必须是 PEM 编码，但仅适用于匹配的 registry URL。"}
+{"b":"npmrc#2157","z":"cert"}
+{"b":"npmrc#2158","z":"默认值：**null**"}
+{"b":"npmrc#2159","z":"类型：**字符串**"}
+{"b":"npmrc#2160","z":"访问 registry 时传递的客户端证书。值应为 PEM 格式（即 \"Base-64 encoded X.509 (.CER)\"）。例如："}
+{"b":"npmrc#2161","z":"这不是证书文件的路径。"}
+{"b":"npmrc#2162","z":"<URL>:cert"}
+{"b":"npmrc#2163","z":"自 v10.25.0 起提供"}
+{"b":"npmrc#2164","z":"定义访问指定 registry 时使用的内联客户端证书。示例："}
+{"b":"npmrc#2165","z":"<URL>:certfile"}
+{"b":"npmrc#2166","z":"定义访问指定 registry 时使用的证书文件的路径。例如："}
+{"b":"npmrc#2167","z":"key"}
+{"b":"npmrc#2168","z":"默认值：**null**"}
+{"b":"npmrc#2169","z":"类型：**字符串**"}
+{"b":"npmrc#2170","z":"访问 registry 时传递的客户端密钥。值应为 PEM 格式（即 \"Base-64 encoded X.509 (.CER)\"）。例如："}
+{"b":"npmrc#2171","z":"这不是密钥文件的路径。如果需要引用文件系统而不是内联密钥，使用 `<URL>&#58;keyfile`。"}
+{"b":"npmrc#2172","z":"此设置包含敏感信息。不要把它写入会提交到仓库的本地 `.npmrc` 文件。"}
+{"b":"npmrc#2173","z":"<URL>:key"}
+{"b":"npmrc#2174","z":"自 v10.25.0 起提供"}
+{"b":"npmrc#2175","z":"为指定的 registry URL 定义内联客户端密钥。"}
+{"b":"npmrc#2176","z":"<URL>:keyfile"}
+{"b":"npmrc#2177","z":"定义访问指定 registry 时使用的客户端密钥文件的路径。例如："}
+{"b":"npmrc@title","z":"认证设置"}
+{"b":"only-allow-pnpm#2178","z":"当你在项目中使用 pnpm 时，你不会希望其他人误跑 `npm install` 或 `yarn`。要阻止开发者使用其他包管理器，可以在 `package.json` 中添加以下 `preinstall` 脚本："}
+{"b":"only-allow-pnpm#2179","z":"此后每当有人运行 `npm install` 或 `yarn`，得到的都会是错误，安装不会继续。"}
+{"b":"only-allow-pnpm#2180","z":"如果你使用 npm v7，改为使用 `npx -y`。"}
+{"b":"only-allow-pnpm@title","z":"仅允许 pnpm"}
+{"b":"package_json#2290","z":"包的清单文件。它包含包的所有元数据，包括依赖、标题、作者等。这是包括 pnpm 在内的所有主流 Node.js 包管理器共同遵循的标准。"}
+{"b":"package_json#2291","z":"除传统的 `package.json` 格式外，pnpm 还支持 `package.json5`（通过 [json5](https://www.npmjs.com/package/json5)）和 `package.yaml`（通过 [js-yaml](https://www.npmjs.com/package/@zkochan/js-yaml)）。"}
+{"b":"package_json#2292","z":"自 v11 起，pnpm 不再从 `package.json` 的 `pnpm` 字段读取设置。设置必须定义在 `pnpm-workspace.yaml` 中。参见[配置](/docs/configuring)。"}
+{"b":"package_json#2293","z":"engines"}
+{"b":"package_json#2294","z":"你可以指定软件运行所需的 Node 和 pnpm 版本："}
+{"b":"package_json#2295","z":"本地开发期间，如果 pnpm 自身版本与 `engines` 字段指定的不匹配，pnpm 将始终报错失败。"}
+{"b":"package_json#2296","z":"除非用户设置了 `engineStrict` 配置标志（参见 [settings](/docs/settings/cli#enginestrict)），否则此字段仅供参考，仅在你的包作为依赖被安装时产生警告。"}
+{"b":"package_json#2297","z":"engines.runtime"}
+{"b":"package_json#2298","z":"自 v10.21.0 起提供"}
+{"b":"package_json#2299","z":"指定依赖所需的 Node.js 运行时。声明后，pnpm 会自动安装指定的 Node.js 版本。"}
+{"b":"package_json#2300","z":"当包声明了运行时："}
+{"b":"package_json#2301","z":"**对于 CLI 应用**：pnpm 把 CLI 绑定到所需的 Node.js 版本，确保无论全局安装的 Node.js 是哪个实例，都使用正确的运行时。"}
+{"b":"package_json#2302","z":"**对于带 postinstall 脚本的包**：脚本使用指定的 Node.js 版本执行。"}
+{"b":"package_json#2303","z":"这对于需要特定 Node.js 版本才能正常工作的依赖尤其有用。"}
+{"b":"package_json#2304","z":"devEngines.runtime"}
+{"b":"package_json#2305","z":"自 v10.14 起提供"}
+{"b":"package_json#2306","z":"允许指定项目使用的一个或多个 JavaScript 运行时引擎。支持的运行时为 Node.js、Deno 和 Bun。"}
+{"b":"package_json#2307","z":"例如，以下展示如何把 `node@^24.4.0` 加入你的依赖："}
+{"b":"package_json#2308","z":"也可以在同一个 `package.json` 中添加多个运行时："}
+{"b":"package_json#2309","z":"工作原理："}
+{"b":"package_json#2310","z":"`pnpm install` 会将你指定的范围解析为匹配的最新运行时版本。"}
+{"b":"package_json#2311","z":"精确版本（及校验和）保存在锁文件中。"}
+{"b":"package_json#2312","z":"脚本使用本地运行时，确保跨环境的一致性。"}
+{"b":"package_json#2313","z":"要在不修改清单的情况下覆盖声明的 `onFail` 行为，使用 [runtimeOnFail](/docs/settings/cli#runtimeonfail) 设置。"}
+{"b":"package_json#2314","z":"自 v12.0.0-rc.2 起，在项目内直接运行 `node`（或 `deno`/`bun`）也会遵循此锁定版本，而不仅是脚本。可通过 [globalShims](/docs/settings/other#globalshims) 设置关闭，或用 `PNPM_SHIM_BYPASS=1` 对单条命令跳过。参见[项目感知的全局命令](/docs/global-packages#project-aware-global-bins)。"}
+{"b":"package_json#2315","z":"devEngines.packageManager"}
+{"b":"package_json#2316","z":"自 v11.0.0 起提供"}
+{"b":"package_json#2317","z":"允许通过 `package.json` 中的 `devEngines.packageManager` 指定 pnpm 版本。与 `packageManager` 字段不同，它支持版本范围。解析出的版本会记录在 `pnpm-lock.yaml` 的 `packageManagerDependencies` 下，若仍满足范围则会被复用。"}
+{"b":"package_json#2318","z":"当通过旧版 `packageManager` 字段声明 pnpm 12，且 [pmOnFail](/docs/settings/cli#pmonfail) 未设为 `ignore` 时，其解析信息会写入 `pnpm-lock.yaml`。锁文件因此会在开头多出一个[环境锁文件文档](/docs/lockfile)。"}
+{"b":"package_json#2319","z":"自 v12.0.0-rc.6 起，该字段还可以指定[其他包管理器](/docs/package-managers)，即 `npm`、`yarn` 或 `bun`，`pnpm add npm@11` 写入的就是这种形式。对于这些管理器，`pnpm-lock.yaml` 中不会记录任何内容：`packageManagerDependencies` 保存的是 pnpm 自身的锁定，其他包管理器则锁定在 pnpm 主目录下各自的环境锁文件中。"}
+{"b":"package_json#2320","z":"要在不修改清单的情况下覆盖 `onFail` 行为，参见 [pmOnFail](/docs/settings/cli#pmonfail) 设置。"}
+{"b":"package_json#2321","z":"dependenciesMeta"}
+{"b":"package_json#2322","z":"用于 `dependencies`、`optionalDependencies` 和 `devDependencies` 中声明的依赖的附加元信息。"}
+{"b":"package_json#2323","z":"dependenciesMeta.*.injected"}
+{"b":"package_json#2324","z":"如果某个依赖是本地工作区包，且此项设为 `true`，安装该包时会在虚拟存储（`node_modules/.pnpm`）中创建其硬链接副本。"}
+{"b":"package_json#2325","z":"如果此项设为 `false` 或未设置，则改为在 `node_modules` 中创建符号链接来安装该依赖，链接指向包在工作区中的源码目录。这是默认行为，速度更快，且对依赖的任何修改都会立即对其使用者可见。"}
+{"b":"package_json#2326","z":"例如，假设以下 `package.json` 是一个本地工作区包："}
+{"b":"package_json#2327","z":"`button` 依赖通常这样安装：在 `card` 的 `node_modules` 目录中创建一个符号链接，指向 `button` 的开发目录。"}
+{"b":"package_json#2328","z":"但如果 `button` 在其 `peerDependencies` 中声明了 `react` 呢？如果 monorepo（单体仓库）中所有项目都使用同一版本的 `react`，就没有问题。但假如 `button` 同时被使用 `react@16` 的 `card` 和使用 `react@17` 的 `form` 需要呢？通常你只能选定单一版本的 `react`，并通过 `button` 的 `devDependencies` 指定它。符号链接无法让 `card`、`form` 等不同使用者以不同方式满足 `react` 这一对等依赖。"}
+{"b":"package_json#2329","z":"`injected` 字段通过向虚拟存储安装 `button` 的硬链接副本解决这一问题。为此，`card` 的 `package.json` 可配置如下："}
+{"b":"package_json#2330","z":"而 `form` 的 `package.json` 可配置如下："}
+{"b":"package_json#2331","z":"有了这些更改，可以说 `button` 是 `card` 和 `form` 的「注入依赖」。当 `button` 导入 `react` 时，在 `card` 的上下文中解析为 `react@16`，在 `form` 的上下文中则解析为 `react@17`。"}
+{"b":"package_json#2332","z":"由于注入依赖会生成其工作区源码目录的副本，因此代码一旦修改，就必须以某种方式更新这些副本，否则使用者看不到新的状态。使用 `pnpm --recursive run build` 这类命令构建多个项目时，该更新必须发生在每个被注入包重新构建之后、其使用者重新构建之前。对于简单场景，可以再执行一次 `pnpm install` 来完成，例如借助 `package.json` 的生命周期脚本（如 `\"prepare\": \"pnpm run build\"`）重新构建该项目。[pnpm-sync](https://www.npmjs.com/package/pnpm-sync-lib) 和 [pnpm-sync-dependencies-meta-injected](https://www.npmjs.com/package/pnpm-sync-dependencies-meta-injected) 等第三方工具为更新注入依赖提供了更稳健高效的方案，并支持监听模式。"}
+{"b":"package_json#2333","z":"peerDependencies"}
+{"b":"package_json#2334","z":"对等依赖的值通常是 semver 范围（`^1.0.0`），或 [workspace:](/docs/workspaces#workspace-protocol-workspace)、[catalog:](/docs/catalogs) 说明符。"}
+{"b":"package_json#2335","z":"自 v11.14.0 起，对等依赖也可以用带方案的说明符声明："}
+{"b":"package_json#2336","z":"允许的形式包括[具名 registry](/docs/settings/dependency-resolution#namedregistries) 说明符（`<registry>:<version>`）、`npm:` 别名，以及 `file:`、git 或 URL 说明符。"}
+{"b":"package_json#2337","z":"这类说明符会与其携带的 semver 范围匹配：`work:5.x.x` 按 `5.x.x` 检查，`npm:other-lib@^5` 按 `^5` 检查。不带版本的说明符（如 `file:../lib-c`）按 `*` 匹配，因此任何版本都满足。同时，当 [autoInstallPeers](/docs/settings/peer-dependencies#autoinstallpeers) 安装缺失的对等依赖时，由原始说明符负责选择包，因此该对等依赖会从你指定的别名、registry 或来源拉取。"}
+{"b":"package_json#2338","z":"裸的 `name@version` 值仍会以 `ERR_PNPM_INVALID_PEER_DEPENDENCY_SPECIFICATION` 被拒绝，因为它们几乎总是笔误："}
+{"b":"package_json#2339","z":"peerDependenciesMeta"}
+{"b":"package_json#2340","z":"此字段列出与 `peerDependencies` 字段中所列依赖相关的一些附加信息。"}
+{"b":"package_json#2341","z":"peerDependenciesMeta.*.optional"}
+{"b":"package_json#2342","z":"如果设为 true，所选对等依赖会被包管理器标记为可选，因此使用者未提供它不再被报告为错误。"}
+{"b":"package_json#2343","z":"例如："}
+{"b":"package_json#2344","z":"注意，尽管 `bar` 未在 `peerDependencies` 中声明，它也被标记为可选。因此 pnpm 认为 bar 的任何版本都可以。而 `foo` 是可选的，但仅限于其要求的版本规范。"}
+{"b":"package_json#2345","z":"publishConfig"}
+{"b":"package_json#2346","z":"在包被打包之前，可以覆盖清单中的某些字段。可覆盖的字段有："}
+{"b":"package_json#2347","z":"`engines`（自 v10.22.0 起提供）"}
+{"b":"package_json#2348","z":"[name](#publishconfigname)（自 v11.18.0 起提供）"}
+{"b":"package_json#2349","z":"要覆盖某个字段，把发布时使用的该字段值加入 `publishConfig`。"}
+{"b":"package_json#2350","z":"例如下面这个 `package.json`："}
+{"b":"package_json#2351","z":"发布后变为："}
+{"b":"package_json#2352","z":"publishConfig.name"}
+{"b":"package_json#2353","z":"自 v11.18.0 起提供"}
+{"b":"package_json#2354","z":"发布时使用与工作区清单所载名称不同的包名。这适用于发布名已被同级项目占用的项目，否则这类项目不得不在发布前一刻通过构建步骤临时改名。"}
+{"b":"package_json#2355","z":"只有发布产物会被改名：依赖方、`pnpm-lock.yaml` 和发布工具仍按清单名寻址该项目。新名称会进入打包后的清单、tarball 文件名，以及一切在 registry 上寻址该包的环节：`pnpm publish -r` 的已发布检查及其 registry 选择，还有 `pnpm change status` 和 `pnpm version -r` 的发布规划探测。"}
+{"b":"package_json#2356","z":"publishConfig.executableFiles"}
+{"b":"package_json#2357","z":"出于可移植性考虑，默认情况下，除 bin 字段列出的文件外，包归档中没有其他文件会被标记为可执行。`executableFiles` 字段让你声明更多必须设置可执行标志（+x）的文件，即使它们无法通过 bin 字段直接访问。"}
+{"b":"package_json#2358","z":"publishConfig.directory"}
+{"b":"package_json#2359","z":"你还可以使用 `publishConfig.directory` 字段，自定义相对于当前 `package.json` 的发布子目录。"}
+{"b":"package_json#2360","z":"预期是指定目录中存在当前包的修改版本（通常借助第三方构建工具生成）。"}
+{"b":"package_json#2361","z":"在此示例中，`\"dist\"` 文件夹必须包含一个 `package.json`"}
+{"b":"package_json#2362","z":"publishConfig.linkDirectory"}
+{"b":"package_json#2363","z":"默认值：**true**"}
+{"b":"package_json#2364","z":"类型：**布尔值**"}
+{"b":"package_json#2365","z":"设为 `true` 时，本地开发期间会从 `publishConfig.directory` 位置对该项目进行符号链接。"}
+{"b":"package_json#2366","z":"例如："}
+{"b":"package_json@title","z":"package.json"}
+{"b":"package-managers#2181","z":"自 v12.0.0-rc.6 起提供（仅 pnpm v12）"}
+{"b":"package-managers#2182","z":"pnpm 安装的包管理器不只是它自己：还有 **npm**、**Yarn Classic**、**Yarn Berry**、**Yarn 6**（`yarnpkg/zpm`）和 **Bun**。其中经 npm 发布的成员通过受信任的包管理器 registry 解析和拉取，并在执行某个精确版本之前对照 npm 的签名校验该版本，这正是 pnpm 切换自身版本时无需询问的同一标准。而 Yarn 6 和 Bun 以各自项目提供的平台归档形式发布，由发布者校验和锁定。"}
+{"b":"package-managers#2183","z":"在没有 Node.js 的机器上，JavaScript 包管理器会获得一个受管理的 LTS 运行时供其运行，因此这一切都不需要你自行安装 Node.js。"}
+{"b":"package-managers#2184","z":"三种场景会用到它："}
+{"b":"package-managers#2185","z":"**git 托管的依赖**会用其要求的包管理器来准备，参见[准备 git 托管的依赖](#preparing-a-git-hosted-dependency)；"}
+{"b":"package-managers#2186","z":"[pnpm dlx](/docs/cli/pnx#running-a-package-manager-or-a-runtime)（`pnx`）为单条命令运行某个包管理器；"}
+{"b":"package-managers#2187","z":"[pnpm shim add](/docs/cli/shim) 链接一个命令，使其按当前项目锁定的版本运行。"}
+{"b":"package-managers#2188","z":"各自的来源"}
+{"b":"package-managers#2189","z":"经 registry 发布的成员与 pnpm 自身的引擎走同一套解析、校验、安装管线。以平台归档形式提供的成员由发布者校验和锁定，与[受管理的运行时](/docs/cli/runtime)相同。"}
+{"b":"package-managers#2190","z":"每个包管理器都解析到 pnpm 主目录下各自的环境锁文件中，因此一个包管理器的锁定永不改写另一个的。"}
+{"b":"package-managers#2191","z":"声明项目的包管理器"}
+{"b":"package-managers#2192","z":"在 `pnpm add` 中指名某个包管理器时，记录的是项目使用该管理器，而不是安装与其同名的 npm 包："}
+{"b":"package-managers#2193","z":"声明会被写到相应包管理器读取它的位置："}
+{"b":"package-managers#2194","z":"**Yarn** 经由项目的 `packageManager` 字段锁定来启动，该字段只接受精确版本。因此所请求的版本行会先解析再写入：`pnpm add yarn@4` 记录 `\"packageManager\": \"yarn@4.18.0\"`。在 Yarn Classic 线（`<2`）上，锁定的产物是 npm tarball，因此值中还带有该 tarball 的 `+sha512.…` 完整性信息：`\"packageManager\": \"yarn@1.22.22+sha512.…\"`。"}
+{"b":"package-managers#2195","z":"**其他所有包管理器**都记录在 [devEngines.packageManager](/docs/package_json#devenginespackagemanager) 中，该字段存放版本范围。"}
+{"b":"package-managers#2196","z":"两个字段最终只会留下一个：它们声明的是同一件事，而两份声明互相矛盾的项目会被版本切换器拒绝运行。"}
+{"b":"package-managers#2197","z":"package.json"}
+{"b":"package-managers#2198","z":"以下两点有意不在其覆盖范围内："}
+{"b":"package-managers#2199","z":"**pnpm 自身。**修改 pnpm 自己的锁定会让下一条命令切换正在运行的 CLI，这是 [pnpm self-update](/docs/cli/self-update) 有意承担的职责，而不是 `add` 顺带的副作用。"}
+{"b":"package-managers#2200","z":"**带过滤的选择。**项目使用哪个包管理器是项目自身的声明，因此 `pnpm add yarn --filter …` 会以 `ERR_PNPM_PACKAGE_MANAGER_IN_SELECTION` 失败。在项目自身目录中运行该命令。"}
+{"b":"package-managers#2201","z":"指定的是*包*的位置、而非请求某个发布版本的说明符，仍会按普通依赖安装其所指的内容："}
+{"b":"package-managers#2202","z":"除 pnpm 外，其他包管理器的解析版本不会写入 `pnpm-lock.yaml`，而是锁定在 pnpm 主目录下各自的环境锁文件中。项目锁文件中只记录 pnpm 自身的锁定，位于 `packageManagerDependencies` 下。"}
+{"b":"package-managers#2203","z":"运行时"}
+{"b":"package-managers#2204","z":"`pnpm add` 对运行时遵循同样的规则：指名 `node` 或 `deno` 会将其记录在 `engines.runtime` 下，正如已有的显式写法 `node@runtime:22` 那样。"}
+{"b":"package-managers#2205","z":"`bun` 既是运行时也是包管理器，且包管理器优先响应：`pnpm add bun` 会把它声明为项目的包管理器。要将其作为运行时添加，需指名版本：`pnpm add bun@runtime:1.3.0`。"}
+{"b":"package-managers#2206","z":"全局安装某个包管理器"}
+{"b":"package-managers#2207","z":"安装的是当前的 Yarn 发布线，而不是 npm 上仅指向 Classic 的 `yarn` 包；`pnpm add -g node@22` / `pnpm add -g deno@2` 安装的是对应的 Node.js 或 Deno 发行版本身，而不是一个替你下载它们的包装包。"}
+{"b":"package-managers#2208","z":"全局安装的包管理器同样遵循项目的版本锁定，就像全局安装的 Node.js 遵循 [devEngines.runtime](/docs/package_json#devenginesruntime) 一样：在项目锁定版本之处运行锁定版本，其余场合以全局安装的副本作为回退。pnpm 通过为该包管理器添加一条 [globalShims](/docs/settings/other#globalshims) 条目来实现这一点，除非你已经自行决定：显式条目（包括 `false`）会按你设置的值保留。"}
+{"b":"package-managers#2209","z":"关于版本如何选择以及 pnpm 何时请求确认，参见[项目感知的全局命令](/docs/global-packages#project-aware-global-bins)。"}
+{"b":"package-managers#2210","z":"为单条命令运行某个包管理器"}
+{"b":"package-managers#2211","z":"准备 git 托管的依赖"}
+{"b":"package-managers#2212","z":"需要在安装前先构建的 [git 托管的依赖](/docs/package-sources#git-repository)，会用其自身要求的包管理器来准备，而不是宿主恰好装了什么就用什么："}
+{"b":"package-managers#2213","z":"其 `packageManager` / `devEngines.packageManager` 锁定会被遵循；"}
+{"b":"package-managers#2214","z":"若无锁定，则由随包附带的锁文件指名的包管理器决定：且 Yarn Classic 写出的 `yarn.lock` 不再由 Yarn Berry 安装。Berry 会为自己写出的每个锁文件打上 `__metadata:` 标记，而两条线无法读取对方的锁文件，因此「是谁写的」是一项约束，而非偏好。"}
+{"b":"package-managers#2215","z":"当依赖锁定了版本，或宿主无法满足依赖所需时，pnpm 会提供该包管理器：因此用 Yarn 构建的仓库如今在只装了 pnpm 的机器上也能安装，而已经拥有合适管理器的宿主则继续用自己的。"}
+{"b":"package-managers#2216","z":"从 v11 迁移过来的项目有何变化"}
+{"b":"package-managers@title","z":"其他包管理器"}

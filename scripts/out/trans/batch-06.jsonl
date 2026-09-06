@@ -1,0 +1,244 @@
+{"p":"cli/search","b":"cli/search#1202","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/search","b":"cli/search#1203","k":"para","t":"Search the registry for packages matching the given keywords."}
+{"p":"cli/search","b":"cli/search#1204","k":"heading","t":"Examples"}
+{"p":"cli/search","b":"cli/search#1205","k":"heading","t":"Options"}
+{"p":"cli/search","b":"cli/search#1206","k":"heading","t":"--json"}
+{"p":"cli/search","b":"cli/search#1207","k":"para","t":"Output search results in JSON format."}
+{"p":"cli/search","b":"cli/search#1208","k":"heading","t":"--search-limit <number>"}
+{"p":"cli/search","b":"cli/search#1209","k":"para","t":"Maximum number of results to show."}
+{"p":"cli/search","b":"cli/search@title","k":"title","t":"pnpm search"}
+{"p":"cli/self-update","b":"cli/self-update#1186","k":"para","t":"Updates pnpm to the latest version or the one specified."}
+{"p":"cli/self-update","b":"cli/self-update#1187","k":"para","t":"Usage examples:"}
+{"p":"cli/self-update","b":"cli/self-update#1188","k":"heading","t":"Behavior"}
+{"p":"cli/self-update","b":"cli/self-update#1189","k":"para","t":"The behavior of `pnpm self-update` depends on the project context:"}
+{"p":"cli/self-update","b":"cli/self-update#1190","k":"heading","t":"In a project that pins pnpm"}
+{"p":"cli/self-update","b":"cli/self-update#1191","k":"para","t":"When the project's `package.json` has a `packageManager` field set to pnpm (or a `devEngines.packageManager` entry for pnpm), `self-update` only updates the pinned version in `package.json` to the resolved one. It does not install pnpm globally. The next time you run a pnpm command, pnpm will automatically download and switch to the specified version."}
+{"p":"cli/self-update","b":"cli/self-update#1192","k":"heading","t":"Outside a project (or when the pnpm pin is ignored)"}
+{"p":"cli/self-update","b":"cli/self-update#1193","k":"para","t":"If the project does not pin pnpm, or the pin is being ignored via [pmOnFail: ignore](/docs/settings/cli#pmonfail), `self-update` installs the resolved pnpm version globally and links it to `PNPM_HOME` so it becomes the active pnpm binary on your system."}
+{"p":"cli/self-update","b":"cli/self-update#1194","k":"heading","t":"Project settings are ignored"}
+{"p":"cli/self-update","b":"cli/self-update#1195","k":"para","t":"Since v11.18.0, `pnpm self-update` takes no instruction from the project it is run in:"}
+{"p":"cli/self-update","b":"cli/self-update#1196","k":"li","t":"pnpm is fetched through the same trusted registry and auth configuration used when switching pnpm versions, so a project's `.npmrc` or `pnpm-workspace.yaml` cannot redirect the download or attach credentials to it, and the project's default `.pnpmfile.(c|m)js` is not loaded. Pnpmfiles from trusted sources (the [pnpmfile](/docs/pnpmfile#pnpmfile) setting, the global pnpmfile, config dependencies) still apply."}
+{"p":"cli/self-update","b":"cli/self-update#1197","k":"li","t":"The project's [minimumReleaseAge](/docs/settings/dependency-resolution#minimumreleaseage), [trustPolicy](/docs/settings/dependency-resolution#trustpolicy), and `ci` settings do not affect `self-update`. They still govern the project's own dependencies; for `self-update`, these values come from the built-in default, your global config, a `PNPM_CONFIG_*` environment variable, or a command-line flag. This stops a repository from either waiving the release-age cooldown or keeping you on an outdated pnpm by raising it, and from weakening the trust check that guards the pnpm download."}
+{"p":"cli/self-update","b":"cli/self-update#1198","k":"para","t":"When `self-update` refuses a version that is younger than the `minimumReleaseAge` cutoff, an interactive run offers to update anyway; non-interactive runs still fail. CI never prompts, even on a runner that attaches a TTY."}
+{"p":"cli/self-update","b":"cli/self-update#1199","k":"heading","t":"Installing pnpm v12"}
+{"p":"cli/self-update","b":"cli/self-update#1200","k":"para","t":"pnpm 12 is published under both the `pnpm` and `@pnpm/exe` names on the `latest-12` dist-tag:"}
+{"p":"cli/self-update","b":"cli/self-update#1201","k":"para","t":"v12 ships native binaries as `@pnpm/exe.<platform>-<arch>` packages, which pnpm's built-in installer links directly. There is no Node.js launcher, so the command pays no Node.js startup cost. From v12 onward the install converges on the unscoped `pnpm` package (the Rust executable), even when updating from the SEA `@pnpm/exe` build."}
+{"p":"cli/self-update","b":"cli/self-update@title","k":"title","t":"pnpm self-update"}
+{"p":"cli/set-script","b":"cli/set-script#1217","k":"para","t":"Added in: v11.3.0"}
+{"p":"cli/set-script","b":"cli/set-script#1218","k":"para","t":"Adds or updates an entry in the `scripts` field of the project manifest."}
+{"p":"cli/set-script","b":"cli/set-script#1219","k":"para","t":"Supports `package.json`, `package.json5`, and `package.yaml` manifest formats."}
+{"p":"cli/set-script","b":"cli/set-script#1220","k":"para","t":"If the `scripts` field does not exist, it is created. If a script with the same name already exists, it is overwritten."}
+{"p":"cli/set-script","b":"cli/set-script#1221","k":"heading","t":"Examples"}
+{"p":"cli/set-script","b":"cli/set-script#1222","k":"para","t":"The above is equivalent to manually editing `package.json`:"}
+{"p":"cli/set-script","b":"cli/set-script#1223","k":"heading","t":"See also"}
+{"p":"cli/set-script","b":"cli/set-script#1224","k":"li","t":"[pnpm pkg set](/docs/cli/pkg#set) — set arbitrary fields in `package.json`, including individual scripts via `scripts.<name>=<command>`."}
+{"p":"cli/set-script","b":"cli/set-script@title","k":"title","t":"pnpm set-script"}
+{"p":"cli/setup","b":"cli/setup#1210","k":"para","t":"This command is used by the standalone installation scripts of pnpm. For instance, in [https://get.pnpm.io/install.sh](https://get.pnpm.io/install.sh)."}
+{"p":"cli/setup","b":"cli/setup#1211","k":"para","t":"Setup does the following actions:"}
+{"p":"cli/setup","b":"cli/setup#1212","k":"li","t":"creates a home directory for the pnpm CLI"}
+{"p":"cli/setup","b":"cli/setup#1213","k":"li","t":"adds the pnpm home directory to the `PATH` by updating the shell configuration file"}
+{"p":"cli/setup","b":"cli/setup#1214","k":"li","t":"copies the pnpm executable to the pnpm home directory"}
+{"p":"cli/setup","b":"cli/setup#1215","k":"para","t":"Since v11.18.0, when running on GitHub Actions, `pnpm setup` also appends `PNPM_HOME` and the global bin directory to the GitHub Actions environment files (`GITHUB_ENV` and `GITHUB_PATH`), so later steps in the same job can run `pnpm add --global` and other global commands."}
+{"p":"cli/setup","b":"cli/setup#1216","k":"para","t":"After upgrading to pnpm v11, run `pnpm setup` to update your shell configuration. In v11, globally installed binaries are stored in a `bin` subdirectory of `PNPM_HOME`."}
+{"p":"cli/setup","b":"cli/setup@title","k":"title","t":"pnpm setup"}
+{"p":"cli/shim","b":"cli/shim#1225","k":"para","t":"Added in: v12.0.0-rc.6 (pnpm v12 only)"}
+{"p":"cli/shim","b":"cli/shim#1226","k":"para","t":"Manage project-aware command shims."}
+{"p":"cli/shim","b":"cli/shim#1227","k":"para","t":"A shim created by this command has no global installation behind it. It exists only to let the project you are standing in decide what runs: `pnpm shim add yarn` links a `yarn` command that runs whatever version the current project pins, and provisions that version on demand. On a machine that has only pnpm, that is what makes `yarn` work inside a Yarn project."}
+{"p":"cli/shim","b":"cli/shim#1228","k":"para","t":"Creating a shim is always deliberate — nothing writes one as a side effect of [pnpm setup](/docs/cli/setup) or an install, because a shim shadows whatever the rest of your `PATH` resolved before it."}
+{"p":"cli/shim","b":"cli/shim#1229","k":"heading","t":"Commands"}
+{"p":"cli/shim","b":"cli/shim#1230","k":"heading","t":"add"}
+{"p":"cli/shim","b":"cli/shim#1231","k":"para","t":"Links a shim for every bin of each package into the global bin directory (`pnpm bin -g`), and records the package in the [globalShims](/docs/settings/other#globalshims) setting so the shims actually dispatch."}
+{"p":"cli/shim","b":"cli/shim#1232","k":"para","t":"The [package managers pnpm provisions](/docs/package-managers) — `npm`, `yarn`, `bun` — need no lookup: their bins are known up front, aliases included (`yarn` and `yarnpkg`, `npm` and `npx`). For any other package, the bins are read from the package's published manifest; a package that publishes no bin fails with `ERR_PNPM_SHIM_NO_BINS`."}
+{"p":"cli/shim","b":"cli/shim#1233","k":"para","t":"A bin that is already in the global bin directory belongs to something else — a globally installed package, or another package's shim — so the command refuses with `ERR_PNPM_SHIM_BIN_CONFLICT` rather than taking a working command away."}
+{"p":"cli/shim","b":"cli/shim#1234","k":"para","t":"Adding a shim while `globalShims: false` is set fails with `ERR_PNPM_SHIMS_DISABLED`: that setting turns every project-aware shim off, so the shim would sit on `PATH` doing nothing."}
+{"p":"cli/shim","b":"cli/shim#1235","k":"heading","t":"rm"}
+{"p":"cli/shim","b":"cli/shim#1236","k":"para","t":"Removes the package's shims and the `globalShims` entry that `add` recorded for it."}
+{"p":"cli/shim","b":"cli/shim#1237","k":"heading","t":"ls"}
+{"p":"cli/shim","b":"cli/shim#1238","k":"para","t":"Lists every shim in the global bin directory with the policy governing it:"}
+{"p":"cli/shim","b":"cli/shim#1239","k":"heading","t":"How a version is chosen"}
+{"p":"cli/shim","b":"cli/shim#1240","k":"para","t":"A shim resolves the project you are standing in, walking up from the current working directory:"}
+{"p":"cli/shim","b":"cli/shim#1241","k":"li","t":"For a **package manager**, the project's [packageManager](/docs/package_json) or [devEngines.packageManager](/docs/package_json#devenginespackagemanager) pin decides the version, and pnpm provisions it. The pin outranks a copy of that package manager installed globally, because it is the project's own statement of what installs it."}
+{"p":"cli/shim","b":"cli/shim#1242","k":"li","t":"For **any other package**, the project's `node_modules/.bin/<name>` is used."}
+{"p":"cli/shim","b":"cli/shim#1243","k":"para","t":"If nothing in the project provides the command, the globally installed version runs — a shim never makes a command fail merely because dispatch did not apply."}
+{"p":"cli/shim","b":"cli/shim#1244","k":"para","t":"The [trust rules](/docs/global-packages#trust) of project-aware global bins apply here too: an npm-published package manager is verified against npm's signature for its exact version and switches without asking, while Bun and Yarn 6 arrive as checksum-pinned platform archives and go through the confirmation prompt. That answer is remembered per project *and* per binary, so moving the project's pin to another version asks again."}
+{"p":"cli/shim","b":"cli/shim#1245","k":"heading","t":"Related"}
+{"p":"cli/shim","b":"cli/shim@title","k":"title","t":"pnpm shim <cmd>"}
+{"p":"cli/stage","b":"cli/stage#1246","k":"para","t":"Added in: v11.3.0"}
+{"p":"cli/stage","b":"cli/stage#1247","k":"para","t":"Stages packages for publishing using npm's [staged publishing](https://docs.npmjs.com/staged-publishing) workflow. Staged versions are not resolved by `pnpm install` until they are explicitly approved, letting you defer proof-of-presence (2FA) to a later point in time — useful for verifying release artifacts, smoke-testing CI, or coordinating multi-package releases."}
+{"p":"cli/stage","b":"cli/stage#1248","k":"heading","t":"Subcommands"}
+{"p":"cli/stage","b":"cli/stage#1249","k":"heading","t":"publish"}
+{"p":"cli/stage","b":"cli/stage#1250","k":"para","t":"Stage a package for publishing."}
+{"p":"cli/stage","b":"cli/stage#1251","k":"para","t":"Accepts the same arguments as [pnpm publish](/docs/cli/publish), but uploads the tarball to staging instead of promoting it to the live registry. The resulting **stage id** is printed and can be used with the other subcommands."}
+{"p":"cli/stage","b":"cli/stage#1252","k":"para","t":"Use `--recursive` (or `-r`) to stage every publishable package in the workspace."}
+{"p":"cli/stage","b":"cli/stage#1253","k":"heading","t":"list"}
+{"p":"cli/stage","b":"cli/stage#1254","k":"para","t":"List all staged package versions, or list the staged versions of a specific package."}
+{"p":"cli/stage","b":"cli/stage#1255","k":"heading","t":"view"}
+{"p":"cli/stage","b":"cli/stage#1256","k":"para","t":"Show details of a specific staged version."}
+{"p":"cli/stage","b":"cli/stage#1257","k":"heading","t":"approve"}
+{"p":"cli/stage","b":"cli/stage#1258","k":"para","t":"Approve a staged version, promoting it to the live registry. This is the step that consumes the one-time password."}
+{"p":"cli/stage","b":"cli/stage#1259","k":"para","t":"Since v12.0.0, several stage ids may be approved at once, and running `approve` with none opens an interactive picker over the staged versions:"}
+{"p":"cli/stage","b":"cli/stage#1260","k":"para","t":"The whole batch is approved with a **single** one-time password; pnpm asks for a new one only once the registry stops accepting the current one."}
+{"p":"cli/stage","b":"cli/stage#1261","k":"para","t":"Inside a workspace the selected packages are approved in dependency order, and a package whose workspace dependency could not be approved is skipped rather than published against a dependency that never reached the registry."}
+{"p":"cli/stage","b":"cli/stage#1262","k":"heading","t":"reject"}
+{"p":"cli/stage","b":"cli/stage#1263","k":"para","t":"Reject a staged version and remove it from staging."}
+{"p":"cli/stage","b":"cli/stage#1264","k":"heading","t":"download"}
+{"p":"cli/stage","b":"cli/stage#1265","k":"para","t":"Download the tarball of a staged version for inspection."}
+{"p":"cli/stage","b":"cli/stage#1266","k":"heading","t":"Options"}
+{"p":"cli/stage","b":"cli/stage#1267","k":"heading","t":"--registry <url>"}
+{"p":"cli/stage","b":"cli/stage#1268","k":"para","t":"The base URL of the npm registry. Defaults to the configured default registry."}
+{"p":"cli/stage","b":"cli/stage#1269","k":"heading","t":"--tag <tag>"}
+{"p":"cli/stage","b":"cli/stage#1270","k":"para","t":"Registers the staged package with the given dist-tag. Defaults to `latest`."}
+{"p":"cli/stage","b":"cli/stage#1271","k":"heading","t":"--access <public|restricted>"}
+{"p":"cli/stage","b":"cli/stage#1272","k":"para","t":"Tells the registry whether the staged package should be public or restricted."}
+{"p":"cli/stage","b":"cli/stage#1273","k":"heading","t":"--json"}
+{"p":"cli/stage","b":"cli/stage#1274","k":"para","t":"Show information in JSON format. Applies to `list`, `view`, `publish`, and `download`."}
+{"p":"cli/stage","b":"cli/stage#1275","k":"heading","t":"--dry-run"}
+{"p":"cli/stage","b":"cli/stage#1276","k":"para","t":"Does everything `stage publish` would do except uploading to the registry."}
+{"p":"cli/stage","b":"cli/stage#1277","k":"heading","t":"--otp <otp>"}
+{"p":"cli/stage","b":"cli/stage#1278","k":"para","t":"One-time password for `approve` and `reject`."}
+{"p":"cli/stage","b":"cli/stage#1279","k":"heading","t":"--recursive, -r"}
+{"p":"cli/stage","b":"cli/stage#1280","k":"para","t":"Stage all publishable packages from the workspace."}
+{"p":"cli/stage","b":"cli/stage#1281","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/stage","b":"cli/stage@title","k":"title","t":"pnpm stage"}
+{"p":"cli/star","b":"cli/star#1282","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/star","b":"cli/star#1283","k":"para","t":"Mark a package as a favorite on the registry. You must be logged in (see [pnpm login](/docs/cli/login))."}
+{"p":"cli/star","b":"cli/star#1284","k":"heading","t":"pnpm unstar"}
+{"p":"cli/star","b":"cli/star#1285","k":"para","t":"Remove a package from your favorites."}
+{"p":"cli/star","b":"cli/star#1286","k":"heading","t":"pnpm stars"}
+{"p":"cli/star","b":"cli/star#1287","k":"para","t":"List the packages you (or another user) have starred."}
+{"p":"cli/star","b":"cli/star#1288","k":"para","t":"When run without a username, pnpm lists the packages starred by the currently authenticated user."}
+{"p":"cli/star","b":"cli/star@title","k":"title","t":"pnpm star"}
+{"p":"cli/start","b":"cli/start#1289","k":"para","t":"Runs an arbitrary command specified in the package's `start` property of its `scripts` object. If no `start` property is specified on the `scripts` object, it will attempt to run `node server.js` as a default, failing if neither are present."}
+{"p":"cli/start","b":"cli/start#1290","k":"para","t":"The intended usage of the property is to specify a command that starts your program."}
+{"p":"cli/start","b":"cli/start@title","k":"title","t":"pnpm start"}
+{"p":"cli/store","b":"cli/store#1291","k":"para","t":"Managing the package store."}
+{"p":"cli/store","b":"cli/store#1292","k":"heading","t":"Commands"}
+{"p":"cli/store","b":"cli/store#1293","k":"heading","t":"status"}
+{"p":"cli/store","b":"cli/store#1294","k":"para","t":"Checks for modified packages in the store."}
+{"p":"cli/store","b":"cli/store#1295","k":"para","t":"Returns exit code 0 if the content of the package is the same as it was at the time of unpacking."}
+{"p":"cli/store","b":"cli/store#1296","k":"heading","t":"add"}
+{"p":"cli/store","b":"cli/store#1297","k":"para","t":"Functionally equivalent to [pnpm add](/docs/cli/add), except this adds new packages to the store directly without modifying any projects or files outside of the store."}
+{"p":"cli/store","b":"cli/store#1298","k":"heading","t":"prune"}
+{"p":"cli/store","b":"cli/store#1299","k":"para","t":"Removes *unreferenced packages* from the store."}
+{"p":"cli/store","b":"cli/store#1300","k":"para","t":"Unreferenced packages are packages that are not used by any projects on the system. Packages can become unreferenced after most installation operations, for instance when dependencies are made redundant."}
+{"p":"cli/store","b":"cli/store#1301","k":"para","t":"For example, during `pnpm install`, package `foo@1.0.0` is updated to `foo@1.0.1`. pnpm will keep `foo@1.0.0` in the store, as it does not automatically remove packages. If package `foo@1.0.0` is not used by any other project on the system, it becomes unreferenced. Running `pnpm store prune` would remove `foo@1.0.0` from the store."}
+{"p":"cli/store","b":"cli/store#1302","k":"para","t":"Running `pnpm store prune` is not harmful and has no side effects on your projects. If future installations require removed packages, pnpm will download them again."}
+{"p":"cli/store","b":"cli/store#1303","k":"para","t":"It is best practice to run `pnpm store prune` occasionally to clean up the store, but not too frequently. Sometimes, unreferenced packages become required again. This could occur when switching branches and installing older dependencies, in which case pnpm would need to re-download all removed packages, briefly slowing down the installation process."}
+{"p":"cli/store","b":"cli/store#1304","k":"para","t":"After pruning, pnpm displays the total size of removed files."}
+{"p":"cli/store","b":"cli/store#1305","k":"para","t":"When the [global virtual store](/docs/settings/node-modules#enableglobalvirtualstore) is enabled, `pnpm store prune` also performs mark-and-sweep garbage collection on the global virtual store's `links/` directory. Projects using the store are registered via symlinks in `{storeDir}/v11/projects/`, allowing pnpm to track active usage and safely remove unused packages from the global virtual store."}
+{"p":"cli/store","b":"cli/store#1306","k":"heading","t":"path"}
+{"p":"cli/store","b":"cli/store#1307","k":"para","t":"Returns the path to the active store directory."}
+{"p":"cli/store","b":"cli/store@title","k":"title","t":"pnpm store"}
+{"p":"cli/team","b":"cli/team#1308","k":"para","t":"Added in: v11.13.0"}
+{"p":"cli/team","b":"cli/team#1309","k":"para","t":"Manages organization teams and team memberships on the registry."}
+{"p":"cli/team","b":"cli/team#1310","k":"para","t":"Team references are always written with a leading `@`: `@myorg` for an organization and `@myorg:developers` for a team within it."}
+{"p":"cli/team","b":"cli/team#1311","k":"heading","t":"Subcommands"}
+{"p":"cli/team","b":"cli/team#1312","k":"heading","t":"create"}
+{"p":"cli/team","b":"cli/team#1313","k":"para","t":"Create a new team in an organization."}
+{"p":"cli/team","b":"cli/team#1314","k":"heading","t":"destroy"}
+{"p":"cli/team","b":"cli/team#1315","k":"para","t":"Destroy an existing team."}
+{"p":"cli/team","b":"cli/team#1316","k":"heading","t":"add"}
+{"p":"cli/team","b":"cli/team#1317","k":"para","t":"Add a user to an existing team."}
+{"p":"cli/team","b":"cli/team#1318","k":"heading","t":"rm"}
+{"p":"cli/team","b":"cli/team#1319","k":"para","t":"Remove a user from an existing team."}
+{"p":"cli/team","b":"cli/team#1320","k":"heading","t":"ls"}
+{"p":"cli/team","b":"cli/team#1321","k":"para","t":"List the teams in an organization, or the members of a team."}
+{"p":"cli/team","b":"cli/team#1322","k":"para","t":"Aliases: `list`. If no subcommand is given and the first argument looks like a scope or team, `ls` is assumed, so `pnpm team @myorg` is equivalent to `pnpm team ls @myorg`."}
+{"p":"cli/team","b":"cli/team#1323","k":"heading","t":"Options"}
+{"p":"cli/team","b":"cli/team#1324","k":"heading","t":"--registry <url&gt;"}
+{"p":"cli/team","b":"cli/team#1325","k":"para","t":"The base URL of the npm registry to use for the operation. A registry configured for the organization's scope (via [registries](/docs/settings/dependency-resolution#registries)) is respected."}
+{"p":"cli/team","b":"cli/team#1326","k":"heading","t":"--otp <code&gt;"}
+{"p":"cli/team","b":"cli/team#1327","k":"para","t":"When the registry requires two-factor authentication, this option supplies a one-time password. It applies to `create`, `destroy`, `add`, and `rm`."}
+{"p":"cli/team","b":"cli/team#1328","k":"heading","t":"--parseable"}
+{"p":"cli/team","b":"cli/team#1329","k":"para","t":"Print the results of `ls` as bare names, one per line, without headers or indentation."}
+{"p":"cli/team","b":"cli/team#1330","k":"heading","t":"--json"}
+{"p":"cli/team","b":"cli/team#1331","k":"para","t":"Print the results of `ls` as a JSON array of names. Takes precedence over `--parseable`."}
+{"p":"cli/team","b":"cli/team@title","k":"title","t":"pnpm team"}
+{"p":"cli/test","b":"cli/test#1399","k":"para","t":"Runs an arbitrary command specified in the package's `test` property of its `scripts` object."}
+{"p":"cli/test","b":"cli/test#1400","k":"para","t":"The intended usage of the property is to specify a command that runs unit or integration testing for your program."}
+{"p":"cli/test","b":"cli/test@title","k":"title","t":"pnpm test"}
+{"p":"cli/unlink","b":"cli/unlink#1391","k":"para","t":"Unlinks a system-wide package (inverse of [pnpm link](/docs/cli/link))."}
+{"p":"cli/unlink","b":"cli/unlink#1392","k":"para","t":"If called without arguments, all linked dependencies will be unlinked inside the current project."}
+{"p":"cli/unlink","b":"cli/unlink#1393","k":"para","t":"This is similar to `yarn unlink`, except pnpm re-installs the dependency after removing the external link."}
+{"p":"cli/unlink","b":"cli/unlink#1394","k":"para","t":"If you want to remove a link made with `pnpm link --global <package>`, you should use `pnpm uninstall --global <package>`. `pnpm unlink` only removes the links in your current directory."}
+{"p":"cli/unlink","b":"cli/unlink#1395","k":"heading","t":"Options"}
+{"p":"cli/unlink","b":"cli/unlink#1396","k":"heading","t":"--recursive, -r"}
+{"p":"cli/unlink","b":"cli/unlink#1397","k":"para","t":"Unlink in every package found in subdirectories or in every workspace package, when executed inside a [workspace](/docs/workspaces)."}
+{"p":"cli/unlink","b":"cli/unlink#1398","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/unlink","b":"cli/unlink@title","k":"title","t":"pnpm unlink"}
+{"p":"cli/unpublish","b":"cli/unpublish#1401","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/unpublish","b":"cli/unpublish#1402","k":"para","t":"Remove a published package version from the registry."}
+{"p":"cli/unpublish","b":"cli/unpublish#1403","k":"para","t":"Unpublishing is generally discouraged. Most registries (including the public npm registry) restrict when and how packages can be unpublished. Prefer [pnpm deprecate](/docs/cli/deprecate) whenever possible."}
+{"p":"cli/unpublish","b":"cli/unpublish#1404","k":"heading","t":"Examples"}
+{"p":"cli/unpublish","b":"cli/unpublish#1405","k":"para","t":"Unpublish a specific version:"}
+{"p":"cli/unpublish","b":"cli/unpublish#1406","k":"para","t":"Unpublish a range of versions using a semver specifier:"}
+{"p":"cli/unpublish","b":"cli/unpublish#1407","k":"para","t":"Unpublish an entire package (all versions). Requires `--force`:"}
+{"p":"cli/unpublish","b":"cli/unpublish#1408","k":"para","t":"When run without arguments inside a package directory, pnpm unpublishes the current package version read from the local `package.json`."}
+{"p":"cli/unpublish","b":"cli/unpublish#1409","k":"heading","t":"Options"}
+{"p":"cli/unpublish","b":"cli/unpublish#1410","k":"heading","t":"--force"}
+{"p":"cli/unpublish","b":"cli/unpublish#1411","k":"para","t":"Required when removing an entire package (all versions) rather than a specific version or range."}
+{"p":"cli/unpublish","b":"cli/unpublish#1412","k":"heading","t":"--registry <url>"}
+{"p":"cli/unpublish","b":"cli/unpublish#1413","k":"para","t":"The registry to publish to. Defaults to the registry configured for the package."}
+{"p":"cli/unpublish","b":"cli/unpublish#1414","k":"heading","t":"--otp <code>"}
+{"p":"cli/unpublish","b":"cli/unpublish#1415","k":"para","t":"When the registry requires two-factor authentication, supply the one-time password via this flag or the `PNPM_CONFIG_OTP` environment variable."}
+{"p":"cli/unpublish","b":"cli/unpublish@title","k":"title","t":"pnpm unpublish"}
+{"p":"cli/update","b":"cli/update#1332","k":"para","t":"`pnpm update` updates packages to their latest version based on the specified range."}
+{"p":"cli/update","b":"cli/update#1333","k":"para","t":"When used without arguments, updates all dependencies."}
+{"p":"cli/update","b":"cli/update#1334","k":"heading","t":"TL;DR"}
+{"p":"cli/update","b":"cli/update#1335","k":"heading","t":"What an update writes"}
+{"p":"cli/update","b":"cli/update#1336","k":"para","t":"Besides moving `pnpm-lock.yaml` to the newly resolved versions, `pnpm update` writes the new range back to the place the dependency is declared:"}
+{"p":"cli/update","b":"cli/update#1337","k":"li","t":"In `package.json`, the range is moved onto the resolved version while the operator the dependency already declared is kept, so `^1.1.0` stays a caret range."}
+{"p":"cli/update","b":"cli/update#1338","k":"li","t":"A dependency declared through the [catalog: protocol](/docs/catalogs) is not rewritten in `package.json`. The catalog entry it points at is updated instead, in `pnpm-workspace.yaml`."}
+{"p":"cli/update","b":"cli/update#1339","k":"li","t":"A dependency declared through a dist-tag, such as `\"foo\": \"latest\"`, keeps tracking the tag. The tag stays in `package.json` and only the lockfile moves to the version behind it — with `--latest` as well."}
+{"p":"cli/update","b":"cli/update#1340","k":"para","t":"Pass [--no-save](#--no-save) to update the lockfile only and leave the declared ranges alone."}
+{"p":"cli/update","b":"cli/update#1341","k":"para","t":"Since v12.0.0, [--patches](#--patches) does something different from all of this: it changes no version and no declared range, refreshing only which registry artifact each locked version resolves to. That still rewrites lockfile metadata — the `integrity`, the `revision`, and the package snapshot around them — because artifact revisions may declare different dependencies. See [Registry revisions](/docs/registry-revisions)."}
+{"p":"cli/update","b":"cli/update#1342","k":"heading","t":"Updating to a specific version"}
+{"p":"cli/update","b":"cli/update#1343","k":"para","t":"Since v11.23.0, `pnpm update <name>@<version>` fails with `ERR_PNPM_UPDATE_VERSION_ON_INDIRECT_DEP` when the package is not a direct dependency of any selected project. There is nowhere to record the version in that case; pin a transitive dependency through [overrides](/docs/settings/dependency-resolution#overrides) instead. Ranges and tags are unaffected."}
+{"p":"cli/update","b":"cli/update#1344","k":"heading","t":"Selecting dependencies with patterns"}
+{"p":"cli/update","b":"cli/update#1345","k":"para","t":"You can use patterns to update specific dependencies."}
+{"p":"cli/update","b":"cli/update#1346","k":"para","t":"Update all `babel` packages:"}
+{"p":"cli/update","b":"cli/update#1347","k":"para","t":"Update all dependencies, except `webpack`:"}
+{"p":"cli/update","b":"cli/update#1348","k":"para","t":"Patterns may also be combined, so the next command will update all `babel` packages, except `core`:"}
+{"p":"cli/update","b":"cli/update#1349","k":"heading","t":"Updating GitHub Actions"}
+{"p":"cli/update","b":"cli/update#1350","k":"para","t":"Added in: v11.16.0"}
+{"p":"cli/update","b":"cli/update#1351","k":"para","t":"[pnpm outdated](/docs/cli/outdated) can check the GitHub Actions referenced by the repository's workflow files for updates, and `pnpm update` can update them. This is opt-in for every command: pass [--include-github-actions](#--include-github-actions), or set [update.githubActions](/docs/settings/dependency-resolution#updategithubactions) to `true` in `pnpm-workspace.yaml` to enable it by default."}
+{"p":"cli/update","b":"cli/update#1352","k":"para","t":"Updated actions are pinned to exact commit hashes, with their release tags preserved in comments:"}
+{"p":"cli/update","b":"cli/update#1353","k":"para","t":"Checking for updates runs `git ls-remote` against every referenced repository. Actions whose refs cannot be read — for example, an action in a private repository — are skipped with a warning. If the actions are hosted on a different GitHub server (such as a GitHub Enterprise Server), set [update.githubActionsServer](/docs/settings/dependency-resolution#updategithubactionsserver) (added in v11.17.0)."}
+{"p":"cli/update","b":"cli/update#1354","k":"heading","t":"Options"}
+{"p":"cli/update","b":"cli/update#1355","k":"heading","t":"--recursive, -r"}
+{"p":"cli/update","b":"cli/update#1356","k":"para","t":"Concurrently runs update in all subdirectories with a `package.json` (excluding node_modules)."}
+{"p":"cli/update","b":"cli/update#1357","k":"para","t":"Usage examples:"}
+{"p":"cli/update","b":"cli/update#1358","k":"heading","t":"--latest, -L"}
+{"p":"cli/update","b":"cli/update#1359","k":"para","t":"Update the dependencies to their latest stable version as determined by their `latest` tags (potentially upgrading the packages across major versions) as long as the version range specified in `package.json` is lower than the `latest` tag (i.e. it will not downgrade prereleases)."}
+{"p":"cli/update","b":"cli/update#1360","k":"heading","t":"--patches"}
+{"p":"cli/update","b":"cli/update#1361","k":"para","t":"Added in: v12.0.0"}
+{"p":"cli/update","b":"cli/update#1362","k":"para","t":"Refresh [registry revisions](/docs/registry-revisions) without changing any package version: for every locked registry package, pnpm resolves current metadata for the same `name@version`, and adopts the artifact the registry selects now if that changed. Versions and declared ranges are left alone, but the lockfile entry is rewritten as a whole — `integrity`, `revision`, and the package snapshot around them — since revisions may declare different dependencies."}
+{"p":"cli/update","b":"cli/update#1363","k":"para","t":"Cannot be combined with package selectors, `--latest`, `--interactive`, or `--global` (`ERR_PNPM_PATCHES_WITH_SELECTOR`). Each of those narrows or redirects what an update targets — a subset of packages, the newest versions, an interactive choice, the global installation — and `--patches` is defined as covering every locked package of the current project at its current version."}
+{"p":"cli/update","b":"cli/update#1364","k":"heading","t":"--pnpr-server <url>"}
+{"p":"cli/update","b":"cli/update#1365","k":"para","t":"Added in: v12.0.0"}
+{"p":"cli/update","b":"cli/update#1366","k":"para","t":"Offload the resolution of a `--patches` refresh to a [pnpr](https://pnpm.io/pnpr) server, the way [pnprServer](https://pnpm.io/pnpr/install-acceleration) does for an install."}
+{"p":"cli/update","b":"cli/update#1367","k":"heading","t":"--global, -g"}
+{"p":"cli/update","b":"cli/update#1368","k":"para","t":"Update global packages."}
+{"p":"cli/update","b":"cli/update#1369","k":"heading","t":"--workspace"}
+{"p":"cli/update","b":"cli/update#1370","k":"para","t":"Tries to link all packages from the workspace. Versions are updated to match the versions of packages inside the workspace."}
+{"p":"cli/update","b":"cli/update#1371","k":"para","t":"If specific packages are updated, the command will fail if any of the updated dependencies are not found inside the workspace. For instance, the following command fails if `express` is not a workspace package:"}
+{"p":"cli/update","b":"cli/update#1372","k":"heading","t":"--prod, -P"}
+{"p":"cli/update","b":"cli/update#1373","k":"para","t":"Only update packages in `dependencies` and `optionalDependencies`."}
+{"p":"cli/update","b":"cli/update#1374","k":"heading","t":"--dev, -D"}
+{"p":"cli/update","b":"cli/update#1375","k":"para","t":"Only update packages in `devDependencies`."}
+{"p":"cli/update","b":"cli/update#1376","k":"heading","t":"--no-optional"}
+{"p":"cli/update","b":"cli/update#1377","k":"para","t":"Don't update packages in `optionalDependencies`."}
+{"p":"cli/update","b":"cli/update#1378","k":"heading","t":"--interactive, -i"}
+{"p":"cli/update","b":"cli/update#1379","k":"para","t":"Show outdated dependencies and select which ones to update."}
+{"p":"cli/update","b":"cli/update#1380","k":"para","t":"Since v11.21.0, combined with `--global`, each [isolated install group](/docs/global-packages#isolated-installations) is presented as one selectable item: packages that share a global installation update together as a unit."}
+{"p":"cli/update","b":"cli/update#1381","k":"heading","t":"--no-save"}
+{"p":"cli/update","b":"cli/update#1382","k":"para","t":"Don't update the ranges in `package.json`."}
+{"p":"cli/update","b":"cli/update#1383","k":"heading","t":"--changeset"}
+{"p":"cli/update","b":"cli/update#1384","k":"para","t":"Added in: v11.16.0"}
+{"p":"cli/update","b":"cli/update#1385","k":"para","t":"After the update completes, write a [change intent](/docs/versioning) — a changesets-compatible `.changeset/*.md` file — declaring a `patch` bump for every workspace package whose `dependencies` or `optionalDependencies` were changed by the update, and a `major` bump when its `peerDependencies` changed. Packages that consume an updated catalog entry via the `catalog:` protocol are included. Private packages, packages without a name, and packages listed in the `ignore` array of `.changeset/config.json` are skipped. If `.changeset/config.json` does not exist, a warning is printed and no changeset is generated."}
+{"p":"cli/update","b":"cli/update#1386","k":"para","t":"Set [update.changeset](/docs/settings/dependency-resolution#updatechangeset) to `true` in `pnpm-workspace.yaml` to enable this behavior by default, and use `--no-changeset` to override the setting for one update."}
+{"p":"cli/update","b":"cli/update#1387","k":"heading","t":"--include-github-actions"}
+{"p":"cli/update","b":"cli/update#1388","k":"para","t":"Added in: v11.16.0"}
+{"p":"cli/update","b":"cli/update#1389","k":"para","t":"Also update the GitHub Actions referenced by the repository's workflow files. See [Updating GitHub Actions](#updating-github-actions)."}
+{"p":"cli/update","b":"cli/update#1390","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/update","b":"cli/update@title","k":"title","t":"pnpm update"}

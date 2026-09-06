@@ -1,0 +1,33 @@
+{
+  "name": "pnpm-cn",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "audit": "bun scripts/audit.mjs",
+    "cells": "bun scripts/table-gaps.mjs extract",
+    "labels": "bun scripts/fix-labels.mjs",
+    "scrape": "bun scripts/scrape.mjs",
+    "patchlang": "bun scripts/patch-language.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.6.0",
+    "@tailwindcss/vite": "^4.1.0",
+    "astro": "^7.0.0",
+    "tailwindcss": "^4.1.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/markdown-remark": "^7.3.0",
+    "@fontsource-variable/archivo": "^5.2.5",
+    "@fontsource-variable/spline-sans-mono": "^5.2.5",
+    "@phosphor-icons/core": "^2.1.1",
+    "cheerio": "^1.1.2",
+    "remark-directive": "^4.0.0",
+    "typescript": "6"
+  }
+}

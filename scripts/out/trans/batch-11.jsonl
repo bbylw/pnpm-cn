@@ -1,0 +1,107 @@
+{"p":"package-sources","b":"package-sources#2217","k":"para","t":"pnpm supports installing packages from various sources. These sources are divided into two categories: **trusted sources** and **exotic sources**."}
+{"p":"package-sources","b":"package-sources#2218","k":"para","t":"Exotic sources (like Git repositories or direct tarball URLs) can introduce supply chain risks when used by transitive dependencies. You can prevent transitive dependencies from using exotic sources by setting [blockExoticSubdeps](/docs/settings/dependency-resolution#blockexoticsubdeps) to `true`."}
+{"p":"package-sources","b":"package-sources#2219","k":"heading","t":"Trusted sources"}
+{"p":"package-sources","b":"package-sources#2220","k":"para","t":"Trusted sources are considered safe for both direct and transitive dependencies."}
+{"p":"package-sources","b":"package-sources#2221","k":"heading","t":"npm registry"}
+{"p":"package-sources","b":"package-sources#2222","k":"para","t":"`pnpm add package-name` will install the latest version of `package-name` from the [npm registry](https://www.npmjs.com/) by default."}
+{"p":"package-sources","b":"package-sources#2223","k":"para","t":"If executed in a workspace, the command will first try to check whether other projects in the workspace use the specified package. If so, the already used version range will be installed."}
+{"p":"package-sources","b":"package-sources#2224","k":"para","t":"You may also install packages by:"}
+{"p":"package-sources","b":"package-sources#2225","k":"li","t":"version range: `pnpm add express@2 react@\">=0.1.0 <0.2.0\"`"}
+{"p":"package-sources","b":"package-sources#2226","k":"heading","t":"JSR registry"}
+{"p":"package-sources","b":"package-sources#2227","k":"para","t":"Added in: v10.9.0"}
+{"p":"package-sources","b":"package-sources#2228","k":"para","t":"To install packages from the [JSR](https://jsr.io/) registry, use the `jsr:` protocol prefix:"}
+{"p":"package-sources","b":"package-sources#2229","k":"para","t":"This works just like installing from npm, but tells pnpm to resolve the package through JSR instead."}
+{"p":"package-sources","b":"package-sources#2230","k":"heading","t":"Named registries"}
+{"p":"package-sources","b":"package-sources#2231","k":"para","t":"Added in: v11.1.0"}
+{"p":"package-sources","b":"package-sources#2232","k":"para","t":"A [named registry](/docs/settings/dependency-resolution#namedregistries) alias resolves a package against a specific registry, regardless of the default one:"}
+{"p":"package-sources","b":"package-sources#2233","k":"para","t":"`gh:` (GitHub Packages) and, since v11.20.0, `npmjs:` (the public npm registry) work without configuration. Any other alias must be mapped under [namedRegistries](/docs/settings/dependency-resolution#namedregistries) in `pnpm-workspace.yaml` or, since v11.11.0, in the [global configuration file](/docs/cli/config) (`config.yaml`)."}
+{"p":"package-sources","b":"package-sources#2234","k":"heading","t":"Workspace"}
+{"p":"package-sources","b":"package-sources#2235","k":"para","t":"Note that when adding dependencies and working within a [workspace](/docs/workspaces), packages will be installed from the configured sources, depending on whether or not [linkWorkspacePackages](/docs/workspaces#linkworkspacepackages) is set, and use of the [workspace: range protocol](/docs/workspaces#workspace-protocol-workspace)."}
+{"p":"package-sources","b":"package-sources#2236","k":"heading","t":"Local file system"}
+{"p":"package-sources","b":"package-sources#2237","k":"para","t":"There are two ways to install from the local file system:"}
+{"p":"package-sources","b":"package-sources#2238","k":"li","t":"from a tarball file (`.tar`, `.tar.gz`, or `.tgz`)"}
+{"p":"package-sources","b":"package-sources#2239","k":"li","t":"from a directory"}
+{"p":"package-sources","b":"package-sources#2240","k":"para","t":"When you install from a directory, a symlink will be created in the current project's `node_modules`, so it is the same as running `pnpm link`."}
+{"p":"package-sources","b":"package-sources#2241","k":"heading","t":"Exotic sources"}
+{"p":"package-sources","b":"package-sources#2242","k":"para","t":"Exotic sources are useful for development but may pose supply chain risks when used by transitive dependencies."}
+{"p":"package-sources","b":"package-sources#2243","k":"heading","t":"Remote tarball"}
+{"p":"package-sources","b":"package-sources#2244","k":"para","t":"The argument must be a fetchable URL starting with \"http://\" or \"https://\"."}
+{"p":"package-sources","b":"package-sources#2245","k":"heading","t":"Git repository"}
+{"p":"package-sources","b":"package-sources#2246","k":"para","t":"Installs the package from the Git repository at the given URL. Depending on the repository, pnpm either downloads a source archive from the Git host or clones the repository with Git — see [how Git dependencies are resolved](#how-git-dependencies-are-resolved)."}
+{"p":"package-sources","b":"package-sources#2247","k":"para","t":"You may install packages from Git by:"}
+{"p":"package-sources","b":"package-sources#2248","k":"li","t":"Latest commit from default branch:"}
+{"p":"package-sources","b":"package-sources#2249","k":"li","t":"Git commit hash:"}
+{"p":"package-sources","b":"package-sources#2250","k":"li","t":"Git branch:"}
+{"p":"package-sources","b":"package-sources#2251","k":"li","t":"Git branch relative to refs:"}
+{"p":"package-sources","b":"package-sources#2252","k":"li","t":"Git tag:"}
+{"p":"package-sources","b":"package-sources#2253","k":"li","t":"V-prefixed Git tag:"}
+{"p":"package-sources","b":"package-sources#2254","k":"heading","t":"Install from a Git repository using semver"}
+{"p":"package-sources","b":"package-sources#2255","k":"para","t":"You can specify version (range) to install using the `semver:` parameter. For example:"}
+{"p":"package-sources","b":"package-sources#2256","k":"li","t":"Strict semver:"}
+{"p":"package-sources","b":"package-sources#2257","k":"li","t":"V-prefixed strict semver:"}
+{"p":"package-sources","b":"package-sources#2258","k":"li","t":"Semver version range:"}
+{"p":"package-sources","b":"package-sources#2259","k":"li","t":"V-prefixed semver version range:"}
+{"p":"package-sources","b":"package-sources#2260","k":"heading","t":"Install from a subdirectory of a Git repository"}
+{"p":"package-sources","b":"package-sources#2261","k":"para","t":"You may also install just a subdirectory from a Git-hosted monorepo using the `path:` parameter. For instance:"}
+{"p":"package-sources","b":"package-sources#2262","k":"heading","t":"Install from a Git repository via a full URL"}
+{"p":"package-sources","b":"package-sources#2263","k":"para","t":"If you want to be more explicit or are using alternative Git hosting, you might want to spell out full Git URL:"}
+{"p":"package-sources","b":"package-sources#2264","k":"heading","t":"Install from a Git repository using hosting providers shorthand"}
+{"p":"package-sources","b":"package-sources#2265","k":"para","t":"You can use a protocol shorthand `[provider]:` for certain Git providers:"}
+{"p":"package-sources","b":"package-sources#2266","k":"para","t":"If `[provider]:` is omitted, it defaults to `github:`."}
+{"p":"package-sources","b":"package-sources#2267","k":"heading","t":"Install from a Git repository combining different parameters"}
+{"p":"package-sources","b":"package-sources#2268","k":"para","t":"It is possible to combine multiple parameters by separating them with `&`. This can be useful for forks of monorepos:"}
+{"p":"package-sources","b":"package-sources#2269","k":"para","t":"Installs from the `beta` branch and only the subdirectory at `/packages/simple-react-app`."}
+{"p":"package-sources","b":"package-sources#2270","k":"heading","t":"How Git dependencies are resolved"}
+{"p":"package-sources","b":"package-sources#2271","k":"para","t":"Added in: v12.0.0 (pnpm v12 only)"}
+{"p":"package-sources","b":"package-sources#2272","k":"para","t":"For repositories on GitHub, GitLab, and Bitbucket, the specifier is an **identity**, not a choice of transport. All of the following name the same dependency and resolve identically:"}
+{"p":"package-sources","b":"package-sources#2273","k":"para","t":"Each resolves through the host's canonical HTTPS URL, and the lockfile records one of two shapes:"}
+{"p":"package-sources","b":"package-sources#2274","k":"li","t":"the **host's source archive**, a plain tarball download. This is recorded only when an anonymous request for that exact archive URL succeeds, so a recorded archive URL is fetchable by construction."}
+{"p":"package-sources","b":"package-sources#2275","k":"li","t":"otherwise a **git resolution over the canonical HTTPS URL**, which every machine that has access to the repository can fetch."}
+{"p":"package-sources","b":"package-sources#2276","k":"para","t":"pnpm never records an SSH URL for these hosts. Which transport a given machine uses to reach the host is that machine's Git configuration, not a property of the project."}
+{"p":"package-sources","b":"package-sources#2277","k":"para","t":"pnpm 11 keeps the specifier's transport as part of the recorded URL, but since v11.21.0 it records an SSH URL only when the specifier itself asks for one (`git+ssh://` or `git@host:...`): a shorthand like `owner/repo` resolves and records over HTTPS, so a lockfile written on a machine with SSH keys still installs on a CI runner without them. An SSH URL recorded by an older pnpm can be re-recorded over HTTPS with `pnpm update <package>`."}
+{"p":"package-sources","b":"package-sources#2278","k":"heading","t":"Using SSH for private repositories"}
+{"p":"package-sources","b":"package-sources#2279","k":"para","t":"Configure the rewrite in Git itself, on the machine:"}
+{"p":"package-sources","b":"package-sources#2280","k":"para","t":"pnpm shells out to `git`, so the rewrite applies to all of pnpm's Git operations automatically. The same holds on CI: give the runner an SSH key and this rewrite, or an HTTPS credential helper — the lockfile is identical either way."}
+{"p":"package-sources","b":"package-sources#2281","k":"heading","t":"Repositories on other hosts"}
+{"p":"package-sources","b":"package-sources#2282","k":"para","t":"A URL that does not point at a known host (a self-hosted GitLab, Gitea, or any internal Git server) is kept exactly as written, transport included — for those, the URL *is* the identity. URLs with credentials embedded in them are also kept verbatim, and never resolve to a host archive."}
+{"p":"package-sources","b":"package-sources#2283","k":"para","t":"In pnpm v11 and earlier, resolution probed the network to decide between HTTPS and SSH. That could record whichever transport happened to work on the machine that ran the install — most often an `ssh://` URL that then failed on CI runners without SSH keys. pnpm v12 removes the probing. Existing lockfile entries are left untouched; the rules above apply when an entry is added or re-resolved."}
+{"p":"package-sources","b":"package-sources#2284","k":"heading","t":"How a Git dependency is built"}
+{"p":"package-sources","b":"package-sources#2285","k":"para","t":"Added in: v12.0.0-rc.6 (pnpm v12 only)"}
+{"p":"package-sources","b":"package-sources#2286","k":"para","t":"A Git-hosted dependency that ships sources rather than a built package has to be prepared — its dependencies installed and its build script run — before it can be installed. pnpm prepares it with the package manager the dependency itself asks for, instead of assuming the host has the right one:"}
+{"p":"package-sources","b":"package-sources#2287","k":"li","t":"the dependency's own `packageManager` / [devEngines.packageManager](/docs/package_json#devenginespackagemanager) pin wins — that is what its authors test against;"}
+{"p":"package-sources","b":"package-sources#2288","k":"li","t":"failing a pin, the lockfile it ships names the package manager. A `yarn.lock` also names *which* Yarn line: Yarn Berry stamps `__metadata:` into every lockfile it writes and neither line can read the other's, so a Classic lockfile is no longer installed by Berry."}
+{"p":"package-sources","b":"package-sources#2289","k":"para","t":"pnpm [provides that package manager](/docs/package-managers) when the dependency pinned a version, or when the host cannot satisfy what the dependency needs. A repository built with Yarn therefore installs on a machine that has only pnpm, while a host that already has a suitable package manager — under every name the build may invoke — keeps using its own."}
+{"p":"package-sources","b":"package-sources@title","k":"title","t":"Supported package sources"}
+{"p":"pnpm-cli","b":"pnpm-cli#2367","k":"heading","t":"Short aliases"}
+{"p":"pnpm-cli","b":"pnpm-cli#2368","k":"para","t":"Added in: v11.0.0"}
+{"p":"pnpm-cli","b":"pnpm-cli#2369","k":"para","t":"`pn` is available as a short alias for `pnpm`, and [pnx](/docs/cli/pnx) as a short alias for `pnpm dlx`. You can use them anywhere you'd use `pnpm` or `pnpx`:"}
+{"p":"pnpm-cli","b":"pnpm-cli#2370","k":"heading","t":"Differences vs npm"}
+{"p":"pnpm-cli","b":"pnpm-cli#2371","k":"para","t":"Unlike npm, pnpm validates all options. For example, `pnpm install --target_arch x64` will fail as `--target_arch` is not a valid option for `pnpm install`."}
+{"p":"pnpm-cli","b":"pnpm-cli#2372","k":"para","t":"However, some dependencies may use the `npm_config_` environment variable, which is populated from the CLI options. In this case, you have the following options:"}
+{"p":"pnpm-cli","b":"pnpm-cli#2373","k":"li","t":"explicitly set the env variable: `npm_config_target_arch=x64 pnpm install`"}
+{"p":"pnpm-cli","b":"pnpm-cli#2374","k":"li","t":"force the unknown option with `--config.`: `pnpm install --config.target_arch=x64`"}
+{"p":"pnpm-cli","b":"pnpm-cli#2375","k":"heading","t":"Options"}
+{"p":"pnpm-cli","b":"pnpm-cli#2376","k":"heading","t":"-C <path>, --dir <path>"}
+{"p":"pnpm-cli","b":"pnpm-cli#2377","k":"para","t":"Run as if pnpm was started in `<path>` instead of the current working directory."}
+{"p":"pnpm-cli","b":"pnpm-cli#2378","k":"heading","t":"-w, --workspace-root"}
+{"p":"pnpm-cli","b":"pnpm-cli#2379","k":"para","t":"Run as if pnpm was started in the root of the [workspace](/docs/workspaces) instead of the current working directory."}
+{"p":"pnpm-cli","b":"pnpm-cli#2380","k":"heading","t":"Commands"}
+{"p":"pnpm-cli","b":"pnpm-cli#2381","k":"para","t":"For more information, see the documentation for individual CLI commands. Here is a list of handy npm equivalents to get you started:"}
+{"p":"pnpm-cli","b":"pnpm-cli#2382","k":"para","t":"When an unknown command is used, pnpm will search for a script with the given name, so `pnpm run lint` is the same as `pnpm lint`. If there is no script with the specified name, then pnpm will execute the command as a shell script, so you can do things like `pnpm eslint` (see [pnpm exec](/docs/cli/exec))."}
+{"p":"pnpm-cli","b":"pnpm-cli#2383","k":"heading","t":"Environment variables"}
+{"p":"pnpm-cli","b":"pnpm-cli#2384","k":"para","t":"Some environment variables that are not pnpm related might change the behaviour of pnpm:"}
+{"p":"pnpm-cli","b":"pnpm-cli#2385","k":"para","t":"These environment variables may influence what directories pnpm will use for storing global information:"}
+{"p":"pnpm-cli","b":"pnpm-cli#2386","k":"para","t":"You can search the docs to find the settings that leverage these environment variables."}
+{"p":"pnpm-cli","b":"pnpm-cli@title","k":"title","t":"pnpm CLI"}
+{"p":"pnpm-vs-npm","b":"pnpm-vs-npm#2387","k":"heading","t":"npm's flat tree"}
+{"p":"pnpm-vs-npm","b":"pnpm-vs-npm#2388","k":"para","t":"npm maintains a [flattened dependency tree](https://github.com/npm/npm/issues/6912) as of version 3. This leads to less disk space bloat, with a messy `node_modules` directory as a side effect."}
+{"p":"pnpm-vs-npm","b":"pnpm-vs-npm#2389","k":"para","t":"On the other hand, pnpm manages `node_modules` by using hard linking and symbolic linking to a global on-disk content-addressable store. This lets you get the benefits of far less disk space usage, while also keeping your `node_modules` clean. There is documentation on the [store layout](/docs/symlinked-node-modules-structure) if you wish to learn more."}
+{"p":"pnpm-vs-npm","b":"pnpm-vs-npm#2390","k":"para","t":"The good thing about pnpm's proper `node_modules` structure is that it \"[helps to avoid silly bugs](https://www.kochan.io/nodejs/pnpms-strictness-helps-to-avoid-silly-bugs.html)\" by making it impossible to use modules that are not specified in the project's `package.json`."}
+{"p":"pnpm-vs-npm","b":"pnpm-vs-npm#2391","k":"heading","t":"Installation"}
+{"p":"pnpm-vs-npm","b":"pnpm-vs-npm#2392","k":"para","t":"pnpm does not allow installation of packages without saving them to `package.json`. If no parameters are passed to `pnpm add`, packages are saved as regular dependencies. Like with npm, `--save-dev` and `--save-optional` can be used to install packages as dev or optional dependencies."}
+{"p":"pnpm-vs-npm","b":"pnpm-vs-npm#2393","k":"para","t":"As a consequence of this limitation, projects won't have any extraneous packages when they use pnpm unless they remove a dependency and leave it orphaned. That's why pnpm's implementation of the [prune command](/docs/cli/prune) does not allow you to specify packages to prune - it ALWAYS removes all extraneous and orphaned packages."}
+{"p":"pnpm-vs-npm","b":"pnpm-vs-npm#2394","k":"heading","t":"Directory dependencies"}
+{"p":"pnpm-vs-npm","b":"pnpm-vs-npm#2395","k":"para","t":"Directory dependencies start with the `file:` prefix and point to a directory in the filesystem. Like npm, pnpm symlinks those dependencies. Unlike npm, pnpm does not perform installation for the file dependencies."}
+{"p":"pnpm-vs-npm","b":"pnpm-vs-npm#2396","k":"para","t":"This means that if you have a package called `foo` (`<root>/foo`) that has `bar@file:../bar` as a dependency, pnpm won't perform installation for `<root>/bar` when you run `pnpm install` on `foo`."}
+{"p":"pnpm-vs-npm","b":"pnpm-vs-npm#2397","k":"para","t":"If you need to run installations in several packages at the same time, for instance in the case of a monorepo, you should look at the documentation for [pnpm -r](/docs/cli/recursive)."}
+{"p":"pnpm-vs-npm","b":"pnpm-vs-npm@title","k":"title","t":"pnpm vs npm"}

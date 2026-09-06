@@ -1,0 +1,254 @@
+{"b":"cli/fetch#480","z":"从锁文件拉取包到虚拟存储，包清单将被忽略。"}
+{"b":"cli/fetch#481","z":"使用场景"}
+{"b":"cli/fetch#482","z":"此命令专为改进 Docker 镜像构建而设计。"}
+{"b":"cli/fetch#483","z":"你可能读过为 Node.js 应用编写 Dockerfile 的[官方指南](https://github.com/nodejs/docker-node#readme)，如果还没读过，建议先看一下。"}
+{"b":"cli/fetch#484","z":"从该指南中，我们学到如何为使用 pnpm 的项目编写优化的 Dockerfile，其大致如下"}
+{"b":"cli/fetch#485","z":"只要 `package.json`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`、`.pnpmfile.mjs` 没有变化，docker 构建缓存在 `RUN pnpm install --frozen-lockfile --prod` 这一层之前都仍然有效，而这一层正是构建 docker 镜像时最耗时的部分。"}
+{"b":"cli/fetch#486","z":"然而，对 `package.json` 的修改可能远比我们预期的频繁，因为它不仅包含依赖，还可能包含版本号、脚本以及任意其他工具的配置。"}
+{"b":"cli/fetch#487","z":"维护一个构建 monorepo 项目的 Dockerfile 也很困难，它可能如下"}
+{"b":"cli/fetch#488","z":"可以看到，添加或删除子包时都必须更新 Dockerfile。"}
+{"b":"cli/fetch#489","z":"`pnpm fetch` 完美解决了上述问题，它提供了仅凭锁文件和配置文件（`pnpm-workspace.yaml`）中的信息就能将包加载到虚拟存储的能力。"}
+{"b":"cli/fetch#490","z":"它对简单项目和 monorepo 项目都适用，由于所有必需的包都已存在于虚拟存储中，`--offline` 会强制 pnpm 不与包 registry 通信。"}
+{"b":"cli/fetch#491","z":"只要锁文件没有变化，构建缓存到该层都仍然有效，因此 `RUN pnpm install -r --offline --prod` 会为你节省大量时间。"}
+{"b":"cli/fetch#492","z":"本地 `file:` 协议依赖会在 `pnpm fetch` 期间被跳过，因为它们引用的目录在拉取时可能不可用（例如在 Docker 构建中）。"}
+{"b":"cli/fetch#493","z":"选项"}
+{"b":"cli/fetch#494","z":"--dev, -D"}
+{"b":"cli/fetch#495","z":"仅拉取开发包"}
+{"b":"cli/fetch#496","z":"--prod, -P"}
+{"b":"cli/fetch#497","z":"不拉取开发包"}
+{"b":"cli/fetch@title","z":"pnpm fetch"}
+{"b":"cli/find-hash#498","z":"此命令为实验性命令"}
+{"b":"cli/find-hash#499","z":"列出包含指定哈希值文件的包。例如："}
+{"b":"cli/find-hash@title","z":"pnpm find-hash"}
+{"b":"cli/help#500","z":"显示 pnpm 的帮助信息。"}
+{"b":"cli/help#501","z":"选项"}
+{"b":"cli/help#502","z":"--all, -a"}
+{"b":"cli/help#503","z":"自 v10.20.0 起提供"}
+{"b":"cli/help#504","z":"打印所有可用的命令。"}
+{"b":"cli/help@title","z":"pnpm help <command>"}
+{"b":"cli/ignored-builds#505","z":"自 v10.1.0 起提供"}
+{"b":"cli/ignored-builds#506","z":"打印构建脚本被屏蔽的包列表。"}
+{"b":"cli/ignored-builds@title","z":"pnpm ignored-builds"}
+{"b":"cli/import#507","z":"`pnpm import` 从其他包管理器的锁文件生成 `pnpm-lock.yaml`。支持的源文件："}
+{"b":"cli/import#508","z":"注意，如果你有想要导入依赖的工作区，需要事先在 [pnpm-workspace.yaml](/docs/settings) 文件中声明它们。"}
+{"b":"cli/import@title","z":"pnpm import"}
+{"b":"cli/init#509","z":"创建 `package.json` 文件。"}
+{"b":"cli/init#510","z":"选项"}
+{"b":"cli/init#511","z":"--bare"}
+{"b":"cli/init#512","z":"自 v10.25.0 起提供"}
+{"b":"cli/init#513","z":"创建仅包含必需字段的 `package.json`。"}
+{"b":"cli/init#514","z":"--init-type <type>"}
+{"b":"cli/init#515","z":"默认值：**module**"}
+{"b":"cli/init#516","z":"类型：**commonjs**、**module**"}
+{"b":"cli/init#517","z":"设置包的模块系统。"}
+{"b":"cli/init#518","z":"--init-package-manager"}
+{"b":"cli/init#519","z":"将项目锁定到某个 pnpm 版本。"}
+{"b":"cli/init#520","z":"自 v11 起，锁定以 [devEngines.packageManager](/docs/package_json#devenginespackagemanager) 条目的形式写入，因此解析出的版本会记录在 `pnpm-lock.yaml` 中。自 v11.23.0 起，它还会以精确版本（而非 `^` 范围）写入旧版的 `packageManager` 字段，因为 Corepack 只读取 `packageManager` 且仅接受精确版本。"}
+{"b":"cli/init#521","z":"自 v12.0.0 起，锁定的版本可以新于运行该命令的 pnpm，因此由过时 pnpm 生成的项目不再通过自身锁定继承这种陈旧性（[#7490](https://github.com/pnpm/pnpm/issues/7490)）。pnpm 会在包管理器 registry 上查找 `latest` 标签下发布的版本，并且**仅当它新于当前运行版本时**才锁定它，这种查找只会抬高锁定版本，绝不会降低。"}
+{"b":"cli/init#522","z":"由此得出两点。`latest` 是一个标签而非“最新发布”，所以锁定版本跟随标签指向的版本线：当 `latest` 位于 pnpm 11 版本线时，用 pnpm 11.20 运行 `pnpm init` 会锁定最新的 pnpm 11，而 pnpm 12 会锁定自身，因为没有比它更新的 pnpm 11 版本。而当查询无法给出结果时（无网络、registry 不可达或响应缓慢、`--offline`，或 `latest` 被 [minimumReleaseAge](/docs/settings/dependency-resolution#minimumreleaseage) 或 [trustPolicy](/docs/settings/dependency-resolution#trustpolicy) 拒绝），则与以往一样锁定当前运行版本。查询绝不会导致命令失败或卡住。"}
+{"b":"cli/init#523","z":"在工作区子包中此选项不生效：锁定只会添加到工作区根目录的 `package.json`，子包跟随该锁定。传入 `--no-init-package-manager` 可生成完全不带锁定的清单。"}
+{"b":"cli/init#524","z":"配置"}
+{"b":"cli/init#525","z":"这些设置用于填充生成的 `package.json` 的字段。可在 `pnpm-workspace.yaml`、[全局配置文件](/docs/cli/config) 中设置，或通过环境变量 `PNPM_CONFIG_INIT_VERSION` 等设置。"}
+{"b":"cli/init#526","z":"initVersion"}
+{"b":"cli/init#527","z":"类型：**字符串**"}
+{"b":"cli/init#528","z":"写入新 `package.json` 的 `version`。"}
+{"b":"cli/init#529","z":"initLicense"}
+{"b":"cli/init#530","z":"默认值：**ISC**"}
+{"b":"cli/init#531","z":"类型：**字符串**"}
+{"b":"cli/init#532","z":"写入新 `package.json` 的 `license`。"}
+{"b":"cli/init#533","z":"initAuthorName, initAuthorEmail, initAuthorUrl"}
+{"b":"cli/init#534","z":"类型：**字符串**"}
+{"b":"cli/init#535","z":"组装进 `author` 字段，采用 npm 的 `Name <email> (url)` 形式。未设置的字段会从字符串中省略；三者都未设置时，不写入 `author` 字段。"}
+{"b":"cli/init#536","z":"pnpm-workspace.yaml"}
+{"b":"cli/init@title","z":"pnpm init"}
+{"b":"cli/install#537","z":"`pnpm install` 用于安装项目的所有依赖。"}
+{"b":"cli/install#538","z":"在 CI 环境中，如果存在锁文件但需要更新，安装会失败。"}
+{"b":"cli/install#539","z":"在[工作区](/docs/workspaces)中，`pnpm install` 会安装所有项目的所有依赖。如果想禁用此行为，将 `recursive-install` 设置设为 `false`。"}
+{"b":"cli/install#540","z":"摘要"}
+{"b":"cli/install#541","z":"过滤依赖的选项"}
+{"b":"cli/install#542","z":"没有锁文件时，pnpm 必须创建一个，且无论依赖如何过滤它都必须保持一致，因此在没有锁文件的目录中运行 `pnpm install --prod` 仍会解析开发依赖，如果解析不成功还会报错。此规则的唯一例外是 `link:` 依赖。"}
+{"b":"cli/install#543","z":"没有 `--frozen-lockfile` 时，pnpm 会检查 `file:` 依赖的过期信息，因此在 `file:` 目标已被移除的环境中不带 `--frozen-lockfile` 运行 `pnpm install --prod` 会报错。"}
+{"b":"cli/install#544","z":"--prod, -P"}
+{"b":"cli/install#545","z":"默认值：**false**"}
+{"b":"cli/install#546","z":"类型：**布尔值**"}
+{"b":"cli/install#547","z":"为 `true` 时，pnpm 不会安装 `devDependencies` 中列出的任何包，若它们已安装则会被移除。为 `false` 时，pnpm 会安装 `devDependencies` 和 `dependencies` 中列出的所有包。"}
+{"b":"cli/install#548","z":"--dev, -D"}
+{"b":"cli/install#549","z":"仅安装 `devDependencies`，若 `dependencies` 已安装则将其移除。"}
+{"b":"cli/install#550","z":"--no-optional"}
+{"b":"cli/install#551","z":"不安装 `optionalDependencies`。"}
+{"b":"cli/install#552","z":"--no-runtime"}
+{"b":"cli/install#553","z":"自 v11.1.0 起提供"}
+{"b":"cli/install#554","z":"跳过安装运行时条目（例如通过 [devEngines.runtime](/docs/package_json#devenginesruntime) 下载的 Node.js）。锁文件保持不变，因此冻结安装仍会进行校验；仅跳过运行时的拉取和 bin 链接。"}
+{"b":"cli/install#555","z":"这适用于运行时在 `pnpm install` 运行前已由外部预先配置的 CI 矩阵（例如通过 `pnpm runtime -g set node <version>`）。"}
+{"b":"cli/install#556","z":"也可以通过 `pnpm-workspace.yaml` 中的 `runtime=false` 配置设置。"}
+{"b":"cli/install#557","z":"选项"}
+{"b":"cli/install#558","z":"--force"}
+{"b":"cli/install#559","z":"强制重新安装依赖：重新拉取存储中被修改的包，重建由不兼容版本的 pnpm 创建的锁文件和/或 modules 目录。即使不满足当前环境（cpu、os、arch），也会安装所有 optionalDependencies。"}
+{"b":"cli/install#560","z":"--offline"}
+{"b":"cli/install#561","z":"默认值：**false**"}
+{"b":"cli/install#562","z":"类型：**布尔值**"}
+{"b":"cli/install#563","z":"为 `true` 时，pnpm 只使用存储中已有的包。如果本地找不到某个包，安装将失败。"}
+{"b":"cli/install#564","z":"--prefer-offline"}
+{"b":"cli/install#565","z":"默认值：**false**"}
+{"b":"cli/install#566","z":"类型：**布尔值**"}
+{"b":"cli/install#567","z":"为 `true` 时，将跳过缓存数据的过期检查，但缺失的数据仍会向服务器请求。要强制完全离线模式，使用 `--offline`。"}
+{"b":"cli/install#568","z":"--no-lockfile"}
+{"b":"cli/install#569","z":"不读取也不生成 `pnpm-lock.yaml` 文件。"}
+{"b":"cli/install#570","z":"--lockfile-only"}
+{"b":"cli/install#571","z":"默认值：**false**"}
+{"b":"cli/install#572","z":"类型：**布尔值**"}
+{"b":"cli/install#573","z":"使用时，仅更新 `pnpm-lock.yaml` 和 `package.json`，不会向 `node_modules` 目录写入任何内容。"}
+{"b":"cli/install#574","z":"--dry-run"}
+{"b":"cli/install#575","z":"自 v11.8.0 起提供"}
+{"b":"cli/install#576","z":"执行完整的依赖解析并报告真实安装会带来哪些变更，但不向磁盘写入任何内容。锁文件、清单或 `node_modules` 的变更均不会被保存。"}
+{"b":"cli/install#577","z":"完成的试运行即使报告真实安装会更新锁文件，也以退出码 0 结束。"}
+{"b":"cli/install#578","z":"`--dry-run` 不能与已配置的 pnpr 服务器一起使用，因为那条安装路径通过服务器进行解析和链接。"}
+{"b":"cli/install#579","z":"--fix-lockfile"}
+{"b":"cli/install#580","z":"自动修复损坏的锁文件条目。"}
+{"b":"cli/install#581","z":"--update-checksums"}
+{"b":"cli/install#582","z":"自 v11.4.0 起提供"}
+{"b":"cli/install#583","z":"当下载的 tarball 的哈希与 `pnpm-lock.yaml` 中记录的完整性值不匹配时，按 registry 当前提供的内容刷新锁定的 tarball 完整性值。"}
+{"b":"cli/install#584","z":"自 v11.4.0 起，默认情况下完整性不匹配会导致硬性失败：`pnpm install` 以 `ERR_PNPM_TARBALL_INTEGRITY` 退出，而不是静默地从 registry 重新解析并覆盖锁定的完整性值。这保护了提交锁文件的项目：在干净的机器上，被攻破的 registry、代理或重新发布的版本无法用攻击者控制的内容进行替换。"}
+{"b":"cli/install#585","z":"`--update-checksums` 是针对合法场景（例如 registry 重写了它的 tarball，且你已验证新内容正确）的小范围显式启用选项。绕过生效时仍会打印警告，使该操作可被审计。"}
+{"b":"cli/install#586","z":"`--force` 和 `pnpm update` 有意**不**绕过完整性检查。`--frozen-lockfile` 保持不变，`--fix-lockfile` 保留其文档所述用途（补全缺失的锁文件条目），同样不是绕过手段。"}
+{"b":"cli/install#587","z":"--frozen-lockfile"}
+{"b":"cli/install#588","z":"非 CI 时：**false**"}
+{"b":"cli/install#589","z":"CI 时：**true**（若存在锁文件）"}
+{"b":"cli/install#590","z":"类型：**布尔值**"}
+{"b":"cli/install#591","z":"为 `true` 时，pnpm 不会生成锁文件，并且在锁文件与清单不同步、需要更新或不存在锁文件时安装失败。"}
+{"b":"cli/install#592","z":"在 [CI 环境](https://github.com/watson/ci-info#supported-ci-tools)中此设置默认为 `true`。检测 CI 环境使用以下代码："}
+{"b":"cli/install#593","z":"https://github.com/watson/ci-info/blob/44e98cebcdf4403f162195fbcf90b1f69fc6e047/index.js#L54-L61"}
+{"b":"cli/install#594","z":"--merge-git-branch-lockfiles"}
+{"b":"cli/install#595","z":"合并所有 git 分支锁文件。[阅读更多关于 git 分支锁文件的说明。](/docs/git_branch_lockfiles)"}
+{"b":"cli/install#596","z":"--reporter=<name>"}
+{"b":"cli/install#597","z":"TTY 标准输出时：**default**"}
+{"b":"cli/install#598","z":"非 TTY 标准输出时：**append-only**"}
+{"b":"cli/install#599","z":"类型：**default**、**append-only**、**ndjson**、**silent**"}
+{"b":"cli/install#600","z":"允许你选择将在终端记录安装进度调试信息的 reporter。"}
+{"b":"cli/install#601","z":"**silent**：不向控制台记录任何输出，即使是致命错误"}
+{"b":"cli/install#602","z":"**default**：标准输出为 TTY 时的默认 reporter"}
+{"b":"cli/install#603","z":"**append-only**：输出始终追加到末尾，不进行光标操作"}
+{"b":"cli/install#604","z":"**ndjson**：最详细的 reporter，以 [ndjson](https://github.com/ndjson/ndjson-spec) 格式打印所有日志"}
+{"b":"cli/install#605","z":"如果想更改打印的信息类型，使用 [loglevel](/docs/settings/cli#loglevel) 设置。"}
+{"b":"cli/install#606","z":"--shamefully-hoist"}
+{"b":"cli/install#607","z":"默认值：**false**"}
+{"b":"cli/install#608","z":"类型：**布尔值**"}
+{"b":"cli/install#609","z":"创建扁平的 `node_modules` 结构，类似于 `npm` 或 `yarn`。**警告**：强烈不建议这样做。"}
+{"b":"cli/install#610","z":"--ignore-scripts"}
+{"b":"cli/install#611","z":"默认值：**false**"}
+{"b":"cli/install#612","z":"类型：**布尔值**"}
+{"b":"cli/install#613","z":"不执行项目 `package.json` 及其依赖中定义的任何脚本。"}
+{"b":"cli/install#614","z":"--filter <package_selector>"}
+{"b":"cli/install#615","z":"--cpu=<name>"}
+{"b":"cli/install#616","z":"自 v10.14.0 起提供"}
+{"b":"cli/install#617","z":"覆盖要安装的原生模块的 CPU 架构。可接受的值与 `package.json` 的 `cpu` 字段相同，来自 `process.arch`。"}
+{"b":"cli/install#618","z":"--os=<name>"}
+{"b":"cli/install#619","z":"自 v10.14.0 起提供"}
+{"b":"cli/install#620","z":"覆盖要安装的原生模块的操作系统。可接受的值与 `package.json` 的 `os` 字段相同，来自 `process.platform`。"}
+{"b":"cli/install#621","z":"--libc=<name>"}
+{"b":"cli/install#622","z":"自 v10.14.0 起提供"}
+{"b":"cli/install#623","z":"覆盖要安装的原生模块的 libc。可接受的值与 `package.json` 的 `libc` 字段相同。"}
+{"b":"cli/install@title","z":"pnpm install"}
+{"b":"cli/install-test#624","z":"先运行 `pnpm install`，紧接着运行 `pnpm test`。它接受的参数与 [pnpm install](/docs/cli/install) 完全相同。"}
+{"b":"cli/install-test@title","z":"pnpm install-test"}
+{"b":"cli/lane#625","z":"自 v11.13.0 起提供"}
+{"b":"cli/lane#626","z":"管理按包划分的发布轨道（lane）。lane 是一条平行的发布轨道：当某个包位于某条 lane 上时，不带 lane 选项的 [pnpm version -r](/docs/cli/version#recursive-releases) 会把它发布为 `X.Y.Z-<lane>.N` 预发布版本，而工作区的其余包继续发布稳定版本。将包移回主 lane 后，下一次运行时将发布其积累的稳定版本。"}
+{"b":"cli/lane#627","z":"lane 的归属信息保存在 `pnpm-workspace.yaml` 的 [versioning.lanes](/docs/settings/versioning#versioninglanes) 键下；此命令是用于编辑该键的便捷工具。"}
+{"b":"cli/lane#628","z":"用法"}
+{"b":"cli/lane#629","z":"查看 lane 归属"}
+{"b":"cli/lane#630","z":"如果没有包被分配到 lane，此命令会打印 `All packages are on the main lane.`"}
+{"b":"cli/lane#631","z":"将包移入 lane"}
+{"b":"cli/lane#632","z":"必须提供 `--filter`，它选择要移动的包。lane 名称只能包含字母数字字符和连字符，且不能是纯数字。"}
+{"b":"cli/lane#633","z":"将包移回主 lane"}
+{"b":"cli/lane#634","z":"`main` 是默认 lane 的保留名称。除非被分配到其他 lane，每个包都在 `main` 上，且其上的包发布稳定版本。让包毕业，会在下一次 `pnpm version -r` 运行时发布其预发布版本一直在构建的稳定版本。"}
+{"b":"cli/lane#635","z":"lane 上的版本"}
+{"b":"cli/lane#636","z":"位于 lane 上的包发布 `X.Y.Z-<lane>.N`，其中 `X.Y.Z` 是该 lane 正在构建面向的稳定版本，`N` 从 `0` 开始递增："}
+{"b":"cli/lane#637","z":"每当稳定目标版本变化时，`N` 都从 `0` 重新开始。当版本提升抬高了目标时（例如 lane 原本在构建 minor，而提升意图是 `major`），目标会重新计算，计数也会重置。"}
+{"b":"cli/lane#638","z":"同一[固定组](/docs/versioning#fixed-groups)中的包必须一起在各 lane 之间移动。"}
+{"b":"cli/lane#639","z":"选项"}
+{"b":"cli/lane#640","z":"--filter <package_selector&gt;"}
+{"b":"cli/lane#641","z":"选择在 lane 之间移动的包。分配 lane 时必需。"}
+{"b":"cli/lane@title","z":"pnpm lane"}
+{"b":"cli/licenses#642","z":"命令"}
+{"b":"cli/licenses#643","z":"list"}
+{"b":"cli/licenses#644","z":"列出已安装包的许可证。"}
+{"b":"cli/licenses#645","z":"自 v11.20.0 起，从[命名 registry](/docs/settings/dependency-resolution#namedregistries) 解析的包，与来自其他 registry 的同名同版本包会分开报告。在表格输出中，registry 别名显示在包名旁边，并在使用 `--json` 时以 `registryName` 字段暴露。"}
+{"b":"cli/licenses#646","z":"选项"}
+{"b":"cli/licenses#647","z":"--dev, -D"}
+{"b":"cli/licenses#648","z":"仅检查 \"devDependencies\"。"}
+{"b":"cli/licenses#649","z":"--json"}
+{"b":"cli/licenses#650","z":"以 JSON 格式显示信息。"}
+{"b":"cli/licenses#651","z":"--long"}
+{"b":"cli/licenses#652","z":"默认不显示更多详情（例如仓库链接）。要显示这些详情，传入此选项。"}
+{"b":"cli/licenses#653","z":"--no-optional"}
+{"b":"cli/licenses#654","z":"不检查 `optionalDependencies` 中的包。"}
+{"b":"cli/licenses#655","z":"--prod, -P"}
+{"b":"cli/licenses#656","z":"仅检查 `dependencies` 和 `optionalDependencies`。"}
+{"b":"cli/licenses#657","z":"--filter <package_selector>"}
+{"b":"cli/licenses@title","z":"pnpm licenses"}
+{"b":"cli/link#691","z":"将本地包链接到当前项目的 `node_modules`。"}
+{"b":"cli/link#692","z":"选项"}
+{"b":"cli/link#693","z":"`pnpm link <dir>`"}
+{"b":"cli/link#694","z":"将 `<dir>` 目录中的包链接到执行此命令的包所在的 `node_modules`。`<dir>` 必须是相对或绝对路径。"}
+{"b":"cli/link#695","z":"例如，如果你在 `~/projects/foo` 中执行 `pnpm link ../bar`，则会在 `foo/node_modules/bar` 创建指向 `bar` 的链接。"}
+{"b":"cli/link#696","z":"v11 的破坏性变更"}
+{"b":"cli/link#697","z":"`pnpm link` 不再从全局存储解析包。仅接受相对或绝对路径（用 `pnpm link ./foo` 代替 `pnpm link foo`）。"}
+{"b":"cli/link#698","z":"`pnpm link --global` 已被移除。要全局注册本地包的 bin，改用 `pnpm add -g .`。"}
+{"b":"cli/link#699","z":"不带参数的 `pnpm link` 已被移除。始终传入显式路径。"}
+{"b":"cli/link#700","z":"使用场景"}
+{"b":"cli/link#701","z":"用本地版本替换已安装的包"}
+{"b":"cli/link#702","z":"假设你有一个使用 `foo` 包的项目，你想修改 `foo` 并在项目中测试这些改动。此时可以用 `pnpm link` 将 `foo` 的本地版本链接到你的项目："}
+{"b":"cli/link#703","z":"全局添加可执行文件"}
+{"b":"cli/link#704","z":"要让本地包的可执行文件在全系统可用，改用 `pnpm add -g .`："}
+{"b":"cli/link#705","z":"注意，只有当包在其 `package.json` 中有 `bin` 字段时，可执行文件才可用。"}
+{"b":"cli/link#706","z":"`pnpm link` 与使用 `file:` 协议的区别"}
+{"b":"cli/link#707","z":"使用 `pnpm link` 时，被链接的包以符号链接方式指向其源代码。你可以修改被链接包的源代码，改动会反映到你的项目中。用这种方式，pnpm 不会安装被链接包的依赖，你需要在源代码中手动安装它们。当你必须为被链接包使用特定包管理器时，这会很有用，例如你想对被链接包使用 `npm`，而对项目使用 pnpm。"}
+{"b":"cli/link#708","z":"在 `dependencies` 中使用 `file:` 协议时，被链接的包以硬链接方式链接到你项目的 `node_modules`，你可以修改被链接包的源代码，改动会反映到你的项目中。用这种方式，pnpm 还会安装被链接包的依赖，并覆盖被链接包的 `node_modules`。"}
+{"b":"cli/link#709","z":"处理**对等依赖**时，建议使用 `file:` 协议。它能更好地从项目依赖中解析对等依赖，确保被链接的依赖正确使用主项目中指定的依赖版本，从而带来更一致、更符合预期的行为。"}
+{"b":"cli/link@title","z":"pnpm link"}
+{"b":"cli/list#658","z":"此命令将以树形结构输出所有已安装包的版本及其依赖。"}
+{"b":"cli/list#659","z":"位置参数是 `name-pattern@version-range` 标识符，用于将结果限定为指定名称的包。例如 `pnpm list \"babel-*\" \"eslint-*\" semver@5`。"}
+{"b":"cli/list#660","z":"选项"}
+{"b":"cli/list#661","z":"--recursive, -r"}
+{"b":"cli/list#662","z":"对子目录中的每个包执行命令；在工作区内执行时，对工作区的每个包执行命令。"}
+{"b":"cli/list#663","z":"--json"}
+{"b":"cli/list#664","z":"以 JSON 格式记录输出。"}
+{"b":"cli/list#665","z":"--long"}
+{"b":"cli/list#666","z":"显示扩展信息。"}
+{"b":"cli/list#667","z":"--lockfile-only"}
+{"b":"cli/list#668","z":"自 v10.23.0 起提供"}
+{"b":"cli/list#669","z":"从锁文件读取包信息，而不是检查实际的 `node_modules` 目录。适用于在不进行完整安装的情况下快速查看将要安装的内容。"}
+{"b":"cli/list#670","z":"--parseable"}
+{"b":"cli/list#671","z":"以可解析的格式输出包目录，而不是树形视图。"}
+{"b":"cli/list#672","z":"--global, -g"}
+{"b":"cli/list#673","z":"列出全局安装目录中的包，而不是当前项目中的包。"}
+{"b":"cli/list#674","z":"--depth <number>"}
+{"b":"cli/list#675","z":"依赖树的最大显示深度。"}
+{"b":"cli/list#676","z":"`pnpm ls --depth 0`（默认）仅列出直接依赖。`pnpm ls --depth -1` 仅列出项目，在工作区内与 `-r` 选项配合使用时很有用。`pnpm ls --depth Infinity` 会列出所有依赖，不受深度限制。"}
+{"b":"cli/list#677","z":"--prod, -P"}
+{"b":"cli/list#678","z":"仅显示 `dependencies` 和 `optionalDependencies` 中包的依赖图。"}
+{"b":"cli/list#679","z":"--dev, -D"}
+{"b":"cli/list#680","z":"仅显示 `devDependencies` 中包的依赖图。"}
+{"b":"cli/list#681","z":"--no-optional"}
+{"b":"cli/list#682","z":"不显示 `optionalDependencies` 中的包。"}
+{"b":"cli/list#683","z":"--only-projects"}
+{"b":"cli/list#684","z":"仅显示同时也是工作区内项目的依赖。"}
+{"b":"cli/list#685","z":"--exclude-peers"}
+{"b":"cli/list#686","z":"从结果中排除对等依赖（但对等依赖的依赖不会被忽略）。"}
+{"b":"cli/list#687","z":"--filter <package_selector>"}
+{"b":"cli/list#688","z":"--find-by <finder_name>"}
+{"b":"cli/list#689","z":"自 v10.16.0 起提供"}
+{"b":"cli/list#690","z":"使用在 `.pnpmfile.mjs` 中定义的[查找函数](/docs/finders)，按名称以外的属性匹配依赖。"}
+{"b":"cli/list@title","z":"pnpm list"}
+{"b":"cli/login#710","z":"自 v11.0.0 起提供"}
+{"b":"cli/login#711","z":"向 npm registry 进行身份验证。"}
+{"b":"cli/login#712","z":"支持带二维码的网页登录，也支持经典的用户名/密码认证。"}
+{"b":"cli/login#713","z":"自 v11.19.0 起，网页登录不再需要交互式终端：没有 TTY 时，`pnpm login` 会打印认证 URL（跳过二维码和在浏览器中打开 URL 的提示），并轮询 registry 直到浏览器审批完成。只有经典用户名/密码登录在非交互式终端中仍会以 `ERR_PNPM_LOGIN_NON_INTERACTIVE` 失败。"}
+{"b":"cli/login#714","z":"在 pnpm 12.1 及更新版本中，授予的 token 会写入全局 [config.yaml](/docs/cli/config)，位于结构化的 [_auth](/docs/npmrc#_auth) 设置下。当存在 `--scope` 时，同样的写入会在全局 [registries](/docs/registries) 设置下将该 scope 路由到对应 registry。pnpm 11.25 会把 token 和 scope 路由写入 [<pnpm config>/auth.ini](/docs/npmrc#auth-file-locations)；pnpm 12.1 仍会读取写入那里的 token。"}
+{"b":"cli/login#715","z":"选项"}
+{"b":"cli/login#716","z":"--registry <url>"}
+{"b":"cli/login#717","z":"要认证的目标 registry。默认为配置的默认 registry。"}
+{"b":"cli/login#718","z":"--scope <scope>"}
+{"b":"cli/login#719","z":"将凭据与指定 scope 关联。将使用该 scope 对应的 registry。"}
+{"b":"cli/login#720","z":"自 v12.1.0 起，项目 `pnpm-workspace.yaml` 中的 `scope` 设置会被忽略并发出警告。仓库不应能够决定后续登录写入的机器级路由。传入 `--scope`、设置 `PNPM_CONFIG_SCOPE`，或使用以下方式设置机器的默认值："}
+{"b":"cli/login@title","z":"pnpm login"}

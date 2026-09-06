@@ -1,0 +1,211 @@
+{"p":"errors","b":"errors#1643","k":"heading","t":"ERR_PNPM_TASK_CYCLE"}
+{"p":"errors","b":"errors#1644","k":"para","t":"A recursive run's task graph contains a dependency cycle. The error lists the participating tasks as `<project>#<script>` identifiers."}
+{"p":"errors","b":"errors#1645","k":"para","t":"Remove or change the cycle under [tasks](/docs/workspace-task-orchestration). If it is deliberate, set [ignoreWorkspaceCycles](/docs/workspaces#ignoreworkspacecycles) to `true` to downgrade the error to a warning and run the cycle's tasks without a guaranteed order."}
+{"p":"errors","b":"errors#1646","k":"heading","t":"ERR_PNPM_UNEXPECTED_STORE"}
+{"p":"errors","b":"errors#1647","k":"para","t":"A modules directory is present and is linked to a different store directory."}
+{"p":"errors","b":"errors#1648","k":"para","t":"If you changed the store directory intentionally, run `pnpm install` and pnpm will reinstall the dependencies using the new store."}
+{"p":"errors","b":"errors#1649","k":"heading","t":"ERR_PNPM_NO_MATCHING_VERSION_INSIDE_WORKSPACE"}
+{"p":"errors","b":"errors#1650","k":"para","t":"A project has a workspace dependency that does not exist in the workspace."}
+{"p":"errors","b":"errors#1651","k":"para","t":"For instance, package `foo` has `bar@1.0.0` in the `dependencies`:"}
+{"p":"errors","b":"errors#1652","k":"para","t":"However, there is only `bar@2.0.0` in the workspace, so `pnpm install` will fail."}
+{"p":"errors","b":"errors#1653","k":"para","t":"To fix this error, all dependencies that use the [workspace protocol](/docs/workspaces#workspace-protocol-workspace) should be updated to use versions of packages that are present in the workspace. This can be done either manually or using the `pnpm -r update` command."}
+{"p":"errors","b":"errors#1654","k":"heading","t":"ERR_PNPM_PEER_DEP_ISSUES"}
+{"p":"errors","b":"errors#1655","k":"para","t":"`pnpm install` will fail if the project has unresolved peer dependencies or the peer dependencies are not matching the wanted ranges. To fix this, install the missing peer dependencies."}
+{"p":"errors","b":"errors#1656","k":"para","t":"You may also selectively ignore these errors using the [peerDependencyRules.ignoreMissing](/docs/settings/peer-dependencies#peerdependencyrulesignoremissing) and [peerDependencyRules.allowedVersions](/docs/settings/peer-dependencies#peerdependencyrulesallowedversions) settings."}
+{"p":"errors","b":"errors#1657","k":"heading","t":"ERR_PNPM_OUTDATED_LOCKFILE"}
+{"p":"errors","b":"errors#1658","k":"para","t":"This error happens when installation cannot be performed without changes to the lockfile. This might happen in a CI environment if someone has changed a `package.json` file in the repository without running `pnpm install` afterwards. Or someone forgot to commit the changes to the lockfile."}
+{"p":"errors","b":"errors#1659","k":"para","t":"To fix this error, just run `pnpm install` and commit the changes to the lockfile."}
+{"p":"errors","b":"errors#1660","k":"heading","t":"ERR_PNPM_TARBALL_INTEGRITY"}
+{"p":"errors","b":"errors#1661","k":"para","t":"This error indicates that the downloaded package's tarball did not match the expected integrity checksum."}
+{"p":"errors","b":"errors#1662","k":"para","t":"If you use the npm registry (`registry.npmjs.org`), then this probably means that the integrity in your lockfile is incorrect. This might happen if a lockfile had badly resolved merge conflicts."}
+{"p":"errors","b":"errors#1663","k":"para","t":"If you use a registry that allows to override existing versions of a package, then it might mean that in your local metadata cache you have the integrity checksum of an older version of the package. In this case, you should run `pnpm store prune`. This command will remove your local metadata cache. Then you can retry the command that failed."}
+{"p":"errors","b":"errors#1664","k":"para","t":"But also be careful and verify that the package is downloaded from the right URL. The URL should be printed in the error message."}
+{"p":"errors","b":"errors#1665","k":"heading","t":"ERR_PNPM_MISMATCHED_RELEASE_CHANNEL"}
+{"p":"errors","b":"errors#1666","k":"para","t":"The config field `use-node-version` defines a release channel different from version suffix."}
+{"p":"errors","b":"errors#1667","k":"para","t":"For example:"}
+{"p":"errors","b":"errors#1668","k":"li","t":"`rc/20.0.0` defines an `rc` channel but the version is that of a stable release."}
+{"p":"errors","b":"errors#1669","k":"li","t":"`release/20.0.0-rc.0` defines a `release` channel but the version is that of an RC release."}
+{"p":"errors","b":"errors#1670","k":"para","t":"To fix this error, either remove the release channel prefix or correct the version suffix."}
+{"p":"errors","b":"errors#1671","k":"para","t":"Note that it is not allowed to specify node versions like `lts/Jod`. The correct syntax for stable release is strictly X.Y.Z or release/X.Y.Z."}
+{"p":"errors","b":"errors#1672","k":"heading","t":"ERR_PNPM_INVALID_NODE_VERSION"}
+{"p":"errors","b":"errors#1673","k":"para","t":"The value of config field `use-node-version` has an invalid syntax."}
+{"p":"errors","b":"errors#1674","k":"para","t":"Below are the valid forms of `use-node-version`:"}
+{"p":"errors","b":"errors#1675","k":"para","t":"Stable release:"}
+{"p":"errors","b":"errors#1676","k":"li","t":"`X.Y.Z` (`X`, `Y`, `Z` are integers)"}
+{"p":"errors","b":"errors#1677","k":"li","t":"`release/X.Y.Z` (`X`, `Y`, `Z` are integers)"}
+{"p":"errors","b":"errors#1678","k":"para","t":"RC release:"}
+{"p":"errors","b":"errors#1679","k":"li","t":"`X.Y.Z-rc.W` (`X`, `Y`, `Z`, `W` are integers)"}
+{"p":"errors","b":"errors#1680","k":"li","t":"`rc/X.Y.Z-rc.W` (`X`, `Y`, `Z`, `W` are integers)"}
+{"p":"errors","b":"errors@title","k":"title","t":"Error Codes"}
+{"p":"faq","b":"faq#1681","k":"heading","t":"Why does my `node_modules` folder use disk space if packages are stored in a global store?"}
+{"p":"faq","b":"faq#1682","k":"para","t":"pnpm creates [hard links](https://en.wikipedia.org/wiki/Hard_link) from the global store to the project's `node_modules` folders. Hard links point to the same place on the disk where the original files are. So, for example, if you have `foo` in your project as a dependency and it occupies 1MB of space, then it will look like it occupies 1MB of space in the project's `node_modules` folder and the same amount of space in the global store. However, that 1MB is *the same space* on the disk addressed from two different locations. So in total `foo` occupies 1MB, not 2MB."}
+{"p":"faq","b":"faq#1683","k":"para","t":"For more on this subject:"}
+{"p":"faq","b":"faq#1684","k":"heading","t":"Does it work on Windows?"}
+{"p":"faq","b":"faq#1685","k":"para","t":"Short answer: Yes. Long answer: Using symbolic linking on Windows can sometimes be problematic, however, pnpm has a workaround. For Windows, if the [Developer Mode](https://learn.microsoft.com/windows/advanced-settings/developer-mode) is off, we use [junctions](https://docs.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions) instead."}
+{"p":"faq","b":"faq#1686","k":"heading","t":"But the nested `node_modules` approach is incompatible with Windows?"}
+{"p":"faq","b":"faq#1687","k":"para","t":"Early versions of npm had issues because of nesting all `node_modules` (see [this issue](https://github.com/nodejs/node-v0.x-archive/issues/6960)). However, pnpm does not create deep folders, it stores all packages flatly and uses symbolic links to create the dependency tree structure."}
+{"p":"faq","b":"faq#1688","k":"heading","t":"What about circular symlinks?"}
+{"p":"faq","b":"faq#1689","k":"para","t":"Although pnpm uses linking to put dependencies into `node_modules` folders, circular symlinks are avoided because parent packages are placed into the same `node_modules` folder in which their dependencies are. So `foo`'s dependencies are not in `foo/node_modules`, but `foo` is in `node_modules` together with its own dependencies."}
+{"p":"faq","b":"faq#1690","k":"heading","t":"Why have hard links at all? Why not symlink directly to the global store?"}
+{"p":"faq","b":"faq#1691","k":"para","t":"One package can have different sets of dependencies on one machine."}
+{"p":"faq","b":"faq#1692","k":"para","t":"In project **A** `foo@1.0.0` can have a dependency resolved to `bar@1.0.0`, but in project **B** the same dependency of `foo` might resolve to `bar@1.1.0`; so, pnpm hard links `foo@1.0.0` to every project where it is used, in order to create different sets of dependencies for it."}
+{"p":"faq","b":"faq#1693","k":"para","t":"Direct symlinking to the global store would work with Node's `--preserve-symlinks` flag, however, that approach comes with a plethora of its own issues, so we decided to stick with hard links. For more details about why this decision was made, see [this issue](https://github.com/nodejs/node-eps/issues/46)."}
+{"p":"faq","b":"faq#1694","k":"heading","t":"Does pnpm work across different subvolumes in one Btrfs partition?"}
+{"p":"faq","b":"faq#1695","k":"para","t":"While Btrfs does not allow cross-device hardlinks between different subvolumes in a single partition, it does permit reflinks. As a result, pnpm utilizes reflinks to share data between these subvolumes."}
+{"p":"faq","b":"faq#1696","k":"heading","t":"Does pnpm work across multiple drives or filesystems?"}
+{"p":"faq","b":"faq#1697","k":"para","t":"The package store should be on the same drive and filesystem as installations, otherwise packages will be copied, not linked. This is due to a limitation in how hard linking works, in that a file on one filesystem cannot address a location in another. See [Issue #712](https://github.com/pnpm/pnpm/issues/712) for more details."}
+{"p":"faq","b":"faq#1698","k":"para","t":"pnpm functions differently in the 2 cases below:"}
+{"p":"faq","b":"faq#1699","k":"heading","t":"Store path is specified"}
+{"p":"faq","b":"faq#1700","k":"para","t":"If the store path is specified via [the store config](/docs/configuring), then copying occurs between the store and any projects that are on a different disk."}
+{"p":"faq","b":"faq#1701","k":"para","t":"If you run `pnpm install` on disk `A`, then the pnpm store must be on disk `A`. If the pnpm store is located on disk `B`, then all required packages will be directly copied to the project location instead of being linked. This severely inhibits the storage and performance benefits of pnpm."}
+{"p":"faq","b":"faq#1702","k":"heading","t":"Store path is NOT specified"}
+{"p":"faq","b":"faq#1703","k":"para","t":"If the store path is not set, then multiple stores are created (one per drive or filesystem)."}
+{"p":"faq","b":"faq#1704","k":"para","t":"If installation is run on disk `A`, the store will be created on `A` `.pnpm-store` under the filesystem root. If later the installation is run on disk `B`, an independent store will be created on `B` at `.pnpm-store`. The projects would still maintain the benefits of pnpm, but each drive may have redundant packages."}
+{"p":"faq","b":"faq#1705","k":"heading","t":"What does `pnpm` stand for?"}
+{"p":"faq","b":"faq#1706","k":"para","t":"`pnpm` stands for `performant npm`. [@rstacruz](https://github.com/rstacruz/) came up with the name."}
+{"p":"faq","b":"faq#1707","k":"heading","t":"`pnpm` does not work with <YOUR-PROJECT-HERE>?"}
+{"p":"faq","b":"faq#1708","k":"para","t":"In most cases it means that one of the dependencies require packages not declared in `package.json`. It is a common mistake caused by flat `node_modules`. If this happens, this is an error in the dependency and the dependency should be fixed. That might take time though, so pnpm supports workarounds to make the buggy packages work."}
+{"p":"faq","b":"faq#1709","k":"heading","t":"Solution 1"}
+{"p":"faq","b":"faq#1710","k":"para","t":"In case there are issues, you can use the [nodeLinker: hoisted](/docs/settings/node-modules#nodelinker) setting. This creates a flat `node_modules` structure similar to the one created by `npm`."}
+{"p":"faq","b":"faq#1711","k":"heading","t":"Solution 2"}
+{"p":"faq","b":"faq#1712","k":"para","t":"In the following example, a dependency does **not** have the `iterall` module in its own list of deps."}
+{"p":"faq","b":"faq#1713","k":"para","t":"The easiest solution to resolve missing dependencies of the buggy packages is to **add iterall as a dependency to our project's package.json**."}
+{"p":"faq","b":"faq#1714","k":"para","t":"You can do so, by installing it via `pnpm add iterall`, and will be automatically added to your project's `package.json`."}
+{"p":"faq","b":"faq#1715","k":"heading","t":"Solution 3"}
+{"p":"faq","b":"faq#1716","k":"para","t":"One of the solutions is to use [hooks](/docs/pnpmfile#hooks) for adding the missing dependencies to the package's `package.json`."}
+{"p":"faq","b":"faq#1717","k":"para","t":"An example was [Webpack Dashboard](https://github.com/pnpm/pnpm/issues/1043) which wasn't working with `pnpm`. It has since been resolved such that it works with `pnpm` now."}
+{"p":"faq","b":"faq#1718","k":"para","t":"It used to throw an error:"}
+{"p":"faq","b":"faq#1719","k":"para","t":"The problem was that `babel-traverse` was used in `inspectpack` which was used by `webpack-dashboard`, but `babel-traverse` wasn't specified in `inspectpack`'s `package.json`. It still worked with `npm` and `yarn` because they create flat `node_modules`."}
+{"p":"faq","b":"faq#1720","k":"para","t":"The solution was to create a `.pnpmfile.mjs` with the following contents:"}
+{"p":"faq","b":"faq#1721","k":"para","t":"After creating a `.pnpmfile.mjs`, delete `pnpm-lock.yaml` only - there is no need to delete `node_modules`, as pnpm hooks only affect module resolution. Then, rebuild the dependencies & it should be working."}
+{"p":"faq","b":"faq@title","k":"title","t":"Frequently Asked Questions"}
+{"p":"feature-comparison","b":"feature-comparison#1722","k":"para","t":"**Note:** To keep the comparison concise, we include only features likely to be used frequently."}
+{"p":"feature-comparison","b":"feature-comparison@title","k":"title","t":"Feature Comparison"}
+{"p":"filtering","b":"filtering#1744","k":"para","t":"Filtering allows you to restrict commands to specific subsets of packages."}
+{"p":"filtering","b":"filtering#1745","k":"para","t":"pnpm supports a rich selector syntax for picking packages by name or by relation."}
+{"p":"filtering","b":"filtering#1746","k":"para","t":"Selectors may be specified via the `--filter` (or `-F`) flag:"}
+{"p":"filtering","b":"filtering#1747","k":"heading","t":"Matching"}
+{"p":"filtering","b":"filtering#1748","k":"heading","t":"--filter <package_name>"}
+{"p":"filtering","b":"filtering#1749","k":"para","t":"To select an exact package, just specify its name (`@scope/pkg`) or use a pattern to select a set of packages (`@scope/*`)."}
+{"p":"filtering","b":"filtering#1750","k":"para","t":"Specifying the scope of the package is optional, so `--filter=core` will pick `@babel/core` if `core` is not found. However, if the workspace has multiple packages with the same name (for instance, `@babel/core` and `@types/core`), then filtering without scope will pick nothing."}
+{"p":"filtering","b":"filtering#1751","k":"heading","t":"--filter <package_name>..."}
+{"p":"filtering","b":"filtering#1752","k":"para","t":"To select a package and its dependencies (direct and non-direct), suffix the package name with an ellipsis: `<package_name>...`. For instance, the next command will run tests of `foo` and all of its dependencies:"}
+{"p":"filtering","b":"filtering#1753","k":"para","t":"You may use a pattern to select a set of root packages:"}
+{"p":"filtering","b":"filtering#1754","k":"heading","t":"--filter <package_name>^..."}
+{"p":"filtering","b":"filtering#1755","k":"para","t":"To ONLY select the dependencies of a package (both direct and non-direct), suffix the name with the aforementioned ellipsis preceded by a chevron. For instance, the next command will run tests for all of `foo`'s dependencies:"}
+{"p":"filtering","b":"filtering#1756","k":"heading","t":"--filter ...<package_name>"}
+{"p":"filtering","b":"filtering#1757","k":"para","t":"To select a package and its dependent packages (direct and non-direct), prefix the package name with an ellipsis: `...<package_name>`. For instance, this will run the tests of `foo` and all packages dependent on it:"}
+{"p":"filtering","b":"filtering#1758","k":"heading","t":"--filter \"...^<package_name>\""}
+{"p":"filtering","b":"filtering#1759","k":"para","t":"To ONLY select a package's dependents (both direct and non-direct), prefix the package name with an ellipsis followed by a chevron. For instance, this will run tests for all packages dependent on `foo`:"}
+{"p":"filtering","b":"filtering#1760","k":"heading","t":"--filter `./<glob>`, --filter `{<glob>}`"}
+{"p":"filtering","b":"filtering#1761","k":"para","t":"A glob pattern relative to the current working directory matching projects."}
+{"p":"filtering","b":"filtering#1762","k":"para","t":"Includes all projects that are under the specified directory."}
+{"p":"filtering","b":"filtering#1763","k":"para","t":"It may be used with the ellipsis and chevron operators to select dependents/dependencies as well:"}
+{"p":"filtering","b":"filtering#1764","k":"para","t":"It may also be combined with `[<since>]`. For instance, to select all changed projects inside a directory:"}
+{"p":"filtering","b":"filtering#1765","k":"para","t":"Or you may select all packages from a directory with names matching the given pattern:"}
+{"p":"filtering","b":"filtering#1766","k":"heading","t":"legacyDirFiltering"}
+{"p":"filtering","b":"filtering#1767","k":"li","t":"Default: **false**"}
+{"p":"filtering","b":"filtering#1768","k":"li","t":"Type: **Boolean**"}
+{"p":"filtering","b":"filtering#1769","k":"para","t":"`{<dir>}` is matched as a glob pattern: `{packages/*}` selects the projects one level below `packages/`, and it takes a `**` to reach deeper. Set `legacyDirFiltering` to `true` in `pnpm-workspace.yaml` to restore the older behavior, where the selector named a directory and matched **every** project in the subtree below it:"}
+{"p":"filtering","b":"filtering#1770","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"filtering","b":"filtering#1771","k":"para","t":"The setting only applies to the selectors you write. The workspace-root selectors pnpm generates for itself — the `!{<workspace-root>}` a recursive `run` / `exec` / `add` / `test` appends, and the `{<workspace-root>}` that `--workspace-root` appends — are always matched as globs, since v11.24.0. Read as subtree matches they named every project below the root, so a recursive command under this setting selected nothing at all, and `--workspace-root` pulled in the whole workspace instead of the root alone ([#14101](https://github.com/pnpm/pnpm/issues/14101))."}
+{"p":"filtering","b":"filtering#1772","k":"heading","t":"--filter \"[<since>]\""}
+{"p":"filtering","b":"filtering#1773","k":"para","t":"Selects all the packages changed since the specified commit/branch. May be suffixed or prefixed with `...` to include dependencies/dependents."}
+{"p":"filtering","b":"filtering#1774","k":"para","t":"For example, the next command will run tests in all changed packages since `master` and on any dependent packages:"}
+{"p":"filtering","b":"filtering#1775","k":"heading","t":"--fail-if-no-match"}
+{"p":"filtering","b":"filtering#1776","k":"para","t":"Use this flag if you want the CLI to fail if no packages have matched the filters."}
+{"p":"filtering","b":"filtering#1777","k":"para","t":"You may also set this permanently with a [failIfNoMatch setting](/docs/workspaces#failifnomatch)."}
+{"p":"filtering","b":"filtering#1778","k":"heading","t":"Excluding"}
+{"p":"filtering","b":"filtering#1779","k":"para","t":"Any of the filter selectors may work as exclusion operators when they have a leading \"!\". In zsh (and possibly other shells), \"!\" should be escaped: `\\!`."}
+{"p":"filtering","b":"filtering#1780","k":"para","t":"For instance, this will run a command in all projects except for `foo`:"}
+{"p":"filtering","b":"filtering#1781","k":"para","t":"And this will run a command in all projects that are not under the `lib` directory:"}
+{"p":"filtering","b":"filtering#1782","k":"heading","t":"Multiplicity"}
+{"p":"filtering","b":"filtering#1783","k":"para","t":"When packages are filtered, every package is taken that matches at least one of the selectors. You can use as many filters as you want:"}
+{"p":"filtering","b":"filtering#1784","k":"heading","t":"--filter-prod <filtering_pattern>"}
+{"p":"filtering","b":"filtering#1785","k":"para","t":"Acts the same a `--filter` but omits `devDependencies` when selecting dependency projects from the workspace."}
+{"p":"filtering","b":"filtering#1786","k":"heading","t":"--test-pattern <glob>"}
+{"p":"filtering","b":"filtering#1787","k":"para","t":"`test-pattern` allows detecting whether the modified files are related to tests. If they are, the dependent packages of such modified packages are not included."}
+{"p":"filtering","b":"filtering#1788","k":"para","t":"This option is useful with the \"changed since\" filter. For instance, the next command will run tests in all changed packages, and if the changes are in the source code of the package, tests will run in the dependent packages as well:"}
+{"p":"filtering","b":"filtering#1789","k":"heading","t":"--changed-files-ignore-pattern <glob>"}
+{"p":"filtering","b":"filtering#1790","k":"para","t":"Allows to ignore changed files by glob patterns when filtering for changed projects since the specified commit/branch."}
+{"p":"filtering","b":"filtering#1791","k":"para","t":"Usage example:"}
+{"p":"finders","b":"finders#1723","k":"para","t":"Added in: v10.16.0"}
+{"p":"finders","b":"finders#1724","k":"para","t":"Finder functions let you **search your dependency graph** by any property of a package, not just its name. They can be declared in [.pnpmfile.mjs](/docs/pnpmfile) and used with [pnpm list](/docs/cli/list) and [pnpm why](/docs/cli/why)."}
+{"p":"finders","b":"finders#1725","k":"heading","t":"Defining finder functions"}
+{"p":"finders","b":"finders#1726","k":"para","t":"Finder functions are declared in your project’s [.pnpmfile.mjs](/docs/pnpmfile) file under the finders export. Each function receives a context object and must return either:"}
+{"p":"finders","b":"finders#1727","k":"li","t":"`true` → include this dependency in the results,"}
+{"p":"finders","b":"finders#1728","k":"li","t":"`false` → skip it,"}
+{"p":"finders","b":"finders#1729","k":"li","t":"or a `string` → include this dependency and print the string as additional info."}
+{"p":"finders","b":"finders#1730","k":"para","t":"Example: a finder that matches any dependency with **React 17** in `peerDependencies`:"}
+{"p":"finders","b":"finders#1731","k":"para","t":".pnpmfile.mjs"}
+{"p":"finders","b":"finders#1732","k":"heading","t":"Finder context (ctx)"}
+{"p":"finders","b":"finders#1733","k":"para","t":"Each finder function receives a context object that describes the dependency node being visited."}
+{"p":"finders","b":"finders#1734","k":"heading","t":"Using finders"}
+{"p":"finders","b":"finders#1735","k":"para","t":"You can invoke a finder with the `--find-by=<functionName>` flag:"}
+{"p":"finders","b":"finders#1736","k":"heading","t":"Returning extra metadata"}
+{"p":"finders","b":"finders#1737","k":"para","t":"A finder can also return a string. That string will be shown alongside the matched package in the output."}
+{"p":"finders","b":"finders#1738","k":"para","t":"Example: print the package license:"}
+{"p":"finders","b":"finders#1739","k":"para","t":"Other example use cases:"}
+{"p":"finders","b":"finders#1740","k":"li","t":"Find all packages with a specific license."}
+{"p":"finders","b":"finders#1741","k":"li","t":"Detect packages requiring a minimum Node.js version."}
+{"p":"finders","b":"finders#1742","k":"li","t":"List all dependencies that expose binaries."}
+{"p":"finders","b":"finders#1743","k":"li","t":"Print funding URLs for all packages."}
+{"p":"git","b":"git#1792","k":"heading","t":"Lockfiles"}
+{"p":"git","b":"git#1793","k":"para","t":"You should always commit the lockfile (`pnpm-lock.yaml`). This is for a multitude of reasons, the primary of which being:"}
+{"p":"git","b":"git#1794","k":"li","t":"it enables faster installation for CI and production environments, due to being able to skip package resolution"}
+{"p":"git","b":"git#1795","k":"li","t":"it enforces consistent installations and resolution between development, testing, and production environments, meaning the packages used in testing and production will be exactly the same as when you developed your project"}
+{"p":"git","b":"git#1796","k":"heading","t":"Merge conflicts"}
+{"p":"git","b":"git#1797","k":"para","t":"pnpm can automatically resolve merge conflicts in `pnpm-lock.yaml`. If you have conflicts, just run `pnpm install` and commit the changes."}
+{"p":"git","b":"git#1798","k":"para","t":"Be warned, however. It is advised that you review the changes prior to staging a commit, because we cannot guarantee that pnpm will choose the correct head - it instead builds with the most updated of lockfiles, which is ideal in most cases."}
+{"p":"git","b":"git@title","k":"title","t":"Working with Git"}
+{"p":"git_branch_lockfiles","b":"git_branch_lockfiles#1799","k":"para","t":"Git branch lockfiles allows you to totally avoid lockfile merge conflicts and solve it later."}
+{"p":"git_branch_lockfiles","b":"git_branch_lockfiles#1800","k":"heading","t":"Use git branch lockfiles"}
+{"p":"git_branch_lockfiles","b":"git_branch_lockfiles#1801","k":"para","t":"You can turn on this feature by configuring the `pnpm-workspace.yaml` file."}
+{"p":"git_branch_lockfiles","b":"git_branch_lockfiles#1802","k":"para","t":"By doing this, lockfile name will be generated based on the current branch name."}
+{"p":"git_branch_lockfiles","b":"git_branch_lockfiles#1803","k":"para","t":"For instance, the current branch name is `feature-1`. Then, the generated lockfile name will be `pnpm-lock.feature-1.yaml`. You can commit it to the Git, and merge all git branch lockfiles later."}
+{"p":"git_branch_lockfiles","b":"git_branch_lockfiles#1804","k":"para","t":"`feature/1` is special in that the `/` is automatically converted to `!`, so the corresponding lockfile name would be `pnpm-lock.feature!1.yaml`."}
+{"p":"git_branch_lockfiles","b":"git_branch_lockfiles#1805","k":"heading","t":"Merge git branch lockfiles"}
+{"p":"git_branch_lockfiles","b":"git_branch_lockfiles#1806","k":"heading","t":"`pnpm install --merge-git-branch-lockfiles`"}
+{"p":"git_branch_lockfiles","b":"git_branch_lockfiles#1807","k":"para","t":"To merge all git branch lockfiles, just specify `--merge-git-branch-lockfiles` to `pnpm install` command."}
+{"p":"git_branch_lockfiles","b":"git_branch_lockfiles#1808","k":"para","t":"After that, all git branch lockfiles will be merged into one `pnpm-lock.yaml`"}
+{"p":"git_branch_lockfiles","b":"git_branch_lockfiles#1809","k":"heading","t":"Branch Matching"}
+{"p":"git_branch_lockfiles","b":"git_branch_lockfiles#1810","k":"para","t":"pnpm allows you to specify `--merge-git-branch-lockfiles` by matching the current branch name."}
+{"p":"git_branch_lockfiles","b":"git_branch_lockfiles#1811","k":"para","t":"For instance, by the following setting in `pnpm-workspace.yaml` file, `pnpm install` will merge all git branch lockfiles when running in the `main` branch and the branch name starts with `release`."}
+{"p":"git_branch_lockfiles","b":"git_branch_lockfiles@title","k":"title","t":"Git Branch Lockfiles"}
+{"p":"git-worktrees","b":"git-worktrees#1812","k":"para","t":"When multiple AI agents need to work on the same monorepo simultaneously, they each need an isolated working copy with fully functional `node_modules`. Git worktrees combined with pnpm's [global virtual store](/docs/global-virtual-store) make this practical: each worktree gets its own checkout and its own `node_modules`, but dependencies are shared across all of them through a single content-addressable store on disk."}
+{"p":"git-worktrees","b":"git-worktrees#1813","k":"heading","t":"What is a git worktree?"}
+{"p":"git-worktrees","b":"git-worktrees#1814","k":"para","t":"Normally, a git repository has a single working directory tied to one branch at a time. If you want to look at another branch, you have to stash or commit your changes and switch. A [git worktree](https://git-scm.com/docs/git-worktree) lets you check out multiple branches simultaneously, each in its own directory. All worktrees share the same repository history and objects — they're just different views into the same repo."}
+{"p":"git-worktrees","b":"git-worktrees#1815","k":"para","t":"This creates a new directory `../feature-branch` with `feat/my-feature` checked out, while your original working directory stays on its current branch. You can work in both directories independently."}
+{"p":"git-worktrees","b":"git-worktrees#1816","k":"para","t":"A common pattern is to use a **bare repository** (one with no working directory of its own) as the hub, and create all working directories as worktrees:"}
+{"p":"git-worktrees","b":"git-worktrees#1817","k":"heading","t":"Why worktrees?"}
+{"p":"git-worktrees","b":"git-worktrees#1818","k":"para","t":"Even before AI agents, worktrees are useful for maintaining multiple major versions of a project. On my dev machine, I use a pnpm repository with at least two worktrees: one on `main` for pnpm v12, and another on the `v11` branch for backports and maintenance releases. This way, I can fix a bug on v11 without stashing my in-progress v12 work — both versions are always checked out and ready to go. In the past, 2 or 3 worktrees were usually enough for me in the pnpm repository. However, since I started using AI agents extensively, I need a lot more worktrees to let my agents work on many tasks in parallel."}
+{"p":"git-worktrees","b":"git-worktrees#1819","k":"heading","t":"Why this matters even more with AI agents"}
+{"p":"git-worktrees","b":"git-worktrees#1820","k":"para","t":"With AI coding agents, worktrees go from convenient to essential. Each agent needs its own working directory to edit files, run builds, and execute tests without interfering with other agents. Without worktrees, this means cloning the repository multiple times, duplicating git history for each copy."}
+{"p":"git-worktrees","b":"git-worktrees#1821","k":"para","t":"Worktrees solve the git side — every agent gets its own isolated checkout while sharing the underlying git objects. But each worktree still needs its own `node_modules`, which can be hundreds of megabytes. That's where pnpm's [global virtual store](/docs/global-virtual-store) comes in: with it enabled, each worktree's `node_modules` contains only symlinks into a single content-addressable store on disk. This means adding a new agent is fast and costs almost no extra disk space."}
+{"p":"git-worktrees","b":"git-worktrees#1822","k":"para","t":"This setup assumes the worktrees and agents share the same trust boundary. Do not use one writable pnpm store for mutually untrusted agents or users."}
+{"p":"git-worktrees","b":"git-worktrees#1823","k":"heading","t":"Setting it up"}
+{"p":"git-worktrees","b":"git-worktrees#1824","k":"heading","t":"1. Create a bare repository"}
+{"p":"git-worktrees","b":"git-worktrees#1825","k":"heading","t":"2. Create worktrees for each branch"}
+{"p":"git-worktrees","b":"git-worktrees#1826","k":"para","t":"Each worktree is a full checkout with its own files, but they all share the same `.git` object store."}
+{"p":"git-worktrees","b":"git-worktrees#1827","k":"heading","t":"3. Enable the global virtual store"}
+{"p":"git-worktrees","b":"git-worktrees#1828","k":"para","t":"Add `virtualStoreType: global` to the `pnpm-workspace.yaml` in your repository (before v11.23.0 this setting was spelled `enableGlobalVirtualStore: true`):"}
+{"p":"git-worktrees","b":"git-worktrees#1829","k":"heading","t":"4. Install dependencies in each worktree"}
+{"p":"git-worktrees","b":"git-worktrees#1830","k":"para","t":"The first `pnpm install` downloads packages into the global store. Subsequent installs in other worktrees are nearly instant because they only create symlinks to the same store."}
+{"p":"git-worktrees","b":"git-worktrees#1831","k":"heading","t":"How it works"}
+{"p":"git-worktrees","b":"git-worktrees#1832","k":"para","t":"Without the global virtual store, each worktree would have its own `.pnpm` virtual store inside `node_modules`, with hardlinks or copies of every package. With `virtualStoreType: global`, pnpm keeps all package contents in a single shared directory (the global store, which you can find by running `pnpm store path`), and each worktree's `node_modules` contains symlinks pointing there:"}
+{"p":"git-worktrees","b":"git-worktrees#1833","k":"para","t":"This means:"}
+{"p":"git-worktrees","b":"git-worktrees#1834","k":"li","t":"**Near-zero per-worktree overhead** — the local `node_modules` contains only symlinks to the shared global virtual store. Unlike pnpm's default behavior, which hardlinks files from the content-addressable store into a local `node_modules/.pnpm` directory, the global virtual store means no files are copied or hardlinked into the worktree at all."}
+{"p":"git-worktrees","b":"git-worktrees#1835","k":"li","t":"**Instant installs for new worktrees** — packages are already in the global store."}
+{"p":"git-worktrees","b":"git-worktrees#1836","k":"li","t":"**No conflicts** — each worktree has its own `node_modules` tree, so agents can install different dependency versions on different branches without interference."}
+{"p":"git-worktrees","b":"git-worktrees#1837","k":"heading","t":"Example: the pnpm monorepo itself"}
+{"p":"git-worktrees","b":"git-worktrees#1838","k":"para","t":"The [pnpm repository](https://github.com/pnpm/pnpm) uses this exact setup with a bare git repo and a global virtual store. It includes helper scripts to make worktree management easier:"}
+{"p":"git-worktrees","b":"git-worktrees#1839","k":"para","t":"**pnpm worktree:new <branch-name|pr-number>** — creates a new worktree and sets it up:"}
+{"p":"git-worktrees","b":"git-worktrees#1840","k":"para","t":"The script handles a few things beyond plain `git worktree add`:"}
+{"p":"git-worktrees","b":"git-worktrees#1841","k":"li","t":"PR numbers are fetched via `git fetch origin pull/<number>/head` so they work for forks too."}
+{"p":"git-worktrees","b":"git-worktrees#1842","k":"li","t":"Branch names with slashes (e.g. `feat/my-feature`) are converted to dashes for the directory name (e.g. `feat-my-feature`)."}
+{"p":"git-worktrees","b":"git-worktrees#1843","k":"li","t":"The `.claude` directory is symlinked from the bare repo's git common directory into the new worktree, so all worktrees share the same Claude Code settings and approved commands."}
+{"p":"git-worktrees","b":"git-worktrees#1844","k":"para","t":"There's also a shell helper [shell/wt.sh](https://github.com/pnpm/pnpm/blob/main/shell/wt.sh) that wraps the script and `cd`s into the new worktree:"}
+{"p":"git-worktrees","b":"git-worktrees#1845","k":"heading","t":"Tips"}
+{"p":"git-worktrees","b":"git-worktrees#1846","k":"li","t":"**Creating worktrees for agents**: When launching an AI agent, create a dedicated worktree for it. The agent gets full isolation to edit files, run tests, and install packages without affecting other agents."}
+{"p":"git-worktrees","b":"git-worktrees#1847","k":"li","t":"**Cleanup**: Remove a worktree when it's no longer needed with `git worktree remove ./feature-auth`. Leftover worktrees are cheap but can accumulate."}
+{"p":"git-worktrees","b":"git-worktrees@title","k":"title","t":"pnpm + Git Worktrees for Multi-Agent Development"}

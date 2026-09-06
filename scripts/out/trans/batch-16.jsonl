@@ -1,0 +1,203 @@
+{"p":"settings/other","b":"settings/other#3262","k":"heading","t":"savePrefix"}
+{"p":"settings/other","b":"settings/other#3263","k":"para","t":"Configure how versions of packages installed to a `package.json` file get prefixed."}
+{"p":"settings/other","b":"settings/other#3264","k":"para","t":"For example, if a package has version `1.2.3`, by default its version is set to `^1.2.3` which allows minor upgrades for that package, but after `pnpm config set save-prefix='~'` it would be set to `~1.2.3` which only allows patch upgrades."}
+{"p":"settings/other","b":"settings/other#3265","k":"para","t":"Since v11.19.0, `=` is also accepted: newly added dependencies are saved with an explicit `=` operator (`=1.2.3`), which pins the exact version. `pnpm update` keeps the `=` operator when it updates such a pin."}
+{"p":"settings/other","b":"settings/other#3266","k":"para","t":"This setting is ignored when the added package has a range specified. For instance, `pnpm add foo@2` will set the version of `foo` in `package.json` to `2`, regardless of the value of `savePrefix`."}
+{"p":"settings/other","b":"settings/other#3267","k":"heading","t":"tag"}
+{"p":"settings/other","b":"settings/other#3268","k":"li","t":"Default: **latest**"}
+{"p":"settings/other","b":"settings/other#3269","k":"li","t":"Type: **String**"}
+{"p":"settings/other","b":"settings/other#3270","k":"para","t":"If you `pnpm add` a package and you don't provide a specific version, then it will install the package at the version registered under the tag from this setting."}
+{"p":"settings/other","b":"settings/other#3271","k":"para","t":"This also sets the tag that is added to the `package@version` specified by the `pnpm tag` command if no explicit tag is given."}
+{"p":"settings/other","b":"settings/other#3272","k":"heading","t":"globalDir"}
+{"p":"settings/other","b":"settings/other#3273","k":"li","t":"If the **$XDG_DATA_HOME** env variable is set, then **$XDG_DATA_HOME/pnpm/global**"}
+{"p":"settings/other","b":"settings/other#3274","k":"li","t":"On Windows: **~/AppData/Local/pnpm/global**"}
+{"p":"settings/other","b":"settings/other#3275","k":"li","t":"On macOS: **~/Library/pnpm/global**"}
+{"p":"settings/other","b":"settings/other#3276","k":"li","t":"On Linux: **~/.local/share/pnpm/global**"}
+{"p":"settings/other","b":"settings/other#3277","k":"li","t":"Type: **path**"}
+{"p":"settings/other","b":"settings/other#3278","k":"para","t":"Specify a custom directory to store global packages."}
+{"p":"settings/other","b":"settings/other#3279","k":"heading","t":"globalBinDir"}
+{"p":"settings/other","b":"settings/other#3280","k":"li","t":"If the **$XDG_DATA_HOME** env variable is set, then **$XDG_DATA_HOME/pnpm/bin**"}
+{"p":"settings/other","b":"settings/other#3281","k":"li","t":"On Windows: **~/AppData/Local/pnpm/bin**"}
+{"p":"settings/other","b":"settings/other#3282","k":"li","t":"On macOS: **~/Library/pnpm/bin**"}
+{"p":"settings/other","b":"settings/other#3283","k":"li","t":"On Linux: **~/.local/share/pnpm/bin**"}
+{"p":"settings/other","b":"settings/other#3284","k":"li","t":"Type: **path**"}
+{"p":"settings/other","b":"settings/other#3285","k":"para","t":"Allows to set the target directory for the bin files of globally installed packages."}
+{"p":"settings/other","b":"settings/other#3286","k":"para","t":"In pnpm v11, globally installed binaries are stored in a `bin` subdirectory of `PNPM_HOME` instead of directly in `PNPM_HOME`. This prevents internal directories like `global/` and `store/` from polluting shell autocompletion when `PNPM_HOME` is on PATH. After upgrading, run `pnpm setup` to update your shell configuration."}
+{"p":"settings/other","b":"settings/other#3287","k":"heading","t":"globalShims"}
+{"p":"settings/other","b":"settings/other#3288","k":"para","t":"Added in: v12.0.0-rc.2"}
+{"p":"settings/other","b":"settings/other#3289","k":"li","t":"Default: **{ node: auto, deno: auto, bun: auto }**"}
+{"p":"settings/other","b":"settings/other#3290","k":"li","t":"Type: **Boolean**, **Object**"}
+{"p":"settings/other","b":"settings/other#3291","k":"para","t":"Controls which globally installed packages get [project-aware shims](/docs/global-packages#project-aware-global-bins) — global commands that run the version the current project asks for instead of the globally installed one."}
+{"p":"settings/other","b":"settings/other#3292","k":"para","t":"The setting is a map from **package name** to policy. The key is the name of the package that *provides* the command, not the command itself, so an entry for `typescript` covers its `tsc` bin."}
+{"p":"settings/other","b":"settings/other#3293","k":"para","t":"The supported policies are:"}
+{"p":"settings/other","b":"settings/other#3294","k":"para","t":"Since v12.0.0-rc.6, two commands write entries here for you: [pnpm shim add <pkg>](/docs/cli/shim) records the package it links a shim for, and installing a [package manager](/docs/package-managers) globally (`pnpm add -g yarn`) records that package manager so it follows a project's pin. Neither overwrites an entry you set yourself — including `false`, and including a `globalShims: false` that turns every shim off."}
+{"p":"settings/other","b":"settings/other#3295","k":"para","t":"Layers merge key by key over the built-in defaults, so a single entry can change one package without restating the rest — `globalShims: { bun: false }` leaves `node` and `deno` at `auto`."}
+{"p":"settings/other","b":"settings/other#3296","k":"para","t":"The scalar shorthands replace the whole map instead of merging: `globalShims: false` disables every project-aware shim, and `globalShims: true` resets to the defaults."}
+{"p":"settings/other","b":"settings/other#3297","k":"para","t":"This setting is only read from locations a project cannot write to: the [global configuration file](/docs/cli/config), a `pnpm-workspace.yaml` in the pnpm home directory itself, and the `PNPM_CONFIG_GLOBAL_SHIMS` environment variable (a JSON value), applied in that order. A project's own `pnpm-workspace.yaml` is ignored — otherwise a repository could grant itself the right to run its own binaries in place of your global ones."}
+{"p":"settings/other","b":"settings/other#3298","k":"para","t":"Disabling a package, or changing its policy, takes effect on the very next command — the setting is re-read on each dispatch, so no reinstall is needed."}
+{"p":"settings/other","b":"settings/other#3299","k":"para","t":"Newly *enabling* a package is the exception. pnpm decides at install time which bins to write dispatching shims for, so a package that was already installed globally while it was disabled needs to be reinstalled to pick up the change:"}
+{"p":"settings/other","b":"settings/other#3300","k":"para","t":"To bypass dispatch for a single invocation, set `PNPM_SHIM_BYPASS=1`:"}
+{"p":"settings/other","b":"settings/other#3301","k":"para","t":"Project-aware shims are a pnpm v12 feature and are not available in v11."}
+{"p":"settings/other","b":"settings/other#3302","k":"heading","t":"npmrcAuthFile"}
+{"p":"settings/other","b":"settings/other#3303","k":"para","t":"Added in: v11.0.0"}
+{"p":"settings/other","b":"settings/other#3304","k":"li","t":"Default: **~/.npmrc**"}
+{"p":"settings/other","b":"settings/other#3305","k":"li","t":"Type: **path**"}
+{"p":"settings/other","b":"settings/other#3306","k":"para","t":"The path to a file containing registry authentication tokens. By default, pnpm reads auth tokens from `~/.npmrc` as a fallback for registry authentication. Use this setting to point to a different file instead."}
+{"p":"settings/other","b":"settings/other#3307","k":"para","t":"This setting cannot be set in `pnpm-workspace.yaml` at the project level; set it in the global configuration file, via the `--npmrc-auth-file` CLI option, or via the `PNPM_CONFIG_NPMRC_AUTH_FILE` environment variable (the npm-style `NPM_CONFIG_USERCONFIG` is honored as a fallback). A relative path is resolved against the working directory."}
+{"p":"settings/other","b":"settings/other#3308","k":"heading","t":"stateDir"}
+{"p":"settings/other","b":"settings/other#3309","k":"li","t":"If the **$XDG_STATE_HOME** env variable is set, then **$XDG_STATE_HOME/pnpm**"}
+{"p":"settings/other","b":"settings/other#3310","k":"li","t":"On Windows: **~/AppData/Local/pnpm-state**"}
+{"p":"settings/other","b":"settings/other#3311","k":"li","t":"On macOS: **~/.pnpm-state**"}
+{"p":"settings/other","b":"settings/other#3312","k":"li","t":"On Linux: **~/.local/state/pnpm**"}
+{"p":"settings/other","b":"settings/other#3313","k":"li","t":"Type: **path**"}
+{"p":"settings/other","b":"settings/other#3314","k":"para","t":"The directory where pnpm creates the `pnpm-state.json` file that is currently used only by the update checker."}
+{"p":"settings/other","b":"settings/other#3315","k":"heading","t":"cacheDir"}
+{"p":"settings/other","b":"settings/other#3316","k":"li","t":"If the **$XDG_CACHE_HOME** env variable is set, then **$XDG_CACHE_HOME/pnpm**"}
+{"p":"settings/other","b":"settings/other#3317","k":"li","t":"On Windows: **~/AppData/Local/pnpm-cache**"}
+{"p":"settings/other","b":"settings/other#3318","k":"li","t":"On macOS: **~/Library/Caches/pnpm**"}
+{"p":"settings/other","b":"settings/other#3319","k":"li","t":"On Linux: **~/.cache/pnpm**"}
+{"p":"settings/other","b":"settings/other#3320","k":"li","t":"Type: **path**"}
+{"p":"settings/other","b":"settings/other#3321","k":"para","t":"The location of the cache (package metadata, dlx cache, and some install verification results)."}
+{"p":"settings/other","b":"settings/other#3322","k":"para","t":"Like the store, the cache directory is intended to be shared only between mutually trusted users, jobs, and processes. If you configure or restore a shared `cacheDir`, protect it with filesystem permissions so untrusted users cannot write to it."}
+{"p":"settings/other","b":"settings/other#3323","k":"heading","t":"useStderr"}
+{"p":"settings/other","b":"settings/other#3324","k":"li","t":"Default: **false**"}
+{"p":"settings/other","b":"settings/other#3325","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/other","b":"settings/other#3326","k":"para","t":"When true, all the output is written to stderr."}
+{"p":"settings/other","b":"settings/other#3327","k":"heading","t":"updateNotifier"}
+{"p":"settings/other","b":"settings/other#3328","k":"li","t":"Default: **true**"}
+{"p":"settings/other","b":"settings/other#3329","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/other","b":"settings/other#3330","k":"para","t":"Set to `false` to suppress the update notification when using an older version of pnpm than the latest."}
+{"p":"settings/other","b":"settings/other#3331","k":"para","t":"`pnpm install` and `pnpm add` check at most once a day, and print how to get the newer version. pnpm 12 recognized but ignored this setting until v12.0.0, where it started checking too."}
+{"p":"settings/other","b":"settings/other#3332","k":"heading","t":"preferSymlinkedExecutables"}
+{"p":"settings/other","b":"settings/other#3333","k":"li","t":"Default: **true**, when **node-linker** is set to **hoisted** and the system is POSIX"}
+{"p":"settings/other","b":"settings/other#3334","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/other","b":"settings/other#3335","k":"para","t":"Create symlinks to executables in `node_modules/.bin` instead of command shims. This setting is ignored on Windows, where only command shims work."}
+{"p":"settings/other","b":"settings/other#3336","k":"heading","t":"ignoreCompatibilityDb"}
+{"p":"settings/other","b":"settings/other#3337","k":"li","t":"Default: **false**"}
+{"p":"settings/other","b":"settings/other#3338","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/other","b":"settings/other#3339","k":"para","t":"During installation the dependencies of some packages are automatically patched. If you want to disable this, set this config to `true`."}
+{"p":"settings/other","b":"settings/other#3340","k":"para","t":"The patches are applied from Yarn's [@yarnpkg/extensions](https://github.com/yarnpkg/berry/blob/master/packages/yarnpkg-extensions/sources/index.ts) package, plus pnpm's own curated entries."}
+{"p":"settings/other","b":"settings/other#3341","k":"para","t":"Since v12.0.0, the database no longer carries entries that were derived from static analysis of published packages. Those entries named packages a dependent imported only for its *types*. Adding them was at best unnecessary and at worst broke the dependent: `@typescript-eslint/types` gained a `typescript` dependency resolved to the newest release, which put TypeScript 7 under older `@typescript-eslint` versions and made ESLint fail with `Cannot read properties of undefined (reading 'Intrinsic')`."}
+{"p":"settings/other","b":"settings/other#3342","k":"heading","t":"resolutionMode"}
+{"p":"settings/other","b":"settings/other#3343","k":"li","t":"Default: **highest** (was **lowest-direct** from v8.0.0 to v8.6.12)"}
+{"p":"settings/other","b":"settings/other#3344","k":"li","t":"Type: **highest**, **time-based**, **lowest-direct**"}
+{"p":"settings/other","b":"settings/other#3345","k":"para","t":"When `resolutionMode` is set to `time-based`, dependencies will be resolved the following way:"}
+{"p":"settings/other","b":"settings/other#3346","k":"li","t":"Direct dependencies will be resolved to their lowest versions. So if there is `foo@^1.1.0` in the dependencies, then `1.1.0` will be installed."}
+{"p":"settings/other","b":"settings/other#3347","k":"li","t":"Subdependencies will be resolved from versions that were published before the last direct dependency was published."}
+{"p":"settings/other","b":"settings/other#3348","k":"para","t":"With this resolution mode installations with warm cache are faster. It also reduces the chance of subdependency hijacking as subdependencies will be updated only if direct dependencies are updated."}
+{"p":"settings/other","b":"settings/other#3349","k":"para","t":"This resolution mode works only with npm's [full metadata](https://github.com/npm/registry/blob/master/docs/responses/package-metadata.md#full-metadata-format). So it is slower in some scenarios. However, if you use [Verdaccio](https://verdaccio.org/) v5.15.1 or newer, you may set the `registrySupportsTimeField` setting to `true`, and it will be really fast."}
+{"p":"settings/other","b":"settings/other#3350","k":"para","t":"When `resolutionMode` is set to `lowest-direct`, direct dependencies will be resolved to their lowest versions."}
+{"p":"settings/other","b":"settings/other#3351","k":"para","t":"Only the dependencies declared in `package.json` count as direct here. A peer dependency that [autoInstallPeers](/docs/settings/peer-dependencies#autoinstallpeers) adds is not something the project declared, so it is resolved like a subdependency: to the highest version satisfying the peer range, or under `time-based`, to the highest version within the publish-date cutoff."}
+{"p":"settings/other","b":"settings/other#3352","k":"heading","t":"registrySupportsTimeField"}
+{"p":"settings/other","b":"settings/other#3353","k":"li","t":"Default: **false**"}
+{"p":"settings/other","b":"settings/other#3354","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/other","b":"settings/other#3355","k":"para","t":"Set this to `true` if the registry that you are using returns the \"time\" field in the abbreviated metadata. [Verdaccio](https://verdaccio.org/) supports this from v5.15.1, as do some registry proxies."}
+{"p":"settings/other","b":"settings/other#3356","k":"para","t":"Since v11.23.0, this can also be declared per registry, through the `supportsTimeField` field of a [registry declaration](/docs/registries#supportstimefield). A registry's own declaration wins; this setting is the answer for every registry the project does not describe."}
+{"p":"settings/other","b":"settings/other#3357","k":"heading","t":"extendNodePath"}
+{"p":"settings/other","b":"settings/other#3358","k":"li","t":"Default: **true**"}
+{"p":"settings/other","b":"settings/other#3359","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/other","b":"settings/other#3360","k":"para","t":"When `true`, pnpm sets the `NODE_PATH` environment variable in command shims (the wrapper scripts created in `node_modules/.bin`). When `false`, `NODE_PATH` is not set."}
+{"p":"settings/other","b":"settings/other#3361","k":"heading","t":"Why this is needed"}
+{"p":"settings/other","b":"settings/other#3362","k":"para","t":"pnpm's [isolated node_modules layout](/docs/symlinked-node-modules-structure) means that a package can only access its own declared dependencies. However, when a CLI tool runs via a command shim, some libraries (notably [import-local](https://github.com/sindresorhus/import-local), used by jest, eslint, and others) resolve modules from the **current working directory** rather than from the binary's own location. Since the working directory is the project root — not the package inside the virtual store — the standard `node_modules` resolution from the CWD won't find the binary's transitive dependencies."}
+{"p":"settings/other","b":"settings/other#3363","k":"para","t":"To bridge this gap, pnpm includes two types of paths in `NODE_PATH`:"}
+{"p":"settings/other","b":"settings/other#3364","k":"li","t":"**The package's own dependencies directory** (e.g., `.pnpm/pkg@version/node_modules`) — this allows CWD-based resolution to find the correct versions of the package's sibling dependencies."}
+{"p":"settings/other","b":"settings/other#3365","k":"li","t":"**The hoisted node_modules directory** (e.g., `.pnpm/node_modules`) — this is the directory where hoisted packages are placed when [hoistPattern](/docs/settings/node-modules#hoistpattern) is set. Node.js cannot discover this directory through its standard resolution algorithm, so it must be provided via `NODE_PATH`."}
+{"p":"settings/other","b":"settings/other#3366","k":"para","t":"`NODE_PATH` is also essential when [enableGlobalVirtualStore](/docs/settings/node-modules#enableglobalvirtualstore) is enabled. With a global virtual store, packages are symlinked from a central location outside the project, so Node.js's standard upward `node_modules` traversal from the binary's real path won't reach the project's own `node_modules` or its hoisted dependencies. In this case, `NODE_PATH` must include both the project's root `node_modules` and the hoisted directory at `node_modules/.pnpm/node_modules` to ensure correct resolution."}
+{"p":"settings/other","b":"settings/other#3367","k":"heading","t":"When to disable"}
+{"p":"settings/other","b":"settings/other#3368","k":"para","t":"You may set this to `false` if you are certain that none of the CLI tools in your project resolve modules from the working directory and you are not using a global virtual store. Disabling it produces slightly simpler command shims."}
+{"p":"settings/other","b":"settings/other#3369","k":"heading","t":"deployAllFiles"}
+{"p":"settings/other","b":"settings/other#3370","k":"li","t":"Default: **false**"}
+{"p":"settings/other","b":"settings/other#3371","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/other","b":"settings/other#3372","k":"para","t":"When deploying a package or installing a local package, all files of the package are copied. By default, if the package has a `\"files\"` field in the `package.json`, then only the listed files and directories are copied."}
+{"p":"settings/other","b":"settings/other#3373","k":"heading","t":"dedupeDirectDeps"}
+{"p":"settings/other","b":"settings/other#3374","k":"li","t":"Default: **false**"}
+{"p":"settings/other","b":"settings/other#3375","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/other","b":"settings/other#3376","k":"para","t":"When set to `true`, dependencies that are already symlinked to the root `node_modules` directory of the workspace will not be symlinked to subproject `node_modules` directories."}
+{"p":"settings/other","b":"settings/other#3377","k":"heading","t":"optimisticRepeatInstall"}
+{"p":"settings/other","b":"settings/other#3378","k":"para","t":"Added in: v10.1.0"}
+{"p":"settings/other","b":"settings/other#3379","k":"li","t":"Default: **true**"}
+{"p":"settings/other","b":"settings/other#3380","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/other","b":"settings/other#3381","k":"para","t":"When enabled, a fast check will be performed before proceeding to installation. This way a repeat install or an install on a project with everything up-to-date becomes a lot faster."}
+{"p":"settings/other","b":"settings/other#3382","k":"heading","t":"requiredScripts"}
+{"p":"settings/other","b":"settings/other#3383","k":"para","t":"Scripts listed in this array will be required in each project of the workspace. Otherwise, `pnpm -r run <script name>` will fail."}
+{"p":"settings/other","b":"settings/other#3384","k":"heading","t":"enablePrePostScripts"}
+{"p":"settings/other","b":"settings/other#3385","k":"li","t":"Default: **true**"}
+{"p":"settings/other","b":"settings/other#3386","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/other","b":"settings/other#3387","k":"para","t":"When `true`, pnpm will run any pre/post scripts automatically. So running `pnpm foo` will be like running `pnpm prefoo && pnpm foo && pnpm postfoo`."}
+{"p":"settings/other","b":"settings/other#3388","k":"heading","t":"scriptShell"}
+{"p":"settings/other","b":"settings/other#3389","k":"li","t":"Default: **null**"}
+{"p":"settings/other","b":"settings/other#3390","k":"li","t":"Type: **path**"}
+{"p":"settings/other","b":"settings/other#3391","k":"para","t":"The shell to use for scripts run with the `pnpm run` command."}
+{"p":"settings/other","b":"settings/other#3392","k":"para","t":"For instance, to force usage of Git Bash on Windows:"}
+{"p":"settings/other","b":"settings/other#3393","k":"heading","t":"shellEmulator"}
+{"p":"settings/other","b":"settings/other#3394","k":"li","t":"Default: **false**"}
+{"p":"settings/other","b":"settings/other#3395","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/other","b":"settings/other#3396","k":"para","t":"When `true`, pnpm will use a JavaScript implementation of a [bash-like shell](https://www.npmjs.com/package/@yarnpkg/shell) to execute scripts."}
+{"p":"settings/other","b":"settings/other#3397","k":"para","t":"This option simplifies cross-platform scripting. For instance, by default, the next script will fail on non-POSIX-compliant systems:"}
+{"p":"settings/other","b":"settings/other#3398","k":"para","t":"But if the `shellEmulator` setting is set to `true`, it will work on all platforms."}
+{"p":"settings/other","b":"settings/other#3399","k":"para","t":"Node.js 22 or higher supports running scripts without pnpm's assistance. For the example above, you can run the `test` script with `node --run test`. However, the `shellEmulator` option has no effect on this. Scripts that depend on POSIX features are required to be run `pnpm run` instead of `node --run` to work in non-POSIX-compliant environments."}
+{"p":"settings/other","b":"settings/other#3400","k":"heading","t":"catalogMode"}
+{"p":"settings/other","b":"settings/other#3401","k":"para","t":"Added in: v10.12.1"}
+{"p":"settings/other","b":"settings/other#3402","k":"li","t":"Default: **manual**"}
+{"p":"settings/other","b":"settings/other#3403","k":"li","t":"Type: **manual**, **strict**, **prefer**"}
+{"p":"settings/other","b":"settings/other#3404","k":"para","t":"Controls if and how dependencies are added to the default catalog, when running `pnpm add`. There are three modes:"}
+{"p":"settings/other","b":"settings/other#3405","k":"li","t":"**strict** - only allows dependency versions from the catalog. Adding a dependency outside the catalog's version range will cause an error."}
+{"p":"settings/other","b":"settings/other#3406","k":"li","t":"**prefer** - prefers catalog versions, but will fall back to direct dependencies if no compatible version is found."}
+{"p":"settings/other","b":"settings/other#3407","k":"li","t":"**manual** (default) - does not automatically add dependencies to the catalog."}
+{"p":"settings/other","b":"settings/other#3408","k":"heading","t":"ci"}
+{"p":"settings/other","b":"settings/other#3409","k":"para","t":"Added in: v10.12.1"}
+{"p":"settings/other","b":"settings/other#3410","k":"li","t":"Default: **true** (when the environment is detected as CI)"}
+{"p":"settings/other","b":"settings/other#3411","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/other","b":"settings/other#3412","k":"para","t":"This setting explicitly tells pnpm whether the current environment is a CI (Continuous Integration) environment."}
+{"p":"settings/other","b":"settings/other#3413","k":"heading","t":"catalogPrune"}
+{"p":"settings/other","b":"settings/other#3414","k":"para","t":"Added in: v11.22.0 (as `cleanupUnusedCatalogs` since v10.15.0)"}
+{"p":"settings/other","b":"settings/other#3415","k":"li","t":"Default: **false**"}
+{"p":"settings/other","b":"settings/other#3416","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/other","b":"settings/other#3417","k":"para","t":"When set to `true`, pnpm will remove unused catalog entries during installation."}
+{"p":"settings/other","b":"settings/other#3418","k":"para","t":"`cleanupUnusedCatalogs` is the deprecated spelling of this setting and continues to work; when both are set, `catalogPrune` wins."}
+{"p":"settings/other","b":"settings/other@title","k":"title","t":"Other Settings"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3419","k":"heading","t":"autoInstallPeers"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3420","k":"li","t":"Default: **true**"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3421","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3422","k":"para","t":"When `true`, any missing non-optional peer dependencies are automatically installed."}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3423","k":"para","t":"The version picked is the highest one satisfying the peer range. Since an automatically installed peer is not a dependency the project declares, [resolutionMode](/docs/settings/other#resolutionmode) treats it as a subdependency rather than a direct one, so `lowest-direct` does not lower it."}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3424","k":"heading","t":"Version Conflicts"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3425","k":"para","t":"If there are conflicting version requirements for a peer dependency from different packages, pnpm will not install any version of the conflicting peer dependency automatically. Instead, a warning is printed. For example, if one dependency requires `react@^16.0.0` and another requires `react@^17.0.0`, these requirements conflict, and no automatic installation will occur."}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3426","k":"heading","t":"Conflict Resolution"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3427","k":"para","t":"In case of a version conflict, you'll need to evaluate which version of the peer dependency to install yourself, or update the dependencies to align their peer dependency requirements."}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3428","k":"heading","t":"dedupePeerDependents"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3429","k":"li","t":"Default: **true**"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3430","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3431","k":"para","t":"When this setting is set to `true`, packages with peer dependencies will be deduplicated after peers resolution."}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3432","k":"para","t":"For instance, let's say we have a workspace with two projects and both of them have `webpack` in their dependencies. `webpack` has `esbuild` in its optional peer dependencies, and one of the projects has `esbuild` in its dependencies. In this case, pnpm will link two instances of `webpack` to the `node_modules/.pnpm` directory: one with `esbuild` and another one without it:"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3433","k":"para","t":"This makes sense because `webpack` is used in two projects, and one of the projects doesn't have `esbuild`, so the two projects cannot share the same instance of `webpack`. However, this is not what most developers expect, especially since in a hoisted `node_modules`, there would only be one instance of `webpack`. Therefore, you may now use the `dedupePeerDependents` setting to deduplicate `webpack` when it has no conflicting peer dependencies (explanation at the end). In this case, if we set `dedupePeerDependents` to `true`, both projects will use the same `webpack` instance, which is the one that has `esbuild` resolved:"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3434","k":"para","t":"**What are conflicting peer dependencies?** By conflicting peer dependencies we mean a scenario like the following one:"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3435","k":"para","t":"In this case, we cannot dedupe `webpack` as `webpack` has `react` in its peer dependencies and `react` is resolved from two different versions in the context of the two projects."}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3436","k":"heading","t":"dedupePeers"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3437","k":"para","t":"Added in: v10.33.0"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3438","k":"li","t":"Default: **false**"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3439","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3440","k":"para","t":"When enabled, peer dependency suffixes use version-only identifiers (`name@version`) instead of full dep paths, eliminating nested suffixes like `(foo@1.0.0(bar@2.0.0))`. This dramatically reduces the number of package instances in projects with many recursive peer dependencies."}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3441","k":"para","t":"This is different from [dedupePeerDependents](#dedupepeerdependents), which deduplicates packages that have the same peer dependencies across different workspace projects. `dedupePeers` simplifies the peer dependency suffix format itself."}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3442","k":"heading","t":"strictPeerDependencies"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3443","k":"li","t":"Default: **false**"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3444","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3445","k":"para","t":"If this is enabled, commands will fail if there is a missing or invalid peer dependency in the tree."}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3446","k":"heading","t":"resolvePeersFromWorkspaceRoot"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3447","k":"li","t":"Default: **true**"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3448","k":"li","t":"Type: **Boolean**"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3449","k":"para","t":"When enabled, dependencies of the root workspace project are used to resolve peer dependencies of any projects in the workspace. It is a useful feature as you can install your peer dependencies only in the root of the workspace, and you can be sure that all projects in the workspace use the same versions of the peer dependencies."}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3450","k":"heading","t":"peerDependencyRules"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3451","k":"heading","t":"peerDependencyRules.ignoreMissing"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3452","k":"para","t":"pnpm will not print warnings about missing peer dependencies from this list."}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3453","k":"para","t":"For instance, with the following configuration, pnpm will not print warnings if a dependency needs `react` but `react` is not installed:"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3454","k":"para","t":"Package name patterns may also be used:"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3455","k":"heading","t":"peerDependencyRules.allowedVersions"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3456","k":"para","t":"Unmet peer dependency warnings will not be printed for peer dependencies of the specified range."}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3457","k":"para","t":"For instance, if you have some dependencies that need `react@16` but you know that they work fine with `react@17`, then you may use the following configuration:"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3458","k":"para","t":"This will tell pnpm that any dependency that has react in its peer dependencies should allow `react` v17 to be installed."}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3459","k":"para","t":"It is also possible to suppress the warnings only for peer dependencies of specific packages. For instance, with the following configuration `react` v17 will be only allowed when it is in the peer dependencies of the `button` v2 package or in the dependencies of any `card` package:"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3460","k":"heading","t":"peerDependencyRules.allowAny"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3461","k":"para","t":"`allowAny` is an array of package name patterns, any peer dependency matching the pattern will be resolved from any version, regardless of the range specified in `peerDependencies`. For instance:"}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies#3462","k":"para","t":"The above setting will mute any warnings about peer dependency version mismatches related to `@babel/` packages or `eslint`."}
+{"p":"settings/peer-dependencies","b":"settings/peer-dependencies@title","k":"title","t":"Peer Dependency Settings"}

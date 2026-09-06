@@ -1,0 +1,232 @@
+{"b":"cli/logout#747","z":"自 v11.0.0 起提供"}
+{"b":"cli/logout#748","z":"从 npm registry 登出。撤销 registry 上的认证令牌，并将其从本地认证配置文件中移除。"}
+{"b":"cli/logout#749","z":"如果提供了 scope，则使用与该 scope 关联的 registry。"}
+{"b":"cli/logout#750","z":"pnpm 12.1 及更新版本会从全局 [config.yaml](/docs/cli/config) 中移除由 `pnpm login` 写入的令牌，并检查 [<pnpm config>/auth.ini](/docs/npmrc#auth-file-locations) 中由早期版本写入的令牌。由 `.npmrc`、其他配置文件或环境变量提供的令牌会在 registry 端被撤销，但必须从该来源手动移除。"}
+{"b":"cli/logout#751","z":"选项"}
+{"b":"cli/logout#752","z":"--registry <url>"}
+{"b":"cli/logout#753","z":"要从中登出的 registry。默认为配置的默认 registry。"}
+{"b":"cli/logout#754","z":"--scope <scope>"}
+{"b":"cli/logout#755","z":"使用与给定 scope 关联的 registry。"}
+{"b":"cli/logout@title","z":"pnpm logout"}
+{"b":"cli/outdated#721","z":"检查过期的包。可以通过提供参数（支持模式）将检查范围限定为已安装包的一个子集。"}
+{"b":"cli/outdated#722","z":"选项"}
+{"b":"cli/outdated#723","z":"--recursive, -r"}
+{"b":"cli/outdated#724","z":"检查子目录中找到的每个包里的过期依赖；在工作区内执行时，检查每个工作区包里的过期依赖。"}
+{"b":"cli/outdated#725","z":"--filter <package_selector>"}
+{"b":"cli/outdated#726","z":"--global, -g"}
+{"b":"cli/outdated#727","z":"列出过期的全局包。"}
+{"b":"cli/outdated#728","z":"--long"}
+{"b":"cli/outdated#729","z":"打印详细信息。"}
+{"b":"cli/outdated#730","z":"--format <format>"}
+{"b":"cli/outdated#731","z":"默认值：**table**"}
+{"b":"cli/outdated#732","z":"类型：**table**、**list**、**json**"}
+{"b":"cli/outdated#733","z":"以给定格式打印过期的依赖。"}
+{"b":"cli/outdated#734","z":"--compatible"}
+{"b":"cli/outdated#735","z":"仅打印满足 `package.json` 中声明的版本。"}
+{"b":"cli/outdated#736","z":"--dev, -D"}
+{"b":"cli/outdated#737","z":"仅检查 `devDependencies`。"}
+{"b":"cli/outdated#738","z":"--prod, -P"}
+{"b":"cli/outdated#739","z":"仅检查 `dependencies` 和 `optionalDependencies`。"}
+{"b":"cli/outdated#740","z":"--no-optional"}
+{"b":"cli/outdated#741","z":"不检查 `optionalDependencies`。"}
+{"b":"cli/outdated#742","z":"--sort-by"}
+{"b":"cli/outdated#743","z":"指定输出结果的排序顺序。目前仅接受值 `name`。"}
+{"b":"cli/outdated#744","z":"--include-github-actions"}
+{"b":"cli/outdated#745","z":"自 v11.16.0 起提供"}
+{"b":"cli/outdated#746","z":"同时检查仓库工作流文件引用的 GitHub Actions 是否有更新。可在 `pnpm-workspace.yaml` 中将 [update.githubActions](/docs/settings/dependency-resolution#updategithubactions) 设为 `true`，以默认启用此选项。参见[更新 GitHub Actions](/docs/cli/update#updating-github-actions)。"}
+{"b":"cli/outdated@title","z":"pnpm outdated"}
+{"b":"cli/owner#756","z":"自 v11.1.0 起提供"}
+{"b":"cli/owner#757","z":"管理 registry 上的包所有者。"}
+{"b":"cli/owner#758","z":"命令"}
+{"b":"cli/owner#759","z":"ls"}
+{"b":"cli/owner#760","z":"列出一个包的所有所有者。未给出其他子命令时，这是默认子命令。"}
+{"b":"cli/owner#761","z":"add"}
+{"b":"cli/owner#762","z":"添加用户为包的所有者。需要认证。"}
+{"b":"cli/owner#763","z":"rm"}
+{"b":"cli/owner#764","z":"将用户从包的所有者列表中移除。需要认证。"}
+{"b":"cli/owner#765","z":"选项"}
+{"b":"cli/owner#766","z":"--registry <url>"}
+{"b":"cli/owner#767","z":"此操作使用的 npm registry 基础 URL。对于被修改的包，会遵循按 scope 配置的 registry 和命名 registry（分别通过 [registries](/docs/settings/dependency-resolution#registries) 和 [namedRegistries](/docs/settings/dependency-resolution#namedregistries) 配置）。"}
+{"b":"cli/owner#768","z":"--otp <otp>"}
+{"b":"cli/owner#769","z":"当 registry 要求双因素认证时，此选项提供一次性密码。"}
+{"b":"cli/owner@title","z":"pnpm owner"}
+{"b":"cli/pack#842","z":"从包创建 tarball。"}
+{"b":"cli/pack#843","z":"选项"}
+{"b":"cli/pack#844","z":"--recursive, -r"}
+{"b":"cli/pack#845","z":"自 v10.11.0 起提供"}
+{"b":"cli/pack#846","z":"打包工作区中的所有包。"}
+{"b":"cli/pack#847","z":"--out <path>"}
+{"b":"cli/pack#848","z":"自定义 tarball 的输出路径。使用 `%s` 和 `%v` 包含包名和版本，例如 `%s.tgz` 或 `some-dir/%s-%v.tgz`。默认情况下，tarball 以 `<package-name>-<version>.tgz` 的名称保存在当前工作目录中。"}
+{"b":"cli/pack#849","z":"--pack-destination <dir>"}
+{"b":"cli/pack#850","z":"`pnpm pack` 保存 tarball 的目录。默认为当前工作目录。"}
+{"b":"cli/pack#851","z":"--pack-gzip-level <level>"}
+{"b":"cli/pack#852","z":"指定自定义压缩级别。"}
+{"b":"cli/pack#853","z":"--json"}
+{"b":"cli/pack#854","z":"以 JSON 格式输出日志。"}
+{"b":"cli/pack#855","z":"--filter <package_selector>"}
+{"b":"cli/pack#856","z":"自 v10.11.0 起提供"}
+{"b":"cli/pack#857","z":"--dry-run"}
+{"b":"cli/pack#858","z":"自 v10.26.0 起提供"}
+{"b":"cli/pack#859","z":"执行正常运行的所有操作，但不实际打包 tarball。适用于验证 tarball 的内容。"}
+{"b":"cli/pack#860","z":"--skip-manifest-obfuscation"}
+{"b":"cli/pack#861","z":"自 v11.3.0 起提供"}
+{"b":"cli/pack#862","z":"在打包的 manifest 中保留原有的 `packageManager` 字段和发布生命周期脚本，而不是将其剥离。pnpm 特有的 `pnpm` 字段仍会被省略。"}
+{"b":"cli/pack#863","z":"生命周期脚本"}
+{"b":"cli/pack#864","z":"你还可以使用 [beforePacking 钩子](/docs/pnpmfile#hooksbeforepackingpkg-pkg--promisepkg)，在创建 tarball 之前以编程方式修改 `package.json` 的内容。这适合用于移除仅开发用的字段，或在不修改本地 `package.json` 的情况下添加发布元数据。"}
+{"b":"cli/pack@title","z":"pnpm pack"}
+{"b":"cli/pack-app#770","z":"自 v11.0.0 起提供"}
+{"b":"cli/pack-app#771","z":"`pnpm pack-app` 处于实验阶段。其标志、`pnpm.app` 配置架构和输出布局可能会在未来版本中变更。"}
+{"b":"cli/pack-app#772","z":"将一个 CommonJS 入口文件打包为一个或多个目标平台的独立可执行文件，底层使用 [Node.js 单可执行文件应用](https://nodejs.org/api/single-executable-applications.html) API。"}
+{"b":"cli/pack-app#773","z":"每个目标在 `<output-dir>/<target>/` 下生成一个可执行文件（默认 `dist-app/<target>/`）。对于 Windows 目标，输出带有 `.exe` 后缀；macOS 输出会自动进行 ad-hoc 签名（在 macOS 主机上通过 `codesign`，在 Linux 主机上通过 `ldid`），因为 SEA 注入会使现有的代码签名失效。"}
+{"b":"cli/pack-app#774","z":"要求"}
+{"b":"cli/pack-app#775","z":"主机必须运行 Node.js v25.5+ 以执行 SEA 注入。如果正在运行的 Node.js 版本较旧，或与嵌入的运行时版本不匹配（SEA blob 不跨小版本兼容），pnpm 会自动下载匹配的构建器。"}
+{"b":"cli/pack-app#776","z":"从 Linux 交叉编译 macOS 目标需要 `$PATH` 中有 [ldid](https://github.com/ProcursusTeam/ldid)。Windows 主机无法对 macOS 输出进行 ad-hoc 签名；请在 macOS 或 Linux 上构建 macOS 目标。"}
+{"b":"cli/pack-app#777","z":"支持的目标"}
+{"b":"cli/pack-app#778","z":"目标使用格式 `<os>-<arch>[-<libc>]`："}
+{"b":"cli/pack-app#779","z":"`-musl` 后缀仅对 `linux` 目标有效。`<os>` 段与 `process.platform` 的取值保持一致，因此该标志与 pnpm 的 `--os` 标志以及 `pnpm-workspace.yaml` 中的 `supportedArchitectures.os` 相统一。"}
+{"b":"cli/pack-app#780","z":"已知限制"}
+{"b":"cli/pack-app#781","z":"`darwin-x64` 二进制文件在 Intel Mac 上崩溃"}
+{"b":"cli/pack-app#782","z":"由于上游 Node.js 在 `--build-sea` 注入步骤中的一个缺陷，`darwin-x64` 输出在 Intel Mac 上启动时发生段错误。LIEF 对 x64 的 Mach-O 处理在插入 SEA 段后，会使 `LC_DYLD_CHAINED_FIXUPS` 链条目指向过期目标；随后 dyld 将原始链编码值当作指针解引用，二进制文件在任何用户代码运行前就在 `__cxx_global_var_init` 中崩溃。使用标准的 `node --build-sea` + `codesign --sign -` 流程即可复现，与 pnpm 无关。"}
+{"b":"cli/pack-app#783","z":"Node.js 团队已决定不修复此问题，理由是 x64 macOS 正在被淘汰。与签名相关的变通方法没有帮助：损坏发生在注入步骤，即签名*之前*，因此将 `ldid` 换成 `codesign`（或反之）没有区别。重新签名只是对已经损坏的字节生成有效签名。"}
+{"b":"cli/pack-app#784","z":"[nodejs/node#62893](https://github.com/nodejs/node/issues/62893) — 最简 `node --build-sea` 复现"}
+{"b":"cli/pack-app#785","z":"[nodejs/node#59553](https://github.com/nodejs/node/issues/59553) — macOS x64 上长期存在的 SEA 测试失败，根因相同"}
+{"b":"cli/pack-app#786","z":"[nodejs/node#60250](https://github.com/nodejs/node/pull/60250) — Node.js 选择在 x64 macOS 上跳过 SEA 测试而非修复它们"}
+{"b":"cli/pack-app#787","z":"如果你需要交付能在 Intel Mac 上运行的 CLI，请使用非 SEA 工具（如 [@yao-pkg/pkg](https://github.com/yao-pkg/pkg)，它向二进制尾部追加数据而非修改 Mach-O 段）构建 `darwin-x64` 产物。注意 Rosetta 并*不是*逃生通道：它只把 x64 翻译为 arm64（供运行 Intel 二进制的 Apple Silicon Mac 使用），不支持反方向，因此 Intel Mac 无法运行 `darwin-arm64` 构建。"}
+{"b":"cli/pack-app#788","z":"示例"}
+{"b":"cli/pack-app#789","z":"同时构建 Linux 和 Windows 版本："}
+{"b":"cli/pack-app#790","z":"嵌入指定的 Node.js 版本："}
+{"b":"cli/pack-app#791","z":"选项"}
+{"b":"cli/pack-app#792","z":"--entry <path>"}
+{"b":"cli/pack-app#793","z":"要嵌入可执行文件中的 CJS 入口文件路径。除非在 `package.json` 中设置了 [pnpm.app.entry](#configuration)，否则必填。也接受裸位置参数（例如 `pnpm pack-app dist/index.cjs`）。"}
+{"b":"cli/pack-app#794","z":"--target, -t <triplet>"}
+{"b":"cli/pack-app#795","z":"要构建的目标。可多次指定。接受的取值参见[支持的目标](#supported-targets)。除非设置了 [pnpm.app.targets](#configuration)，否则必填。在命令行传入时，`--target` 会完全替换已配置的列表，因此你可以在调用时缩小构建范围。"}
+{"b":"cli/pack-app#796","z":"--runtime <spec>"}
+{"b":"cli/pack-app#797","z":"要嵌入输出可执行文件中的运行时，以 `<name>@<version>` 形式指定（例如 `node@25`、`node@25.5.0`）。目前仅支持 `node`；`<name>@` 前缀为未来的运行时（`bun`、`deno`）留有余地。版本必须 >= v25.5（支持 `--build-sea` 的最低版本）。默认为当前运行的 Node.js 版本。"}
+{"b":"cli/pack-app#798","z":"--output-dir, -o <dir>"}
+{"b":"cli/pack-app#799","z":"构建出的可执行文件的输出目录。默认为 `dist-app`。"}
+{"b":"cli/pack-app#800","z":"--output-name <name>"}
+{"b":"cli/pack-app#801","z":"输出可执行文件的名称（不含扩展名）。默认为 `package.json` 中不含 scope 的 `name`（例如 `@acme/my-cli` 对应 `my-cli`）。"}
+{"b":"cli/pack-app#802","z":"配置"}
+{"b":"cli/pack-app#803","z":"每个标志的默认值都可以在 `package.json` 的 `pnpm.app` 下设置。命令行标志会覆盖配置："}
+{"b":"cli/pack-app#804","z":"package.json"}
+{"b":"cli/pack-app#805","z":"完成此配置后，`pnpm pack-app` 可以在不带任何参数的情况下运行。命令行上的 `--target` 会替换已配置的 `targets` 列表，适合用于缩小构建范围（例如 `pnpm pack-app --target linux-x64`）。"}
+{"b":"cli/pack-app@title","z":"pnpm pack-app"}
+{"b":"cli/patch#806","z":"为包打补丁做准备（灵感来自 Yarn 中的类似命令）。"}
+{"b":"cli/patch#807","z":"此命令会将包解压到一个临时目录，供你随意编辑。"}
+{"b":"cli/patch#808","z":"完成修改后，运行 `pnpm patch-commit <path>`（`<path>` 为你收到的临时目录）以生成补丁文件，并通过 [patchedDependencies](#patcheddependencies) 字段将其注册到顶层 manifest。"}
+{"b":"cli/patch#809","z":"如果你想修改一个包的依赖，不要用打补丁来修改该包的 `package.json` 文件。如需覆盖依赖，请使用 [overrides](/docs/settings/dependency-resolution#overrides) 或[包钩子](/docs/pnpmfile#hooksreadpackagepkg-context-pkg--promisepkg)。"}
+{"b":"cli/patch#810","z":"选项"}
+{"b":"cli/patch#811","z":"--edit-dir <dir>"}
+{"b":"cli/patch#812","z":"需要打补丁的包会被解压到此目录。"}
+{"b":"cli/patch#813","z":"--ignore-existing"}
+{"b":"cli/patch#814","z":"打补丁时忽略已有的补丁文件。"}
+{"b":"cli/patch#815","z":"配置"}
+{"b":"cli/patch#816","z":"patchedDependencies"}
+{"b":"cli/patch#817","z":"运行 [pnpm patch-commit](/docs/cli/patch-commit) 时会自动添加/更新此字段。它使用一个字典来定义依赖的补丁，其中："}
+{"b":"cli/patch#818","z":"**键**：包名，可带精确版本、版本范围，或仅为包名。"}
+{"b":"cli/patch#819","z":"**值**：补丁文件的相对路径。"}
+{"b":"cli/patch#820","z":"可以按版本范围对依赖打补丁。优先级顺序为："}
+{"b":"cli/patch#821","z":"精确版本（最高优先级）"}
+{"b":"cli/patch#822","z":"版本范围"}
+{"b":"cli/patch#823","z":"仅包名的补丁（除非被覆盖，否则适用于所有版本）"}
+{"b":"cli/patch#824","z":"特殊情况：版本范围 `*` 的行为类似仅包名的补丁，但不会忽略补丁失败。"}
+{"b":"cli/patch#825","z":"`patches/foo-3.patch` 应用于 `foo@2.1.0`。"}
+{"b":"cli/patch#826","z":"`patches/foo-2.patch` 应用于所有匹配 `^2.0.0` 的 foo 版本，`2.1.0` 除外。"}
+{"b":"cli/patch#827","z":"`patches/foo-1.patch` 应用于所有其他 foo 版本。"}
+{"b":"cli/patch#828","z":"避免版本范围重叠。如果你需要对某个子范围单独处理，请从更宽的范围中显式排除它。"}
+{"b":"cli/patch#829","z":"大多数情况下，定义精确版本就足以覆盖更宽的范围。"}
+{"b":"cli/patch#830","z":"allowUnusedPatches"}
+{"b":"cli/patch#831","z":"自 v10.7.0 起提供（曾用名 `allowNonAppliedPatches`）"}
+{"b":"cli/patch#832","z":"默认值：**false**"}
+{"b":"cli/patch#833","z":"类型：**Boolean**"}
+{"b":"cli/patch#834","z":"为 `true` 时，即使 `patchedDependencies` 字段中的部分补丁未被应用，安装也不会失败。"}
+{"b":"cli/patch#835","z":"在 v11 中，补丁应用失败总是抛出错误：`ignorePatchFailures` 设置已被移除。当一组中的多个补丁被应用时，其中一个失败不会阻止其余补丁被尝试；所有补丁错误会在最后一起报告。"}
+{"b":"cli/patch@title","z":"pnpm patch <pkg>"}
+{"b":"cli/patch-commit#836","z":"从一个目录生成补丁并保存（灵感来自 Yarn 中的类似命令）。"}
+{"b":"cli/patch-commit#837","z":"此命令会将 `path` 中的变更与其本应打补丁的包进行比较，生成补丁文件，将补丁文件保存到 `patchesDir`（可通过 `--patches-dir` 选项自定义），并在 [patchedDependencies](/docs/cli/patch#patcheddependencies) 中添加一条记录。"}
+{"b":"cli/patch-commit#838","z":"`path` 是补丁目标包的已修改副本的路径，通常是 [pnpm patch](/docs/cli/patch) 生成的临时目录。"}
+{"b":"cli/patch-commit#839","z":"选项"}
+{"b":"cli/patch-commit#840","z":"---patches-dir <patchesDir>"}
+{"b":"cli/patch-commit#841","z":"生成的补丁文件将保存到此目录。默认情况下，补丁保存到项目根目录下的 `patches` 目录。"}
+{"b":"cli/patch-commit@title","z":"pnpm patch-commit <path>"}
+{"b":"cli/patch-remove#865","z":"移除已有的补丁文件以及 `patchedDependencies` 中的相关设置。"}
+{"b":"cli/patch-remove@title","z":"pnpm patch-remove <pkg...>"}
+{"b":"cli/peers#896","z":"命令"}
+{"b":"cli/peers#897","z":"check"}
+{"b":"cli/peers#898","z":"自 v11.0.0 起提供"}
+{"b":"cli/peers#899","z":"通过读取锁文件检查未满足和缺失的对等依赖问题。"}
+{"b":"cli/peers#900","z":"此命令分析锁文件，并报告存在未解析或不兼容对等依赖的包。"}
+{"b":"cli/peers@title","z":"pnpm peers"}
+{"b":"cli/ping#901","z":"自 v11.0.0 起提供"}
+{"b":"cli/ping#902","z":"Ping 配置的 registry 以验证连通性。"}
+{"b":"cli/ping#903","z":"成功时打印 registry 的响应。这适合用于在不安装或发布任何内容的前提下，快速确认当前机器可以访问 registry。"}
+{"b":"cli/ping#904","z":"选项"}
+{"b":"cli/ping#905","z":"--registry <url>"}
+{"b":"cli/ping#906","z":"要 ping 的 registry。默认为配置的默认 registry。"}
+{"b":"cli/ping@title","z":"pnpm ping"}
+{"b":"cli/pkg#907","z":"自 v11.3.0 起提供"}
+{"b":"cli/pkg#908","z":"从命令行管理 `package.json` 的内容。"}
+{"b":"cli/pkg#909","z":"嵌套字段使用点分隔路径定位（例如 `scripts.test`、`repository.url`）。"}
+{"b":"cli/pkg#910","z":"命令"}
+{"b":"cli/pkg#911","z":"get"}
+{"b":"cli/pkg#912","z":"从 `package.json` 获取值。不带参数时打印完整 manifest；带一个或多个键时打印所请求的字段。"}
+{"b":"cli/pkg#913","z":"当仅请求一个键且其解析为字符串时，打印原始值；否则以 JSON 编码输出该值。传入 `--json` 可始终打印 JSON。"}
+{"b":"cli/pkg#914","z":"set"}
+{"b":"cli/pkg#915","z":"在 `package.json` 中设置一个或多个值。每个参数采用 `key=value` 形式。"}
+{"b":"cli/pkg#916","z":"默认情况下，值以字符串形式存储。传入 `--json` 可在存储前将值解析为 JSON（适用于布尔值、数字、数组和对象）："}
+{"b":"cli/pkg#917","z":"delete"}
+{"b":"cli/pkg#918","z":"从 `package.json` 中移除一个或多个键。"}
+{"b":"cli/pkg#919","z":"fix"}
+{"b":"cli/pkg#920","z":"自动纠正 `package.json` 中的常见错误（例如移除非字符串的 `name` 或 `version`，删除值不是对象的依赖 / `scripts` 块，删除既不是字符串也不是对象的 `bin` 字段）。"}
+{"b":"cli/pkg#921","z":"选项"}
+{"b":"cli/pkg#922","z":"--json"}
+{"b":"cli/pkg#923","z":"设置时，在写入前将每个 `value` 解析为 JSON。获取单个键时，返回 JSON 编码形式而非原始值。"}
+{"b":"cli/pkg#924","z":"--recursive, -r"}
+{"b":"cli/pkg#925","z":"对每个工作区项目运行该子命令，或对所有被 `--filter` 选中的项目运行。"}
+{"b":"cli/pkg#926","z":"`pnpm -r pkg get` 返回一个以包名为键的 JSON 对象；`set`、`delete` 和 `fix` 会应用于每个匹配的项目。"}
+{"b":"cli/pkg@title","z":"pnpm pkg"}
+{"b":"cli/pm#866","z":"`pnpm pm <command>` 语法始终运行 pnpm 内置命令，绕过 `package.json` 中任何同名脚本。"}
+{"b":"cli/pm#867","z":"部分内置命令可以被脚本覆盖。例如，如果你的项目在 `package.json` 中定义了 `\"clean\"` 脚本，那么 `pnpm clean` 会运行该脚本而不是内置的 [pnpm clean](/docs/cli/clean)。使用 `pnpm pm clean` 可强制运行内置命令。"}
+{"b":"cli/pm#868","z":"示例"}
+{"b":"cli/pm#869","z":"package.json"}
+{"b":"cli/pm@title","z":"pnpm pm"}
+{"b":"cli/pnx#870","z":"从 registry 拉取一个包但不将其安装为依赖，热加载它并运行其暴露的默认命令二进制文件。"}
+{"b":"cli/pnx#871","z":"例如，要在任意位置使用 `create-vue` 初始化一个 Vue 项目，而不必将其安装到另一个项目下，可以运行："}
+{"b":"cli/pnx#872","z":"这将从 registry 拉取 `create-vue` 并使用给定的参数运行它。"}
+{"b":"cli/pnx#873","z":"你也可以指定要使用的包的精确版本："}
+{"b":"cli/pnx#874","z":"同样支持 `catalog:` 协议，可以使用工作区 catalog 中定义的版本："}
+{"b":"cli/pnx#875","z":"运行包管理器或运行时"}
+{"b":"cli/pnx#876","z":"自 v12.0.0-rc.6 起提供（仅 pnpm v12）"}
+{"b":"cli/pnx#877","z":"指名 [pnpm 提供的包管理器](/docs/package-managers) 之一（`npm`、`yarn`、`bun`）或运行时（`node`、`deno`、`bun`）时，会配置真正的工具，而不是安装同名的 npm 包："}
+{"b":"cli/pnx#878","z":"那些 npm 包要么是该工具的另一条产品线，要么是负责下载的包装器，因此指名它们本就应该得到真正的工具：`pnx yarn@4` 过去会因版本缺失而失败，因为 Yarn 4 以 `@yarnpkg/cli-dist` 发布；`pnx node@22` 过去运行的是一个下载 Node.js 构建的包装器，而不是该发布版本本身。"}
+{"b":"cli/pnx#879","z":"对于定位某个包而非请求已发布版本的说明符，会原样安装它所指定的内容："}
+{"b":"cli/pnx#880","z":"当 `--package` 指名一个包管理器时，会选择运行它的哪个命令："}
+{"b":"cli/pnx#881","z":"选项"}
+{"b":"cli/pnx#882","z":"--package <name>"}
+{"b":"cli/pnx#883","z":"运行命令前要安装的包。"}
+{"b":"cli/pnx#884","z":"可以提供多个待安装的包："}
+{"b":"cli/pnx#885","z":"--allow-build"}
+{"b":"cli/pnx#886","z":"自 v10.2.0 起提供"}
+{"b":"cli/pnx#887","z":"允许在安装期间运行 postinstall 脚本的包名列表。"}
+{"b":"cli/pnx#888","z":"默认允许 `dlx` 实际执行的包运行 postinstall 脚本。因此在上面的示例中，如果 `my-bundler` 必须在执行前构建，它就会被构建。"}
+{"b":"cli/pnx#889","z":"--shell-mode, -c"}
+{"b":"cli/pnx#890","z":"在 shell 中运行命令。在 UNIX 上使用 `/bin/sh`，在 Windows 上使用 `\\cmd.exe`。"}
+{"b":"cli/pnx#891","z":"--silent, -s"}
+{"b":"cli/pnx#892","z":"仅打印被执行命令的输出。"}
+{"b":"cli/pnx#893","z":"安全与信任策略"}
+{"b":"cli/pnx#894","z":"自 v11.0.0 起，`pnx`（及其 `pnpm dlx` / `pnpx` 别名）在解析和拉取所请求的包时，会遵循项目级的安全与信任策略设置："}
+{"b":"cli/pnx#895","z":"这意味着 `pnx` 会像常规 `pnpm install` 一样，拒绝执行新发布或信任度不足的包。"}
+{"b":"cli/prefix#927","z":"自 v11.10.0 起提供"}
+{"b":"cli/prefix#928","z":"打印当前的包前缀目录，即包含最近的 `package.json` 的目录。"}
+{"b":"cli/prefix#929","z":"选项"}
+{"b":"cli/prefix#930","z":"--global, -g"}
+{"b":"cli/prefix#931","z":"改为打印全局前缀目录。"}
+{"b":"cli/prefix@title","z":"pnpm prefix"}
+{"b":"cli/prune#932","z":"移除不必要的包。"}
+{"b":"cli/prune#933","z":"选项"}
+{"b":"cli/prune#934","z":"--prod"}
+{"b":"cli/prune#935","z":"移除 `devDependencies` 中指定的包。"}
+{"b":"cli/prune#936","z":"--no-optional"}
+{"b":"cli/prune#937","z":"移除 `optionalDependencies` 中指定的包。"}
+{"b":"cli/prune#938","z":"prune 命令目前不支持在 monorepo 上递归执行。若要在 monorepo 中仅安装生产依赖，可以删除 `node_modules` 目录，然后用 `pnpm install --prod` 重新安装。"}
+{"b":"cli/prune@title","z":"pnpm prune"}

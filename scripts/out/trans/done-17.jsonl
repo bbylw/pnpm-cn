@@ -1,0 +1,252 @@
+{"b":"settings/store#3463","z":"存储设置"}
+{"b":"settings/store#3464","z":"storeDir"}
+{"b":"settings/store#3465","z":"若已设置 **$PNPM_HOME** 环境变量，则为 **$PNPM_HOME/store**"}
+{"b":"settings/store#3466","z":"若已设置 **$XDG_DATA_HOME** 环境变量，则为 **$XDG_DATA_HOME/pnpm/store**"}
+{"b":"settings/store#3467","z":"在 Windows 上：**~/AppData/Local/pnpm/store**"}
+{"b":"settings/store#3468","z":"在 macOS 上：**~/Library/pnpm/store**"}
+{"b":"settings/store#3469","z":"在 Linux 上：**~/.local/share/pnpm/store**"}
+{"b":"settings/store#3470","z":"类型：**path**"}
+{"b":"settings/store#3471","z":"所有包在磁盘上的保存位置。"}
+{"b":"settings/store#3472","z":"存储应始终位于进行安装的同一磁盘上，因此每个磁盘会有一个存储。如果当前磁盘上有主目录，则存储创建在其中。如果磁盘上没有主目录，则在文件系统根目录创建存储。例如，如果在挂载于 `/mnt` 的文件系统上进行安装，则存储将创建于 `/mnt/.pnpm-store`。Windows 系统也是如此。"}
+{"b":"settings/store#3473","z":"可以设置位于不同磁盘的存储，但这种情况下 pnpm 会从存储复制包而不是创建硬链接，因为硬链接只能在同一文件系统上进行。"}
+{"b":"settings/store#3474","z":"如果项目之上的任何目录都不接受硬链接——例如仅授予项目写权限的 agent 沙箱，或仅将项目以可写方式 bind mount 挂载的容器——则存储改为创建在项目内部：位于 `node_modules/.pnpm-store`。将其放在主目录中要么会因主目录只读而失败，要么会落在另一个卷上，从而复制每个包而不是创建硬链接（[#13525](https://github.com/pnpm/pnpm/issues/13525)）。"}
+{"b":"settings/store#3475","z":"pnpm 存储仅应在相互信任的用户、任务和进程之间共享。如果你配置了共享的 `storeDir`，用文件系统权限加以保护，使不受信任的用户无法向其写入。存储是 pnpm 信任域的一部分：包可以从其中创建硬链接，而存储索引（`index.db`）记录了用于校验缓存文件的哈希。"}
+{"b":"settings/store#3476","z":"verifyStoreIntegrity"}
+{"b":"settings/store#3477","z":"默认值：**true**"}
+{"b":"settings/store#3478","z":"类型：**Boolean**"}
+{"b":"settings/store#3479","z":"默认情况下，如果存储中的文件已被修改，则在将其链接到项目的 `node_modules` 之前会检查该文件的内容。如果 `verifyStoreIntegrity` 设为 `false`，则在安装期间不会检查内容寻址存储中的文件。"}
+{"b":"settings/store#3480","z":"此设置有助于检测意外的存储损坏。它并不能让一个可被不受信任用户写入的存储变得安全，因为能够写入存储的攻击者既能篡改缓存的包内容，也能篡改用于校验它们的元数据。"}
+{"b":"settings/store#3481","z":"useRunningStoreServer"}
+{"b":"settings/store#3482","z":"已废弃的功能"}
+{"b":"settings/store#3483","z":"默认值：**false**"}
+{"b":"settings/store#3484","z":"类型：**Boolean**"}
+{"b":"settings/store#3485","z":"仅允许使用存储服务器进行安装。如果没有运行存储服务器，安装将失败。"}
+{"b":"settings/store#3486","z":"strictStorePkgContentCheck"}
+{"b":"settings/store#3487","z":"默认值：**true**"}
+{"b":"settings/store#3488","z":"类型：**Boolean**"}
+{"b":"settings/store#3489","z":"某些 registry 允许将完全相同的内容以不同的包名和/或版本发布。这会破坏对存储中包的有效性检查。为避免在验证存储中此类包的名称和版本时出错，你可以将 `strictStorePkgContentCheck` 设置设为 `false`。"}
+{"b":"settings/store#3490","z":"frozenStore"}
+{"b":"settings/store#3491","z":"自 v11.7.0 起提供"}
+{"b":"settings/store#3492","z":"默认值：**false**"}
+{"b":"settings/store#3493","z":"类型：**Boolean**"}
+{"b":"settings/store#3494","z":"让 `pnpm install` 针对位于只读文件系统上的包存储运行——例如 [Nix](https://nixos.org/) 存储、只读的 bind mount，或 OCI 镜像层。启用后，pnpm 以不可变模式打开存储的 SQLite `index.db`（绕过在只读目录上本无法创建的 WAL/`-shm` 附属文件），并屏蔽所有会向存储写入的代码路径。"}
+{"b":"settings/store#3495","z":"在一个已填充完整的存储上，将其与 `--offline` 和 `--frozen-lockfile` 搭配使用："}
+{"b":"settings/store#3496","z":"存储必须已包含安装所需的一切，包括已批准生命周期脚本（或已打补丁）的任何包的构建产物。在[全局虚拟存储](/docs/settings/node-modules#enableglobalvirtualstore)下，这些包目录位于存储内部，因此如果缺少所需的构建，安装会预先以 `ERR_PNPM_FROZEN_STORE_NEEDS_BUILD` 失败——先用这些构建结果填充存储。如果存储完全缺少其内容目录，安装会以 `ERR_PNPM_FROZEN_STORE_INCOMPLETE` 快速失败，而不是尝试初始化它。"}
+{"b":"settings/store#3497","z":"`frozenStore` 与 `--force` 以及已配置的 pnpr 服务器不兼容，因为两者都会向存储写入。同样也不会写入[副作用缓存](/docs/settings/build#sideeffectscache)。"}
+{"b":"settings/store#3498","z":"以只读方式打开存储需要 Node.js >=22.15.0、>=23.11.0 或 >=24.0.0。在较旧的运行时上，`--frozen-store` 会以 `ERR_PNPM_FROZEN_STORE_UNSUPPORTED_NODE` 失败。"}
+{"b":"settings/store#3499","z":"锁文件设置"}
+{"b":"settings/store#3500","z":"lockfile"}
+{"b":"settings/store#3501","z":"默认值：**true**"}
+{"b":"settings/store#3502","z":"类型：**Boolean**"}
+{"b":"settings/store#3503","z":"设为 `false` 时，pnpm 不会读取或生成 `pnpm-lock.yaml` 文件。"}
+{"b":"settings/store#3504","z":"preferFrozenLockfile"}
+{"b":"settings/store#3505","z":"默认值：**true**"}
+{"b":"settings/store#3506","z":"类型：**Boolean**"}
+{"b":"settings/store#3507","z":"设为 `true` 且现有的 `pnpm-lock.yaml` 满足 `package.json` 的依赖声明时，会执行无头安装。无头安装会跳过所有依赖解析，因为它不需要修改锁文件。"}
+{"b":"settings/store#3508","z":"lockfileIncludeTarballUrl"}
+{"b":"settings/store#3509","z":"默认值：**false**"}
+{"b":"settings/store#3510","z":"类型：**Boolean**"}
+{"b":"settings/store#3511","z":"在 `pnpm-lock.yaml` 的每个条目中添加指向该包 tarball 的完整 URL。"}
+{"b":"settings/store#3512","z":"gitBranchLockfile"}
+{"b":"settings/store#3513","z":"默认值：**false**"}
+{"b":"settings/store#3514","z":"类型：**Boolean**"}
+{"b":"settings/store#3515","z":"设为 `true` 时，安装后生成的锁文件名将基于当前分支名命名，以完全避免合并冲突。例如，如果当前分支名为 `feature-foo`，则对应的锁文件名将是 `pnpm-lock.feature-foo.yaml` 而不是 `pnpm-lock.yaml`。它通常与命令行参数 `--merge-git-branch-lockfiles` 一起使用，或通过在 `pnpm-workspace.yaml` 文件中设置 `mergeGitBranchLockfilesBranchPattern` 来使用。"}
+{"b":"settings/store#3516","z":"mergeGitBranchLockfilesBranchPattern"}
+{"b":"settings/store#3517","z":"默认值：**null**"}
+{"b":"settings/store#3518","z":"类型：**Array or null**"}
+{"b":"settings/store#3519","z":"此配置将当前分支名进行匹配，以决定是否合并所有 git 分支锁文件。默认情况下，你需要手动传入 `--merge-git-branch-lockfiles` 命令行参数。此配置允许自动完成该过程。"}
+{"b":"settings/store#3520","z":"例如："}
+{"b":"settings/store#3521","z":"你也可以使用 `!` 排除模式。"}
+{"b":"settings/store#3522","z":"peersSuffixMaxLength"}
+{"b":"settings/store#3523","z":"类型：**number**"}
+{"b":"settings/store#3524","z":"锁文件中添加到依赖键的对等 ID 后缀的最大长度。如果后缀更长，则会被替换为一个哈希。"}
+{"b":"settings/store@title","z":"存储与锁文件设置"}
+{"b":"settings/versioning#3525","z":"自 v11.13.0 起提供"}
+{"b":"settings/versioning#3526","z":"这些配置项用于设置 pnpm 原生的工作区发布管理，由 [pnpm change](/docs/cli/change) 和基础的 [pnpm version -r](/docs/cli/version#recursive-releases) 驱动。有关它们所属的工作流，参见[发布管理](/docs/versioning)。"}
+{"b":"settings/versioning#3527","z":"当两个工作区项目发布相同的名称时，在 `versioning.fixed`、`versioning.ignore` 以及 `versioning.lanes` 的键中，可以用带 `./` 前缀的工作区相对目录来引用某个项目，而不用它的名称。"}
+{"b":"settings/versioning#3528","z":"versioning.fixed"}
+{"b":"settings/versioning#3529","z":"类型：**string[][]**"}
+{"b":"settings/versioning#3530","z":"始终以单一共享版本一起发布的包分组。该共享版本是组内当前最高的版本，并按任一成员所需的最大升级幅度进行提升。"}
+{"b":"settings/versioning#3531","z":"pnpm-workspace.yaml"}
+{"b":"settings/versioning#3532","z":"一个固定组必须一起在通道之间移动，并且必须完全位于某个 epic 之内或完全之外。"}
+{"b":"settings/versioning#3533","z":"versioning.ignore"}
+{"b":"settings/versioning#3534","z":"类型：**string[]**"}
+{"b":"settings/versioning#3535","z":"永久从版本管理和依赖传播中排除的包。若某个变更意图为一个被忽略的包请求实际版本提升，则会失败。"}
+{"b":"settings/versioning#3536","z":"pnpm-workspace.yaml"}
+{"b":"settings/versioning#3537","z":"versioning.maxBump"}
+{"b":"settings/versioning#3538","z":"默认值：**undefined**（无上限）"}
+{"b":"settings/versioning#3539","z":"类型：**'patch'**、**'minor'**、**'major'**"}
+{"b":"settings/versioning#3540","z":"限定从当前检出的代码进行发布时可应用的最大升级幅度。它在依赖传播和固定组解析之后，对最终组装的发布计划强制执行，因此一个仅 patch 的维护分支不会意外发布一个 minor。"}
+{"b":"settings/versioning#3541","z":"pnpm-workspace.yaml"}
+{"b":"settings/versioning#3542","z":"versioning.lanes"}
+{"b":"settings/versioning#3543","z":"类型：**Record<string, string>**"}
+{"b":"settings/versioning#3544","z":"将包映射到其所在的发布通道。通道是一条并行的发布轨道，会发出 `X.Y.Z-<lane>.N` 预发布版本；每个未列出的包都位于保留的默认通道 `main` 上，并发布稳定版本。"}
+{"b":"settings/versioning#3545","z":"pnpm-workspace.yaml"}
+{"b":"settings/versioning#3546","z":"通道名称只能包含字母数字和连字符，且不能为纯数字。`main` 是保留字，不能被指定——改为移除该条目，或使用 [pnpm lane main --filter <pkg>](/docs/cli/lane)。"}
+{"b":"settings/versioning#3547","z":"versioning.epics"}
+{"b":"settings/versioning#3548","z":"类型：**Array<{ lead: string, packages: string[] }>**"}
+{"b":"settings/versioning#3549","z":"将一组成员包绑定到一个 lead 包，把每个成员的主版本约束在由 lead 主版本推导出的区间内：当 lead 处于主版本 `M` 时，成员位于 `M*100` … `M*100+99`。"}
+{"b":"settings/versioning#3550","z":"pnpm-workspace.yaml"}
+{"b":"settings/versioning#3551","z":"`lead` 是包名或带 `./` 前缀的工作区目录。`packages` 通过 pnpm 的包选择器进行匹配——名称 glob、带 `./` 前缀的目录 glob 以及带 `!` 前缀的取反——按顺序求值，最后匹配者胜出。一个包最多只能属于一个 epic。"}
+{"b":"settings/versioning#3552","z":"关于该区间如何被强制执行和重新基准化，参见[Epics](/docs/versioning#epics)。"}
+{"b":"settings/versioning#3553","z":"versioning.changelog.storage"}
+{"b":"settings/versioning#3554","z":"默认值：**'registry'**"}
+{"b":"settings/versioning#3555","z":"类型：**'registry'**、**'repository'**"}
+{"b":"settings/versioning#3556","z":"发布变更日志所在的位置。"}
+{"b":"settings/versioning#3557","z":"使用 `registry` 时，不会提交 `CHANGELOG.md`：每个发布的章节在发布时组合，并叠加在此前已发布版本的变更日志之上，打包进发布的 tarball。"}
+{"b":"settings/versioning#3558","z":"使用 `repository` 时，会在每个包中提交 `CHANGELOG.md`。"}
+{"b":"settings/versioning#3559","z":"pnpm-workspace.yaml"}
+{"b":"settings/versioning@title","z":"版本管理设置"}
+{"b":"supply-chain-security#3560","z":"有时 npm 包会被攻破并携带恶意软件发布。幸运的是，有像 [Socket](https://socket.dev/)、[Snyk](https://snyk.io)、[Xygeni](https://xygeni.io/) 和 [Aikido](https://www.aikido.dev/) 这样的公司能够及早检测这些被攻破的包。npm registry 通常会在数小时内移除受影响的版本。然而，从恶意软件被发布到被检测出来之间始终存在一个时间窗口，在此期间你可能会受到波及。好在你可以用 pnpm 采取一些措施来将风险降到最低。"}
+{"b":"supply-chain-security#3561","z":"屏蔽有风险的 postinstall 脚本"}
+{"b":"supply-chain-security#3562","z":"从历史上看，大多数被攻破的包都使用 `postinstall` 脚本在安装时立即运行代码。为缓解这一点，pnpm v10 禁用了依赖中 `postinstall` 脚本的自动执行。虽然有设置可以通过 [dangerouslyAllowAllBuilds](/docs/settings/build#dangerouslyallowallbuilds) 全局重新启用它们，但我们建议使用 [allowBuilds](/docs/settings/build#allowbuilds) 仅明确列出受信任的依赖。这样，如果某个依赖过去并不需要构建，那么即便发布了被攻破的版本，它也不会突然运行恶意脚本。尽管如此，我们仍建议在更新一个带有 `postinstall` 脚本的受信任包时保持谨慎，因为[它可能会被攻破](https://socket.dev/blog/nx-packages-compromised)。"}
+{"b":"supply-chain-security#3563","z":"防止外来的传递依赖"}
+{"b":"supply-chain-security#3564","z":"你可以通过将 [blockExoticSubdeps](/docs/settings/dependency-resolution#blockexoticsubdeps) 设为 `true`，来防止传递依赖使用非正规来源（如 git 仓库或直接 tarball URL）。这能确保所有传递依赖都从受信任来源解析，从而降低供应链攻击的风险。"}
+{"b":"supply-chain-security#3565","z":"延迟依赖更新"}
+{"b":"supply-chain-security#3566","z":"降低安装被攻破包风险的另一方法，是延迟你的依赖更新。由于恶意软件通常很快被检测出来，将更新延迟 24 小时很可能就能阻止你安装一个有问题的版本。[minimumReleaseAge](/docs/settings/dependency-resolution#minimumreleaseage) 设置定义了在一个版本发布后必须经过的最少分钟数，之后 pnpm 才会安装它。其默认值为 `1440`（1 天），意味着新发布的包至少要有 1 天才会被解析。如需退出此机制，可在 `pnpm-workspace.yaml` 中设置 `minimumReleaseAge: 0`。你也可以将其设为 `10080`，在安装新版本前等待一周。"}
+{"b":"supply-chain-security#3567","z":"用 trustPolicy 强制执行信任"}
+{"b":"supply-chain-security#3568","z":"为进一步保护你的供应链，pnpm 还支持 [trustPolicy](/docs/settings/dependency-resolution#trustpolicy) 设置。设为 `no-downgrade` 时，如果某个包的信任级别相较之前的发布有所下降，此设置会阻止安装它（例如，它以前由受信任的发布者发布，而现在只有 provenance 或没有任何信任证据）。这有助于你避免安装可能已被攻破或可信度较低的版本。"}
+{"b":"supply-chain-security#3569","z":"如果你需要允许特定的包或版本绕过信任策略检查，可以使用 [trustPolicyExclude](/docs/settings/dependency-resolution#trustpolicyexclude) 设置。这对于那些可能不满足信任要求但仍然可以安全使用的已知包很有用。"}
+{"b":"supply-chain-security#3570","z":"此外，[trustPolicyIgnoreAfter](/docs/settings/dependency-resolution#trustpolicyignoreafter) 设置允许你忽略对发布时间超过指定时长的包的信任检查。这对于缺少签名或 provenance 发布流程的旧版本包很有帮助。"}
+{"b":"supply-chain-security#3571","z":"使用锁文件"}
+{"b":"supply-chain-security#3572","z":"不言而喻，你应该始终用锁文件锁定你的依赖。将你的锁文件提交到仓库，以避免意外更新。"}
+{"b":"supply-chain-security#3573","z":"如果你用漏洞扫描器或 SBOM 生成器扫描 `pnpm-lock.yaml`，要确认它能处理[双文档锁文件](/docs/lockfile)：一个只读取第一个文档的工具会报告该项目没有依赖、也没有漏洞，而且不会失败。"}
+{"b":"supply-chain-security#3574","z":"将依赖锁定到其来源 registry"}
+{"b":"supply-chain-security#3575","z":"如果你从多个 registry 安装，对于必须来自特定 registry 的包，使用 [namedRegistries](/docs/settings/dependency-resolution#namedregistries) 别名。自 v11.20.0 起，pnpm 在锁文件中以 registry 限定的键（`<name>@<registryName>:<version>`）记录这些包，因此某个包不会被发布相同名称和版本的另一个 registry 悄悄替换。参见[锁文件中的具名 registry](/docs/settings/dependency-resolution#named-registries-in-the-lockfile)。未使用别名安装的包仍像以前一样通过默认的 [registries](/docs/settings/dependency-resolution#registries) 配置解析。"}
+{"b":"supply-chain-security@title","z":"缓解供应链攻击"}
+{"b":"symlinked-node-modules-structure#3576","z":"本文只描述在没有带对等依赖的包时 pnpm 的 `node_modules` 是如何组织的。对于依赖带有对等体的更复杂场景，参见[对等依赖如何解析](/docs/how-peers-are-resolved)。"}
+{"b":"symlinked-node-modules-structure#3577","z":"pnpm 的 `node_modules` 布局使用符号链接来创建嵌套的依赖结构。"}
+{"b":"symlinked-node-modules-structure#3578","z":"`node_modules` 中每个包的每个文件都是指向内容寻址存储的硬链接。假设你安装了依赖于 `bar@1.0.0` 的 `foo@1.0.0`。pnpm 会以如下方式将这两个包硬链接到 `node_modules`："}
+{"b":"symlinked-node-modules-structure#3579","z":"这些是 `node_modules` 中唯一“真实”的文件。一旦所有包都被硬链接到 `node_modules`，就会创建符号链接以构建嵌套的依赖图结构。"}
+{"b":"symlinked-node-modules-structure#3580","z":"正如你可能已经注意到的，两个包都被硬链接到某个 `node_modules` 文件夹内部的一个子文件夹中（`foo@1.0.0/node_modules/foo`）。这样做是为了："}
+{"b":"symlinked-node-modules-structure#3581","z":"**允许包导入自身。** `foo` 应该能够 `require('foo/package.json')` 或 `import * as package from \"foo/package.json\"`。"}
+{"b":"symlinked-node-modules-structure#3582","z":"**避免循环符号链接。** 包的依赖被放置于依赖它们的包所在的同一文件夹中。对 Node.js 而言，无论依赖是在包自身的 `node_modules` 中，还是在父目录的其他 `node_modules` 中，都没有区别。"}
+{"b":"symlinked-node-modules-structure#3583","z":"安装的下一个阶段是为依赖创建符号链接。`bar` 将被符号链接到 `foo@1.0.0/node_modules` 文件夹："}
+{"b":"symlinked-node-modules-structure#3584","z":"接下来处理直接依赖。`foo` 将被符号链接到根 `node_modules` 文件夹，因为 `foo` 是项目的依赖："}
+{"b":"symlinked-node-modules-structure#3585","z":"这是一个非常简单的例子。不过，无论依赖的数量和依赖图的深度如何，该布局都会保持这一结构。"}
+{"b":"symlinked-node-modules-structure#3586","z":"让我们把 `qar@2.0.0` 添加为 `bar` 和 `foo` 的依赖。新结构看起来将是这样："}
+{"b":"symlinked-node-modules-structure#3587","z":"如你所见，即使现在依赖图更深了（`foo > bar > qar`），文件系统中的目录深度仍然相同。"}
+{"b":"symlinked-node-modules-structure#3588","z":"这种布局乍看可能有些奇怪，但它与 Node 的模块解析算法完全兼容！在解析模块时，Node 会忽略符号链接，因此当从 `foo@1.0.0/node_modules/foo/index.js` 中 require `bar` 时，Node 不会使用 `foo@1.0.0/node_modules/bar` 处的 `bar`，而是将 `bar` 解析到它的真实位置（`bar@1.0.0/node_modules/bar`）。因此，`bar` 也能解析位于 `bar@1.0.0/node_modules` 中的其依赖。"}
+{"b":"symlinked-node-modules-structure#3589","z":"这种布局的一个额外好处是，只有真正属于依赖的包才可被访问。在扁平的 `node_modules` 结构下，所有被提升的包都可被访问。要了解更多关于这为何是一项优势的内容，参见“[pnpm 的严格性有助于避免愚蠢的 bug](https://www.kochan.io/nodejs/pnpms-strictness-helps-to-avoid-silly-bugs.html)”"}
+{"b":"symlinked-node-modules-structure#3590","z":"不幸的是，生态中有许多包是有问题的——它们使用了未在自身 `package.json` 中列出的依赖。为尽量减少新用户遇到的问题，pnpm 默认将所有依赖提升到 `node_modules/.pnpm/node_modules`。要禁用这种提升，将 [hoist](/docs/settings/node-modules#hoist) 设为 `false`。"}
+{"b":"symlinked-node-modules-structure@title","z":"符号链接的 `node_modules` 结构"}
+{"b":"typescript#3591","z":"大多数情况下，pnpm 无需额外配置就能与 TypeScript 良好配合。"}
+{"b":"typescript#3592","z":"不要保留符号链接"}
+{"b":"typescript#3593","z":"你不应在 [preserveSymlinks](https://www.typescriptlang.org/tsconfig/#preserveSymlinks) 设为 `true` 的情况下使用 TypeScript。TypeScript 将无法在链接的 `node_modules` 中正确解析类型依赖。如果出于某些原因你确实需要保留符号链接，那么应将 pnpm 的 `nodeLinker` 设置设为 `hoisted`。"}
+{"b":"typescript#3594","z":"工作区用法"}
+{"b":"typescript#3595","z":"如果工作区中存在 `@types/` 依赖的不同版本，你有时可能会遇到问题。这些问题发生在某个包需要这些类型，但其依赖中却没有该类型依赖时。例如，如果你的依赖中有 `antd`，而 `antd` 依赖于 `@types/react`，当你的工作区中存在多个 `@types/react` 版本时，你可能会遇到编译错误。这其实是 `antd` 端的问题，因为它本应将 `@types/react` 添加到 `peerDependencies`。好在，你可以通过为 `antd` 扩展缺失的对等依赖来修复它。你可以把下面这段内容添加到 `pnpm-workspace.yaml` 来实现："}
+{"b":"typescript#3596","z":"或者，你可以安装我们为处理这些问题创建的一个配置依赖 [@pnpm/plugin-types-fixer](https://github.com/pnpm/plugin-types-fixer)。运行："}
+{"b":"typescript@title","z":"与 TypeScript 配合使用"}
+{"b":"uninstall#3597","z":"移除已安装的全局包"}
+{"b":"uninstall#3598","z":"在移除 pnpm CLI 之前，先移除所有由 pnpm 安装的全局包可能更合适。"}
+{"b":"uninstall#3599","z":"要列出所有全局包，运行 `pnpm ls -g`。有两种方法可以移除全局包："}
+{"b":"uninstall#3600","z":"对列出的每个全局包，运行 `pnpm rm -g <pkg>...`。"}
+{"b":"uninstall#3601","z":"运行 `pnpm root -g` 找到全局目录的位置并手动移除它。"}
+{"b":"uninstall#3602","z":"移除 pnpm CLI"}
+{"b":"uninstall#3603","z":"如果你使用独立脚本安装 pnpm，那么你应该可以通过移除 pnpm 主目录来卸载 pnpm CLI："}
+{"b":"uninstall#3604","z":"你可能还想在 shell 配置文件中清理 `PNPM_HOME` 环境变量（`$HOME/.bashrc`、`$HOME/.zshrc` 或 `$HOME/.config/fish/config.fish`）。"}
+{"b":"uninstall#3605","z":"如果你用 npm 安装 pnpm，那么你应该用 npm 卸载 pnpm："}
+{"b":"uninstall#3606","z":"移除全局内容寻址存储"}
+{"b":"uninstall#3607","z":"如果你在非主磁盘上使用过 pnpm，那么必须在每个使用过 pnpm 的磁盘上运行上述命令。pnpm 会为每个磁盘创建一个存储。"}
+{"b":"uninstall@title","z":"卸载 pnpm"}
+{"b":"using-changesets#3608","z":"自 v11.13.0 起，pnpm 无需 Changesets CLI 就能原生管理工作区发布。它读写相同的 `.changeset/*.md` 文件。参见[发布管理](/docs/versioning)。"}
+{"b":"using-changesets#3609","z":"自 v11.16.0 起，[pnpm update --changeset](/docs/cli/update#--changeset) 还能为一次更新所做的依赖版本提升写入一个 changeset。"}
+{"b":"using-changesets#3610","z":"在撰写本文档时，最新的 pnpm 版本是 v10.4.1。最新的 [Changesets](https://github.com/changesets/changesets) 版本是 v2.28.0。"}
+{"b":"using-changesets#3611","z":"设置"}
+{"b":"using-changesets#3612","z":"要在 pnpm 工作区上设置 changesets，将 changesets 作为开发依赖安装在工作区根目录："}
+{"b":"using-changesets#3613","z":"然后运行 changesets 的 init 命令以生成 changesets 配置："}
+{"b":"using-changesets#3614","z":"添加新的 changesets"}
+{"b":"using-changesets#3615","z":"要生成一个新的 changeset，在仓库根目录运行 `pnpm changeset`。在 `.changeset` 目录中生成的 markdown 文件应提交到仓库。"}
+{"b":"using-changesets#3616","z":"发布变更"}
+{"b":"using-changesets#3617","z":"运行 `pnpm changeset version`。这会提升之前用 `pnpm changeset` 指定的包（以及它们的任何依赖方）的版本，并更新变更日志文件。"}
+{"b":"using-changesets#3618","z":"运行 `pnpm install`。这会更新锁文件并重新构建包。"}
+{"b":"using-changesets#3619","z":"提交这些更改。"}
+{"b":"using-changesets#3620","z":"运行 `pnpm publish -r`。此命令将发布所有版本已提升但 registry 中尚不存在的包。"}
+{"b":"using-changesets#3621","z":"与 GitHub Actions 集成"}
+{"b":"using-changesets#3622","z":"要将此过程自动化，你可以在 GitHub Actions 中使用 `changeset version`。该 action 会在 changeset 文件进入 `main` 分支时检测到，然后新建一个列出所有已提升版本包的 PR。每当有新的 changeset 文件进入 `main`，该 PR 都会自动更新自己。一旦合并，包就会被更新，并且如果在 action 上指定了 `publish` 输入，它们将使用给定的命令发布。"}
+{"b":"using-changesets#3623","z":"添加发布脚本"}
+{"b":"using-changesets#3624","z":"添加一个名为 `ci:publish` 的新脚本，执行 `pnpm publish -r`。一旦 `changeset version` 创建的 PR 被合并，它就会发布到 registry。如果该包是公共且带 scope 的，可能需要添加 `--access=public`，以防止 npm 拒绝发布。"}
+{"b":"using-changesets#3625","z":"**package.json**"}
+{"b":"using-changesets#3626","z":"添加工作流"}
+{"b":"using-changesets#3627","z":"在 `.github/workflows/changesets.yml` 添加一个新的工作流。此工作流会创建新的分支和 PR，因此应在仓库设置（`github.com/<repo-owner>/<repo-name>/settings/actions`）中为 Actions 授予**读取和写入**权限。如果在 `changesets/action` 步骤中包含 `publish` 输入，仓库还应包含一个名为 `NPM_TOKEN` 的 npm 认证令牌作为仓库密钥。"}
+{"b":"using-changesets#3628","z":"**.github/workflows/changesets.yml**"}
+{"b":"using-changesets#3629","z":"有关 changesets action 的更多信息和文档可在[此处](https://github.com/changesets/action)找到。"}
+{"b":"using-changesets@title","z":"在 pnpm 中使用 Changesets"}
+{"b":"versioning#3630","z":"自 v11.13.0 起提供"}
+{"b":"versioning#3631","z":"pnpm 可以自行管理工作区版本和发布，无需单独的发布工具。该工作流分为两部分："}
+{"b":"versioning#3632","z":"在你工作时，[pnpm change](/docs/cli/change) 会记录**变更意图**——`.changeset/` 中的小 markdown 文件，说明某次变更影响哪些包、每个包应如何提升版本，以及一段会成为变更日志条目的摘要。这些文件与变更一起提交。"}
+{"b":"versioning#3633","z":"在发布时，基础的 [pnpm version -r](/docs/cli/version#recursive-releases) 会消费待处理的意图：它在整个工作区提升版本，传播到依赖方，写入变更日志，并将所消费的内容记录在一个已提交的台账中。"}
+{"b":"versioning#3634","z":"意图文件使用 [changesets](https://github.com/changesets/changesets) 格式，因此现有的 `.changeset/` 目录仍能正常工作。如果你更希望继续使用 Changesets CLI，参见[在 pnpm 中使用 Changesets](/docs/using-changesets)。"}
+{"b":"versioning#3635","z":"记录变更"}
+{"b":"versioning#3636","z":"这会提示输入受影响的包、它们的提升类型以及一段摘要，然后写入一个类似 `.changeset/calm-cats-resolve.md` 的文件："}
+{"b":"versioning#3637","z":"要查看待处理的意图会产生什么："}
+{"b":"versioning#3638","z":"发布"}
+{"b":"versioning#3639","z":"这会应用发布计划：每个被意图指定的包都会提升版本，通过 `workspace:` 范围依赖它的每个包也是如此。先用 `--dry-run` 预览，并用 `--filter` 缩小范围。"}
+{"b":"versioning#3640","z":"由于一次递归运行会把许多包提升到不同版本，因此不会创建 git 提交或标签——没有单一的版本可打标签。自行提交结果，然后用 `pnpm publish -r` 发布。"}
+{"b":"versioning#3641","z":"首次发布"}
+{"b":"versioning#3642","z":"自 v11.16.0 起，一个包的首次发布会原样发布其清单中写明的版本，而不是在其基础上提升。`pnpm version -r` 和 `pnpm change status` 会向 registry 查询每次发布的当前版本；当该版本尚未发布时，包就以该版本首次亮相，而其待处理的变更意图仅从下一次发布起生效。因此，一个初始版本设为 `1100.0.0` 并带有 `minor` 意图的新增包，会作为 `1100.0.0` 发布，而不是直接跳到 `1100.1.0`。"}
+{"b":"versioning#3643","z":"配置"}
+{"b":"versioning#3644","z":"发布行为在 `pnpm-workspace.yaml` 的 `versioning` 键下配置："}
+{"b":"versioning#3645","z":"pnpm-workspace.yaml"}
+{"b":"versioning#3646","z":"每个键都在[版本管理设置](/docs/settings/versioning)中有说明。"}
+{"b":"versioning#3647","z":"当两个工作区项目发布相同的名称时，可以用带 `./` 前缀的工作区相对目录而不是名称来引用某个项目（例如 `\"./packages/cli\"`）。这在意图文件以及 `versioning.lanes`、`versioning.fixed` 和 `versioning.ignore` 中都有效。"}
+{"b":"versioning#3648","z":"固定组"}
+{"b":"versioning#3649","z":"在 `versioning.fixed` 中一起列出的包始终以单一共享版本发布——即组内当前最高版本，并按任一成员所需的最大升级幅度提升。固定组必须一起在通道之间移动，并且必须完全位于某个 epic 之内或完全之外。"}
+{"b":"versioning#3650","z":"通道"}
+{"b":"versioning#3651","z":"通道是一条并行的发布轨道。当某个包处于某条通道上时，它会从那些发布主通道上所有包稳定版本的相同运行中，发布 `X.Y.Z-<lane>.N` 预发布版本。这使得一次重写或一个大版本线能在公开环境中逐步成熟，而工作区其余部分继续交付。"}
+{"b":"versioning#3652","z":"关于预发布版本如何计算，参见[pnpm lane](/docs/cli/lane)。"}
+{"b":"versioning#3653","z":"Epics"}
+{"b":"versioning#3654","z":"一个 epic 将一组成员包绑定到一个 lead 包，把每个成员的主版本约束在由 lead 主版本推导出的区间内：当 lead 处于主版本 `M` 时，成员位于 `M*100` … `M*100+99`。"}
+{"b":"versioning#3655","z":"pnpm-workspace.yaml"}
+{"b":"versioning#3656","z":"当 lead 处于 `11.x` 时，成员占据主版本 `1100`–`1199`。成员可在区间内独立移动——patch、minor，甚至是保持在区间内的 `major` 意图。任何会将成员推过区间上限的版本提升都会被拒绝，直到 lead 推进自身的主版本。当某个发布计划将 lead 带到一个新的稳定主版本时，每个成员都会在同一个计划中重新基准化到区间下限。"}
+{"b":"versioning#3657","z":"成员资格通过 pnpm 的包选择器匹配：名称 glob、带 `./` 前缀的目录 glob 以及带 `!` 前缀的取反。选择器按顺序求值，最后一个匹配者决定结果，因此靠后的包含可以重新纳入一个被靠前取反排除的包。lead 永远不会是其自身区间的成员。"}
+{"b":"versioning#3658","z":"变更日志"}
+{"b":"versioning#3659","z":"默认情况下（`versioning.changelog.storage: registry`），不会提交 `CHANGELOG.md`。每个发布的章节在发布时组合，并叠加在此前已发布版本的变更日志之上打包进发布的 tarball。已被消费的变更意图只有在 registry 确认该版本连同其章节一起发布后，才会在之后的 `pnpm version -r` 中被垃圾回收。"}
+{"b":"versioning#3660","z":"改为设置 `versioning.changelog.storage: repository`，以便在每个包中保留已提交的 `CHANGELOG.md` 文件。"}
+{"b":"versioning#3661","z":"台账"}
+{"b":"versioning#3662","z":"`pnpm version -r` 将每个被消费的意图记录在 `.changeset/ledger.yaml` 中，这是一个已提交的仅追加文件："}
+{"b":"versioning#3663","z":"消费按项目跟踪：一个意图文件只有在它指定的每个项目都已发布后才会被删除。这正是使发布分支之间的 cherry-pick 和回向合并保持安全的原因——一个已经消费了某意图的发布分支，在提交向前合并时不会再次消费它；而位于某通道上的包可以半消费一个意图，该意图的说明文字仍需在一次稳定发布中组合进去。"}
+{"b":"versioning@title","z":"发布管理"}
+{"b":"workspace-task-orchestration#3664","z":"`pnpm -r run <script>` 会调度一个工作区任务图。一个任务是某个工作区项目中的一个脚本，标识为 `<project>#<script>`。当它所依赖的每个任务都成功完成后它就就绪，而就绪的任务在 [--workspace-concurrency](/docs/cli/recursive#--workspace-concurrency) 限制下运行。"}
+{"b":"workspace-task-orchestration#3665","z":"相互独立的任务不会等待一个无关的项目完成。因此它们的启动和完成顺序不保证。"}
+{"b":"workspace-task-orchestration#3666","z":"配置任务依赖"}
+{"b":"workspace-task-orchestration#3667","z":"在 `pnpm-workspace.yaml` 的 `tasks` 下声明任务之间的关系："}
+{"b":"workspace-task-orchestration#3668","z":"pnpm-workspace.yaml"}
+{"b":"workspace-task-orchestration#3669","z":"每个 `dependsOn` 条目都有以下几种形式之一："}
+{"b":"workspace-task-orchestration#3670","z":"在本例中，`pnpm -r run test` 会在每个项目中先运行 `build`。某个项目的 `build` 会等待其工作区依赖中的 `build`。"}
+{"b":"workspace-task-orchestration#3671","z":"在 `tasks` 下没有条目的任务，默认依赖于其工作区依赖中的同名任务。例如，一个未配置的 `build` 的行为等同于 `dependsOn: ['^build']`，保留了通常的“依赖先于依赖方”行为。"}
+{"b":"workspace-task-orchestration#3672","z":"一旦某个任务在 `tasks` 下有了条目，省略 `dependsOn` 就等同于 `dependsOn: []`。如果你配置了其他字段但仍想要默认的拓扑关系，就显式声明它："}
+{"b":"workspace-task-orchestration#3673","z":"pnpm-workspace.yaml"}
+{"b":"workspace-task-orchestration#3674","z":"任务依赖保持在 `--filter` 和 `includeWorkspaceRoot` 所选中的项目之内。一个 `dependsOn` 条目不会扩大该选择范围。"}
+{"b":"workspace-task-orchestration#3675","z":"没有该脚本的项目"}
+{"b":"workspace-task-orchestration#3676","z":"如果某个被选中的项目没有图中所指名称的脚本，pnpm 会把该任务视为透传。该任务在其自身依赖完成后会被报告为已跳过，因此一个没有 `build` 的包不会切断其工作区依赖与依赖方之间的构建链。"}
+{"b":"workspace-task-orchestration#3677","z":"限制单个任务的并发"}
+{"b":"workspace-task-orchestration#3678","z":"将 `concurrency` 设为一个正整数，以限制一个具名任务在各工作区项目中一次最多可运行多少个实例："}
+{"b":"workspace-task-orchestration#3679","z":"pnpm-workspace.yaml"}
+{"b":"workspace-task-orchestration#3680","z":"此限制与工作区范围的 [--workspace-concurrency](/docs/cli/recursive#--workspace-concurrency) 限制是分开的。一个正在等待其两个槽位之一的 `build` 不会占用工作区槽位，因此一个无关的就绪任务仍可运行。"}
+{"b":"workspace-task-orchestration#3681","z":"查看任务图"}
+{"b":"workspace-task-orchestration#3682","z":"使用 `--dry-run` 在不运行脚本的情况下解析图："}
+{"b":"workspace-task-orchestration#3683","z":"输出是一个稳定的拓扑排序，平局时按项目目录打破。它不是对分发顺序的预测：独立任务可以按任意顺序运行。"}
+{"b":"workspace-task-orchestration#3684","z":"添加 `--json` 以接收图的节点和边："}
+{"b":"workspace-task-orchestration#3685","z":"`project` 相对于工作区根目录。`tasks` 数组和每个 `dependsOn` 数组都按项目和脚本排序，从而使输出稳定。"}
+{"b":"workspace-task-orchestration#3686","z":"循环"}
+{"b":"workspace-task-orchestration#3687","z":"pnpm 在项目选择和任务展开之后检查图。一个循环会在任何脚本启动之前以 `ERR_PNPM_TASK_CYCLE` 失败，并且错误会指明参与的任务。"}
+{"b":"workspace-task-orchestration#3688","z":"只有在循环是有意为之的情况下，才将 [ignoreWorkspaceCycles](/docs/workspaces#ignoreworkspacecycles) 设为 `true`。此后 pnpm 会发出警告，去除循环成员之间的顺序，并可能以任意相互顺序运行它们。"}
+{"b":"workspace-task-orchestration#3689","z":"递归运行选项"}
+{"b":"workspace-task-orchestration#3690","z":"`--resume-from <package_name>`"}
+{"b":"workspace-task-orchestration#3691","z":"所指定包的所请求任务即为恢复点。"}
+{"b":"workspace-task-orchestration#3692","z":"pnpm 会在一次递归 `run` 或 `exec` 进行中记录哪些任务通过。当该记录属于同一次调用——相同的所选项目、命令、参数以及影响执行的设置（包括 `run` 的脚本内容）——`--resume-from` 会准确地跳过记录显示已通过的任务，无论它们在图中的位置，并运行其他所有任务。由不同调用留下的记录会被忽略而不被信任。"}
+{"b":"workspace-task-orchestration#3693","z":"在没有可用记录时——首次运行、在有任何任务通过之前被中断的运行，或 pnpm 无法写入的 `node_modules` 目录——pnpm 会退回到图位置：它省略恢复点的传递依赖，将它们视为已完成，但仍会运行恢复任务、它的依赖方以及所选图中无关的任务。该假设在一次失败的运行后成立，而在一次被取消的运行后不成立，因为在被取消的运行中某个依赖可能从未开始。"}
+{"b":"workspace-task-orchestration#3694","z":"`--reverse`"}
+{"b":"workspace-task-orchestration#3695","z":"pnpm 会反转解析后任务图中的每条边，包括用 `dependsOn` 声明的关系。通常依赖于另一个任务的任务会在其之前运行。"}
+{"b":"workspace-task-orchestration#3696","z":"`--no-bail`"}
+{"b":"workspace-task-orchestration#3697","z":"在一个任务失败后，依赖于它的任务会被跳过。使用 `--no-bail` 时，独立的就绪任务会继续运行，命令在它们全部结束后以非零代码退出。"}
+{"b":"workspace-task-orchestration#3698","z":"在默认的 `--bail` 下，pnpm 会在首次失败后停止分发新任务，并取消已在运行的任务及其启动的进程。否则，一个不会自行退出的任务，比如 watcher 或 dev server，会让一次失败的运行无限期地保持存活。被取消的任务不会被报告为其自身的失败；导致运行停止的那次失败才是被报告的那一个。"}
+{"b":"workspace-task-orchestration#3699","z":"输出"}
+{"b":"workspace-task-orchestration#3700","z":"当任意时刻最多只能有一个脚本在运行时——要么因为工作区并发为 `1`，要么因为图构成一条串行链——pnpm 会直接继承脚本的输出。当脚本可以重叠运行时，pnpm 会以管道方式处理它们的输出，以便为其加前缀或聚合。使用 [--stream](/docs/cli/run#--stream) 可获得即时加前缀的输出，或使用 [--aggregate-output](/docs/cli/run#--aggregate-output) 在每个任务结束后将其输出集中打印。"}
+{"b":"workspace-task-orchestration#3701","z":"不使用 `tasks` 的命令"}
+{"b":"workspace-task-orchestration#3702","z":"`tasks` 声明配置的是递归 `run`。递归 `exec` 遵循工作区项目依赖，但没有脚本任务名称，因此它不会加入已声明的 `dependsOn` 关系。它仍会使用上述的依赖感知调度器和持久化的 `--resume-from` 状态。"}
+{"b":"workspace-task-orchestration#3703","z":"`--no-sort` 会去除图排序，而 `--parallel` 隐含 `--no-sort`。因此，这两个选项都会忽略 `tasks` 声明；`--reverse` 和 `--resume-from` 也没有可供转换的顺序边。"}
+{"b":"workspace-task-orchestration#3704","z":"其他依赖感知的工作区命令"}
+{"b":"workspace-task-orchestration#3705","z":"工作区的安装、重建、打包、发布、暂存和生命周期工作使用相同的就绪队列调度原则：一个项目的工作会在其工作区依赖一完成就启动。这些命令遵循工作区包图，而不是 `tasks` 下的脚本关系，不再先等待一个无关的拓扑组完成。"}
+{"b":"workspace-task-orchestration@title","z":"工作区任务编排"}

@@ -1,0 +1,68 @@
+---
+import Icon from "./Icon.astro";
+import SideItem from "./SideItem.astro";
+
+interface NavItem {
+  id: string;
+  label: string;
+  collapsed?: boolean;
+  children?: NavItem[];
+}
+
+interface Props {
+  item: NavItem;
+  depth: number;
+  current: string;
+  docSet: string[];
+  activeTrail?: boolean;
+}
+
+const { item, depth, current, docSet, activeTrail = false } = Astro.props;
+const docs = new Set(docSet);
+const href = `/docs/${item.id}`;
+const active = current === href;
+const hasKids = !!item.children?.length;
+const linkable = docs.has(item.id);
+---
+
+{
+  hasKids ? (
+    <li class={depth === 0 ? "" : "ml-3"}>
+      {linkable ? (
+        <a
+          href={href}
+          aria-current={active ? "page" : undefined}
+          class={`flex items-center justify-between gap-2 rounded-md py-1.5 pr-2 text-[0.84rem] no-underline transition-colors ${
+            active ? "bg-sunken font-semibold text-ink" : "text-muted hover:bg-sunken/60 hover:text-ink"
+          }`}
+          style={`padding-left:${0.6 + depth * 0.55}rem`}
+        >
+          <span>{item.label}</span>
+          <span class="text-accent" aria-hidden="true"><Icon name="arrow-right" size="0.85em" class={active ? "" : "opacity-50"} /></span>
+        </a>
+      ) : (
+        <span class={`px-2 py-1 font-mono text-[0.7rem] uppercase tracking-[0.12em] ${depth ? "pl-2" : ""}`} style={`padding-left:${0.6 + depth * 0.55}rem`}>
+          {item.label}
+        </span>
+      )}
+      <ul class="space-y-px">
+        {item.children!.map((c) => (
+          <SideItem item={c} depth={depth + 1} current={current} docSet={docSet} activeTrail={activeTrail} />
+        ))}
+      </ul>
+    </li>
+  ) : (
+    <li>
+      <a
+        href={href}
+        aria-current={active ? "page" : undefined}
+        class={`block break-words rounded-md py-1.5 text-[0.84rem] no-underline transition-colors ${
+          active ? "bg-sunken font-semibold text-ink" : "text-muted hover:bg-sunken/60 hover:text-ink"
+        }`}
+        style={`padding-left:${0.6 + depth * 0.55}rem`}
+      >
+        {item.label}
+      </a>
+    </li>
+  )
+}

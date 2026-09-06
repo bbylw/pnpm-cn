@@ -1,0 +1,256 @@
+{"p":"cli/publish","b":"cli/publish#944","k":"para","t":"Publishes a package to the registry."}
+{"p":"cli/publish","b":"cli/publish#945","k":"para","t":"Since v11, `pnpm publish` is implemented natively and no longer delegates to the `npm` CLI. If you rely on a feature that is now gone, please open an issue at [pnpm/pnpm](https://github.com/pnpm/pnpm/issues). As a workaround, you can still run `pnpm pack && npm publish *.tgz`."}
+{"p":"cli/publish","b":"cli/publish#946","k":"para","t":"When publishing a package inside a [workspace](/docs/workspaces), the LICENSE file from the root of the workspace is packed with the package (unless the package has a license of its own)."}
+{"p":"cli/publish","b":"cli/publish#947","k":"para","t":"You may override some fields before publish, using the [publishConfig](/docs/package_json#publishconfig) field in `package.json`. You also can use the [publishConfig.directory](/docs/package_json#publishconfigdirectory) to customize the published subdirectory (usually using third party build tools)."}
+{"p":"cli/publish","b":"cli/publish#948","k":"para","t":"When running this command recursively (`pnpm -r publish`), pnpm will publish all the packages that have versions not yet published to the registry."}
+{"p":"cli/publish","b":"cli/publish#949","k":"heading","t":"Options"}
+{"p":"cli/publish","b":"cli/publish#950","k":"heading","t":"--recursive, -r"}
+{"p":"cli/publish","b":"cli/publish#951","k":"para","t":"Publish all packages from the workspace."}
+{"p":"cli/publish","b":"cli/publish#952","k":"heading","t":"--json"}
+{"p":"cli/publish","b":"cli/publish#953","k":"para","t":"Show information in JSON format."}
+{"p":"cli/publish","b":"cli/publish#954","k":"heading","t":"--tag <tag>"}
+{"p":"cli/publish","b":"cli/publish#955","k":"para","t":"Publishes the package with the given tag. By default, `pnpm publish` updates the `latest` tag."}
+{"p":"cli/publish","b":"cli/publish#956","k":"para","t":"For example:"}
+{"p":"cli/publish","b":"cli/publish#957","k":"heading","t":"--access <public|restricted>"}
+{"p":"cli/publish","b":"cli/publish#958","k":"para","t":"Tells the registry whether the published package should be public or restricted."}
+{"p":"cli/publish","b":"cli/publish#959","k":"heading","t":"--no-git-checks"}
+{"p":"cli/publish","b":"cli/publish#960","k":"para","t":"Don't check if current branch is your publish branch, clean, and up-to-date with remote."}
+{"p":"cli/publish","b":"cli/publish#961","k":"heading","t":"--publish-branch <branch>"}
+{"p":"cli/publish","b":"cli/publish#962","k":"li","t":"Default: **master** and **main**"}
+{"p":"cli/publish","b":"cli/publish#963","k":"li","t":"Types: **String**"}
+{"p":"cli/publish","b":"cli/publish#964","k":"para","t":"The primary branch of the repository which is used for publishing the latest changes."}
+{"p":"cli/publish","b":"cli/publish#965","k":"heading","t":"--force"}
+{"p":"cli/publish","b":"cli/publish#966","k":"para","t":"Try to publish packages even if their current version is already found in the registry."}
+{"p":"cli/publish","b":"cli/publish#967","k":"heading","t":"--batch"}
+{"p":"cli/publish","b":"cli/publish#968","k":"para","t":"Added in: v11.7.0"}
+{"p":"cli/publish","b":"cli/publish#969","k":"para","t":"When publishing recursively (`pnpm -r publish`), send all selected packages to the registry in a single `PUT /-/pnpm/v1/publish` request instead of one request per package."}
+{"p":"cli/publish","b":"cli/publish#970","k":"para","t":"The target registry has to implement the batch publish endpoint ([pnpr](https://github.com/pnpm/pnpm/tree/main/pnpr) does); registries that don't are reported with an `ERR_PNPM_BATCH_PUBLISH_UNSUPPORTED` error. The batch is processed all-or-nothing: if any package in the batch fails validation, none of the packages are published."}
+{"p":"cli/publish","b":"cli/publish#971","k":"para","t":"Since v11.24.0, the selected packages are grouped by the registry each one publishes to, and one request is sent per group. Every package in a group must authenticate with the same credential — a scope-specific token shared across the group is fine, and mismatched credentials for one registry are rejected *before* anything is published, rather than after part of the release went out. The `publish` and `postpublish` scripts run after each completed group."}
+{"p":"cli/publish","b":"cli/publish#972","k":"heading","t":"--skip-manifest-obfuscation"}
+{"p":"cli/publish","b":"cli/publish#973","k":"para","t":"Added in: v11.3.0"}
+{"p":"cli/publish","b":"cli/publish#974","k":"para","t":"Keep the original `packageManager` field and publish lifecycle scripts in the published manifest instead of stripping them. The pnpm-specific `pnpm` field is still omitted."}
+{"p":"cli/publish","b":"cli/publish#975","k":"heading","t":"--report-summary"}
+{"p":"cli/publish","b":"cli/publish#976","k":"para","t":"Save the list of published packages to `pnpm-publish-summary.json`. Useful when some other tooling is used to report the list of published packages."}
+{"p":"cli/publish","b":"cli/publish#977","k":"para","t":"An example of a `pnpm-publish-summary.json` file:"}
+{"p":"cli/publish","b":"cli/publish#978","k":"heading","t":"--dry-run"}
+{"p":"cli/publish","b":"cli/publish#979","k":"para","t":"Does everything a publish would do except actually publishing to the registry."}
+{"p":"cli/publish","b":"cli/publish#980","k":"heading","t":"--otp"}
+{"p":"cli/publish","b":"cli/publish#981","k":"para","t":"When publishing packages that require two-factor authentication, this option can specify a one-time password."}
+{"p":"cli/publish","b":"cli/publish#982","k":"para","t":"You can also provide the OTP via the `PNPM_CONFIG_OTP` environment variable:"}
+{"p":"cli/publish","b":"cli/publish#983","k":"para","t":"If the registry requests OTP and you have not provided it via the environment variable or the `--otp` flag, pnpm will prompt you directly for an OTP code."}
+{"p":"cli/publish","b":"cli/publish#984","k":"para","t":"If the registry requests web-based authentication, pnpm will print a scannable QR code along with the URL."}
+{"p":"cli/publish","b":"cli/publish#985","k":"heading","t":"--provenance"}
+{"p":"cli/publish","b":"cli/publish#986","k":"para","t":"When publishing from a supported cloud CI/CD system, the package will be publicly linked to where it was built and published from."}
+{"p":"cli/publish","b":"cli/publish#987","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/publish","b":"cli/publish#988","k":"heading","t":"Configuration"}
+{"p":"cli/publish","b":"cli/publish#989","k":"para","t":"You can also set `gitChecks`, `publishBranch` options in the `pnpm-workspace.yaml` file."}
+{"p":"cli/publish","b":"cli/publish#990","k":"para","t":"For example:"}
+{"p":"cli/publish","b":"cli/publish#991","k":"para","t":"pnpm-workspace.yaml"}
+{"p":"cli/publish","b":"cli/publish#992","k":"heading","t":"Life Cycle Scripts"}
+{"p":"cli/publish","b":"cli/publish@title","k":"title","t":"pnpm publish"}
+{"p":"cli/rebuild","b":"cli/rebuild#939","k":"para","t":"Rebuild a package."}
+{"p":"cli/rebuild","b":"cli/rebuild#940","k":"heading","t":"Options"}
+{"p":"cli/rebuild","b":"cli/rebuild#941","k":"heading","t":"--recursive, -r"}
+{"p":"cli/rebuild","b":"cli/rebuild#942","k":"para","t":"This command runs the **pnpm rebuild** command in every package of the monorepo."}
+{"p":"cli/rebuild","b":"cli/rebuild#943","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/rebuild","b":"cli/rebuild@title","k":"title","t":"pnpm rebuild"}
+{"p":"cli/recursive","b":"cli/recursive#993","k":"para","t":"Runs a command in every project of a workspace, when used with the following commands:"}
+{"p":"cli/recursive","b":"cli/recursive#994","k":"para","t":"Runs a command in every project of a workspace, excluding the root project, when used with the following commands:"}
+{"p":"cli/recursive","b":"cli/recursive#995","k":"para","t":"If you want the root project be included even when running scripts, set the [includeWorkspaceRoot](/docs/workspaces#includeworkspaceroot) setting to `true`."}
+{"p":"cli/recursive","b":"cli/recursive#996","k":"para","t":"Usage example:"}
+{"p":"cli/recursive","b":"cli/recursive#997","k":"heading","t":"Options"}
+{"p":"cli/recursive","b":"cli/recursive#998","k":"heading","t":"--link-workspace-packages"}
+{"p":"cli/recursive","b":"cli/recursive#999","k":"li","t":"Default: **false**"}
+{"p":"cli/recursive","b":"cli/recursive#1000","k":"li","t":"Type: **true, false, deep**"}
+{"p":"cli/recursive","b":"cli/recursive#1001","k":"para","t":"Link locally available packages in workspaces of a monorepo into `node_modules` instead of re-downloading them from the registry. This emulates functionality similar to `yarn workspaces`."}
+{"p":"cli/recursive","b":"cli/recursive#1002","k":"para","t":"When this is set to deep, local packages can also be linked to subdependencies."}
+{"p":"cli/recursive","b":"cli/recursive#1003","k":"para","t":"Be advised that it is encouraged instead to use [pnpm-workspace.yaml](/docs/workspaces#linkworkspacepackages) for this setting, to enforce the same behaviour in all environments. This option exists solely so you may override that if necessary."}
+{"p":"cli/recursive","b":"cli/recursive#1004","k":"heading","t":"--workspace-concurrency"}
+{"p":"cli/recursive","b":"cli/recursive#1005","k":"li","t":"Type: **Number**"}
+{"p":"cli/recursive","b":"cli/recursive#1006","k":"para","t":"Set the maximum number of tasks to run simultaneously. For unlimited concurrency use `Infinity`."}
+{"p":"cli/recursive","b":"cli/recursive#1007","k":"para","t":"You can set the `workspace-concurrency` as `<= 0` and it will use amount of cores of the host as: `max(1, (number of cores) - abs(workspace-concurrency))`"}
+{"p":"cli/recursive","b":"cli/recursive#1008","k":"heading","t":"--[no-]bail"}
+{"p":"cli/recursive","b":"cli/recursive#1009","k":"li","t":"Default: **true**"}
+{"p":"cli/recursive","b":"cli/recursive#1010","k":"li","t":"Type: **Boolean**"}
+{"p":"cli/recursive","b":"cli/recursive#1011","k":"para","t":"If true, stops when a task throws an error."}
+{"p":"cli/recursive","b":"cli/recursive#1012","k":"para","t":"This config does not affect the exit code. Even if `--no-bail` is used, all tasks will finish but if any of the tasks fail, the command will exit with a non-zero code."}
+{"p":"cli/recursive","b":"cli/recursive#1013","k":"para","t":"Example (run tests in every package, continue if tests fail in one of them):"}
+{"p":"cli/recursive","b":"cli/recursive#1014","k":"heading","t":"--[no-]sort"}
+{"p":"cli/recursive","b":"cli/recursive#1015","k":"li","t":"Default: **true**"}
+{"p":"cli/recursive","b":"cli/recursive#1016","k":"li","t":"Type: **Boolean**"}
+{"p":"cli/recursive","b":"cli/recursive#1017","k":"para","t":"When `true`, commands follow the workspace dependency graph. Recursive `run` also applies relationships from the [tasks setting](/docs/workspace-task-orchestration). Pass `--no-sort` to remove graph ordering. This also makes `tasks`, `--reverse`, and `--resume-from` inapplicable."}
+{"p":"cli/recursive","b":"cli/recursive#1018","k":"heading","t":"--reverse"}
+{"p":"cli/recursive","b":"cli/recursive#1019","k":"li","t":"Default: **false**"}
+{"p":"cli/recursive","b":"cli/recursive#1020","k":"li","t":"Type: **boolean**"}
+{"p":"cli/recursive","b":"cli/recursive#1021","k":"para","t":"When `true`, dependency edges are reversed. For recursive `run`, this reverses the resolved task graph, including relationships declared with `dependsOn`."}
+{"p":"cli/recursive","b":"cli/recursive#1022","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/recursive","b":"cli/recursive@title","k":"title","t":"pnpm -r, --recursive"}
+{"p":"cli/remove","b":"cli/remove#1023","k":"para","t":"Removes packages from `node_modules` and from the project's `package.json`."}
+{"p":"cli/remove","b":"cli/remove#1024","k":"heading","t":"Options"}
+{"p":"cli/remove","b":"cli/remove#1025","k":"heading","t":"--recursive, -r"}
+{"p":"cli/remove","b":"cli/remove#1026","k":"para","t":"When used inside a [workspace](/docs/workspaces), removes a dependency (or dependencies) from every workspace package."}
+{"p":"cli/remove","b":"cli/remove#1027","k":"para","t":"When used not inside a workspace, removes a dependency (or dependencies) from every package found in subdirectories."}
+{"p":"cli/remove","b":"cli/remove#1028","k":"heading","t":"--global, -g"}
+{"p":"cli/remove","b":"cli/remove#1029","k":"para","t":"Remove a global package."}
+{"p":"cli/remove","b":"cli/remove#1030","k":"heading","t":"--save-dev, -D"}
+{"p":"cli/remove","b":"cli/remove#1031","k":"para","t":"Only remove the dependency from `devDependencies`."}
+{"p":"cli/remove","b":"cli/remove#1032","k":"heading","t":"--save-optional, -O"}
+{"p":"cli/remove","b":"cli/remove#1033","k":"para","t":"Only remove the dependency from `optionalDependencies`."}
+{"p":"cli/remove","b":"cli/remove#1034","k":"heading","t":"--save-prod, -P"}
+{"p":"cli/remove","b":"cli/remove#1035","k":"para","t":"Only remove the dependency from `dependencies`."}
+{"p":"cli/remove","b":"cli/remove#1036","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/remove","b":"cli/remove@title","k":"title","t":"pnpm remove"}
+{"p":"cli/repo","b":"cli/repo#1037","k":"para","t":"Added in: v11.3.0"}
+{"p":"cli/repo","b":"cli/repo#1038","k":"para","t":"Opens the URL of a package's repository in the browser."}
+{"p":"cli/repo","b":"cli/repo#1039","k":"para","t":"With no arguments, opens the repository of the current project (read from the `repository` field of `package.json`)."}
+{"p":"cli/repo","b":"cli/repo#1040","k":"para","t":"With one or more package names, fetches each package's metadata from the registry and opens its repository URL."}
+{"p":"cli/repo","b":"cli/repo#1041","k":"para","t":"The repository URL is normalized to its web equivalent — e.g. `git+ssh://git@github.com/foo/bar.git` opens as `https://github.com/foo/bar`. When the `repository` field includes a `directory`, the URL points at that subdirectory inside the repo."}
+{"p":"cli/repo","b":"cli/repo#1042","k":"heading","t":"Examples"}
+{"p":"cli/repo","b":"cli/repo#1043","k":"heading","t":"Options"}
+{"p":"cli/repo","b":"cli/repo#1044","k":"heading","t":"--registry <url>"}
+{"p":"cli/repo","b":"cli/repo#1045","k":"para","t":"The registry from which to fetch package metadata when an explicit package name is given. Per-scope and named registries (configured via [registries](/docs/settings/dependency-resolution#registries) and [namedRegistries](/docs/settings/dependency-resolution#namedregistries)) are respected."}
+{"p":"cli/repo","b":"cli/repo@title","k":"title","t":"pnpm repo"}
+{"p":"cli/root","b":"cli/root#1046","k":"para","t":"Prints the effective modules directory."}
+{"p":"cli/root","b":"cli/root#1047","k":"heading","t":"Options"}
+{"p":"cli/root","b":"cli/root#1048","k":"heading","t":"--global, -g"}
+{"p":"cli/root","b":"cli/root#1049","k":"para","t":"The global package's modules directory is printed."}
+{"p":"cli/root","b":"cli/root@title","k":"title","t":"pnpm root"}
+{"p":"cli/run","b":"cli/run#1112","k":"para","t":"Runs a script defined in the package's manifest file."}
+{"p":"cli/run","b":"cli/run#1113","k":"heading","t":"Examples"}
+{"p":"cli/run","b":"cli/run#1114","k":"para","t":"Let's say you have a `watch` script configured in your `package.json`, like so:"}
+{"p":"cli/run","b":"cli/run#1115","k":"para","t":"You can now run that script by using `pnpm run watch`! Simple, right? Another thing to note for those that like to save keystrokes and time is that all scripts get aliased in as pnpm commands, so ultimately `pnpm watch` is just shorthand for `pnpm run watch` (ONLY for scripts that do not share the same name as already existing pnpm commands)."}
+{"p":"cli/run","b":"cli/run#1116","k":"heading","t":"Running multiple scripts"}
+{"p":"cli/run","b":"cli/run#1117","k":"para","t":"You may run multiple scripts at the same time by using a regex instead of the script name."}
+{"p":"cli/run","b":"cli/run#1118","k":"para","t":"Run all scripts that start with `watch:`:"}
+{"p":"cli/run","b":"cli/run#1119","k":"para","t":"The selector must be written as a regular expression literal — that is, wrapped in slashes — and quoted, so the shell does not mangle it. A plain string is always treated as a literal script name, and a script whose name matches the argument exactly takes precedence over regex matching."}
+{"p":"cli/run","b":"cli/run#1120","k":"para","t":"Matching is not anchored, so `\"/build:.*/\"` also matches `prebuild:web`. Anchor the pattern with `^` and `$` when you need an exact prefix."}
+{"p":"cli/run","b":"cli/run#1121","k":"para","t":"Matched scripts run in lexicographical order, so the selection is deterministic regardless of the order the scripts appear in `package.json`. To run them strictly one at a time, add [--sequential](#--sequential--s)."}
+{"p":"cli/run","b":"cli/run#1122","k":"para","t":"Regular expression flags are not supported: `pnpm run \"/^build:.*/i\"` fails with `ERR_PNPM_UNSUPPORTED_SCRIPT_COMMAND_FORMAT`."}
+{"p":"cli/run","b":"cli/run#1123","k":"heading","t":"Details"}
+{"p":"cli/run","b":"cli/run#1124","k":"para","t":"In addition to the shell’s pre-existing `PATH`, `pnpm run` includes `node_modules/.bin` in the `PATH` provided to `scripts`. This means that so long as you have a package installed, you can use it in a script like a regular command. For example, if you have `eslint` installed, you can write up a script like so:"}
+{"p":"cli/run","b":"cli/run#1125","k":"para","t":"And even though `eslint` is not installed globally in your shell, it will run."}
+{"p":"cli/run","b":"cli/run#1126","k":"para","t":"For workspaces, `<workspace root>/node_modules/.bin` is also added to the `PATH`, so if a tool is installed in the workspace root, it may be called in any workspace package's `scripts`."}
+{"p":"cli/run","b":"cli/run#1127","k":"heading","t":"Environment"}
+{"p":"cli/run","b":"cli/run#1128","k":"para","t":"There are some environment variables that pnpm automatically creates for the executed scripts. These environment variables may be used to get contextual information about the running process."}
+{"p":"cli/run","b":"cli/run#1129","k":"para","t":"These are the environment variables created by pnpm:"}
+{"p":"cli/run","b":"cli/run#1130","k":"li","t":"**npm_command** - contains the name of the executed command. If the executed command is `pnpm run`, then the value of this variable will be \"run-script\"."}
+{"p":"cli/run","b":"cli/run#1131","k":"heading","t":"Options"}
+{"p":"cli/run","b":"cli/run#1132","k":"para","t":"Any options for the `run` command should be listed before the script's name. Options listed after the script's name are passed to the executed script."}
+{"p":"cli/run","b":"cli/run#1133","k":"para","t":"All these will run pnpm CLI with the `--silent` option:"}
+{"p":"cli/run","b":"cli/run#1134","k":"para","t":"Any arguments after the command's name are added to the executed script. So if `watch` runs `webpack --watch`, then this command:"}
+{"p":"cli/run","b":"cli/run#1135","k":"para","t":"will run:"}
+{"p":"cli/run","b":"cli/run#1136","k":"heading","t":"--recursive, -r"}
+{"p":"cli/run","b":"cli/run#1137","k":"para","t":"This runs an arbitrary command from each package's \"scripts\" object. If a package doesn't have the command, it is skipped. If none of the packages have the command, the command fails."}
+{"p":"cli/run","b":"cli/run#1138","k":"para","t":"By default, recursive runs use a dependency-aware task graph. Configure relationships between scripts with the [tasks setting](/docs/workspace-task-orchestration). `--no-sort`, and `--parallel` which implies it, remove that ordering and ignore the `tasks` declarations along with it."}
+{"p":"cli/run","b":"cli/run#1139","k":"heading","t":"--if-present"}
+{"p":"cli/run","b":"cli/run#1140","k":"para","t":"You can use the `--if-present` flag to avoid exiting with a non-zero exit code when the script is undefined. This lets you run potentially undefined scripts without breaking the execution chain."}
+{"p":"cli/run","b":"cli/run#1141","k":"heading","t":"--no-bail"}
+{"p":"cli/run","b":"cli/run#1142","k":"para","t":"Continue running the remaining matched scripts even if one of them fails. The command still exits with a non-zero exit code if any script failed."}
+{"p":"cli/run","b":"cli/run#1143","k":"heading","t":"--parallel"}
+{"p":"cli/run","b":"cli/run#1144","k":"para","t":"Completely disregard concurrency and topological sorting, running a given script immediately in all matching packages with prefixed streaming output. This is the preferred flag for long-running processes over many packages, for instance, a lengthy build process."}
+{"p":"cli/run","b":"cli/run#1145","k":"heading","t":"--sequential, -s"}
+{"p":"cli/run","b":"cli/run#1146","k":"para","t":"Added in: v11.14.0"}
+{"p":"cli/run","b":"cli/run#1147","k":"para","t":"Run the selected scripts one by one. This forces [--workspace-concurrency](/docs/cli/recursive#--workspace-concurrency) to `1`, so scripts matched by a [regex selector](#running-multiple-scripts) never overlap — neither across workspace packages nor within a single package."}
+{"p":"cli/run","b":"cli/run#1148","k":"para","t":"In a recursive run this serializes scripts across workspace projects as well as within each one. `--sequential` takes precedence over `--parallel`: concurrency is pinned to `1` whenever it is set, regardless of the order the two flags appear in."}
+{"p":"cli/run","b":"cli/run#1149","k":"para","t":"For `pnpm run`, `-s` is the shorthand for `--sequential`. Everywhere else in the CLI, `-s` remains the shorthand for `--reporter=silent`. The long form `--silent` is unaffected in all commands."}
+{"p":"cli/run","b":"cli/run#1150","k":"heading","t":"--stream"}
+{"p":"cli/run","b":"cli/run#1151","k":"para","t":"Stream output from child processes immediately, prefixed with the originating package directory. This allows output from different packages to be interleaved."}
+{"p":"cli/run","b":"cli/run#1152","k":"heading","t":"--aggregate-output"}
+{"p":"cli/run","b":"cli/run#1153","k":"para","t":"Aggregate output from child processes that are run in parallel, and only print output when the child process is finished. It makes reading large logs after running `pnpm -r <command>` with `--parallel` or with `--workspace-concurrency=<number>` much easier (especially on CI). Only `--reporter=append-only` is supported."}
+{"p":"cli/run","b":"cli/run#1154","k":"heading","t":"--resume-from <package_name>"}
+{"p":"cli/run","b":"cli/run#1155","k":"para","t":"Resume at the named package's requested task. pnpm skips the tasks a matching record of the previous run says already passed; without such a record it omits the task's transitive dependencies instead, treating them as completed. Either way it still runs the task itself, its dependents, and unrelated tasks in the selected graph. See [Workspace task orchestration](/docs/workspace-task-orchestration#--resume-from-package_name)."}
+{"p":"cli/run","b":"cli/run#1156","k":"heading","t":"--dry-run"}
+{"p":"cli/run","b":"cli/run#1157","k":"para","t":"Resolve a recursive run's task graph without running scripts. The plain output is one stable topological ordering, not a prediction of the order in which independent tasks will be dispatched."}
+{"p":"cli/run","b":"cli/run#1158","k":"para","t":"`--dry-run` is only supported for recursive runs."}
+{"p":"cli/run","b":"cli/run#1159","k":"heading","t":"--json"}
+{"p":"cli/run","b":"cli/run#1160","k":"para","t":"With `--dry-run`, print the resolved tasks and their dependency edges as JSON. See [Inspect the task graph](/docs/workspace-task-orchestration#inspect-the-task-graph) for the schema and an example."}
+{"p":"cli/run","b":"cli/run#1161","k":"heading","t":"--report-summary"}
+{"p":"cli/run","b":"cli/run#1162","k":"para","t":"Record the result of the scripts executions into a `pnpm-exec-summary.json` file."}
+{"p":"cli/run","b":"cli/run#1163","k":"para","t":"An example of a `pnpm-exec-summary.json` file:"}
+{"p":"cli/run","b":"cli/run#1164","k":"para","t":"Possible values of `status` are: 'passed', 'queued', 'running'."}
+{"p":"cli/run","b":"cli/run#1165","k":"heading","t":"--reporter-hide-prefix"}
+{"p":"cli/run","b":"cli/run#1166","k":"para","t":"Hide workspace prefix from output from child processes that are run in parallel, and only print the raw output. This can be useful if you are running on CI and the output must be in a specific format without any prefixes (e.g. [GitHub Actions annotations](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message)). Only `--reporter=append-only` is supported."}
+{"p":"cli/run","b":"cli/run#1167","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/run","b":"cli/run#1168","k":"heading","t":"pnpm-workspace.yaml settings"}
+{"p":"cli/run","b":"cli/run#1169","k":"para","t":"The [tasks setting](/docs/workspace-task-orchestration) configures dependency relationships and per-task concurrency limits for recursive runs."}
+{"p":"cli/run","b":"cli/run#1170","k":"heading","t":"enablePrePostScripts"}
+{"p":"cli/run","b":"cli/run#1171","k":"li","t":"Default: **true**"}
+{"p":"cli/run","b":"cli/run#1172","k":"li","t":"Type: **Boolean**"}
+{"p":"cli/run","b":"cli/run#1173","k":"para","t":"When `true`, pnpm will run any pre/post scripts automatically. So running `pnpm foo` will be like running `pnpm prefoo && pnpm foo && pnpm postfoo`."}
+{"p":"cli/run","b":"cli/run#1174","k":"heading","t":"scriptShell"}
+{"p":"cli/run","b":"cli/run#1175","k":"li","t":"Default: **null**"}
+{"p":"cli/run","b":"cli/run#1176","k":"li","t":"Type: **path**"}
+{"p":"cli/run","b":"cli/run#1177","k":"para","t":"The shell to use for scripts run with the `pnpm run` command."}
+{"p":"cli/run","b":"cli/run#1178","k":"para","t":"For instance, to force usage of Git Bash on Windows:"}
+{"p":"cli/run","b":"cli/run#1179","k":"heading","t":"shellEmulator"}
+{"p":"cli/run","b":"cli/run#1180","k":"li","t":"Default: **false**"}
+{"p":"cli/run","b":"cli/run#1181","k":"li","t":"Type: **Boolean**"}
+{"p":"cli/run","b":"cli/run#1182","k":"para","t":"When `true`, pnpm will use a JavaScript implementation of a [bash-like shell](https://www.npmjs.com/package/@yarnpkg/shell) to execute scripts."}
+{"p":"cli/run","b":"cli/run#1183","k":"para","t":"This option simplifies cross-platform scripting. For instance, by default, the next script will fail on non-POSIX-compliant systems:"}
+{"p":"cli/run","b":"cli/run#1184","k":"para","t":"But if the `shellEmulator` setting is set to `true`, it will work on all platforms."}
+{"p":"cli/run","b":"cli/run#1185","k":"para","t":"Node.js 22 or higher supports running scripts without pnpm's assistance. For the example above, you can run the `test` script with `node --run test`. However, the `shellEmulator` option has no effect on this. Scripts that depend on POSIX features are required to be run `pnpm run` instead of `node --run` to work in non-POSIX-compliant environments."}
+{"p":"cli/run","b":"cli/run@title","k":"title","t":"pnpm run"}
+{"p":"cli/runtime","b":"cli/runtime#1050","k":"para","t":"Manage runtimes."}
+{"p":"cli/runtime","b":"cli/runtime#1051","k":"heading","t":"Commands"}
+{"p":"cli/runtime","b":"cli/runtime#1052","k":"heading","t":"set"}
+{"p":"cli/runtime","b":"cli/runtime#1053","k":"para","t":"Install the specified version of a runtime."}
+{"p":"cli/runtime","b":"cli/runtime#1054","k":"heading","t":"Supported runtimes"}
+{"p":"cli/runtime","b":"cli/runtime#1055","k":"li","t":"`node` - Node.js"}
+{"p":"cli/runtime","b":"cli/runtime#1056","k":"para","t":"Since v11.0.0, installing a Node.js runtime (via `pnpm runtime set node …` or `node@runtime:<version>`) does not extract the bundled `npm`, `npx`, and `corepack` from the Node.js archive. This roughly halves the number of files pnpm has to hash, write to the CAS, and link during a runtime install. If you still need `npm`, install it separately with `pnpm add -g npm`."}
+{"p":"cli/runtime","b":"cli/runtime#1057","k":"para","t":"Since v11.22.0, resolving a Node.js version (through [devEngines.runtime](/docs/package_json#devenginesruntime) or a `runtime:` specifier) is much faster. The per-version release metadata is cached in the [cache directory](/docs/cli/cache-path) after its signature is verified, and an exact stable version such as `runtime:22.23.2` no longer downloads the Node.js release index. A pinned runtime whose metadata was fetched once resolves without any network access, which removes the delay on the first `node` invocation in a project pinning an already-downloaded runtime."}
+{"p":"cli/runtime","b":"cli/runtime#1058","k":"heading","t":"Examples"}
+{"p":"cli/runtime","b":"cli/runtime#1059","k":"para","t":"Install Node.js v22 globally:"}
+{"p":"cli/runtime","b":"cli/runtime#1060","k":"para","t":"Install the LTS version of Node.js:"}
+{"p":"cli/runtime","b":"cli/runtime#1061","k":"para","t":"Install the latest version of Node.js:"}
+{"p":"cli/runtime","b":"cli/runtime#1062","k":"para","t":"Install a prerelease version of Node.js:"}
+{"p":"cli/runtime","b":"cli/runtime#1063","k":"para","t":"Install an LTS version of Node.js using its [codename](https://github.com/nodejs/Release/blob/main/CODENAMES.md):"}
+{"p":"cli/runtime","b":"cli/runtime#1064","k":"para","t":"Install Deno:"}
+{"p":"cli/runtime","b":"cli/runtime#1065","k":"para","t":"Install Bun:"}
+{"p":"cli/runtime","b":"cli/runtime#1066","k":"heading","t":"Options"}
+{"p":"cli/runtime","b":"cli/runtime#1067","k":"heading","t":"--global, -g"}
+{"p":"cli/runtime","b":"cli/runtime#1068","k":"para","t":"Install the runtime globally."}
+{"p":"cli/runtime","b":"cli/runtime@title","k":"title","t":"pnpm runtime <cmd>"}
+{"p":"cli/sbom","b":"cli/sbom#1069","k":"para","t":"Added in: v11.0.0"}
+{"p":"cli/sbom","b":"cli/sbom#1070","k":"para","t":"Generate a Software Bill of Materials (SBOM) for the project."}
+{"p":"cli/sbom","b":"cli/sbom#1071","k":"para","t":"Supported formats:"}
+{"p":"cli/sbom","b":"cli/sbom#1072","k":"li","t":"**CycloneDX 1.7** (JSON)"}
+{"p":"cli/sbom","b":"cli/sbom#1073","k":"li","t":"**SPDX 2.3** (JSON)"}
+{"p":"cli/sbom","b":"cli/sbom#1074","k":"heading","t":"Usage"}
+{"p":"cli/sbom","b":"cli/sbom#1075","k":"para","t":"Inside a workspace, `pnpm sbom` supports filtering. When a single workspace package is selected, the root component in the SBOM uses that package's metadata."}
+{"p":"cli/sbom","b":"cli/sbom#1076","k":"para","t":"Since v11.20.0, a component resolved from a [named registry](/docs/settings/dependency-resolution#namedregistries) carries the purl `repository_url` qualifier (for example `pkg:npm/foo@1.0.0?repository_url=https%3A%2F%2Fnpm.work.example.com%2F`), so the same name and version served by two registries does not collapse onto one component. Credentials that a `namedRegistries` URL may embed — userinfo or a query string — are stripped from the qualifier, while the origin and path are kept, since two registries can differ only by path."}
+{"p":"cli/sbom","b":"cli/sbom#1077","k":"para","t":"CycloneDX output marks components reachable only through `devDependencies` with `scope: \"excluded\"` and the `cdx:npm:package:development` property. Runtime components, including installed optional dependencies, use the default required scope."}
+{"p":"cli/sbom","b":"cli/sbom#1078","k":"heading","t":"Options"}
+{"p":"cli/sbom","b":"cli/sbom#1079","k":"heading","t":"--sbom-format <cyclonedx|spdx>"}
+{"p":"cli/sbom","b":"cli/sbom#1080","k":"para","t":"The SBOM output format. This option is required. Supported values: `cyclonedx`, `spdx`."}
+{"p":"cli/sbom","b":"cli/sbom#1081","k":"heading","t":"--sbom-type <library|application>"}
+{"p":"cli/sbom","b":"cli/sbom#1082","k":"li","t":"Default: **library**"}
+{"p":"cli/sbom","b":"cli/sbom#1083","k":"para","t":"The component type for the root package."}
+{"p":"cli/sbom","b":"cli/sbom#1084","k":"heading","t":"--sbom-spec-version <version>"}
+{"p":"cli/sbom","b":"cli/sbom#1085","k":"para","t":"Added in: v11.1.0"}
+{"p":"cli/sbom","b":"cli/sbom#1086","k":"para","t":"The CycloneDX specification version to emit. Only valid with `--sbom-format cyclonedx`."}
+{"p":"cli/sbom","b":"cli/sbom#1087","k":"heading","t":"--lockfile-only"}
+{"p":"cli/sbom","b":"cli/sbom#1088","k":"para","t":"Only use lockfile data (skip reading from the store)."}
+{"p":"cli/sbom","b":"cli/sbom#1089","k":"heading","t":"--sbom-authors <names>"}
+{"p":"cli/sbom","b":"cli/sbom#1090","k":"para","t":"Comma-separated list of SBOM authors. Written to `metadata.authors` in the CycloneDX output."}
+{"p":"cli/sbom","b":"cli/sbom#1091","k":"heading","t":"--sbom-supplier <name>"}
+{"p":"cli/sbom","b":"cli/sbom#1092","k":"para","t":"SBOM supplier name. Written to `metadata.supplier` in the CycloneDX output."}
+{"p":"cli/sbom","b":"cli/sbom#1093","k":"heading","t":"--out <path>"}
+{"p":"cli/sbom","b":"cli/sbom#1094","k":"para","t":"Added in: v11.8.0"}
+{"p":"cli/sbom","b":"cli/sbom#1095","k":"para","t":"Write the SBOM to a file instead of stdout."}
+{"p":"cli/sbom","b":"cli/sbom#1096","k":"para","t":"Use `%s` in the path as a placeholder for the package name and `%v` as a placeholder for the package version. In a workspace, a path containing `%s` writes one SBOM per selected package:"}
+{"p":"cli/sbom","b":"cli/sbom#1097","k":"heading","t":"--split"}
+{"p":"cli/sbom","b":"cli/sbom#1098","k":"para","t":"Added in: v11.8.0"}
+{"p":"cli/sbom","b":"cli/sbom#1099","k":"para","t":"Generate a separate SBOM for each selected workspace package. Without `--out`, the SBOMs are printed to stdout as NDJSON, one JSON document per line."}
+{"p":"cli/sbom","b":"cli/sbom#1100","k":"para","t":"When `--split` is combined with `--out`, the output path must contain `%s`."}
+{"p":"cli/sbom","b":"cli/sbom#1101","k":"heading","t":"--exclude-peers"}
+{"p":"cli/sbom","b":"cli/sbom#1102","k":"para","t":"Added in: v11.9.0"}
+{"p":"cli/sbom","b":"cli/sbom#1103","k":"para","t":"Exclude peer dependencies from the SBOM. Dependencies reachable only through those peers are also excluded."}
+{"p":"cli/sbom","b":"cli/sbom#1104","k":"para","t":"This is useful with `auto-install-peers` because peer dependencies are resolved into the lockfile and otherwise look the same as regular dependencies."}
+{"p":"cli/sbom","b":"cli/sbom#1105","k":"heading","t":"--prod, -P"}
+{"p":"cli/sbom","b":"cli/sbom#1106","k":"para","t":"Only include `dependencies` and `optionalDependencies`."}
+{"p":"cli/sbom","b":"cli/sbom#1107","k":"heading","t":"--dev, -D"}
+{"p":"cli/sbom","b":"cli/sbom#1108","k":"para","t":"Only include `devDependencies`."}
+{"p":"cli/sbom","b":"cli/sbom#1109","k":"heading","t":"--no-optional"}
+{"p":"cli/sbom","b":"cli/sbom#1110","k":"para","t":"Don't include `optionalDependencies`."}
+{"p":"cli/sbom","b":"cli/sbom#1111","k":"heading","t":"--filter <package_selector>"}
+{"p":"cli/sbom","b":"cli/sbom@title","k":"title","t":"pnpm sbom"}
