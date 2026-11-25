@@ -2,16 +2,22 @@
 import Base from "../layouts/Base.astro";
 import Icon from "../components/Icon.astro";
 import StoreMachine from "../components/StoreMachine.astro";
-import { FEATURES, STAGES, COMPARE_ROWS, COMMUNITY } from "../data/site";
-
-
-
 import CompareCell from "../components/CompareCell.astro";
+import {
+  ECOSYSTEM_PROJECTS,
+  FEATURES,
+  BENCHMARK_SCENARIOS,
+  SECURITY_GUARDS,
+  STAGES,
+  COMPARE_ROWS,
+  TESTIMONIALS,
+  COMMUNITY,
+} from "../data/site";
 ---
 
 <Base
   title="pnpm｜快速、节省磁盘空间的包管理器"
-  desc="pnpm 是快速、节省磁盘空间且严格正确的包管理器：内容寻址存储 + 硬链接，比 npm 快达 2 倍。中文文档、基准与配置参考。"
+  desc="pnpm 是快速、节省磁盘空间且默认安全的包管理器：内容寻址存储 + 硬链接，高达 69 倍安装提速，原生支持工作区、Catalogs 与供应链防护。"
   jsonLd={{
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -19,7 +25,7 @@ import CompareCell from "../components/CompareCell.astro";
     alternateName: "pnpm",
     url: new URL("/", Astro.site).href,
     inLanguage: "zh-CN",
-    description: "pnpm 中文文档站：快速、节省磁盘空间的包管理器。内容寻址存储、硬链接、工作区、CLI 与配置参考。",
+    description: "pnpm 中文文档站：快速、节省磁盘空间的包管理器。内容寻址存储、硬链接、工作区、Catalogs、供应链安全与配置参考。",
   }}
 >
   <!-- ================= HERO ================= -->
@@ -33,14 +39,14 @@ import CompareCell from "../components/CompareCell.astro";
           <span class="block">快速、<span class="mark whitespace-nowrap">节省磁盘空间</span></span>
           <span class="block">的包管理器</span>
         </h1>
-        <p class="mx-auto mt-6 max-w-[54ch] text-[1rem] leading-relaxed text-muted">
-          100 个项目共用同一份依赖。内容寻址存储与硬链接让安装比 npm 快达 2 倍，依赖树严格可复现。
+        <p class="mx-auto mt-6 max-w-[56ch] text-[1rem] leading-relaxed text-muted">
+          节省时间，节省磁盘空间，让你的 monorepo 焕然一新。内容寻址存储与默认供应链防护，带来更智能、更安全的依赖管理。
         </p>
         <div class="mt-8 flex flex-wrap items-center justify-center gap-3.5">
           <a href="/docs/installation" class="btn btn--primary no-underline">开始使用 <Icon name="arrow-right" size="1.05em" /></a>
           <div class="term flex items-center justify-between gap-3 text-[0.875rem]">
-            <code class="truncate"><span class="text-term-accent">$</span> npm i -g pnpm</code>
-            <button type="button" class="copybtn" data-copy="npm i -g pnpm" aria-label="复制安装命令">
+            <code class="truncate"><span class="text-term-accent">$</span> curl -fsSL https://get.pnpm.io | sh -</code>
+            <button type="button" class="copybtn" data-copy="curl -fsSL https://get.pnpm.io | sh -" aria-label="复制安装命令">
               <Icon name="copy" size="1em" />
             </button>
           </div>
@@ -52,9 +58,22 @@ import CompareCell from "../components/CompareCell.astro";
     </div>
   </section>
 
-  <!-- ================= 特性 ================= -->
+  <!-- ================= 生态信任 ================= -->
+  <section aria-label="使用 pnpm 的开源项目" class="border-y border-line bg-raise/40">
+    <div class="mx-auto max-w-[1200px] px-4 py-8 sm:px-6">
+      <p class="text-center text-[0.875rem] font-medium text-muted">众多开源项目与工程团队正在使用 pnpm</p>
+      <ul class="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 font-display text-[1rem] font-bold tracking-tight text-ink/75">
+        {ECOSYSTEM_PROJECTS.map((name) => <li>{name}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= 核心能力 ================= -->
   <section id="features" class="mx-auto max-w-[1200px] scroll-mt-24 px-4 py-20 sm:px-6">
-    <h2 class="sec-title">为什么选它</h2>
+    <h2 class="sec-title">你期待的一切，以及大型仓库真正需要的能力</h2>
+    <p class="mt-4 max-w-[65ch] text-[1rem] leading-relaxed text-muted">
+      pnpm 可直接替代 npm，同时内置工作区、Catalogs、依赖补丁、运行时管理与供应链防护。
+    </p>
     <div class="mt-10 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
       {
         FEATURES.map((f) => (
@@ -75,8 +94,91 @@ import CompareCell from "../components/CompareCell.astro";
     </div>
   </section>
 
+  <!-- ================= 基准测试 ================= -->
+  <section id="benchmarks" class="deferred-section border-y border-line bg-raise/50">
+    <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
+      <h2 class="sec-title">比 npm 快达 69 倍</h2>
+      <div class="mt-10 grid items-start gap-12 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
+        <div>
+          <p class="font-display text-[clamp(3.2rem,7vw,4.6rem)] font-extrabold leading-none tracking-tight text-accent">8.2×</p>
+          <p class="mt-3 text-[1rem] font-semibold">全部 6 个真实安装场景综合提速</p>
+          <p class="mt-4 text-[1rem] leading-relaxed text-muted">
+            在依赖众多的 alotta-files 项目上，pnpm 12 完成全部 6 种常见安装状态总计仅需 <strong class="text-ink">10.8s</strong>，而 npm 需要 <strong class="text-ink">1 分 28 秒</strong>。
+          </p>
+          <a href="/docs/faq" class="btn btn--ghost mt-7 no-underline">性能背后的机制 <Icon name="arrow-right" size="1.05em" /></a>
+        </div>
+
+        <div class="rv overflow-hidden rounded-xl border border-line bg-raise shadow-block">
+          <div class="flex items-center justify-between border-b border-line bg-sunken/70 px-5 py-3 text-[0.875rem] font-semibold">
+            <span>alotta-files 真实场景耗时对比</span>
+            <span class="font-mono text-muted">pnpm 12 vs npm</span>
+          </div>
+          <ul class="divide-y divide-line">
+            {
+              BENCHMARK_SCENARIOS.map((b) => (
+                <li class="grid items-center gap-3 px-5 py-3.5 sm:grid-cols-[170px_minmax(0,1fr)_130px]">
+                  <div>
+                    <span class="block font-display text-[1rem] font-bold">{b.name}</span>
+                    <span class="block text-[0.875rem] text-muted">{b.desc}</span>
+                  </div>
+                  <div class="space-y-1.5">
+                    <div class="flex items-center gap-2.5">
+                      <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-sunken">
+                        <div class="h-full rounded-full bg-accent-fill" style={`width: ${Math.max(b.pnpmPct, 4)}%`} />
+                      </div>
+                      <span class="w-14 text-right font-mono text-[0.875rem] font-bold text-ink">{b.pnpmTime}</span>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                      <div class="h-2 flex-1 overflow-hidden rounded-full bg-sunken">
+                        <div class="h-full w-full rounded-full bg-line-strong/70" />
+                      </div>
+                      <span class="w-14 text-right font-mono text-[0.875rem] text-muted">{b.npmTime}</span>
+                    </div>
+                  </div>
+                  <div class="text-left sm:text-right">
+                    <span class="font-display text-[1rem] font-extrabold text-accent">快 {b.speedup}</span>
+                  </div>
+                </li>
+              ))
+            }
+          </ul>
+          <div class="border-t border-line bg-sunken/40 px-5 py-3 text-right font-mono text-[0.875rem] text-muted">
+            数据来源：<a class="text-accent underline decoration-1 underline-offset-2" href="https://pnpm.io/benchmarks" rel="noopener">pnpm.io/benchmarks</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 供应链安全 ================= -->
+  <section id="security" class="deferred-section mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
+    <div class="grid items-start gap-12 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
+      <div>
+        <h2 class="sec-title">默认即安全</h2>
+        <p class="mt-6 max-w-[65ch] text-[1rem] leading-relaxed text-muted">
+          被投毒的依赖包时有发生。pnpm 在默认配置下就内置了 4 项供应链防护机制，其中 3 项开箱即用，无需额外安全工具或复杂配置。
+        </p>
+        <a href="/docs/supply-chain-security" class="btn btn--ghost mt-8 no-underline">阅读供应链安全指南 <Icon name="arrow-right" size="1.05em" /></a>
+      </div>
+      <div class="rv grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2">
+        {
+          SECURITY_GUARDS.map((g) => (
+            <div class="flex flex-col bg-raise p-6">
+              <div class="flex items-baseline justify-between gap-3">
+                <h3 class="font-display text-[1rem] font-bold text-ink">{g.title}</h3>
+                <span class="shrink-0 font-mono text-[0.875rem] font-semibold text-ok">{g.status}</span>
+              </div>
+              <p class="mt-2.5 flex-1 text-[1rem] leading-relaxed text-muted">{g.body}</p>
+              <p class="mt-4 border-t border-line pt-3 font-mono text-[0.875rem] text-accent">{g.setting}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
   <!-- ================= 背景 / 工作原理 ================= -->
-  <section id="background" class="border-y border-line bg-raise/50">
+  <section id="background" class="deferred-section border-y border-line bg-raise/50">
     <div class="mx-auto grid max-w-[1200px] gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2">
       <div>
         <h2 class="sec-title">磁盘上只存一份</h2>
@@ -110,88 +212,76 @@ import CompareCell from "../components/CompareCell.astro";
     </div>
   </section>
 
-  <!-- ================= 基准 ================= -->
-  <section id="benchmarks" class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
-    <h2 class="sec-title">快，是有据可查的</h2>
-    <div class="mt-10 grid items-start gap-10 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
-      <div>
-        <p class="font-display text-[clamp(3.2rem,7vw,4.6rem)] font-extrabold leading-none tracking-tight text-accent">2×</p>
-        <p class="mt-3 text-[1rem] font-semibold">快达 npm 与 Yarn classic 的两倍</p>
-        <p class="mt-4 text-[1rem] leading-relaxed text-muted">
-          上图是在依赖众多的 alotta-files 项目上的安装基准（越小越好）：全新安装、缓存安装、
-          更新依赖等场景全面领先。数据来自官方 benchmark，Node.js v24.19.0，采集于 2026-09-04。
-        </p>
-        <a href="/docs/faq" class="btn btn--ghost mt-7 no-underline">性能背后的机制 <Icon name="arrow-right" size="1.05em" /></a>
-      </div>
-      <figure class="rv corners overflow-x-auto rounded-xl border border-line bg-white p-4 sm:p-6">
-        <img src="/img/bench-alotta-files.svg" width="760" height="230" alt="alotta-files 基准测试：npm、pnpm 与 pnpm Rust 版在各场景下的安装耗时对比条形图" loading="lazy" class="h-auto w-full min-w-[560px] max-w-[820px]" />
-        <figcaption class="mt-3 text-right font-mono text-[0.875rem] text-ink/60">
-          图源：<a class="text-ink/80 underline decoration-1 underline-offset-2" href="https://r.pnpm.io/benchmarks" rel="noopener">pnpm.io/benchmarks</a>
-        </figcaption>
-      </figure>
-    </div>
-  </section>
-
   <!-- ================= 功能对比 ================= -->
-  <section id="comparison" class="border-y border-line bg-raise/50">
-    <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
-      <h2 class="sec-title">和 npm、Yarn 的差别</h2>
-      <div class="doc-body mt-8">
-        <table class="compare">
-          <thead>
-            <tr>
-              <th>能力</th>
-              <th class="text-center">pnpm</th>
-              <th class="text-center">npm</th>
-              <th class="text-center">Yarn</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              COMPARE_ROWS.map((r) => (
-                <tr>
-                  <td>
-                    <span class="font-semibold">{r.label}</span>
-                    <span class="block text-[0.875rem] text-muted">{r.note}</span>
-                  </td>
-                  <td class="text-center">{<CompareCell v={r.pnpm} />}</td>
-                  <td class="text-center">{<CompareCell v={r.npm} />}</td>
-                  <td class="text-center">{<CompareCell v={r.yarn} />}</td>
-                </tr>
-              ))
-            }
-          </tbody>
-        </table>
-      </div>
-      <a href="/docs/feature-comparison" class="btn btn--ghost mt-8 no-underline">完整功能对比表 <Icon name="arrow-right" size="1.05em" /></a>
+  <section id="comparison" class="deferred-section mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
+    <h2 id="comparison-heading" class="sec-title">和 npm、Yarn 的差别</h2>
+    <div tabindex="0" role="region" aria-labelledby="comparison-heading" class="compare-wrapper doc-body mt-8">
+      <table class="compare">
+        <thead>
+          <tr>
+            <th scope="col">能力</th>
+            <th scope="col" class="text-center">pnpm</th>
+            <th scope="col" class="text-center">npm</th>
+            <th scope="col" class="text-center">Yarn</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            COMPARE_ROWS.map((r) => (
+              <tr>
+                <th scope="row" class="font-normal">
+                  <span class="font-semibold text-ink">{r.label}</span>
+                  <span class="block text-[0.875rem] text-muted">{r.note}</span>
+                </th>
+                <td class="text-center">{<CompareCell v={r.pnpm} />}</td>
+                <td class="text-center">{<CompareCell v={r.npm} />}</td>
+                <td class="text-center">{<CompareCell v={r.yarn} />}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
     </div>
+    <a href="/docs/feature-comparison" class="btn btn--ghost mt-8 no-underline">完整功能对比表 <Icon name="arrow-right" size="1.05em" /></a>
   </section>
 
-  <!-- ================= 证言 ================= -->
-  <section class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
-    <blockquote class="rv relative mx-auto max-w-3xl rounded-2xl border border-line bg-raise px-8 py-10 text-center shadow-block sm:px-14">
-      <span class="absolute left-6 top-4 text-accent-fill/70" aria-hidden="true"><Icon name="quotes" size="2.6rem" /></span>
-      <p class="font-display text-[1rem] font-semibold leading-relaxed sm:text-[1.15rem]">
-        Microsoft 在 Rush 仓库中使用 pnpm 管理数百个项目，每天有数百个 PR，我们发现它非常快速且可靠。
-      </p>
-      <footer class="mt-5 text-[0.875rem] text-muted">
-        <a href="https://rushjs.io/" rel="noopener" class="font-semibold text-accent no-underline hover:underline">Rush 团队</a>，Microsoft
-      </footer>
-    </blockquote>
+  <!-- ================= 开发者证言 ================= -->
+  <section class="deferred-section border-y border-line bg-raise/50">
+    <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
+      <h2 class="sec-title">深受开发者喜爱</h2>
+      <div class="mt-10 grid gap-6 md:grid-cols-3">
+        {
+          TESTIMONIALS.map((t) => (
+            <blockquote class="rv flex flex-col justify-between rounded-xl border border-line bg-raise p-6 shadow-block">
+              <p class="text-[1rem] leading-relaxed text-ink">{t.quote}</p>
+              <footer class="mt-6 border-t border-line pt-4 text-[0.875rem] text-muted">
+                <a href={t.href} rel="noopener" class="font-semibold text-accent no-underline hover:underline">{t.author}</a>
+                <span class="ml-1.5">{t.role}</span>
+              </footer>
+            </blockquote>
+          ))
+        }
+      </div>
+    </div>
   </section>
 
   <!-- ================= 快速开始 CTA ================= -->
-  <section id="start" class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
+  <section id="start" class="deferred-section mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
     <div class="rounded-2xl border border-line bg-cta-bg px-6 py-12 text-cta-ink shadow-block sm:px-12">
       <div class="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_auto]">
         <div>
-          <h2 class="font-display text-[var(--text-heading)] font-extrabold tracking-tight">换掉你的包管理器</h2>
+          <h2 class="font-display text-[var(--text-heading)] font-extrabold tracking-tight">准备好夺回你的磁盘与时间了吗？</h2>
           <p class="mt-3 max-w-[54ch] text-[1rem] opacity-85">
-            一条命令装上 pnpm，把 npm 换成 pnpm 继续干活即可：既有脚本、CI 与 node_modules 大体无缝兼容。
+            pnpm 可直接替代 npm。安装一次，在任意项目运行 pnpm install，既有 package.json 原封不动即可工作。
           </p>
-          <div class="term mt-6 flex items-center justify-between gap-3 border-white/15 text-[0.875rem] opacity-100">
-            <code><span class="text-term-accent">$</span> npm i -g pnpm && pnpm install</code>
-            <button type="button" class="copybtn" data-copy="npm i -g pnpm && pnpm install" aria-label="复制命令">
+          <div class="mt-6 inline-flex gap-1 rounded-md border border-white/15 bg-black/20 p-1" role="tablist" aria-label="安装方式切换">
+            <button type="button" role="tab" aria-selected="true" data-install="unix" class="itab is-on">macOS &amp; Linux</button>
+            <button type="button" role="tab" aria-selected="false" data-install="win" class="itab">Windows</button>
+            <button type="button" role="tab" aria-selected="false" data-install="npm" class="itab">npm</button>
+          </div>
+          <div class="term mt-3 flex items-center justify-between gap-3 border-white/15 text-[0.875rem] opacity-100">
+            <code id="cta-cmd" class="truncate"><span class="text-term-accent">$</span> curl -fsSL https://get.pnpm.io | sh -</code>
+            <button id="cta-copy" type="button" class="copybtn" data-copy="curl -fsSL https://get.pnpm.io | sh -" aria-label="复制命令">
               <Icon name="copy" size="1em" />
             </button>
           </div>
@@ -225,7 +315,7 @@ import CompareCell from "../components/CompareCell.astro";
   }
   .sec-title {
     font-family: var(--font-display);
-    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    font-size: var(--text-heading);
     font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.2;
@@ -253,16 +343,99 @@ import CompareCell from "../components/CompareCell.astro";
     padding: 0.35em 0.45em;
     cursor: pointer;
     opacity: 0.75;
+    transition: opacity 180ms var(--ease-out);
   }
   .copybtn:hover {
     opacity: 1;
   }
+  .itab {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.35em 0.85em;
+    border-radius: 5px;
+    border: 0;
+    background: transparent;
+    color: color-mix(in srgb, var(--color-cta-ink) 70%, transparent);
+    cursor: pointer;
+    transition: background-color 180ms var(--ease-out), color 180ms var(--ease-out);
+  }
+  .itab.is-on {
+    background: var(--color-accent-fill);
+    color: #1b1c1f;
+  }
+  /* 仅用于首屏以下的区块：延后布局与绘制，配 contain-intrinsic-size 防止滚动条跳动 */
+  .deferred-section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto none auto 520px;
+  }
+  .compare-wrapper {
+    overflow: auto;
+    max-inline-size: 100%;
+    container-type: inline-size;
+  }
   .compare {
     width: 100%;
     display: table;
+    --label-2: "pnpm";
+    --label-3: "npm";
+    --label-4: "Yarn";
   }
   .compare th:nth-child(1) {
     width: 46%;
+  }
+  @container (width < 560px) {
+    .compare,
+    .compare thead,
+    .compare tbody,
+    .compare tr,
+    .compare th,
+    .compare td {
+      display: block;
+    }
+    .compare thead {
+      display: none;
+    }
+    .compare tr {
+      margin-block-end: 0.75rem;
+      border: 1px solid var(--color-line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--color-raise);
+    }
+    .compare tbody th {
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid var(--color-line);
+      background: var(--color-sunken);
+    }
+    .compare tbody td {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 0;
+      border-bottom: 1px solid var(--color-line);
+      text-align: right;
+    }
+    .compare tbody td:last-child {
+      border-bottom: 0;
+    }
+    .compare tbody td:nth-child(2)::before {
+      content: var(--label-2);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--color-ink);
+    }
+    .compare tbody td:nth-child(3)::before {
+      content: var(--label-3);
+      font-family: var(--font-mono);
+      color: var(--color-muted);
+    }
+    .compare tbody td:nth-child(4)::before {
+      content: var(--label-4);
+      font-family: var(--font-mono);
+      color: var(--color-muted);
+    }
   }
   .cta-entry {
     display: flex;
@@ -274,55 +447,83 @@ import CompareCell from "../components/CompareCell.astro";
     border-radius: 8px;
     padding: 0.75em 1.1em;
     font-weight: 650;
-    font-size: 0.92rem;
+    font-size: 0.875rem;
     text-decoration: none;
-    transition: background 0.15s ease, transform 0.15s ease;
+    transition: background-color 180ms var(--ease-out), transform 180ms var(--ease-out);
   }
   .cta-entry:hover {
     background: color-mix(in srgb, var(--color-cta-ink) 10%, transparent);
     transform: translateX(2px);
   }
-  .only-light {
-    display: block;
-  }
-  .only-dark {
-    display: none !important;
-  }
-  html[data-theme="dark"] .only-light {
-    display: none !important;
-  }
-  html[data-theme="dark"] .only-dark {
-    display: block !important;
-  }
-  .rv {
-    transition: opacity 0.55s ease, transform 0.55s ease;
-  }
-  /* 渐进增强：无 JS 时内容直接可见；仅 JS 可用时才先隐藏、入场时显现 */
-  html.js .rv {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  html.js .rv.rv-in {
-    opacity: 1;
-    transform: none;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    html.js .rv,
-    .rv {
-      opacity: 1;
-      transform: none;
+  @media (prefers-reduced-motion: no-preference) {
+    @supports ((animation-timeline: view()) and (animation-range: entry)) {
+      @keyframes rv-enter {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .rv {
+        animation: rv-enter auto linear backwards;
+        animation-timeline: view();
+        animation-range: entry 0% entry 35%;
+      }
+    }
+    @supports not ((animation-timeline: view()) and (animation-range: entry)) {
+      .rv {
+        transition: opacity 0.55s var(--ease-out), transform 0.55s var(--ease-out);
+      }
+      html.js .rv {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      html.js .rv.rv-in {
+        opacity: 1;
+        transform: none;
+      }
     }
   }
 </style>
 
 <script>
-  const reveal = new IntersectionObserver(
-    (es) => {
-      for (const e of es) if (e.isIntersecting) (e.target.classList.add("rv-in"), reveal.unobserve(e.target));
-    },
-    { rootMargin: "0px 0px -60px 0px" }
-  );
-  document.querySelectorAll(".rv").forEach((el) => reveal.observe(el));
+  if (
+    !CSS.supports("(animation-timeline: view()) and (animation-range: entry)") &&
+    matchMedia("(prefers-reduced-motion: no-preference)").matches
+  ) {
+    const reveal = new IntersectionObserver(
+      (es) => {
+        for (const e of es) if (e.isIntersecting) (e.target.classList.add("rv-in"), reveal.unobserve(e.target));
+      },
+      { rootMargin: "0px 0px -60px 0px" }
+    );
+    document.querySelectorAll(".rv").forEach((el) => reveal.observe(el));
+  }
+
+  const CMDS: Record<string, string> = {
+    unix: "curl -fsSL https://get.pnpm.io | sh -",
+    win: "iwr https://get.pnpm.io/install.ps1 -useb | iex",
+    npm: "npm i -g pnpm",
+  };
+  const cmdEl = document.getElementById("cta-cmd");
+  const copyEl = document.getElementById("cta-copy") as HTMLButtonElement | null;
+  const tabs = document.querySelectorAll<HTMLButtonElement>("[data-install]");
+  for (const tab of tabs) {
+    tab.addEventListener("click", () => {
+      const key = tab.dataset.install || "unix";
+      const cmd = CMDS[key] || CMDS.unix;
+      if (cmdEl) cmdEl.innerHTML = `<span class="text-term-accent">$</span> ${cmd}`;
+      if (copyEl) copyEl.dataset.copy = cmd;
+      for (const t of tabs) {
+        const on = t === tab;
+        t.classList.toggle("is-on", on);
+        t.setAttribute("aria-selected", String(on));
+      }
+    });
+  }
 
   for (const btn of document.querySelectorAll<HTMLButtonElement>(".copybtn")) {
     const orig = btn.innerHTML;
