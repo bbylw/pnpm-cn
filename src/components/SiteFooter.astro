@@ -1,7 +1,6 @@
 ---
 import Icon from "./Icon.astro";
 import { getPnpmVersion } from "../data/pnpm-version";
-const year = new Date().getFullYear();
 const version = await getPnpmVersion();
 ---
 
@@ -79,7 +78,7 @@ const version = await getPnpmVersion();
         class="no-underline hover:underline"
         href="https://www.npmjs.com/package/pnpm"
         rel="noopener">v{version}</a
-      >{` · © ${year} pnpm 中文文档社区`}
+      >
     </p>
   </div>
 </footer>
