@@ -318,7 +318,7 @@ allowBuilds:
 以包为键，规定每个依赖可以做什么。键的形式与 [`allowBuilds`](#allowbuilds) 的键相同。每个条目决定一项或多项能力：
 
 * `build`：该包可以运行其构建脚本。优先于该包的 `allowBuilds` 条目。
-* `skills`：pnpm 可以把该包携带的代理技能链接到项目的代理技能目录中。`true` 链接该包携带的所有技能，`false` 一个都不链接，技能名称列表则只链接这些技能。参见[代理技能](/docs/agent-skills)。
+* `skills`：pnpm 可以把该包携带的 Agent 技能链接到项目的 Agent 技能目录中。`true` 链接该包携带的所有技能，`false` 一个都不链接，技能名称列表则只链接这些技能。参见 [Agent 技能](/docs/agent-skills)。
 
 ```yaml
 permissions:
@@ -341,10 +341,10 @@ permissions:
 
 自 v12.11.0 起提供
 
-- 默认值：**项目为工作区根目录下检测到的代理技能目录，全局包则为主目录下的检测结果，再加上正在运行 pnpm 的代理所在目录**
+- 默认值：**项目为工作区根目录下检测到的 Agent 技能目录，全局包则为主目录下的检测结果，再加上正在运行 pnpm 的 Agent 所在目录**
 - 类型：**字符串[]**
 
-pnpm 把已批准的[代理技能](/docs/agent-skills)链接到哪些目录。在项目中，路径相对于工作区根目录。在全局 `config.yaml` 的 `globalPackagesConfig` 中，路径相对于主目录且必须留在其内部。设置后它会替换检测到的目录，pnpm 会创建缺失的目录。首次批准技能时，`pnpm approve` 或 `pnpm approve -g` 会列出检测到的目录并询问要链接到哪些，把选中的目录记录在这里。若一个目录都不选，pnpm 会继续使用检测到的目录。
+pnpm 把已批准的 [Agent 技能](/docs/agent-skills)链接到哪些目录。在项目中，路径相对于工作区根目录。在全局 `config.yaml` 的 `globalPackagesConfig` 中，路径相对于主目录且必须留在其内部。设置后它会替换检测到的目录，pnpm 会创建缺失的目录。首次批准技能时，`pnpm approve` 或 `pnpm approve -g` 会列出检测到的目录并询问要链接到哪些，把选中的目录记录在这里。若一个目录都不选，pnpm 会继续使用检测到的目录。
 
 ```yaml
 skills:
@@ -360,7 +360,7 @@ globalPackagesConfig:
       - .claude/skills
 ```
 
-空列表会关闭代理技能功能。pnpm 不再提供批准，并删除它已链接的技能。
+空列表会关闭 Agent 技能功能。pnpm 不再提供批准，并删除它已链接的技能。
 
 ### dangerouslyAllowAllBuilds
 

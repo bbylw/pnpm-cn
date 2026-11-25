@@ -18,7 +18,7 @@ include:
   '@acme/pnpm-policy': [minimumReleaseAge, trustPolicy]
 ```
 
-这样，团队可以保护 `pnpm-workspace.yaml` 以及保存安全设置的文件，而目录更新之类的日常改动则放到任何人都可以编辑的文件中。按路径限制写入的工具——例如 `CODEOWNERS`、只读挂载或代理沙箱——就能据此约束谁可以改什么。
+这样，团队可以保护 `pnpm-workspace.yaml` 以及保存安全设置的文件，而目录更新之类的日常改动则放到任何人都可以编辑的文件中。按路径限制写入的工具——例如 `CODEOWNERS`、只读挂载或 Agent 沙箱——就能据此约束谁可以改什么。
 
 ## 来源
 

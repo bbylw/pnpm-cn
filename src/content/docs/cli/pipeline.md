@@ -129,7 +129,7 @@ env "pnpm_config_//vercel.com/api/:_authToken=$VERCEL_TOKEN" pnpm pipeline
 pnpm pipeline --repo https://github.com/acme/app.git --watch
 ```
 
-观察代理会轮询仓库，并对所跟踪分支的每个新修订运行流水线。它是一个概念验证，而不是托管的 CI 服务。
+观察 Agent 会轮询仓库，并对所跟踪分支的每个新修订运行流水线。它是一个概念验证，而不是托管的 CI 服务。
 
 ## 选项
 
@@ -165,7 +165,7 @@ pnpm pipeline --repo https://github.com/acme/app.git --watch
 
 ### --repo <repo>
 
-观察代理轮询的仓库：URL 或本地路径，任何 git 接受为远程地址的形式即可。
+观察 Agent 轮询的仓库：URL 或本地路径，任何 git 接受为远程地址的形式即可。
 
 ### --watch
 
@@ -173,7 +173,7 @@ pnpm pipeline --repo https://github.com/acme/app.git --watch
 
 ### --branch <name>
 
-观察代理跟踪的分支。默认是 `main`。
+观察 Agent 跟踪的分支。默认是 `main`。
 
 ### --interval <seconds>
 

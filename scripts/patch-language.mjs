@@ -1,5 +1,5 @@
 /**
- * 把子代理翻译结果（scripts/out/trans/done-*.jsonl）回填进抓取产生的哨兵文本。
+ * 把子 Agent 翻译结果（scripts/out/trans/done-*.jsonl）回填进抓取产生的哨兵文本。
  * 同时用 k=title 条目改写 frontmatter 的 title。
  */
 import fs from "node:fs";

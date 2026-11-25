@@ -1,9 +1,9 @@
 ---
-title: "pnpm + Git 工作树实现多代理开发"
+title: "pnpm + Git 工作树实现多 Agent 开发"
 headingIds: ["what-is-a-git-worktree", "why-worktrees", "why-this-matters-even-more-with-ai-agents", "setting-it-up", "1-create-a-bare-repository", "2-create-worktrees-for-each-branch", "3-enable-the-global-virtual-store", "4-install-dependencies-in-each-worktree", "how-it-works", "tips"]
 ---
 
-当多个 AI 代理需要同时在同一个 monorepo 上工作时，每个代理都需要一个具有完全可用的 `node_modules` 的隔离工作副本。Git 工作树（worktree）结合 pnpm 的[全局虚拟存储](/docs/global-virtual-store)让这一点变得可行：每个工作树都有自己的检出和自己的 `node_modules`，但依赖通过磁盘上单个内容寻址存储在它们之间共享。
+当多个 AI Agent 需要同时在同一个 monorepo 上工作时，每个 Agent 都需要一个具有完全可用的 `node_modules` 的隔离工作副本。Git 工作树（worktree）结合 pnpm 的[全局虚拟存储](/docs/global-virtual-store)让这一点变得可行：每个工作树都有自己的检出和自己的 `node_modules`，但依赖通过磁盘上单个内容寻址存储在它们之间共享。
 
 ## 什么是 git 工作树？
 
@@ -26,17 +26,17 @@ git worktree add ./feature feat/something
 
 ## 为什么用工作树？
 
-早在 AI 代理出现之前，工作树就已经很有用了——它可以维护一个项目的多个主要版本。在我的开发机器上，我使用一个至少有 2 个工作树的 pnpm 仓库：一个在 `main` 上用于 pnpm v12，另一个在 `v11` 分支上用于回移和维护版本发布。这样，我可以在不停存我进行中的 v12 工作的情况下修复 v11 上的一个 bug——两个版本始终处于检出状态、随时可用。过去，在 pnpm 仓库里 2 或 3 个工作树通常就够我用了。然而，自从我开始大量使用 AI 代理后，我需要多得多的工作树，好让我的代理并行处理许多任务。
+早在 AI Agent 出现之前，工作树就已经很有用了——它可以维护一个项目的多个主要版本。在我的开发机器上，我使用一个至少有 2 个工作树的 pnpm 仓库：一个在 `main` 上用于 pnpm v12，另一个在 `v11` 分支上用于回移和维护版本发布。这样，我可以在不停存我进行中的 v12 工作的情况下修复 v11 上的一个 bug——两个版本始终处于检出状态、随时可用。过去，在 pnpm 仓库里 2 或 3 个工作树通常就够我用了。然而，自从我开始大量使用 AI Agent 后，我需要多得多的工作树，好让我的 Agent 并行处理许多任务。
 
-## 为什么这在 AI 代理下更重要
+## 为什么这在 AI Agent 下更重要
 
-有了 AI 编码代理，工作树从方便变成了必不可少。每个代理都需要自己的工作目录，以便编辑文件、运行构建和执行测试，而不干扰其他代理。没有工作树，就意味着要多次克隆仓库，为每个副本重复 git 历史。
+有了 AI 编码 Agent，工作树从方便变成了必不可少。每个 Agent 都需要自己的工作目录，以便编辑文件、运行构建和执行测试，而不干扰其他 Agent。没有工作树，就意味着要多次克隆仓库，为每个副本重复 git 历史。
 
-工作树解决了 git 这一侧的问题——每个代理都得到自己的隔离检出，同时共享底层的 git 对象。但每个工作树仍然需要自己的 `node_modules`，这可能是数百兆字节。这就是 pnpm 的[全局虚拟存储](/docs/global-virtual-store)发挥作用的地方：启用它后，每个工作树的 `node_modules` 只包含指向磁盘上单个内容寻址存储的符号链接。这意味着添加一个新代理既快又几乎不占用额外磁盘空间。
+工作树解决了 git 这一侧的问题——每个 Agent 都得到自己的隔离检出，同时共享底层的 git 对象。但每个工作树仍然需要自己的 `node_modules`，这可能是数百兆字节。这就是 pnpm 的[全局虚拟存储](/docs/global-virtual-store)发挥作用的地方：启用它后，每个工作树的 `node_modules` 只包含指向磁盘上单个内容寻址存储的符号链接。这意味着添加一个新 Agent 既快又几乎不占用额外磁盘空间。
 
 :::important[重要]
 
-此设置假定工作树和代理共享同一个信任边界。不要为相互不信任的代理或用户共用一个可写的 pnpm 存储。
+此设置假定工作树和 Agent 共享同一个信任边界。不要为相互不信任的 Agent 或用户共用一个可写的 pnpm 存储。
 
 :::
 
@@ -110,9 +110,9 @@ your-monorepo/                      (bare git repo)
 
 - **每个工作树近乎零开销**——本地的 `node_modules` 只包含指向共享全局虚拟存储的符号链接。与 pnpm 的默认行为（它把文件从内容寻址存储硬链接到本地的 `node_modules/.pnpm` 目录）不同，全局虚拟存储意味着根本没有任何文件被复制或硬链接到工作树中。
 - **新工作树的即时安装**——包已经在全局存储中。
-- **没有冲突**——每个工作树都有自己的 `node_modules` 树，因此代理可以在不同分支上安装不同的依赖版本而互不干扰。
+- **没有冲突**——每个工作树都有自己的 `node_modules` 树，因此 Agent 可以在不同分支上安装不同的依赖版本而互不干扰。
 
 ## 提示
 
-- **为代理创建工作树**：启动 AI 代理时，为它创建一个专用工作树。代理获得完全的隔离来编辑文件、运行测试和安装包，而不影响其他代理。
+- **为 Agent 创建工作树**：启动 AI Agent 时，为它创建一个专用工作树。Agent 获得完全的隔离来编辑文件、运行测试和安装包，而不影响其他 Agent。
 - **清理**：当工作树不再需要时，用 `git worktree remove ./feature-auth` 移除它。残留的工作树开销很小，但会不断累积。

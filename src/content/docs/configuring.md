@@ -53,7 +53,7 @@ globalPackagesConfig:
 
 `catalog`、`catalogs`、`overrides`、`packageExtensions` 和 `patchedDependencies` 不支持放在 `globalPackagesConfig` 下。pnpm 会忽略它们并给出警告。
 
-`globalPackagesConfig.skills.dirs` 控制已批准的全局代理技能被链接到何处。路径相对于主目录，且必须留在其内部。参见 [skills.dirs](/docs/settings/build#skillsdirs)。
+`globalPackagesConfig.skills.dirs` 控制已批准的全局 Agent 技能被链接到何处。路径相对于主目录，且必须留在其内部。参见 [skills.dirs](/docs/settings/build#skillsdirs)。
 
 `pnpm login` 把 registry 令牌保存在这个 `config.yaml` 中。其他全局认证和证书设置放在同一目录下的 `auth.ini` 中。参见[认证文件位置](/docs/npmrc#auth-file-locations)。
 

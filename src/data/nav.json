@@ -610,7 +610,7 @@
    },
    {
     "id": "agent-skills",
-    "label": "代理技能"
+    "label": "Agent 技能"
    },
    {
     "id": "global-virtual-store",
@@ -652,7 +652,7 @@
    },
    {
     "id": "git-worktrees",
-    "label": "pnpm + Git 工作树实现多代理开发"
+    "label": "pnpm + Git 工作树实现多 Agent 开发"
    },
    {
     "id": "docker",

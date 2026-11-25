@@ -9,7 +9,7 @@ headingIds: ["usage","options","--all","--global--g"]
 
 已批准的依赖会以 `true` 的值加入 `pnpm-workspace.yaml` 中的 [allowBuilds](/docs/settings/build#allowbuilds) 映射，未批准的则以 `false` 保存。如果你愿意，也可以手动更新这些设置。
 
-自 v12.11.0 起，当 `pnpm-workspace.yaml` 中已经存在 [permissions](/docs/settings/build#permissions) 设置时，这些决策会改为以 `build` 能力的形式写入其中。若还要审查代理技能，请使用 [pnpm approve](/docs/cli/permissions)。
+自 v12.11.0 起，当 `pnpm-workspace.yaml` 中已经存在 [permissions](/docs/settings/build#permissions) 设置时，这些决策会改为以 `build` 能力的形式写入其中。若还要审查 Agent 技能，请使用 [pnpm approve](/docs/cli/permissions)。
 
 ## 用法
 

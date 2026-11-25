@@ -1,4 +1,4 @@
-# pnpm 中文翻译术语表与规则（翻译子代理必读）
+# pnpm 中文翻译术语表与规则（翻译子 Agent 必读）
 
 ## 总风格
 
@@ -14,6 +14,7 @@
 - 一切 `[文字](链接)` 的链接部分；`![alt](src)` 的图片语法。方括号内的链接文字若是产品/命令名保留英文，若是描述性短语可译（如「查看安装说明」）。
 - HTML 标签如 `<br>`；`:::` 指令块语法；frontmatter YAML。
 - 包名/产品名：pnpm、npm、yarn、Node.js、TypeScript、Bun、Deno、lockfile 名（`pnpm-lock.yaml`）、CLI 标志（`--recursive`）、环境变量（`NODE_ENV`）、registry 域名。
+- Agent：AI Agent、Agent Skills 等语境中的 Agent 一律保留英文，不译作「代理」；只有网络 proxy 语境才译作「代理」。
 - 版本引用：`v11.1.0`、`12.x`。
 
 ## 固定译法
