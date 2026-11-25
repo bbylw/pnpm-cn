@@ -69,46 +69,6 @@ export const COMPARE_ROWS: { label: string; pnpm: string | boolean; npm: string 
   { label: "Node.js 版本管理", pnpm: true, npm: false, yarn: false, note: "pnpm env / runtime 内置支持" },
 ];
 
-/** 赞助商：logo 取自 pnpm.io（dark 版用于亮色主题，light 版用于暗色主题） */
-export const SPONSORS: { tier: string; items: { name: string; url: string; dark?: string; light?: string; h: number }[] }[] = [
-  {
-    tier: "白金赞助",
-    items: [
-      { name: "Bit", url: "https://bit.cloud/?utm_source=pnpm&utm_medium=readme", dark: "bit.svg", h: 30 },
-      { name: "OpenAI", url: "https://openai.com/?utm_source=pnpm&utm_medium=readme", dark: "openai_dark.svg", light: "openai_light.svg", h: 26 },
-      { name: "Notion", url: "https://notion.com/?utm_source=pnpm&utm_medium=readme", dark: "notion.svg", h: 30 },
-      { name: "CodeRabbit", url: "https://coderabbit.ai/?utm_source=pnpm&utm_medium=readme", dark: "coderabbit.svg", light: "coderabbit_light.svg", h: 30 },
-    ],
-  },
-  {
-    tier: "金牌赞助",
-    items: [
-      { name: "Sanity", url: "https://sanity.io/?utm_source=pnpm&utm_medium=readme", dark: "sanity.svg", light: "sanity_light.svg", h: 24 },
-      { name: "Discord", url: "https://discord.com/?utm_source=pnpm&utm_medium=readme", dark: "discord.svg", light: "discord_light.svg", h: 26 },
-      { name: "Vite", url: "https://vite.dev/?utm_source=pnpm&utm_medium=readme", dark: "vitejs.svg", h: 26 },
-      { name: "SerpApi", url: "https://serpapi.com/?utm_source=pnpm&utm_medium=readme", dark: "serpapi_dark.svg", light: "serpapi_light.svg", h: 24 },
-      { name: "StackBlitz", url: "https://stackblitz.com/?utm_source=pnpm&utm_medium=readme", dark: "stackblitz.svg", light: "stackblitz_light.svg", h: 24 },
-      { name: "Workleap", url: "https://workleap.com/?utm_source=pnpm&utm_medium=readme", dark: "workleap.svg", light: "workleap_light.svg", h: 24 },
-      { name: "Nx", url: "https://nx.dev/?utm_source=pnpm&utm_medium=readme", dark: "nx.svg", light: "nx_light.svg", h: 26 },
-      { name: "Latitude", url: "https://latitude.so/?utm_source=pnpm&utm_medium=readme", dark: "latitude.svg", h: 24 },
-    ],
-  },
-  {
-    tier: "银牌赞助",
-    items: [
-      { name: "Replit", url: "https://replit.com/?utm_source=pnpm&utm_medium=readme", dark: "replit.png", light: "replit_light.png", h: 22 },
-      { name: "Cybozu", url: "https://cybozu.co.jp/?utm_source=pnpm&utm_medium=readme", dark: "cybozu.svg", h: 26 },
-      { name: "BairesDev", url: "https://www.bairesdev.com/?utm_source=pnpm&utm_medium=readme", dark: "bairesdev.svg", light: "bairesdev_light.svg", h: 22 },
-      { name: "Thesys", url: "https://www.thesys.dev/?utm_source=pnpm&utm_medium=readme", dark: "thesys.svg", light: "thesys_light.svg", h: 22 },
-      { name: "devowl.io", url: "https://devowl.io/?utm_source=pnpm&utm_medium=readme", dark: "devowlio.svg", h: 24 },
-      { name: "u|screen", url: "https://uscreen.de/?utm_source=pnpm&utm_medium=readme", dark: "uscreen.svg", light: "uscreen_light.svg", h: 22 },
-      { name: "Leniolabs", url: "https://www.leniolabs.com/?utm_source=pnpm&utm_medium=readme", dark: "leniolabs.jpg", h: 26 },
-      { name: "Depot", url: "https://depot.dev/?utm_source=pnpm&utm_medium=readme", dark: "depot.svg", light: "depot_light.svg", h: 22 },
-      { name: "Cerbos", url: "https://cerbos.dev/?utm_source=pnpm&utm_medium=readme", dark: "cerbos.svg", light: "cerbos_light.svg", h: 22 },
-    ],
-  },
-];
-
 export const COMMUNITY = [
   { icon: "github-logo" as IconName, label: "GitHub", href: "https://github.com/pnpm/pnpm" },
   { icon: "x-logo" as IconName, label: "X / @pnpmjs", href: "https://x.com/pnpmjs" },

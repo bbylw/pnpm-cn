@@ -2,7 +2,7 @@
 import Base from "../layouts/Base.astro";
 import Icon from "../components/Icon.astro";
 import StoreMachine from "../components/StoreMachine.astro";
-import { FEATURES, STAGES, COMPARE_ROWS, SPONSORS, COMMUNITY } from "../data/site";
+import { FEATURES, STAGES, COMPARE_ROWS, COMMUNITY } from "../data/site";
 
 
 
@@ -179,45 +179,6 @@ import CompareCell from "../components/CompareCell.astro";
         —— <a href="https://rushjs.io/" rel="noopener" class="text-accent no-underline hover:underline">Rush 团队</a>
       </footer>
     </blockquote>
-  </section>
-
-  <!-- ================= 赞助商 ================= -->
-  <section id="sponsors" class="border-t border-line bg-raise/40">
-    <div class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
-      <h2 class="sec-title">赞助商</h2>
-      <p class="mt-4 max-w-2xl text-[0.95rem] text-muted">
-        pnpm 是开源项目，由这些公司与个人通过
-        <a href="https://opencollective.com/pnpm" rel="noopener" class="text-accent font-semibold">OpenCollective</a>
-        支持。
-      </p>
-      {
-        SPONSORS.map((tier) => (
-          <div class="mt-10">
-            <h3 class="chip">{tier.tier}</h3>
-            <ul class="mt-4 flex flex-wrap items-center gap-3">
-              {tier.items.map((s) => (
-                <li>
-                  <a
-                    href={s.url}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    title={s.name}
-                    class={`flex h-14 min-w-[7.5rem] items-center justify-center rounded-lg border border-line px-4 transition-transform hover:-translate-y-0.5 ${s.light ? "" : "bg-white"}`}
-                  >
-                    <img src={`/img/users/${s.dark}`} class="only-light h-[55%] w-auto object-contain p-1" alt={s.name} width="80" height={s.h} loading="lazy" />
-                    {s.light && <img src={`/img/users/${s.light}`} class="only-dark h-[55%] w-auto object-contain p-1" alt="" aria-hidden="true" width="80" height={s.h} loading="lazy" />}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))
-      }
-      <p class="mt-10 text-[0.88rem] text-muted">
-        Logo 与赞助名单来自 pnpm 官方；
-        <a href="https://opencollective.com/pnpm#sponsor" rel="noopener" class="text-accent no-underline hover:underline">成为赞助商</a>。
-      </p>
-    </div>
   </section>
 
   <!-- ================= 快速开始 CTA ================= -->
