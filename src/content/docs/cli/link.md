@@ -1,33 +1,50 @@
 ---
 title: "pnpm link"
-headingIds: ["options","pnpm-link-dir","use-cases","replace-an-installed-package-with-a-local-version-of-it","add-a-binary-globally","whats-the-difference-between-pnpm-link-and-using-the-file-protocol"]
+headingIds: ["usage", "pnpm-link-dir", "options", "--hard", "use-cases", "replace-an-installed-package-with-a-local-version-of-it", "add-a-binary-globally", "whats-the-difference-between-pnpm-link-and-using-the-file-protocol"]
 ---
 
 别名： `ln`
 
 将本地包链接到当前项目的 `node_modules`。
 
+```sh
+pnpm link [--hard] <dir>...
 ```
-pnpm link <dir>
-```
 
-## 选项
+以 `~/` 开头的带引号路径相对于你的主目录。如果目标包的清单中没有 `name`，pnpm 会使用它的目录名。
 
-### `pnpm link <dir>`
+## 用法
 
-将 `<dir>` 目录中的包链接到执行此命令的包所在的 `node_modules`。`<dir>` 必须是相对或绝对路径。
+### `pnpm link <dir>...`
+
+把每个 `<dir>` 目录中的包链接到执行此命令的包所在的 `node_modules`。`<dir>` 必须是相对或绝对路径，相对路径会针对你运行命令所在的目录解析。传入包名或不传参数会以 `ERR_PNPM_LINK_BAD_PARAMS` 失败。
 
 > 例如，如果你在 `~/projects/foo` 中执行 `pnpm link ../bar`，则会在 `foo/node_modules/bar` 创建指向 `bar` 的链接。
 
-:::note[v11 的破坏性变更]
+`pnpm link` 会写入两条记录：
 
-`pnpm link` 不再从全局存储解析包。仅接受相对或绝对路径（用 `pnpm link ./foo` 代替 `pnpm link foo`）。
+- 若该包尚未在 `package.json` 中声明，则写入一条 `link:` 依赖；
+- 在根目录的 `pnpm-workspace.yaml` 中写入一条 [`overrides`](/docs/settings/dependency-resolution#overrides) 条目 `<名称>: link:<路径>`，使该链接在整个工作区生效。
 
-`pnpm link --global` 已被移除。要全局注册本地包的 bin，改用 `pnpm add -g .`。
+pnpm 会警告被链接包的对等依赖。[`pnpm unlink`](/docs/cli/unlink) 会移除这些覆盖。
 
-不带参数的 `pnpm link` 已被移除。始终传入显式路径。
+## 选项
 
-:::
+### --hard
+
+自 v12.23.0 起提供
+
+用 `file:` 协议而非 `link:` 写入这两条记录。此后 pnpm 会像安装任何 `file:` 依赖那样安装该包：把该包的文件硬链接进 `node_modules`，并从你的项目解析它的依赖和对等依赖。参见 [`pnpm link` 与使用 `file:` 协议的区别](#whats-the-difference-between-pnpm-link-and-using-the-file-protocol)。
+
+```sh
+pnpm link --hard ../foo
+```
+
+对被链接包已有文件的修改会体现在你的项目中，同时文件保持硬链接。运行 `pnpm install` 以获取新增或删除的文件。如果 pnpm 不得不复制文件（例如包位于另一个磁盘分区上），在编辑之后也应运行它。
+
+`--hard` 会拒绝名称以 `.tgz`、`.tar.gz` 或 `.tar` 结尾的目录，因为以该结尾的 `file:` 说明符表示一个 tarball。
+
+若被链接的目录是同一工作区中的项目，在启用 [`dedupeInjectedDeps`](/docs/workspaces#dedupeinjecteddeps) 时，pnpm 仍可能以符号链接方式链接它。
 
 ## 使用场景
 

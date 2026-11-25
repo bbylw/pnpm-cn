@@ -1,6 +1,6 @@
 ---
 title: "使用 Docker"
-headingIds: ["official-pnpm-base-image","tags","installing-nodejs","when-to-use-this-image","minimizing-docker-image-size-and-build-time","example-1-build-a-bundle-in-a-docker-container","example-2-build-multiple-docker-images-in-a-monorepo","example-3-build-on-cicd"]
+headingIds: ["official-pnpm-base-image", "tags", "adding-pnpm-to-your-own-image", "installing-nodejs", "when-to-use-this-image", "minimizing-docker-image-size-and-build-time", "example-1-build-a-bundle-in-a-docker-container", "example-2-build-multiple-docker-images-in-a-monorepo", "example-3-build-on-cicd"]
 ---
 
 :::note[说明]
@@ -11,7 +11,7 @@ headingIds: ["official-pnpm-base-image","tags","installing-nodejs","when-to-use-
 
 ## pnpm 官方基础镜像
 
-pnpm 官方基础镜像以 [ghcr.io/pnpm/pnpm](https://github.com/pnpm/pnpm/pkgs/container/pnpm) 的形式发布在 GitHub Container Registry 上。它基于 `debian:stable-slim`，仅包含 pnpm 的[独立二进制](/docs/installation#using-a-standalone-script)，**不**捆绑 Node.js。这样你可以自行选择 Node.js 版本（在 Dockerfile 内或运行时），而不必受基础镜像自带 Node 版本的限制。
+pnpm 官方基础镜像以 [ghcr.io/pnpm/pnpm](https://github.com/pnpm/pnpm/pkgs/container/pnpm) 的形式发布在 GitHub Container Registry 上。它基于 `debian:stable-slim`，包含 pnpm 的[独立二进制](/docs/installation#using-a-standalone-script)、它所捆绑的 `node-gyp`，以及 pnpm 所需的少量系统库。**不**捆绑 Node.js。这样你可以自行选择 Node.js 版本（在 Dockerfile 内或运行时），而不必受基础镜像自带 Node 版本的限制。
 
 ### 标签
 
@@ -20,8 +20,22 @@ pnpm 官方基础镜像以 [ghcr.io/pnpm/pnpm](https://github.com/pnpm/pnpm/pkgs
 | `<version>` | 精确、不可变（如 `12.0.0`）。包含预发布版本。 |
 | `<major>` | 跟踪该主版本内的最新稳定版（如 `12`）。 |
 | `latest` | 最新的 pnpm 稳定版。不随预发布版本更新。 |
+| `<version>-alpine`、`<major>-alpine`、`alpine` | 同上，但基于 Alpine Linux。 |
 
 支持的平台：`linux/amd64`、`linux/arm64`。
+
+### 在你自己的镜像中加入 pnpm
+
+从 C 库与你的基础镜像匹配的镜像中复制 `/opt/pnpm`，并把该二进制文件以及它的 `pn`、`pnpx`、`pnx` 别名链接到 `PATH` 上。
+请复制整个目录，因为它还包含 pnpm 用来构建原生依赖的 `node-gyp`。
+
+```dockerfile
+FROM node:24-alpine
+COPY --from=ghcr.io/pnpm/pnpm:12-alpine /opt/pnpm /opt/pnpm
+RUN for bin in pnpm pn pnpx pnx; do ln -s "/opt/pnpm/$bin" "/usr/local/bin/$bin"; done
+```
+
+对于基于 Debian 或 Ubuntu 的镜像（例如 `node:24-slim`），请改从 `ghcr.io/pnpm/pnpm:12` 复制。
 
 ### 安装 Node.js
 
@@ -41,14 +55,20 @@ package.json
 }
 ```
 
+`pnpm install` 会下载 `devEngines.runtime` 所声明的运行时，因此镜像无需 `pnpm runtime set`。
+
+此示例假设项目有 `pnpm-workspace.yaml`。如果没有，请在第一次复制的步骤中使用 `COPY package.json pnpm-lock.yaml ./`。
+
 ```dockerfile
 FROM ghcr.io/pnpm/pnpm:12
 WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY . .
 CMD ["pnpm", "start"]
 ```
+
+如果你的项目有 `pnpm-workspace.yaml`，请在运行 `pnpm install` 之前复制它。它包含项目设置，在工作区中还包含包匹配规则。省略它可能改变依赖的安装方式，或使冻结安装失败。只有当你的项目确实没有该文件时，才把它从 `COPY` 指令中省略。
 
 ### 何时使用此镜像
 
@@ -64,13 +84,15 @@ CMD ["pnpm", "start"]
 - 在可行且合理的情况下利用多阶段构建。
 - 利用 BuildKit 缓存挂载。
 
-以下配方使用官方 pnpm 镜像，它已设置 `PNPM_HOME=/pnpm` 并将 `/pnpm/bin` 加入 `PATH`，因此缓存挂载指向的存储位于 `/pnpm/store`。
+以下配方使用官方 pnpm 镜像，它已设置 `PNPM_HOME=/pnpm` 并将 `/pnpm/bin` 加入 `PATH`，因此默认的存储位于 `/pnpm/store`。
 
 :::caution[注意]
 
 把预热好的存储烘焙进镜像层（在构建期间运行安装，使后续容器无需下载）并不能让链接变成零成本。对下层镜像中文件的硬链接可以创建成功，但 overlayfs 会先把该文件复制到容器的可写层，因此安装实际上把存储的大部分内容从镜像中复制了出来，却报告为硬链接。在这种配置下，[packageImportMethod: copy](/docs/settings/node-modules#a-store-baked-into-a-container-image-layer) 通常更快，在 ext4 上更是能明显测出差异。BuildKit 缓存挂载没有这个问题，因为存储是一个挂载点而不是镜像层。
 
 :::
+
+当基础镜像中通过 `pnpm runtime set node 24 -g` 安装了运行时时，请把构建缓存放在单独的位置，例如 `/var/cache/pnpm`。把缓存挂载到 `/pnpm/store` 上，会在 `RUN` 指令执行期间隐藏托管的运行时。下面的示例把 `--store-dir` 指向缓存挂载。
 
 ### 示例 1：在 Docker 容器中构建 bundle
 
@@ -95,10 +117,12 @@ COPY . /app
 WORKDIR /app
 
 FROM base AS prod-deps
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/var/cache/pnpm \
+    pnpm install --store-dir /var/cache/pnpm --prod --frozen-lockfile
 
 FROM base AS build
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/var/cache/pnpm \
+    pnpm install --store-dir /var/cache/pnpm --frozen-lockfile
 RUN pnpm run build
 
 FROM base
@@ -122,21 +146,21 @@ monorepo 结构
 ├── .dockerignore
 ├── .gitignore
 ├── packages/
-│   ├── app1/
-│   │   ├── dist/
-│   │   ├── package.json
-│   │   ├── src/
-│   │   └── tsconfig.json
-│   ├── app2/
-│   │   ├── dist/
-│   │   ├── package.json
-│   │   ├── src/
-│   │   └── tsconfig.json
-│   └── common/
-│       ├── dist/
-│       ├── package.json
-│       ├── src/
-│       └── tsconfig.json
+│   ├── app1/
+│   │   ├── dist/
+│   │   ├── package.json
+│   │   ├── src/
+│   │   └── tsconfig.json
+│   ├── app2/
+│   │   ├── dist/
+│   │   ├── package.json
+│   │   ├── src/
+│   │   └── tsconfig.json
+│   └── common/
+│       ├── dist/
+│       ├── package.json
+│       ├── src/
+│       └── tsconfig.json
 ├── pnpm-lock.yaml
 ├── pnpm-workspace.yaml
 └── tsconfig.json
@@ -171,7 +195,8 @@ RUN pnpm runtime set node 24 -g
 FROM base AS build
 COPY . /usr/src/app
 WORKDIR /usr/src/app
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/var/cache/pnpm \
+    pnpm install --store-dir /var/cache/pnpm --frozen-lockfile
 RUN pnpm run -r build
 RUN pnpm deploy --filter=app1 --prod /prod/app1
 RUN pnpm deploy --filter=app2 --prod /prod/app2
@@ -191,7 +216,7 @@ CMD [ "pnpm", "start" ]
 
 运行以下命令为 app1 和 app2 构建镜像：
 
-```bash
+```sh
 docker build . --target app1 --tag app1:latest
 docker build . --target app2 --tag app2:latest
 ```
@@ -200,27 +225,36 @@ docker build . --target app2 --tag app2:latest
 
 在 CI 或 CD 环境中，BuildKit 缓存挂载可能不可用，因为虚拟机或容器是临时的，只有普通的 docker 缓存能起作用。
 
-因此替代方案是使用按层逐步构建的常规 Dockerfile。在这种场景下，`pnpm fetch` 是最佳选择，因为它只需要 `pnpm-lock.yaml` 文件，且只有在你更改依赖时才会丢失层缓存。
+因此替代方案是使用按层逐步构建的常规 Dockerfile。在这种场景下，`pnpm fetch` 是最佳选择，因为它只需要 lockfile 和项目设置，且只有在你更改 lockfile 或项目设置时才会丢失层缓存。
+
+`pnpm fetch` 只填充虚拟存储。在复制源码之后执行 `pnpm install --offline`，才会把依赖链接进 `node_modules`。构建阶段安装全部依赖，另一个阶段只安装生产依赖，因此最终镜像不会带上开发依赖。
+
+此示例假设项目有 `pnpm-workspace.yaml`。如果没有，请改用 `COPY pnpm-lock.yaml /app/`。如果你给某个打过补丁，请在运行 `pnpm fetch` 之前也复制补丁目录。请把 `pnpm-workspace.yaml` 中 [`include`](/docs/config-includes) 所列的文件也复制到那里。
 
 Dockerfile
 
 ```dockerfile
 FROM ghcr.io/pnpm/pnpm:12 AS base
-
 RUN pnpm runtime set node 24 -g
-
-FROM base AS prod
-
 WORKDIR /app
-COPY pnpm-lock.yaml /app
-RUN pnpm fetch --prod
 
+FROM base AS build
+COPY pnpm-lock.yaml pnpm-workspace.yaml /app/
+RUN pnpm fetch
 COPY . /app
+RUN pnpm install --offline --frozen-lockfile
 RUN pnpm run build
 
+FROM base AS prod-deps
+COPY pnpm-lock.yaml pnpm-workspace.yaml /app/
+RUN pnpm fetch --prod
+COPY . /app
+RUN pnpm install --offline --frozen-lockfile --prod
+
 FROM base
-COPY --from=prod /app/node_modules /app/node_modules
-COPY --from=prod /app/dist /app/dist
+COPY package.json /app/
+COPY --from=prod-deps /app/node_modules /app/node_modules
+COPY --from=build /app/dist /app/dist
 EXPOSE 8000
 CMD [ "pnpm", "start" ]
 ```

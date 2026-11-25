@@ -15,4 +15,6 @@ headingIds: []
 
 此后每当有人运行 `npm install` 或 `yarn`，得到的都会是错误，安装不会继续。
 
-如果你使用 npm v7，改为使用 `npx -y`。
+当脚本恰好是 `npx only-allow pnpm` 时，pnpm 会跳过它，因此不会拖慢 `pnpm install`。
+
+若想在不使用脚本的情况下固定 `package.json` 中的包管理器，请使用 [`devEngines.packageManager`](/docs/package_json#devenginespackagemanager)。

@@ -1,11 +1,13 @@
 ---
 title: "pnpm sbom"
-headingIds: ["usage","options","--sbom-format-cyclonedxspdx","--sbom-type-libraryapplication","--sbom-spec-version-version","--lockfile-only","--sbom-authors-names","--sbom-supplier-name","--out-path","--split","--exclude-peers","--prod--p","--dev--d","--no-optional","--filter-package_selector"]
+headingIds: ["usage","options","--sbom-format-cyclonedxspdx","--sbom-type-libraryapplication","--sbom-spec-version-version","--lockfile-only","--sbom-authors-names","--sbom-supplier-name","--out-path","--split","--exclude-peers","--prod--p---production","--dev--d","--no-optional","--optional","--filter-package_selector"]
 ---
 
 自 v11.0.0 起提供
 
 为项目生成软件物料清单（SBOM）。
+
+必须有 lockfile，但包清单是可选的。没有清单时，根组件使用 `unknown` 作为名称、`0.0.0` 作为版本，并且没有许可证。该命令不会创建包清单。
 
 支持的格式：
 
@@ -25,6 +27,8 @@ pnpm sbom --sbom-format cyclonedx --exclude-peers
 ```
 
 在工作区内，`pnpm sbom` 支持过滤。当只选中一个工作区包时，SBOM 中的根组件使用该包的元数据。
+
+显式选中的项目的依赖属于报告根目录；仅通过链接访问到的工作区项目的依赖属于那些项目自身的组件。
 
 自 v11.20.0 起，从[命名 registry](/docs/settings/dependency-resolution#namedregistries) 解析出的组件会带上 purl 的 `repository_url` 限定符（例如 `pkg:npm/foo@1.0.0?repository_url=https%3A%2F%2Fnpm.work.example.com%2F`），因此两个 registry 提供的同名同版本包不会被合并为一个组件。`namedRegistries` URL 中可能嵌入的凭据（userinfo 或查询字符串）会从限定符中剥离，而来源与路径会被保留，因为两个 registry 可能仅在路径上不同。
 
@@ -90,19 +94,23 @@ pnpm sbom --sbom-format cyclonedx --out out/%s-%v.cdx.json
 
 从 SBOM 中排除对等依赖。仅通过这些对等依赖可达的依赖也会被排除。
 
-这在配合 `auto-install-peers` 时很有用，因为对等依赖会被解析进锁文件，否则看起来与普通依赖无异。
+这在配合 [autoInstallPeers](/docs/settings/peer-dependencies#autoinstallpeers) 时很有用，因为对等依赖会被解析进锁文件，否则看起来与普通依赖无异。
 
-### --prod, -P
+### --prod, -P, --production
 
 仅包含 `dependencies` 和 `optionalDependencies`。
 
 ### --dev, -D
 
-仅包含 `devDependencies`。
+从项目的 `devDependencies` 开始。除非禁用了可选依赖，否则会包含它们的可选依赖。
 
 ### --no-optional
 
 不包含 `optionalDependencies`。
+
+### --optional
+
+包含 `optionalDependencies`。
 
 ### --filter <package_selector>
 

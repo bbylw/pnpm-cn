@@ -1,6 +1,6 @@
 ---
 title: "package.json"
-headingIds: ["engines","enginesruntime","devenginesruntime","devenginespackagemanager","dependenciesmeta","dependenciesmetainjected","peerdependencies","peerdependenciesmeta","peerdependenciesmetaoptional","publishconfig","publishconfigname","publishconfigexecutablefiles","publishconfigdirectory","publishconfiglinkdirectory"]
+headingIds: ["bin", "engines", "enginesruntime", "devenginesruntime", "packagemanager", "devenginespackagemanager", "dependenciesmeta", "dependenciesmetainjected", "peerdependencies", "peerdependenciesmeta", "peerdependenciesmetaoptional", "publishconfig", "publishconfigregistry", "publishconfigaccess", "publishconfigname", "publishconfigexecutablefiles", "publishconfigdirectory", "publishconfiglinkdirectory"]
 ---
 
 包的清单文件。它包含包的所有元数据，包括依赖、标题、作者等。这是包括 pnpm 在内的所有主流 Node.js 包管理器共同遵循的标准。
@@ -12,6 +12,10 @@ headingIds: ["engines","enginesruntime","devenginesruntime","devenginespackagema
 自 v11 起，pnpm 不再从 `package.json` 的 `pnpm` 字段读取设置。设置必须定义在 `pnpm-workspace.yaml` 中。参见[配置](/docs/configuring)。
 
 :::
+
+## bin
+
+`bin` 字段把命令名映射到包内的文件。pnpm 会把反斜杠分隔符规范化为 `/`，并把包根目录下的父目录片段规范化。例如 `../dist/cli.js` 会解析为包内的 `dist/cli.js`。
 
 ## engines
 
@@ -26,9 +30,22 @@ headingIds: ["engines","enginesruntime","devenginesruntime","devenginespackagema
 }
 ```
 
-本地开发期间，如果 pnpm 自身版本与 `engines` 字段指定的不匹配，pnpm 将始终报错失败。
+若项目的 `engines.pnpm` 不接受正在运行的 pnpm 版本，安装会失败。
 
-除非用户设置了 `engineStrict` 配置标志（参见 [settings](/docs/settings/cli#enginestrict)），否则此字段仅供参考，仅在你的包作为依赖被安装时产生警告。
+启用 [`engineStrict`](/docs/settings/cli#enginestrict) 后，项目或依赖中不兼容的 `engines.node` 会使安装失败。可选依赖不受影响。禁用时，项目中不兼容的 `engines.node` 会打印一条警告；那些 `engines.node` 不兼容的必需依赖则列在安装输出的末尾。
+
+在工作区中，这些检查适用于每一个工作区项目，即使 `pnpm add` 或 `pnpm remove` 只改动了其中一个项目。`pnpm run -r` 与 `pnpm exec -r` 也会在运行任何东西之前执行这些检查。若某个项目的 `os`、`cpu` 或 `libc` 排除了当前平台，则会打印一条警告。
+
+项目的 `engines.node` 会与以下依次适用者中的第一个进行比对：
+
+1. [`nodeVersion`](/docs/settings/cli#nodeversion) 设置（当它被设置时）。
+2. 通过 `dependencies` 或 `devDependencies` 为该项目链接的 Node.js 运行时。生产安装不包含来自 `devDependencies` 的运行时。
+3. 根项目的运行时固定版本。
+4. 系统的 Node.js。
+
+当锁文件记录了被链接的运行时时，pnpm 会校验其解析后的版本。在解析之前，pnpm 使用声明的运行时版本或其范围允许的最低版本。
+
+`--no-runtime` 会跳过这两个运行时固定版本。
 
 ## engines.runtime
 
@@ -106,11 +123,25 @@ headingIds: ["engines","enginesruntime","devenginesruntime","devenginespackagema
 
 自 v12.0.0-rc.2 起，在项目内直接运行 `node`（或 `deno`/`bun`）也会遵循此锁定版本，而不仅是脚本。可通过 [globalShims](/docs/settings/other#globalshims) 设置关闭，或用 `PNPM_SHIM_BYPASS=1` 对单条命令跳过。参见[项目感知的全局命令](/docs/global-packages#project-aware-global-bins)。
 
+## packageManager
+
+指明项目使用的包管理器及其确切版本：
+
+```json
+{
+  "packageManager": "pnpm@12.0.0"
+}
+```
+
+当命令以不同的 pnpm 版本运行时，pnpm 会切换到所锁定的那个版本，正如 [`pmOnFail`](/docs/settings/cli#pmonfail) 所设定的那样。若要允许一个版本范围，请使用 [`devEngines.packageManager`](#devenginespackagemanager)。其它包管理器参见[包管理器](/docs/package-managers#declaring-the-package-manager-of-a-project)。
+
 ## devEngines.packageManager
 
 自 v11.0.0 起提供
 
 允许通过 `package.json` 中的 `devEngines.packageManager` 指定 pnpm 版本。与 `packageManager` 字段不同，它支持版本范围。解析出的版本会记录在 `pnpm-lock.yaml` 的 `packageManagerDependencies` 下，若仍满足范围则会被复用。
+
+当锁文件还没有记录版本时，若正在运行的 pnpm 满足范围、且至少是在 `minimumReleaseAge` 之前发布的，pnpm 就记录它；否则 pnpm 记录该范围中足够旧的最新版本。若范围中没有足够旧的版本，pnpm 记录正在运行的 pnpm。
 
 ```json
 {
@@ -254,11 +285,13 @@ headingIds: ["engines","enginesruntime","devenginesruntime","devenginespackagema
 }
 ```
 
-注意，尽管 `bar` 未在 `peerDependencies` 中声明，它也被标记为可选。因此 pnpm 认为 bar 的任何版本都可以。而 `foo` 是可选的，但仅限于其要求的版本规范。
+注意，尽管 `bar` 未在 `peerDependencies` 中声明，它也被标记为可选，因此 pnpm 认为 bar 的任何版本都可以。缺失的 `foo` 同样不会产生警告，但已安装且版本不满足 `1` 的 `foo` 仍会产生对等依赖警告。
 
 ## publishConfig
 
-在包被打包之前，可以覆盖清单中的某些字段。可覆盖的字段有：
+该字段承载改变包如何发布的设置：[`registry`](#publishconfigregistry)、[`access`](#publishconfigaccess)、[`directory`](#publishconfigdirectory)、[`linkDirectory`](#publishconfiglinkdirectory)、[`executableFiles`](#publishconfigexecutablefiles) 以及 [`@<scope>:registry`](#publishconfigregistry)。这些设置会保留在发布出去的 `package.json` 中。
+
+此外，`publishConfig` 还可以在包被打包之前覆盖清单中的若干其它字段。可覆盖的字段有：
 
 - [bin](https://github.com/stereobooster/package.json#bin)
 - [main](https://github.com/stereobooster/package.json#main)
@@ -273,12 +306,12 @@ headingIds: ["engines","enginesruntime","devenginesruntime","devenginespackagema
 - [typesVersions](https://www.typescriptlang.org/docs/handbook/declaration-files/publishing.html#version-selection-with-typesversions)
 - cpu
 - os
-- `engines`（自 v10.22.0 起提供）
-- [name](#publishconfigname)（自 v11.18.0 起提供）
+- `engines`
+- [`name`](#publishconfigname)
 
-要覆盖某个字段，把发布时使用的该字段值加入 `publishConfig`。
+要覆盖某个字段，请把该字段的发布版本加入 `publishConfig`。
 
-例如下面这个 `package.json`：
+例如，下面这个 `package.json`：
 
 ```json
 {
@@ -292,7 +325,7 @@ headingIds: ["engines","enginesruntime","devenginesruntime","devenginespackagema
 }
 ```
 
-发布后变为：
+会被发布为：
 
 ```json
 {
@@ -300,6 +333,52 @@ headingIds: ["engines","enginesruntime","devenginesruntime","devenginespackagema
     "version": "1.0.0",
     "main": "lib/index.js",
     "typings": "lib/index.d.ts"
+}
+```
+
+### publishConfig.registry
+
+该包发布到的 registry。它会覆盖 `registry` 设置、[`registries`](/docs/settings/dependency-resolution#registries) 中的任何作用域路由，以及 `pnpm publish --registry`。
+
+```json
+{
+  "name": "foo",
+  "version": "1.0.0",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  }
+}
+```
+
+这里只应填写 URL。pnpm 会用它去匹配 [`.npmrc`](/docs/npmrc) 中的认证设置，因此上面的示例会以 `//registry.npmjs.org/:_authToken=...` 发布。
+
+`pnpm publish -r` 运行中的每个包都会发往它自己的目标 registry，因此一条命令可以把一个工作区发布到多个 registry。[`--batch`](/docs/cli/publish#--batch) 随后会为每个 registry 发送一个请求。
+
+自 v12.7.0 起，作用域包还可以在 `@<scope>:registry` 键下设置自己的 registry。对于该作用域下的包，它优先于 `publishConfig.registry`，也优先于 `.npmrc` 中为该作用域设置的 registry：
+
+```json
+{
+  "name": "@acme/foo",
+  "version": "1.0.0",
+  "publishConfig": {
+    "@acme:registry": "https://npm.acme.example/"
+  }
+}
+```
+
+### publishConfig.access
+
+告知 registry 发布的包应为 `public` 还是 `restricted`。与 [`pnpm publish --access`](/docs/cli/publish#--access-publicrestricted) 相同。
+
+不设置时，pnpm 不发送访问级别，由 registry 应用它自己的默认值，已发布包的级别保持不变。未加作用域的包不能是 `restricted`。
+
+```json
+{
+  "name": "@acme/foo",
+  "version": "1.0.0",
+  "publishConfig": {
+    "access": "public"
+  }
 }
 ```
 

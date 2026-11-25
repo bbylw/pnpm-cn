@@ -1,6 +1,6 @@
 ---
 title: "网络与请求设置"
-headingIds: ["network-settings","httpsproxy","httpproxy","noproxy","localaddress","maxsockets","strictssl","request-settings","gitshallowhosts","networkconcurrency","fetchretries","fetchretryfactor","fetchretrymintimeout","fetchretrymaxtimeout","fetchtimeout","fetchwarntimeoutms","fetchminspeedkibps","maxtarballunpackedsize"]
+headingIds: ["network-settings", "httpsproxy", "httpproxy", "noproxy", "localaddress", "maxsockets", "strictssl", "useragent", "request-settings", "gitshallowhosts", "networkconcurrency", "fetchretries", "fetchretryfactor", "fetchretrymintimeout", "fetchretrymaxtimeout", "fetchtimeout", "fetchwarntimeoutms", "fetchminspeedkibps", "maxtarballunpackedsize"]
 ---
 
 ## 网络设置
@@ -10,7 +10,7 @@ headingIds: ["network-settings","httpsproxy","httpproxy","noproxy","localaddress
 - 默认值：**null**
 - 类型：**url**
 
-用于传出 HTTPS 请求的代理。如果设置了 `HTTPS_PROXY`、`https_proxy`、`HTTP_PROXY` 或 `http_proxy` 环境变量，则将改用它们的值。
+用于传出 HTTPS 请求的代理。若未设置 `httpsProxy`，pnpm 会使用旧有的 `proxy` 设置，然后是 `HTTPS_PROXY` 或 `https_proxy` 环境变量。
 
 如果你的代理 URL 包含用户名和密码，请确保对其进行 URL 编码。例如：
 
@@ -20,7 +20,7 @@ httpsProxy: "https://use%21r:pas%2As@my.proxy:1234/foo"
 
 不要对用户名和密码之间的冒号（`:`）进行编码。
 
-自 v11.20.0 起，空值会被视为未设置，而不是以 `ERR_PNPM_INVALID_PROXY` 使安装失败，因此导出 `HTTPS_PROXY=` 的 shell 只是简单地禁用了代理。在 `pnpm-workspace.yaml` 或 `.npmrc` 中把值设为 `false` 或 `null` 也会关闭代理。在命令行上，`false` 和 `null` 是普通主机名，因为标志会原样携带其值。
+空值会被视为未设置。若 `httpsProxy` 与 `proxy` 都没有配置，导出 `HTTPS_PROXY=` 的 shell 会禁用代理。在 `pnpm-workspace.yaml` 或 `.npmrc` 中把值设为 `false` 或 `null` 同样会被视为未设置，因此 pnpm 仍会回退到 `proxy` 与环境变量。要彻底关闭代理，请把 `proxy` 设为 `false`。在命令行上，`false` 与 `null` 是普通主机名，因为标志会原样携带其值。
 
 ### httpProxy
 
@@ -38,7 +38,9 @@ httpsProxy: "https://use%21r:pas%2As@my.proxy:1234/foo"
 - 默认值：**null**
 - 类型：**字符串**
 
-一个以逗号分隔的字符串，列出不应使用代理的域名后缀。
+一个以逗号分隔的字符串，列出不应使用代理的域名后缀。若未设置 `noProxy`，pnpm 会使用 `noproxy`，然后是 `NO_PROXY` 或 `no_proxy` 环境变量。
+
+一项可以带或不带前导点书写：`npmjs.org` 与 `.npmjs.org` 都会让该域名本身及其子域名绕过代理。
 
 空值、`false` 和 `null` 的行为如 [httpsProxy](#httpsproxy) 所述。
 
@@ -51,10 +53,10 @@ httpsProxy: "https://use%21r:pas%2As@my.proxy:1234/foo"
 
 ### maxsockets
 
-- 默认值：**networkConcurrency x 3**
+- 默认值：**unset**
 - 类型：**数字**
 
-每个源（协议/主机/端口组合）所使用的最大连接数。
+每个源（协议/主机/端口组合）所使用的最大连接数。未设置时，经由代理的连接每个源最多 50 个，而直连只受 [`networkConcurrency`](#networkconcurrency) 限制。设为 `0` 可让经代理的连接也不受限制。
 
 `maxSockets` 可作为别名接受。两种拼写都会从 `pnpm-workspace.yaml`、全局配置文件、环境和命令行读取，且优先级依次递增，因此即使在两边对该设置的拼写不同时，命令行上传入的值也会胜出。
 
@@ -67,6 +69,13 @@ httpsProxy: "https://use%21r:pas%2As@my.proxy:1234/foo"
 
 ## 请求设置
 
+### userAgent
+
+- 默认值：`pnpm/<version> npm/? node/? <platform> <arch>`
+- 类型：**字符串**
+
+pnpm 每次向 registry 发请求时所用的 `User-Agent` 头的值。
+
 ### gitShallowHosts
 
 - 默认值：**['github.com', 'gist.github.com', 'gitlab.com', 'bitbucket.com', 'bitbucket.org']**
@@ -76,12 +85,16 @@ httpsProxy: "https://use%21r:pas%2As@my.proxy:1234/foo"
 
 ### networkConcurrency
 
-- 默认值：**auto (workers × 3 clamped to 16-64)**
+- 默认值：**auto (workers × 3 clamped to 64-96)**
 - 类型：**数字**
 
 控制并发处理的 HTTP(S) 请求最大数量。
 
-自 v10.24.0 起，pnpm 会根据 worker 数量自动选择 16 到 64 之间的一个值（networkConcurrency = clamp(workers × 3, 16, 64)）。显式设置此值可覆盖自动缩放。
+pnpm 会根据 worker 数量（可用的并行度减去 1）在 64 到 96 之间选择一个值（networkConcurrency = clamp(workers × 3, 64, 96)）。显式设置此值可覆盖自动缩放。
+
+若在其它针对同一主机的请求仍在进行时某个请求超时，pnpm 会把该主机的限制降为在该命令余下的时间里每次一个请求。已经在运行的请求会先完成。对其它主机的请求仍享有限额。通过同一代理发出的请求算作同一个主机。
+
+若想把某个 registry 的请求限制为一个，请在 `registries` 设置的对应条目上设置 [`networkConcurrency`](/docs/registries#networkconcurrency)。
 
 ### fetchRetries
 

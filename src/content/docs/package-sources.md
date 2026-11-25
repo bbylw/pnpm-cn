@@ -1,6 +1,6 @@
 ---
 title: "支持的包源"
-headingIds: ["trusted-sources","npm-registry","jsr-registry","named-registries","workspace","local-file-system","exotic-sources","remote-tarball","git-repository","install-from-a-git-repository-using-semver","install-from-a-subdirectory-of-a-git-repository","install-from-a-git-repository-via-a-full-url","install-from-a-git-repository-using-hosting-providers-shorthand","install-from-a-git-repository-combining-different-parameters","how-git-dependencies-are-resolved","using-ssh-for-private-repositories","repositories-on-other-hosts","how-a-git-dependency-is-built"]
+headingIds: ["trusted-sources","npm-registry","jsr-registry","cratesio-and-pypi","provisioned-tools","named-registries","workspace","local-file-system","exotic-sources","remote-tarball","git-repository","install-from-a-git-repository-using-semver","install-from-a-subdirectory-of-a-git-repository","install-from-a-git-repository-via-a-full-url","install-from-a-git-repository-using-hosting-providers-shorthand","install-from-a-git-repository-combining-different-parameters","how-git-dependencies-are-resolved","using-ssh-for-private-repositories","repositories-on-other-hosts","how-a-git-dependency-is-built"]
 ---
 
 pnpm 支持从多种源安装依赖包。这些源分为两类：**受信任的源**与**非常规源**。
@@ -25,11 +25,9 @@ pnpm 支持从多种源安装依赖包。这些源分为两类：**受信任的�
 
 ### JSR registry
 
-自 v10.9.0 起提供
-
 要从 [JSR](https://jsr.io/) registry 安装依赖包，使用 `jsr:` 协议前缀：
 
-```
+```sh
 pnpm add jsr:@hono/hono
 pnpm add jsr:@hono/hono@4
 pnpm add jsr:@hono/hono@latest
@@ -37,19 +35,47 @@ pnpm add jsr:@hono/hono@latest
 
 这与从 npm 安装一样，只是会告知 pnpm 转而通过 JSR 解析该包。
 
-### 命名 registry
+### crates.io 与 PyPI
 
-自 v11.1.0 起提供
+自 v12.4.0 起提供（仅 pnpm v12）
+
+`crate:` 或 `pypi:` 前缀用于请求另一种生态系统的包，前提是该生态系统已在 `pnpm-workspace.yaml` 中启用：
+
+```sh
+pnpm add crate:serde
+pnpm add pypi:httpx
+```
+
+这类依赖会记录在该生态系统自己的清单和锁文件中，而不是 `package.json` 或 `pnpm-lock.yaml`。参见 [Cargo 依赖](/docs/cargo)和 [Python 依赖](/docs/python)。
+
+### 预置工具
+
+自 v12.13.0 起提供（仅 pnpm v12）
+
+`tool:` 协议用于请求由 pnpm 从该工具自己的发布渠道（而不是 npm）下载的工具：Node.js、Bun、Deno 和 Yarn。
+
+```sh
+pnpm add node@tool:24
+pnpm add bun@tool:1.3.0
+pnx node@tool:22 --version
+pnx yarn@tool:4 --version
+```
+
+`yarn@tool:<版本>` 会像 `yarn@<版本>` 那样，从该 Yarn 系列实际发布的任何位置选取 Yarn。
+
+`runtime:` 是 `tool:` 的别名，在此前可用的地方依然可用。`pnpm-lock.yaml` 仍以 `runtime:` 记录这些条目，例如 `node@runtime:24.6.0`，因此锁文件仍可被更早的 pnpm 版本读取。
+
+### 命名 registry
 
 [命名 registry](/docs/settings/dependency-resolution#namedregistries) 别名会在指定的 registry 中解析依赖包，而不管默认 registry 是哪个：
 
-```bash
+```sh
 pnpm add work:@corp/lib@^2.0.0
 pnpm add gh:@my-org/private-pkg
 pnpm add npmjs:left-pad
 ```
 
-`gh:`（GitHub Packages）以及自 v11.20.0 起的 `npmjs:`（公共 npm registry）无需配置即可使用。其他任何别名都必须在 `pnpm-workspace.yaml` 的 [namedRegistries](/docs/settings/dependency-resolution#namedregistries) 下映射，或自 v11.11.0 起在[全局配置文件](/docs/cli/config)（`config.yaml`）中映射。
+`gh:`（GitHub Packages）和 `npmjs:`（公共 npm registry）无需配置即可使用。其他任何别名都必须在 `pnpm-workspace.yaml` 的 [namedRegistries](/docs/settings/dependency-resolution#namedregistries) 下映射，或在[全局配置文件](/docs/cli/config)（`config.yaml`）中映射。
 
 ### 工作区
 
@@ -62,14 +88,16 @@ pnpm add npmjs:left-pad
 1. 从 tarball 文件（`.tar`、`.tar.gz` 或 `.tgz`）
 2. 从目录
 
-Examples:
+示例：
 
-```bash
+```sh
 pnpm add ./package.tar.gz
 pnpm add ./some-directory
 ```
 
-从目录安装时，会在当前项目的 `node_modules` 中创建符号链接，因此等同于运行 `pnpm link`。
+`pnpm add ./some-directory` 会用 `link:` 协议记录该依赖。pnpm 会在当前项目的 `node_modules` 中创建符号链接，因此等同于运行 `pnpm link`。
+
+若要把目录作为包来安装，请改用 `file:` 协议，例如 `pnpm add file:./some-directory`。pnpm 会把该目录复制到虚拟存储中，并安装它的依赖。
 
 ## 非常规源
 
@@ -77,17 +105,19 @@ pnpm add ./some-directory
 
 ### 远程 tarball
 
+pnpm 会为通过 HTTPS 或回环 HTTP 的 tarball 下载发送 registry 凭据。重定向只在同一来源上的已配置 registry 路径内才能获得凭据。
+
 参数必须是可拉取的 URL，以 "http://" 或 "https://" 开头。
 
-Example:
+示例：
 
-```bash
+```sh
 pnpm add https://github.com/indexzero/forever/tarball/v0.5.6
 ```
 
 ### Git 仓库
 
-```bash
+```sh
 pnpm add <git remote url>
 ```
 
@@ -97,37 +127,37 @@ pnpm add <git remote url>
 
 - 默认分支的最新提交：
 
-```
+```sh
 pnpm add kevva/is-positive
 ```
 
 - Git 提交哈希：
 
-```
+```sh
 pnpm add kevva/is-positive#97edff6f525f192a3f83cea1944765f769ae2678
 ```
 
 - Git 分支：
 
-```
+```sh
 pnpm add kevva/is-positive#master
 ```
 
 - 相对于 refs 的 Git 分支：
 
-```
+```sh
 pnpm add zkochan/is-negative#heads/canary
 ```
 
 - Git 标签：
 
-```
+```sh
 pnpm add zkochan/is-negative#2.0.1
 ```
 
 - 带 V 前缀的 Git 标签：
 
-```
+```sh
 pnpm add andreineculau/npm-publish-git#v0.0.7
 ```
 
@@ -137,25 +167,25 @@ pnpm add andreineculau/npm-publish-git#v0.0.7
 
 - 精确 semver：
 
-```
+```sh
 pnpm add zkochan/is-negative#semver:1.0.0
 ```
 
 - 带 V 前缀的精确 semver：
 
-```
+```sh
 pnpm add andreineculau/npm-publish-git#semver:v0.0.7
 ```
 
 - semver 版本范围：
 
-```
+```sh
 pnpm add kevva/is-positive#semver:^2.0.0
 ```
 
 - 带 V 前缀的 semver 版本范围：
 
-```
+```sh
 pnpm add andreineculau/npm-publish-git#semver:<=v0.0.7
 ```
 
@@ -163,7 +193,7 @@ pnpm add andreineculau/npm-publish-git#semver:<=v0.0.7
 
 也可以使用 `path:` 参数只安装 Git 托管 monorepo 中的某个子目录。例如：
 
-```
+```sh
 pnpm add RexSkz/test-git-subfolder-fetch#path:/packages/simple-react-app
 ```
 
@@ -171,7 +201,7 @@ pnpm add RexSkz/test-git-subfolder-fetch#path:/packages/simple-react-app
 
 如果想更明确，或使用了其他 Git 托管服务，可以写出完整的 Git URL：
 
-```
+```sh
 # git+ssh
 pnpm add git+ssh://git@github.com:zkochan/is-negative.git#2.0.1
 
@@ -183,10 +213,11 @@ pnpm add https://github.com/zkochan/is-negative.git#2.0.1
 
 对某些 Git 服务商，可以使用协议简写 `[provider]:`：
 
-```
+```sh
 pnpm add github:zkochan/is-negative
 pnpm add bitbucket:pnpmjs/git-resolver
 pnpm add gitlab:pnpm/git-resolver
+pnpm add gist:106cfef49f8476b753a9cbbf9c65aff1
 ```
 
 省略 `[provider]:` 时，默认为 `github:`。
@@ -195,22 +226,29 @@ pnpm add gitlab:pnpm/git-resolver
 
 可以用 `&` 分隔并组合多个参数。这对 monorepo 的 fork 很有用：
 
-```
+```sh
 pnpm add RexSkz/test-git-subdir-fetch.git#beta\&path:/packages/simple-react-app
 ```
 
 从 `beta` 分支安装，且仅安装 `/packages/simple-react-app` 子目录。
 
+pnpm 也接受 npm 的语法，用 `::` 分隔参数：
+
+```sh
+pnpm add RexSkz/test-git-subdir-fetch.git#beta::path:packages/simple-react-app
+```
+
 #### Git 依赖如何解析
 
 自 v12.0.0 起提供（仅 pnpm v12）
 
-对于 GitHub、GitLab 和 Bitbucket 上的仓库，说明符是一种**标识**，而不是传输方式的选择。以下写法都指向同一个依赖，且解析结果完全相同：
+对于 GitHub、GitLab、Bitbucket 和 GitHub Gist 上的仓库，说明符是一种**标识**，而不是传输方式的选择。以下写法都指向同一个依赖，且解析结果完全相同：
 
-```
+```text
 kevva/is-positive
 github:kevva/is-positive
 git+https://github.com/kevva/is-positive.git
+https://github.com/kevva/is-positive.git
 git+ssh://git@github.com/kevva/is-positive.git
 ```
 
@@ -220,8 +258,6 @@ git+ssh://git@github.com/kevva/is-positive.git
 - 否则为**基于规范 HTTPS URL 的 git 解析**，任何能访问该仓库的机器都可拉取。
 
 pnpm 从不为这些托管方记录 SSH URL。某台机器用哪种传输方式访问托管方，属于该机器的 Git 配置，而不是项目的属性。
-
-pnpm 11 会将说明符的传输方式保留为记录 URL 的一部分，但自 v11.21.0 起，只有当说明符本身要求使用 SSH（`git+ssh://` 或 `git@host:...`）时才记录 SSH URL：`owner/repo` 这类简写会通过 HTTPS 解析并记录，因此在装有 SSH 密钥的机器上写入的锁文件，仍能安装到没有 SSH 密钥的 CI 运行器上。旧版 pnpm 记录的 SSH URL 可以通过 `pnpm update <package>` 以 HTTPS 重新记录。
 
 ##### 为私有仓库使用 SSH
 
@@ -239,7 +275,7 @@ pnpm 会调用外部的 `git`，因此该重写会自动应用于 pnpm 的所有
 
 :::info[信息]
 
-在 pnpm v11 及更早版本中，解析过程会探测网络以在 HTTPS 和 SSH 之间做出选择。这可能会记录运行安装的机器上恰好可用的那种传输方式，最常见的是 `ssh://` URL，随后在没有 SSH 密钥的 CI 运行器上失败。pnpm v12 移除了探测。现有锁文件条目保持不变，上述规则仅在新增条目或重新解析时适用。
+现有锁文件条目保持不变。上述规则仅在新增条目或重新解析时适用，而 `pnpm update <package>` 会把 SSH URL 重新记录为 HTTPS。
 
 :::
 
@@ -247,9 +283,4 @@ pnpm 会调用外部的 `git`，因此该重写会自动应用于 pnpm 的所有
 
 自 v12.0.0-rc.6 起提供（仅 pnpm v12）
 
-托管在 Git 上的依赖若交付的是源码而非构建好的包，必须先执行 prepare（安装其依赖并运行其构建脚本）才能被安装。pnpm 会使用该依赖自己要求的包管理器来准备它，而不是假定主机上装了正确的那一个：
-
-- 依赖自身的 `packageManager` / [devEngines.packageManager](/docs/package_json#devenginespackagemanager) 锁定优先，其作者正是用它进行测试的；
-- 没有锁定时，其自带的锁文件会指明包管理器。`yarn.lock` 还会指明是*哪个* Yarn 系列：Yarn Berry 会在其写入的每个锁文件中打上 `__metadata:` 标记，两个系列无法互读对方的锁文件，因此 Berry 不再安装 Classic 锁文件。
-
-当依赖锁定了版本，或主机无法满足依赖所需时，pnpm 会[提供该包管理器](/docs/package-managers)。因此用 Yarn 构建的仓库也能在只装有 pnpm 的机器上安装；而主机若已装有合适的包管理器（覆盖构建可能调用的所有名称），则继续使用自己的。
+托管在 Git 上的依赖若交付的是源码而非构建好的包，必须先执行 prepare（安装其依赖并运行其构建脚本）才能被安装。pnpm 会使用该依赖所要求的那个包管理器来准备它。参见[准备 Git 托管的依赖](/docs/package-managers#preparing-a-git-hosted-dependency)。

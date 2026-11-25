@@ -9,9 +9,11 @@ headingIds: ["examples","see-also"]
 
 在项目清单的 `scripts` 字段中添加或更新条目
 
-```bash
-pnpm set-script <name> <command>
+```sh
+pnpm set-script <name> <command>...
 ```
+
+脚本名之后的参数会用空格连接成命令，因此 `pnpm set-script test vitest run` 不加引号也能工作。缺少脚本名或命令会失败，错误码为 `ERR_PNPM_SET_SCRIPT_MISSING_ARGS`。
 
 支持 `package.json`、`package.json5` 和 `package.yaml` 清单格式
 

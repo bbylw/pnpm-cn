@@ -11,6 +11,7 @@
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const argv = process.argv.slice(2);
 const repoIdx = argv.indexOf("--repo");
@@ -21,15 +22,44 @@ const LOCAL = "src/content/docs";
 const REV = process.env.UP_REV || "HEAD";
 
 /* ---------------- 上游读取 ---------------- */
-function upstreamDoc(rel) {
+function gitShow(p) {
   try {
-    return execSync(`git -C "${UP}" show ${REV}:pnpm/docs/${rel}`, {
+    return execSync(`git -C "${UP}" show ${REV}:${p}`, {
       encoding: "utf8",
       maxBuffer: 64 * 1024 * 1024,
     });
   } catch {
     return null;
   }
+}
+
+/**
+ * 展开上游文档里的 MDX 片段（`import X from './_y.mdx'` + `<X />`），
+ * 使标题列表与正文都与上游站点渲染结果一致。
+ */
+export function expandMdx(md, rel) {
+  if (!md) return md;
+  const dir = path.posix.dirname(rel);
+  let out = md;
+  const importRe = /^import\s+(\w+)\s+from\s+["']([^"']+\.mdx)["']\s*$/gm;
+  let m;
+  const names = [];
+  while ((m = importRe.exec(out))) names.push({ name: m[1], file: m[2] });
+  for (const { name, file } of names) {
+    const abs = path.posix.normalize(path.posix.join(dir, file));
+    const part = gitShow(`pnpm/docs/${abs}`);
+    if (part == null) continue;
+    // 移除 import 行，并把 <Name /> 替换为片段内容
+    out = out.replace(new RegExp(`^import\\s+${name}\\s+from\\s+["'][^"']+\\.mdx["']\\s*$`, "gm"), "");
+    out = out.replace(new RegExp(`^<${name}\\s*/>\\s*$`, "m"), part.trimEnd());
+  }
+  return out;
+}
+
+export function upstreamDoc(rel) {
+  const raw = gitShow(`pnpm/docs/${rel}`);
+  if (raw == null) return null;
+  return expandMdx(raw, rel);
 }
 
 /* ---------------- 锚点 slug（与 pnpm.io/docusaurus 一致） ---------------- */
@@ -45,7 +75,7 @@ export function slugify(text, seen) {
     .toLowerCase()
     .replace(/[^a-z0-9_\s-]/g, "")
     .trim()
-    .replace(/\s+/g, "-");
+    .replace(/\s/g, "-"); // github-slugger：每个空白字符各转成一个连字符
   let slug = base;
   let i = 1;
   while (seen.has(slug)) slug = `${base}-${i++}`;
@@ -63,7 +93,14 @@ export function headingSlugs(md) {
     }
     if (inside) continue;
     const m = /^(#{2,6})\s+(.*)$/.exec(line);
-    if (m) out.push({ level: m[1].length, text: m[2].trim(), slug: slugify(m[2], seen) });
+    if (m) {
+      const text = m[2].trim();
+      // docusaurus 支持显式锚点 `{#id}`，存在时以它为准
+      const explicit = /\s*\{#[^}]+\}\s*$/.exec(text);
+      const slug = explicit ? explicit[0].trim().slice(2, -1) : slugify(text, seen);
+      if (explicit) seen.add(slug);
+      out.push({ level: m[1].length, text, slug });
+    }
   }
   return out;
 }
@@ -142,6 +179,7 @@ function report() {
   extra.forEach((m) => console.log("  - " + m));
 
   const anchorIssues = [];
+  const orderIssues = [];
   const contentIssues = [];
   for (const rel of local) {
     const up = upstreamDoc(rel + ".md");
@@ -153,6 +191,18 @@ function report() {
     const notInUp = ids.filter((i) => !upSlugs.includes(i));
     if (notInUp.length)
       anchorIssues.push(`  ${rel}  本地锚点 ${ids.length}，上游标题 ${upSlugs.length}，本地独有 ${JSON.stringify(notInUp.slice(0, 4))}`);
+    // 锚点按出现顺序写入 id，故顺序必须与上游一致
+    let last = -1;
+    let misordered = [];
+    for (const id of ids) {
+      const j = upSlugs.indexOf(id);
+      if (j >= 0) {
+        if (j < last) misordered.push(id);
+        last = j;
+      }
+    }
+    if (misordered.length)
+      orderIssues.push(`  ${rel}  顺序与上游不一致：${JSON.stringify(misordered.slice(0, 6))}`);
     const lb = codeBlocks(raw);
     const ub = codeBlocks(up);
     const missCodes = ub.filter((c) => !lb.includes(c)).length;
@@ -165,6 +215,8 @@ function report() {
   }
   console.log(`\n【锚点与上游不一致】${anchorIssues.length} 篇`);
   anchorIssues.forEach((l) => console.log(l));
+  console.log(`\n【锚点顺序与上游不一致】${orderIssues.length} 篇`);
+  orderIssues.forEach((l) => console.log(l));
   console.log(`\n【正文结构有漂移】${contentIssues.length} 篇`);
   contentIssues.forEach((l) => console.log(l));
 
@@ -197,22 +249,27 @@ function report() {
 }
 
 /* ---------------- CLI ---------------- */
-const slugsIdx = argv.indexOf("--slugs");
-const sectIdx = argv.indexOf("--section");
-if (slugsIdx >= 0) {
-  for (const rel of argv.slice(slugsIdx + 1).filter((a) => !a.startsWith("--"))) {
-    console.log(`\n### ${rel}`);
-    for (const h of headingSlugs(upstreamDoc(rel) || "")) {
-      console.log(`  ${"  ".repeat(h.level - 2)}${h.slug}   <= ${h.text}`);
+function main() {
+  const slugsIdx = argv.indexOf("--slugs");
+  const sectIdx = argv.indexOf("--section");
+  if (slugsIdx >= 0) {
+    for (const rel of argv.slice(slugsIdx + 1).filter((a) => !a.startsWith("--"))) {
+      console.log(`\n### ${rel}`);
+      for (const h of headingSlugs(upstreamDoc(rel) || "")) {
+        console.log(`  ${"  ".repeat(h.level - 2)}${h.slug}   <= ${h.text}`);
+      }
     }
+  } else if (sectIdx >= 0) {
+    // slug 本身可能以 -- 开头（如 --frozen-store），故不过滤
+    const rest = argv.slice(sectIdx + 1);
+    const [rel, ...slugs] = rest;
+    for (const slug of slugs) {
+      console.log(`\n########## ${rel} :: ${slug} ##########`);
+      console.log(section(rel, slug) || "（未找到）");
+    }
+  } else {
+    report();
   }
-} else if (sectIdx >= 0) {
-  const rest = argv.slice(sectIdx + 1).filter((a) => !a.startsWith("--"));
-  const [rel, ...slugs] = rest;
-  for (const slug of slugs) {
-    console.log(`\n########## ${rel} :: ${slug} ##########`);
-    console.log(section(rel, slug) || "（未找到）");
-  }
-} else {
-  report();
 }
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();

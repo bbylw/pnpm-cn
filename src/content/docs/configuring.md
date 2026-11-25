@@ -17,7 +17,7 @@ pnpm 也不再读取 `package.json` 中 `pnpm` 字段的设置。设置应定义
 pnpm-workspace.yaml
 
 ```yaml
-nodeVersion: "22"
+nodeVersion: "22.22.3"
 saveExact: true
 ```
 

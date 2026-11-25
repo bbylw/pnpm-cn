@@ -24,6 +24,23 @@ echo 'source ~/completion-for-pnpm.bash' >> ~/.bashrc
 pnpm completion fish > ~/.config/fish/completions/pnpm.fish
 ```
 
+要为 Zsh 设置自动补全，运行：
+
+```sh
+pnpm completion zsh > ~/completion-for-pnpm.zsh
+echo 'source ~/completion-for-pnpm.zsh' >> ~/.zshrc
+```
+
+要为 PowerShell 设置自动补全，运行：
+
+```powershell
+pnpm completion pwsh >> $PROFILE
+```
+
+其它 shell 名称会以 `ERR_PNPM_UNSUPPORTED_SHELL` 失败。
+
+自 v12.4.0 起，生成的补全也覆盖 [`pn` 别名](/docs/pnpm-cli#short-aliases)，涵盖 Bash、Fish、PowerShell 与 Zsh。
+
 ## g-plane/pnpm-shell-completion
 
 [pnpm-shell-completion](https://github.com/g-plane/pnpm-shell-completion) 是由 Pig Fang 在 Github 上维护的一个 shell 插件。

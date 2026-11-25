@@ -1,6 +1,6 @@
 ---
 title: "pnpm -r, --recursive"
-headingIds: ["options","--link-workspace-packages","--workspace-concurrency","--no-bail","--no-sort","--reverse","--filter-package_selector"]
+headingIds: ["options","--workspace-concurrency","--no-bail","--no-sort","--reverse","--parallel","--resume-from-package_name","--stream","--aggregate-output","--report-summary","-w---workspace-root","--filter-package_selector","--filter-prod-package_selector"]
 ---
 
 别名： `m`, `multi`, `recursive`, `<command> -r`
@@ -29,44 +29,43 @@ headingIds: ["options","--link-workspace-packages","--workspace-concurrency","--
 
 用法示例：
 
-```
+```sh
 pnpm -r publish
 ```
 
+默认情况下，递归的 `run`、`exec` 和 `test` 按拓扑顺序执行项目：依赖先于依赖它们的项目运行。使用 `--no-sort` 可禁用图排序，或使用 `--parallel` 无需等待依赖即可启动任务。递归的 `list` 也按相同顺序打印项目。
+
 ## 选项
 
-### --link-workspace-packages
-
-- 默认值：**false**
-- 类型：**true, false, deep**
-
-将 monorepo 工作区中本地可用的包链接到 `node_modules`，而不是从 registry 重新下载。这模拟了与 `yarn workspaces` 类似的功能。
-
-将其设为 deep 时，本地包也可以链接到子依赖。
-
-建议改为在 [pnpm-workspace.yaml](/docs/workspaces#linkworkspacepackages) 中设置此项，以便在所有环境中强制相同行为。此选项的存在只是为了让你在必要时进行覆盖。
+要链接工作区包，请设置 [`linkWorkspacePackages`](/docs/workspaces#linkworkspacepackages) 或在安装时传入 `--link-workspace-packages`。
 
 ### --workspace-concurrency
 
-- 默认值：**4**
+- 默认值：**4 与可用 CPU 核心数中的较小者**
 - 类型：**数字**
 
 设置同时运行的最大任务数。如需不限并发，使用 `Infinity`。
 
-你可以将 `workspace-concurrency` 设为 `<= 0`，此时按宿主机核心数使用：`max(1, (number of cores) - abs(workspace-concurrency))`
+在设有 CPU 配额的容器中（例如 Kubernetes 的 CPU limit），当配额小于容器可使用的 CPU 数量时，可用核心数即为该配额。小数配额向下取整，且至少为 1。
+
+取值小于等于 0 时，任务数为可用 CPU 核心数减去该值的绝对值，且至少为 `1`。对应的设置是 `workspaceConcurrency`。
 
 ### --[no-]bail
 
 - 默认值：**true**
 - 类型：**布尔值**
 
-为 true 时，任一任务抛出错误即停止。
+为 true 时，某个任务抛出错误即停止。仍在运行的任务也会被停止：在 Unix 上它们会收到 `SIGTERM`，两秒后仍在运行的则收到 `SIGKILL`；在 Windows 上，它们连同启动的每个进程会被立即结束。
 
-此配置不影响退出码。即使使用 `--no-bail`，所有任务也会全部完成，但若其中任一任务失败，命令仍以非零码退出。
+`--no-bail` 仅被 `run`、`exec`、`test`、`start`、`stop`、`rebuild`、`install-test` 以及 `pnpm <script>` 简写接受。其他命令会拒绝它。
+
+使用 `--no-bail` 时，依赖于失败任务的任务会被跳过，而相互独立的任务会继续运行。
+此配置不影响退出码：只要有任一任务失败，命令就以非零码退出。
+参见 [`--no-bail`](/docs/workspace-task-orchestration#--no-bail)。
 
 示例（在每个包中运行测试，其中一个失败时继续）：
 
-```bash
+```sh
 pnpm -r --no-bail test
 ```
 
@@ -75,11 +74,11 @@ pnpm -r --no-bail test
 - 默认值：**true**
 - 类型：**布尔值**
 
-为 `true` 时，命令遵循工作区依赖图。递归 `run` 还会应用 [tasks 设置](/docs/workspace-task-orchestration) 中的关系。传入 `--no-sort` 可移除图排序，这同时会使 `tasks`、`--reverse` 和 `--resume-from` 不再适用。
+为 `true` 时，命令遵循工作区依赖图。递归 `run` 还会应用 [`tasks` 设置](/docs/workspace-task-orchestration) 中的关系。传入 `--no-sort` 可移除图排序，这同时会使 `tasks`、`--reverse` 和 `--resume-from` 不再适用。
 
-Example:
+示例：
 
-```bash
+```sh
 pnpm -r --no-sort test
 ```
 
@@ -90,10 +89,38 @@ pnpm -r --no-sort test
 
 为 `true` 时，依赖边会被反转。对于递归 `run`，这会反转解析后的任务图，包括通过 `dependsOn` 声明的关系。
 
-```
+```sh
 pnpm -r --reverse run clean
 ```
 
+### --parallel
+
+参见 [`pnpm run --parallel`](/docs/cli/run#--parallel)。
+
+### --resume-from <package_name>
+
+参见 [`pnpm run --resume-from`](/docs/cli/run#--resume-from-package_name)。
+
+### --stream
+
+参见 [`pnpm run --stream`](/docs/cli/run#--stream)。
+
+### --aggregate-output
+
+参见 [`pnpm run --aggregate-output`](/docs/cli/run#--aggregate-output)。
+
+### --report-summary
+
+参见 [`pnpm run --report-summary`](/docs/cli/run#--report-summary)。
+
+### -w, --workspace-root
+
+参见 [`--workspace-root`](/docs/pnpm-cli#-w---workspace-root)。
+
 ### --filter <package_selector>
 
-[Read more about filtering.](/docs/filtering)
+更多过滤说明见[过滤](/docs/filtering)。
+
+### --filter-prod <package_selector>
+
+参见 [`--filter-prod`](/docs/filtering#--filter-prod-filtering_pattern)。

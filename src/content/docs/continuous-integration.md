@@ -7,22 +7,28 @@ pnpm 可以轻松地用于各种持续集成系统。
 
 ## 安装 pnpm
 
-除 GitHub Actions（它有[自己的 action](#github-actions)）之外，使用独立脚本安装 pnpm：
+在每个作业都运行于容器镜像的 CI 系统上，请使用[官方 pnpm 镜像](/docs/docker#official-pnpm-base-image) `ghcr.io/pnpm/pnpm` 作为作业镜像。pnpm 已经在 `PATH` 上，因此作业无需安装步骤，而 `pnpm runtime set node lts -g` 可以安装 Node.js。下面的 [Bitbucket Pipelines](#bitbucket-pipelines) 和 [GitLab CI](#gitlab-ci) 示例就使用了它。如果你的 Dockerfile 基于其它镜像（例如 `node:24`）构建，请[从官方镜像复制 pnpm](/docs/docker#adding-pnpm-to-your-own-image)。
 
-```bash
-curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=latest-12 sh -
+在 GitHub Actions 之外（它有[自己的 action](#github-actions)），请用独立脚本安装 pnpm。如果 `get.pnpm.io` 无法访问，第二条命令会从最新的[安装器发布版本](https://github.com/pnpm/get.pnpm.io/releases/latest)下载同一份脚本：
+
+```sh
+{ curl -fsSL https://get.pnpm.io/ -o /tmp/pnpm-install.sh \
+  || curl -fsSL https://github.com/pnpm/get.pnpm.io/releases/latest/download/install.sh -o /tmp/pnpm-install.sh; } \
+  && sh /tmp/pnpm-install.sh
 ```
+
+脚本会先保存到文件再运行，并且只有在某一次下载成功时才会运行，因此下载失败绝不会执行不完整的脚本。
 
 有两点让这在 CI 中很方便：
 
 - **不需要 Node.js。** pnpm 是自包含的可执行文件，之后可以用 `pnpm runtime set node lts -g` 为你安装运行时，因此任务一开始并不需要 Node.js 镜像。
-- **跟随项目的版本。** 引导过程安装最新的 pnpm 12，随后如果你的 `package.json` 中有 `packageManager` 或 `devEngines.packageManager` 字段，pnpm 会在首次使用时切换到该版本，因此流水线不必在两处锁定版本。
+- **跟随项目的版本。** 引导过程会安装最新的稳定版 pnpm，随后如果你的 `package.json` 中有 `packageManager` 或 `devEngines.packageManager` 字段，pnpm 会在首次使用时切换到该版本，因此流水线不必在两处锁定版本。
 
 脚本安装到 `PNPM_HOME` 并向 shell 配置文件追加内容，而 CI 任务从不重新加载这些配置。你需要自行声明 `PNPM_HOME` 并把 `$PNPM_HOME/bin` 加入 `PATH`，使用平台提供的任意机制即可，下面的示例对每个平台都做了演示。
 
 :::note[说明]
 
-本页面早期版本使用 Corepack。Corepack 会安装一个 JavaScript shim 来代替 pnpm，因此每次调用 `pnpm` 都要先启动 Node.js 来运行 shim，之后 pnpm 本身才启动，这是每次调用都要付出的开销，而 CI 任务会进行大量调用。直接安装 pnpm 则完全避免了这一点。
+不要使用 Corepack。它每次调用都会通过一个 Node.js shim 来运行 pnpm。
 
 :::
 
@@ -34,7 +40,7 @@ curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=latest-12 sh -
 
 :::tip[同时缓存元数据缓存]
 
-自 v11.22.0 起，[pnpm cache path](/docs/cli/cache-path) 会输出 pnpm 用于元数据缓存的目录，任务可以直接缓存它，无需复刻 pnpm 自身的路径解析。该目录还保存着锁文件校验日志，使任务可以跳过对未变更锁文件相对已配置[供应链策略](/docs/supply-chain-security)的重复检查。在存储预热之后，这是 CI 中安装开销的主要来源。
+[pnpm cache path](/docs/cli/cache-path) 会输出 pnpm 用于元数据缓存的目录，任务可以直接缓存它，无需复刻 pnpm 自身的路径解析。该目录还保存着锁文件校验日志，使任务可以跳过对未变更锁文件相对已配置[供应链策略](/docs/supply-chain-security)的重复检查。在存储预热之后，这是 CI 中安装开销的主要来源。
 
 :::
 
@@ -46,7 +52,7 @@ curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=latest-12 sh -
 
 :::tip[CI 中的锁文件行为]
 
-当 pnpm 检测到自己在 CI 中运行时，会自动切换到冻结锁文件模式。自 v11 起，pnpm 在 CI 中遇到不兼容锁文件也会失败：如果锁文件由更新的 pnpm 主版本写入，安装将报错，而不是悄悄重写它。把 CI 中的 pnpm 版本升级到与生成锁文件时所用的版本一致。
+当 pnpm 检测到自己在 CI 中运行时，会自动切换到冻结锁文件模式。传入 `--no-frozen-lockfile` 可以退出该模式，也可以设置 [`ci`](/docs/settings/other#ci) 设置来强制启用或禁用 CI 检测。[pnpm ci](/docs/cli/ci) 会先运行 `pnpm clean`，然后执行一次冻结安装。pnpm 在 CI 中遇到不兼容的锁文件也会失败：如果锁文件由更新的 pnpm 主版本写入，安装将报错，而不是悄悄重写它。把 CI 中的 pnpm 版本升级到与生成锁文件时所用的版本一致。
 
 :::
 
@@ -62,7 +68,7 @@ environment:
 
 install:
   - ps: $env:PATH = "$env:PNPM_HOME;$env:PNPM_HOME\bin;$env:PATH"
-  - ps: $env:PNPM_VERSION = "latest-12"; Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression
+  - ps: Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression
   - ps: pnpm install
 ```
 
@@ -70,35 +76,38 @@ pnpm 自带运行时，因此不再需要 `Install-Product node`。如果你的�
 
 ## Azure Pipelines
 
-在 Azure Pipelines 上，把以下内容加入你的 `azure-pipelines.yml` 即可使用 pnpm 安装并缓存依赖：
+在 Azure Pipelines 上，把以下内容加入你的 `azure-pipelines.yml` 即可使用 pnpm 安装并缓存依赖。下面的示例避免使用顶层 `variables:` 块，因此也可以复制到 steps 模板中：
 
 azure-pipelines.yml
 
 ```yaml
-variables:
-  pnpm_config_cache: $(Pipeline.Workspace)/.pnpm-store
-  PNPM_HOME: $(Pipeline.Workspace)/.pnpm
-
 steps:
   - task: Cache@2
     inputs:
       key: 'pnpm | "$(Agent.OS)" | pnpm-lock.yaml'
-      path: $(pnpm_config_cache)
+      path: $(Pipeline.Workspace)/.pnpm-store
     displayName: Cache pnpm
 
-  - script: |
-      curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=latest-12 sh -
-      echo "##vso[task.prependpath]$(PNPM_HOME)/bin"
-      "$(PNPM_HOME)/bin/pnpm" config set store-dir $(pnpm_config_cache)
+  - bash: |
+      { curl -fsSL https://get.pnpm.io/ -o /tmp/pnpm-install.sh \
+        || curl -fsSL https://github.com/pnpm/get.pnpm.io/releases/latest/download/install.sh -o /tmp/pnpm-install.sh; } \
+        && sh /tmp/pnpm-install.sh
+      echo "##vso[task.prependpath]$PNPM_HOME/bin"
+      "$PNPM_HOME/bin/pnpm" config set store-dir "$PNPM_STORE_PATH"
     displayName: "Setup pnpm"
+    env:
+      PNPM_HOME: $(Pipeline.Workspace)/.pnpm
+      PNPM_STORE_PATH: $(Pipeline.Workspace)/.pnpm-store
 
-  - script: |
+  - bash: |
       pnpm install
       pnpm run build
     displayName: "pnpm install and build"
+    env:
+      PNPM_HOME: $(Pipeline.Workspace)/.pnpm
 ```
 
-`task.prependpath` 会将 pnpm 加入 `PATH` 供后续步骤使用；在执行安装的那个步骤内，需用完整路径调用它。
+此示例请使用 Linux 或 macOS agent。Azure Pipelines 会在每个步骤前展开任务输入和环境变量值中的 `$(Pipeline.Workspace)`。安装脚本用 Bash 语法读取它的变量。`task.prependpath` 会把 pnpm 加入后续步骤的 `PATH`。
 
 ## Bitbucket Pipelines
 
@@ -116,12 +125,8 @@ pipelines:
     "**":
       - step:
           name: Build and test
-          image: debian:stable-slim
+          image: ghcr.io/pnpm/pnpm:12
           script:
-            - apt-get update && apt-get install -y --no-install-recommends ca-certificates curl
-            - export PNPM_HOME="$HOME/.local/share/pnpm"
-            - export PATH="$PNPM_HOME/bin:$PATH"
-            - curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=latest-12 sh -
             - pnpm config set store-dir "$BITBUCKET_CLONE_DIR/.pnpm-store"
             - pnpm runtime set node lts -g
             - pnpm install
@@ -130,9 +135,7 @@ pipelines:
             - pnpm
 ```
 
-一个步骤中的所有行在同一个 shell 中运行，因此 `export` 会延续到后面的行，`store-dir` 也指向缓存保存的目录。
-
-该示例从纯净镜像开始，让 pnpm 安装 Node.js。如果你不想更换，可以保留现有的 `node` 镜像并去掉 `pnpm runtime set` 这一行。
+该示例从官方 pnpm 镜像开始，让 pnpm 安装 Node.js，并把 `store-dir` 指向缓存保存的目录。
 
 ## CircleCI
 
@@ -147,8 +150,6 @@ jobs:
   build: # this can be any name you choose
     docker:
       - image: node:24
-    resource_class: large
-    parallelism: 10
     environment:
       PNPM_HOME: /root/.local/share/pnpm
 
@@ -161,7 +162,9 @@ jobs:
       - run:
           name: Install pnpm package manager
           command: |
-            curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=latest-12 sh -
+            { curl -fsSL https://get.pnpm.io/ -o /tmp/pnpm-install.sh \
+              || curl -fsSL https://github.com/pnpm/get.pnpm.io/releases/latest/download/install.sh -o /tmp/pnpm-install.sh; } \
+              && sh /tmp/pnpm-install.sh
             echo 'export PATH="$PNPM_HOME/bin:$PATH"' >> "$BASH_ENV"
             "$PNPM_HOME/bin/pnpm" config set store-dir .pnpm-store
       - run:
@@ -197,7 +200,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Install pnpm and Node.js
-        uses: pnpm/setup@c9883cc79df532ad1a7b81bf9ab944ceb090d65c # v2.0.0
+        uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
         with:
           runtime: node@${{ matrix.node-version }}
           cache: true
@@ -219,13 +222,10 @@ stages:
 
 build:
   stage: build
-  image: node:24.14.1
-  variables:
-    PNPM_HOME: "$CI_PROJECT_DIR/.pnpm"
+  image: ghcr.io/pnpm/pnpm:12
   before_script:
-    - export PATH="$PNPM_HOME/bin:$PATH"
-    - curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=latest-12 sh -
     - pnpm config set store-dir .pnpm-store
+    - pnpm runtime set node 24 -g
   script:
     - pnpm install # install dependencies
   cache:
@@ -238,14 +238,15 @@ build:
 
 ## Jenkins
 
-你可以使用 pnpm 安装并缓存依赖：
+你可以使用 pnpm 安装你的依赖：
 
-```title
+Jenkinsfile
+
+```groovy
 pipeline {
     agent {
         docker {
             image 'node:lts-bookworm-slim'
-            args '-p 3000:3000'
         }
     }
     environment {
@@ -255,7 +256,11 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=latest-12 sh -'
+                sh '''
+                    { curl -fsSL https://get.pnpm.io/ -o /tmp/pnpm-install.sh \\
+                      || curl -fsSL https://github.com/pnpm/get.pnpm.io/releases/latest/download/install.sh -o /tmp/pnpm-install.sh; } \\
+                      && sh /tmp/pnpm-install.sh
+                '''
                 sh 'pnpm install'
             }
         }
@@ -288,7 +293,8 @@ blocks:
         - name: pnpm install
           commands:
             - export PATH="$PNPM_HOME/bin:$PATH"
-            - curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=latest-12 sh -
+            - curl -fsSL https://get.pnpm.io/ -o /tmp/pnpm-install.sh || curl -fsSL https://github.com/pnpm/get.pnpm.io/releases/latest/download/install.sh -o /tmp/pnpm-install.sh
+            - sh /tmp/pnpm-install.sh
             - checkout
             - cache restore node-$(checksum pnpm-lock.yaml)
             - pnpm install
@@ -311,7 +317,8 @@ env:
     - PNPM_HOME="$HOME/.local/share/pnpm"
     - PATH="$PNPM_HOME/bin:$PATH"
 before_install:
-  - curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=latest-12 sh -
+  - curl -fsSL https://get.pnpm.io/ -o /tmp/pnpm-install.sh || curl -fsSL https://github.com/pnpm/get.pnpm.io/releases/latest/download/install.sh -o /tmp/pnpm-install.sh
+  - sh /tmp/pnpm-install.sh
   - pnpm config set store-dir ~/.pnpm-store
 install:
   - pnpm install

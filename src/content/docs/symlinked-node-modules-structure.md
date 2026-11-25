@@ -42,10 +42,10 @@ node_modules
 └── .pnpm
     ├── bar@1.0.0
     │   └── node_modules
-    │       └── bar -> <store>
+    │       └── bar/  (files linked from <store>)
     └── foo@1.0.0
         └── node_modules
-            ├── foo -> <store>
+            ├── foo/  (files linked from <store>)
             └── bar -> ../../bar@1.0.0/node_modules/bar
 ```
 
@@ -57,10 +57,10 @@ node_modules
 └── .pnpm
     ├── bar@1.0.0
     │   └── node_modules
-    │       └── bar -> <store>
+    │       └── bar/  (files linked from <store>)
     └── foo@1.0.0
         └── node_modules
-            ├── foo -> <store>
+            ├── foo/  (files linked from <store>)
             └── bar -> ../../bar@1.0.0/node_modules/bar
 ```
 
@@ -74,21 +74,21 @@ node_modules
 └── .pnpm
     ├── bar@1.0.0
     │   └── node_modules
-    │       ├── bar -> <store>
+    │       ├── bar/  (files linked from <store>)
     │       └── qar -> ../../qar@2.0.0/node_modules/qar
     ├── foo@1.0.0
     │   └── node_modules
-    │       ├── foo -> <store>
+    │       ├── foo/  (files linked from <store>)
     │       ├── bar -> ../../bar@1.0.0/node_modules/bar
     │       └── qar -> ../../qar@2.0.0/node_modules/qar
     └── qar@2.0.0
         └── node_modules
-            └── qar -> <store>
+            └── qar/  (files linked from <store>)
 ```
 
 如你所见，即使现在依赖图更深了（`foo > bar > qar`），文件系统中的目录深度仍然相同。
 
-这种布局乍看可能有些奇怪，但它与 Node 的模块解析算法完全兼容！在解析模块时，Node 会忽略符号链接，因此当从 `foo@1.0.0/node_modules/foo/index.js` 中 require `bar` 时，Node 不会使用 `foo@1.0.0/node_modules/bar` 处的 `bar`，而是将 `bar` 解析到它的真实位置（`bar@1.0.0/node_modules/bar`）。因此，`bar` 也能解析位于 `bar@1.0.0/node_modules` 中的其依赖。
+这种布局乍看可能有些奇怪，但它与 Node 的模块解析算法完全兼容！在解析模块时，Node 会把符号链接解析到它的真实路径。因此当从 `foo@1.0.0/node_modules/foo/index.js` 中 require `bar` 时，Node 会找到 `foo@1.0.0/node_modules/bar` 处的符号链接，并从它的真实位置（`bar@1.0.0/node_modules/bar`）加载 `bar`。因此，`bar` 也能解析位于 `bar@1.0.0/node_modules` 中的其依赖。
 
 这种布局的一个额外好处是，只有真正属于依赖的包才可被访问。在扁平的 `node_modules` 结构下，所有被提升的包都可被访问。要了解更多关于这为何是一项优势的内容，参见“[pnpm 的严格性有助于避免愚蠢的 bug](https://www.kochan.io/nodejs/pnpms-strictness-helps-to-avoid-silly-bugs.html)”
 

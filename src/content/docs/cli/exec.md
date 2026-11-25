@@ -5,55 +5,54 @@ headingIds: ["examples","options","--recursive--r","examples-1","--no-reporter-h
 
 在某个项目范围内执行 shell 命令。
 
-`node_modules/.bin` 会被添加到 `PATH` 中，因此 `pnpm exec` 允许执行依赖的命令。
+`node_modules/.bin` 会被添加到 `PATH` 中，因此 `pnpm exec` 允许执行依赖的命令。当前包的名称可通过环境变量 `PNPM_PACKAGE_NAME` 获取。
 
 ## 示例
 
 如果你的项目将 Jest 作为依赖，就无需全局安装 Jest，直接用 `pnpm exec` 运行它即可：
 
-```
+```sh
 pnpm exec jest
 ```
 
 当命令与内置 pnpm 命令不冲突时，`exec` 部分其实是可选的，因此你也可以直接运行：
 
-```
+```sh
 pnpm jest
 ```
 
 ## 选项
 
-`exec` 命令的任何选项都应列在 `exec` 关键字之前。列在 `exec` 关键字之后的选项会传给被执行的命令。
+pnpm 会读取自己的选项，直到命令名为止，这些选项可以写在 `exec` 关键字之前或之后。命令名之后的一切都会传给被执行的命令。
 
-正确。pnpm 会递归运行：
+下面两条命令都会在工作区的每个项目中运行 `jest`：
 
-```
+```sh
 pnpm -r exec jest
+pnpm exec -r jest
 ```
 
-错误，pnpm 不会递归运行，但 `jest` 会带着 `-r` 选项被执行：
+下面这条只在当前项目中运行 `jest`，其中 `-r` 是作为 `jest` 的参数传递的：
 
-```
+```sh
 pnpm exec jest -r
 ```
 
 ### --recursive, -r
 
-在工作区的每个项目中执行该 shell 命令。
-
-当前包的名称可通过环境变量 `PNPM_PACKAGE_NAME` 获取。
+在工作区的每个项目中执行该 shell 命令。[递归选项](/docs/cli/recursive#options)同样适用，例如 `--workspace-concurrency`、`--[no-]sort` 和 `--reverse`。
 
 #### 示例
 
 清理所有包的 `node_modules` 安装：
 
-```
+```sh
 pnpm -r exec rm -rf node_modules
 ```
 
 查看所有包的包信息。为了让环境变量生效，这应与 `--shell-mode`（或 `-c`）选项一起使用。
 
-```
+```sh
 pnpm -rc exec pnpm view \$PNPM_PACKAGE_NAME
 ```
 
@@ -72,7 +71,7 @@ pnpm -rc exec pnpm view \$PNPM_PACKAGE_NAME
 
 ### --shell-mode, -c
 
-在 shell 中运行命令。在 UNIX 上使用 `/bin/sh`，在 Windows 上使用 `\cmd.exe`。
+在 shell 中运行命令。在 UNIX 上使用 `/bin/sh`，在 Windows 上使用 `cmd.exe`。
 
 ### --report-summary
 

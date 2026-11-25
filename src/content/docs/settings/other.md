@@ -1,6 +1,6 @@
 ---
 title: "其他设置"
-headingIds: ["saveprefix","tag","globaldir","globalbindir","globalshims","npmrcauthfile","statedir","cachedir","usestderr","updatenotifier","prefersymlinkedexecutables","ignorecompatibilitydb","resolutionmode","registrysupportstimefield","extendnodepath","why-this-is-needed","when-to-disable","deployallfiles","dedupedirectdeps","optimisticrepeatinstall","requiredscripts","enableprepostscripts","scriptshell","shellemulator","catalogmode","ci","catalogprune"]
+headingIds: ["saveprefix", "saveexact", "savetypes", "tag", "globaldir", "globalbindir", "globalshims", "npmrcauthfile", "statedir", "cachedir", "usestderr", "updatenotifier", "prefersymlinkedexecutables", "ignorecompatibilitydb", "resolutionmode", "registrysupportstimefield", "extendnodepath", "why-this-is-needed", "when-to-disable", "deployallfiles", "embedreadme", "dedupedirectdeps", "optimisticrepeatinstall", "requiredscripts", "enableprepostscripts", "scriptshell", "shellemulator", "catalogmode", "ci", "catalogprune", "macosbackupexcludemodulesdir", "macosbackupexcludestoredir"]
 ---
 
 ### savePrefix
@@ -16,25 +16,53 @@ headingIds: ["saveprefix","tag","globaldir","globalbindir","globalshims","npmrca
 
 当所添加的包已指定版本范围时，此设置会被忽略。例如，无论 `savePrefix` 取何值，`pnpm add foo@2` 都会将 `package.json` 中 `foo` 的版本设为 `2`。
 
+### saveExact
+
+- 默认值：**false**
+- 类型：**布尔值**
+
+设为 `true` 时，`pnpm add` 会保存解析出的版本而不带范围运算符，与 `--save-exact` 命令行选项的行为相同。
+
+### saveTypes
+
+自 v12.6.0 起提供
+
+- 默认值：**false**
+- 类型：**布尔值**
+
+设为 `true` 时，`pnpm add` 在保存 registry 依赖的同时，会把可用的 `@types/*` 包保存到 `devDependencies`。已经声明了内置 TypeScript 类型的包会被跳过。
+
+```yaml
+saveTypes: true
+```
+
+也可以作为 CLI 标志传入：`pnpm add --save-types express`。
+
 ### tag
 
 - 默认值：**latest**
 - 类型：**字符串**
 
-如果你用 `pnpm add` 添加一个包且未提供具体版本，pnpm 会安装此设置指定的 tag 下登记的版本。
+如果你用 `pnpm add` 添加一个包且未提供具体版本，pnpm 会依次采用下列第一个存在的写法：
 
-这同时决定了当未显式给出 tag 时，`pnpm tag` 命令为其指定的 `package@version` 添加哪个 tag。
+1. `catalog:` 引用——若 pnpm 保存到的[目录](/docs/catalogs)中列出了该包。
+2. 工作区中声明该包的其它项目所使用的范围。当这些项目声明了不同的范围，或其中之一使用了如 `workspace:` 这样的协议时，pnpm 会跳过这一步。
+3. 匹配的[覆盖](/docs/settings/dependency-resolution#overrides)所设置的范围。
+4. 此设置所指定的 tag 下登记的版本。
+
+未传入 `--tag` 时，`pnpm publish` 也会发布到这个 tag 下。
 
 ### globalDir
 
 - 默认值：
+  - 若设置了 **$PNPM_HOME** 环境变量，则为 **$PNPM_HOME/global**
   - 若设置了 **$XDG_DATA_HOME** 环境变量，则为 **$XDG_DATA_HOME/pnpm/global**
   - 在 Windows 上：**~/AppData/Local/pnpm/global**
   - 在 macOS 上：**~/Library/pnpm/global**
   - 在 Linux 上：**~/.local/share/pnpm/global**
 - 类型：**路径**
 
-指定用于存放全局包的自定义目录。
+指定用于存放全局包的自定义目录。pnpm 会把包存放在该目录的 `v11` 子目录中。
 
 ### globalBinDir
 
@@ -128,11 +156,14 @@ PNPM_SHIM_BYPASS=1 node --version
 - 默认值：
   - 若设置了 **$XDG_STATE_HOME** 环境变量，则为 **$XDG_STATE_HOME/pnpm**
   - 在 Windows 上：**~/AppData/Local/pnpm-state**
-  - 在 macOS 上：**~/.pnpm-state**
-  - 在 Linux 上：**~/.local/state/pnpm**
+  - 在 macOS 和 Linux 上：**~/.local/state/pnpm**
 - 类型：**路径**
 
-pnpm 创建 `pnpm-state.json` 文件的目录，该文件目前仅由更新检查器使用。
+pnpm 存放机器级状态的目录，其中包括更新检查器的 `pnpm-state.json` 文件。
+
+自 v12.5.0 起，[任务并发组](/docs/workspace-task-orchestration#concurrencygroups)也会把共享的槽位文件存放在 `stateDir/run-slots` 下。要共享同一组限制，各进程必须使用相同的 `stateDir`。不同的状态目录会各自拥有独立的槽位池，因此它们的任务总数可能超过配置的上限。
+
+请在[全局配置文件](/docs/cli/config)或命令行中设置 `stateDir`。项目的 `pnpm-workspace.yaml` 文件中会忽略它。
 
 ### cacheDir
 
@@ -189,7 +220,9 @@ pnpm 创建 `pnpm-state.json` 文件的目录，该文件目前仅由更新检�
 当 `resolutionMode` 设为 `time-based` 时，依赖将按以下方式解析：
 
 1. 直接依赖会解析为其最低版本。因此，若依赖中有 `foo@^1.1.0`，则安装 `1.1.0`。
-2. 子依赖会从最后一个直接依赖发布之前已发布的版本中解析。
+2. 子依赖会从比最新的直接依赖晚不超过一小时发布的版本中解析。若这些版本都无法满足某个子依赖的范围，pnpm 会安装满足条件的最低版本。
+
+若同时也设置了 [`minimumReleaseAge`](/docs/settings/dependency-resolution#minimumreleaseage)，pnpm 会以两者中较早的截止时间解析子依赖。若在该截止时间之前发布的版本都无法满足某个子依赖的范围，pnpm 会安装比 `minimumReleaseAge` 截止时间更早的最低匹配版本。若所有匹配版本都新于 `minimumReleaseAge` 截止时间，pnpm 会回退到最低匹配版本，并由 [`minimumReleaseAgeStrict`](/docs/settings/dependency-resolution#minimumreleaseagestrict) 决定是安装还是失败。只有 `minimumReleaseAge` 的截止时间决定哪些版本会被报告为「太新」。比 time-based 截止时间新、但比 `minimumReleaseAge` 截止时间旧的版本，会在不带警告或错误的情况下安装。
 
 使用此解析模式时，热缓存下的安装会更快。由于只有在直接依赖更新时子依赖才会更新，这也降低了子依赖被劫持的可能性。
 
@@ -237,6 +270,13 @@ pnpm 的[隔离式 node_modules 结构](/docs/symlinked-node-modules-structure)�
 
 部署某个包或安装本地包时，会复制该包的所有文件。默认情况下，若包在 `package.json` 中有 "files" 字段，则只复制其中列出的文件和目录。
 
+### embedReadme
+
+- 默认值：**false**
+- 类型：**布尔值**
+
+设为 `true` 时，`pnpm pack` 和 `pnpm publish` 会把该包 README 文件的内容加入打包后 `package.json` 的 `readme` 字段，除非该字段已经被设置。`pnpm publish --embed-readme` 只对单条命令设置它。
+
 ### dedupeDirectDeps
 
 - 默认值：**false**
@@ -246,12 +286,14 @@ pnpm 的[隔离式 node_modules 结构](/docs/symlinked-node-modules-structure)�
 
 ### optimisticRepeatInstall
 
-自 v10.1.0 起提供
-
 - 默认值：**true**
 - 类型：**Boolean**
 
 启用后，会在进入安装前先执行一次快速检查。这样一来，重复安装或在一切已是最新的项目上安装都会快得多。
+
+该检查按内容比较清单、锁文件与补丁文件，因此即使一次编辑保留了文件的修改时间，也能察觉到改动。带过滤的安装只检查被选中的项目以及它们所依赖的工作区项目。
+
+当检查发现没有任何变化时，pnpm 会跳过安装，包括各项目自身的生命周期脚本（如 `prepare`）。把它设为 `false` 可让这些脚本在每次安装时都运行。
 
 ### requiredScripts
 
@@ -282,6 +324,8 @@ requiredScripts:
 pnpm config set scriptShell "C:\\Program Files\\git\\bin\\bash.exe"
 ```
 
+自 v12.4.0 起，`pnpm-workspace.yaml` 中的相对路径会从工作区根目录解析，即使脚本运行在嵌套的包中也是如此。像 `bash` 这样的裸命令名则仍在 `PATH` 中查找。
+
 ### shellEmulator
 
 - 默认值：**false**
@@ -298,6 +342,10 @@ pnpm config set scriptShell "C:\\Program Files\\git\\bin\\bash.exe"
 ```
 
 但如果将 `shellEmulator` 设置设为 `true`，它就能在所有平台上工作。
+
+自 v12.8.0 起，为 `pnpm run` 与生命周期脚本配置了非空的 `scriptShell` 时，它会优先于 `shellEmulator`。只有当 `scriptShell` 未设置或为空时，才会使用模拟器。
+
+诸如 `${MODE:-dev}` 这样的参数展开会在命令运行时读取变量。例如，`export MODE=prod && echo ${MODE:-dev}` 会打印 `prod`。
 
 :::note[说明]
 
@@ -320,12 +368,14 @@ Node.js 22 及更高版本无需 pnpm 协助即可运行脚本。对于上面的
 
 ### ci
 
-自 v10.12.1 起提供
-
 - 默认值：**true**（当环境被检测为 CI 时）
 - 类型：**Boolean**
 
 此设置显式告知 pnpm 当前环境是否为 CI（持续集成）环境。
+
+在 CI 中，当存在锁文件时 [`frozenLockfile`](/docs/settings/store#frozenlockfile) 默认为 `true`，默认的报告器为 `append-only`，并且会跳过[更新检查](#updatenotifier)。
+
+项目的 `pnpm-workspace.yaml` 文件中会忽略此设置。
 
 ### catalogPrune
 
@@ -337,3 +387,35 @@ Node.js 22 及更高版本无需 pnpm 协助即可运行脚本。对于上面的
 设为 `true` 时，pnpm 会在安装期间移除未使用的 catalog 条目。
 
 `cleanupUnusedCatalogs` 是此设置已废弃的旧拼写，仍可继续使用；当两者同时设置时，以 `catalogPrune` 为准。
+
+### macosBackup.excludeModulesDir
+
+自 v12.6.0 起提供
+
+- 默认值：**false**
+- 类型：**布尔值**
+
+在 macOS 上设为 `true` 时，pnpm 会给新建的 `node_modules`、虚拟存储等目录打上 `com.apple.metadata:com_apple_backup_excludeItem` 扩展属性，让 Time Machine 跳过它们。
+
+请在[全局配置文件](/docs/cli/config)中设置它，或使用 `PNPM_CONFIG_MACOS_BACKUP_EXCLUDE_MODULES_DIR` 环境变量。项目 `pnpm-workspace.yaml` 中的该设置会被忽略，非 macOS 平台也会忽略。
+
+```yaml
+macosBackup:
+  excludeModulesDir: true
+```
+
+### macosBackup.excludeStoreDir
+
+自 v12.6.0 起提供
+
+- 默认值：**false**
+- 类型：**布尔值**
+
+在 macOS 上设为 `true` 时，pnpm 会给新建的包存储目录打上 Time Machine 排除属性。
+
+请在[全局配置文件](/docs/cli/config)中设置它，或使用 `PNPM_CONFIG_MACOS_BACKUP_EXCLUDE_STORE_DIR` 环境变量。项目 `pnpm-workspace.yaml` 中的该设置会被忽略，非 macOS 平台也会忽略。
+
+```yaml
+macosBackup:
+  excludeStoreDir: true
+```

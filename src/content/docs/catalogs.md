@@ -1,6 +1,6 @@
 ---
 title: "目录（catalogs）"
-headingIds: ["the-catalog-protocol-catalog","advantages","defining-catalogs","default-catalog","named-catalogs","publishing","settings","catalogmode","catalogprune"]
+headingIds: ["the-catalog-protocol-catalog","advantages","defining-catalogs","default-catalog","named-catalogs","workspace-dependencies-in-a-catalog","local-dependencies-in-a-catalog","adding-dependencies-to-a-catalog","errors","publishing","settings","catalogmode","catalogprune"]
 ---
 
 「目录（catalogs）」是一项[工作区功能](/docs/workspaces)，用于把依赖版本范围定义成可复用的常量。目录中定义的常量之后可以在 `package.json` 文件里引用。
@@ -51,14 +51,18 @@ packages/example-app/package.json
 
 你可以在以下字段中使用 `catalog:` 协议：
 
-- package.json
-  :
+- `package.json`：
   - `dependencies`
   - `devDependencies`
   - `peerDependencies`
   - `optionalDependencies`
-- pnpm-workspace.yaml
+- `pnpm-workspace.yaml`：
   - `overrides`
+- [`pnx`](/docs/cli/pnx) 说明符，例如 `pnx shx@catalog:`
+
+作为副本安装的本地目录依赖（例如 `file:` 依赖或[注入的](/docs/package_json#dependenciesmetainjected)工作区包）也可以使用 `catalog:` 协议。它们针对安装该目录的工作区的目录进行解析。
+
+当一个本地目录包使用目录条目作为对等依赖时，pnpm 会把该条目记录到 lockfile 中。修改条目后请运行 `pnpm install`，以便冻结安装能使用更新后的 lockfile。
 
 `catalog:` 协议允许在冒号后附加一个可选的名称（例如 `catalog:name`），用来指定使用哪个目录。省略名称时，使用默认目录。
 
@@ -81,10 +85,10 @@ packages/example-app/package.json
 
 :::tip[提示]
 
-如果你已有一个工作区并想迁移到使用目录，可以用下面这个 [codemod](https://go.codemod.com/pnpm-catalog)：
+如果你已有一个工作区并想迁移到使用目录，运行 [`pnpm catalog migrate`](/docs/cli/catalog)：
 
-```
-pnpx codemod pnpm/catalog
+```sh
+pnpm catalog migrate
 ```
 
 :::
@@ -102,6 +106,8 @@ catalog:
 ```
 
 这些版本范围可以通过 `catalog:default` 引用。对于默认目录，还可以使用一种特殊的 `catalog:` 简写形式。可以把 `catalog:` 理解为展开为 `catalog:default` 的简写。
+
+默认目录也可以写成 `catalogs.default`。同时定义 `catalog` 和 `catalogs.default` 会失败，提示「The 'default' catalog was defined multiple times」。
 
 ### 命名目录
 
@@ -143,6 +149,67 @@ catalogs:
     react-dom: ^18.2.0
 ```
 
+### 目录中的工作区依赖
+
+自 v12.2.0 起提供
+
+目录条目可以写 [`workspace:` 范围](/docs/workspaces#workspace-protocol-workspace)，这样工作区依赖所链接的版本也只需写一次：
+
+pnpm-workspace.yaml
+
+```yaml
+catalog:
+  '@example/utils': workspace:^
+```
+
+packages/example-app/package.json
+
+```json
+{
+  "name": "@example/app",
+  "dependencies": {
+    "@example/utils": "catalog:"
+  }
+}
+```
+
+pnpm 会把 `catalog:` 引用展开为 `workspace:^`，然后链接该工作区项目，效果与 `package.json` 自己声明 `workspace:^` 完全一样。发布时两个协议都会被替换，因此当 `@example/utils` 的版本是 1.4.0 时，上面的例子会发布为 `"^1.4.0"`。
+
+### 目录中的本地依赖
+
+自 v12.6.0 起提供
+
+目录条目可以使用 `file:` 和 `link:` 协议（[#8642](https://github.com/pnpm/pnpm/issues/8642)）。条目中的相对路径，例如 `file:./tarballs/foo.tgz`、`workspace:./packages/foo` 或者裸写法的 `./tarballs/foo.tgz`，都以存放 `pnpm-workspace.yaml` 的目录为基准：
+
+pnpm-workspace.yaml
+
+```yaml
+catalog:
+  my-lib: link:./packages/my-lib
+  my-tarball: file:./tarballs/foo.tgz
+```
+
+packages/example-app/package.json
+
+```json
+{
+  "name": "@example/app",
+  "dependencies": {
+    "my-lib": "catalog:",
+    "my-tarball": "catalog:"
+  }
+}
+```
+
+## 添加依赖到目录
+
+[`pnpm add --save-catalog`](/docs/cli/add#--save-catalog) 会把新依赖的版本范围写入默认目录，并在 `package.json` 中写入 `catalog:`。[`--save-catalog-name`](/docs/cli/add#--save-catalog-name-catalog_name) 用于指定使用哪个命名目录。[`catalogMode`](#catalogmode) 则控制不使用该标记时 `pnpm add` 是否也会加入默认目录。
+
+## 错误
+
+- `ERR_PNPM_CATALOG_ENTRY_NOT_FOUND_FOR_SPEC`：目录中没有该依赖对应的条目。
+- `ERR_PNPM_CATALOG_ENTRY_INVALID_RECURSIVE_DEFINITION`：目录条目自身又是一个 `catalog:` 引用。
+
 ## 发布
 
 在运行 `pnpm publish` 或 `pnpm pack` 时，`catalog:` 协议会被移除。这与 [workspace: 协议](/docs/workspaces#workspace-protocol-workspace)类似，后者[也会在发布时被替换](/docs/workspaces#publishing-workspace-packages)。
@@ -155,7 +222,7 @@ packages/example-components/package.json
 {
   "name": "@example/components",
   "dependencies": {
-    "react": "catalog:react18",
+    "react": "catalog:react18"
   }
 }
 ```
@@ -168,7 +235,7 @@ packages/example-components/package.json
 {
   "name": "@example/components",
   "dependencies": {
-    "react": "^18.3.1",
+    "react": "^18.3.1"
   }
 }
 ```
@@ -189,6 +256,8 @@ packages/example-components/package.json
 - **strict** — 只允许使用目录中的依赖版本。添加目录版本范围之外的依赖会导致报错。
 - **prefer** — 优先使用目录版本，但在找不到兼容版本时回退为直接依赖。
 - **manual**（默认）— 不会自动把依赖加入目录。
+
+自 v12.3.0 起，指向位置而不是指向版本的说明符不会被移入目录：本地路径、本地 tarball、tarball URL 以及 `workspace:<path>` 范围都会留在声明它们的 `package.json` 中。这类说明符是相对各自项目来解析的，因此一个目录条目无法对所有引用它的项目都表示同一个目录。
 
 ### catalogPrune
 

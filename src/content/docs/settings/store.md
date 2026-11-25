@@ -1,6 +1,6 @@
 ---
 title: "存储与锁文件设置"
-headingIds: ["store-settings","storedir","verifystoreintegrity","userunningstoreserver","strictstorepkgcontentcheck","frozenstore","lockfile-settings","lockfile","preferfrozenlockfile","excludelinksfromlockfile","lockfileincludetarballurl","lockfileincluderesolutionsettings","lockfileintegritytarget","lockfileformat","reading-and-writing-the-format","gitbranchlockfile","mergegitbranchlockfilesbranchpattern","peerssuffixmaxlength"]
+headingIds: ["store-settings", "storedir", "verifystoreintegrity", "strictstorepkgcontentcheck", "frozenstore", "storeindexformat", "lockfile-settings", "lockfile", "lockfiledir", "frozenlockfile", "preferfrozenlockfile", "excludelinksfromlockfile", "lockfileincludetarballurl", "symlinkedlockfiletargetdirs", "lockfileincluderesolutionsettings", "lockfileintegritytarget", "lockfileformat", "reading-and-writing-the-format", "gitbranchlockfile", "mergegitbranchlockfilesbranchpattern", "peerssuffixmaxlength"]
 ---
 
 ## 存储设置
@@ -23,6 +23,8 @@ headingIds: ["store-settings","storedir","verifystoreintegrity","userunningstore
 
 如果项目之上的任何目录都不接受硬链接——例如仅授予项目写权限的 agent 沙箱，或仅将项目以可写方式 bind mount 挂载的容器——则存储改为创建在项目内部：位于 `node_modules/.pnpm-store`。将其放在主目录中要么会因主目录只读而失败，要么会落在另一个卷上，从而复制每个包而不是创建硬链接（[#13525](https://github.com/pnpm/pnpm/issues/13525)）。
 
+pnpm 把用于协调共享存储的各进程之间的锁放在存储之外的一个按用户划分的目录中。在 Linux 与 macOS 上，若 **$XDG_RUNTIME_DIR** 是指向一个用户拥有且可在其中创建文件（具备写权限与搜索权限）、并且其它用户不可写的目录，则该目录就是 **$XDG_RUNTIME_DIR**；否则该目录为 **/tmp**。在 Windows 上则是 **~/AppData/Local**。若沙箱阻止写入 `/tmp`，可以设置 `XDG_RUNTIME_DIR` 指向一个允许写入的目录。使用同一存储的各进程应当看到同一个 `XDG_RUNTIME_DIR`，因为 pnpm 进程只有共享锁目录时才会互相等待。
+
 :::important[重要]
 
 pnpm 存储仅应在相互信任的用户、任务和进程之间共享。如果你配置了共享的 `storeDir`，用文件系统权限加以保护，使不受信任的用户无法向其写入。存储是 pnpm 信任域的一部分：包可以从其中创建硬链接，而存储索引（`index.db`）记录了用于校验缓存文件的哈希。
@@ -37,19 +39,6 @@ pnpm 存储仅应在相互信任的用户、任务和进程之间共享。如果
 默认情况下，如果存储中的文件已被修改，则在将其链接到项目的 `node_modules` 之前会检查该文件的内容。如果 `verifyStoreIntegrity` 设为 `false`，则在安装期间不会检查内容寻址存储中的文件。
 
 此设置有助于检测意外的存储损坏。它并不能让一个可被不受信任用户写入的存储变得安全，因为能够写入存储的攻击者既能篡改缓存的包内容，也能篡改用于校验它们的元数据。
-
-### useRunningStoreServer
-
-:::danger[警告]
-
-已废弃的功能
-
-:::
-
-- 默认值：**false**
-- 类型：**Boolean**
-
-仅允许使用存储服务器进行安装。如果没有运行存储服务器，安装将失败。
 
 ### strictStorePkgContentCheck
 
@@ -83,6 +72,27 @@ pnpm install --frozen-store --offline --frozen-lockfile
 
 :::
 
+### storeIndexFormat
+
+自 v12.13.0 起提供
+
+- 默认值：**sqlite**
+- 类型：**sqlite**、**files**
+
+存储目录如何记录每个包包含哪些文件。
+
+- `sqlite`：一个 SQLite 数据库 `index.db`。SQLite 的锁只在同一台机器上的进程之间有效，因此该格式适用于位于本地磁盘上的存储目录。
+- `files`：存储目录 `index` 目录下每个包一个文件。适用于多台机器同时使用的网络文件系统上的存储目录，例如多个 CI 作业共享的存储目录。每个条目先写入临时文件再重命名到位，因此并发的作业无需加锁。
+
+该格式属于存储目录本身。pnpm 第一次向 `storeIndexFormat: files` 的存储目录写入时会创建 `index` 目录，此后每个 pnpm 进程都会把该存储目录的索引放在这个目录里，无论它自己的 `storeIndexFormat` 是什么。已存在于 `index.db` 中的包不会被迁移，因此切换后的首次安装会重新下载它们。要把存储目录切回 `sqlite`，删除它的 `index` 目录即可。
+
+```yaml
+storeDir: /mnt/shared/pnpm-store
+storeIndexFormat: files
+```
+
+pnpm v11 只读取 `index.db`，因此它看不到使用 `files` 的存储目录中的包。
+
 ## 锁文件设置
 
 ### lockfile
@@ -91,6 +101,28 @@ pnpm install --frozen-store --offline --frozen-lockfile
 - 类型：**Boolean**
 
 设为 `false` 时，pnpm 不会读取或生成 `pnpm-lock.yaml` 文件。
+
+### lockfileDir
+
+- 默认值：**使用[共享锁文件](/docs/workspaces#sharedworkspacelockfile)时为工作区根目录，否则为项目目录**
+- 类型：**路径**
+
+创建 `pnpm-lock.yaml` 的目录。多个项目可以共用一份锁文件。
+
+把 `lockfileDir` 设为使用共享锁文件的工作区的工作区根目录，或设为工作区之外的项目目录，都没有效果。在 `sharedWorkspaceLockfile: false` 的工作区中，设置 `lockfileDir` 会让各项目在该目录下共用一份锁文件。
+
+`--lockfile-dir` CLI 选项可为单条命令设置它。它不能与 `--global` 一起使用。
+
+### frozenLockfile
+
+- 默认值：
+  - 非 CI：**false**
+  - CI：**true**（存在锁文件时）
+- 类型：**布尔值**
+
+设为 `true` 时，若锁文件需要更新或缺失，pnpm 会让安装失败。
+
+在 [CI 环境](/docs/cli/install#--frozen-lockfile)中，存在锁文件时该设置默认为 `true`。
 
 ### preferFrozenLockfile
 
@@ -112,6 +144,24 @@ pnpm install --frozen-store --offline --frozen-lockfile
 - 类型：**Boolean**
 
 在 `pnpm-lock.yaml` 的每个条目中添加指向该包 tarball 的完整 URL。
+
+### symlinkedLockfileTargetDirs
+
+自 v12.16.0 起提供
+
+- 默认值：**[]**
+- 类型：**string[]**
+
+当 `pnpm-lock.yaml` 是符号链接时，pnpm 会通过该链接读取它，但拒绝把改动写入其中。列出锁文件可以链接进的目录，若链接指向的文件位于其中之一，pnpm 就会把更新后的锁文件写入该文件。pnpm 会跟随整条链接链，保留所有链接，并保留目标文件的权限。没有变化的锁文件永远不会被写入。
+
+```yaml
+symlinkedLockfileTargetDirs:
+  - ~/build/src
+```
+
+每个条目必须是绝对路径，或以 `~/` 开头。pnpm 会忽略其它条目。
+
+请在[全局配置文件](/docs/cli/config)中设置它，或用 `PNPM_CONFIG_SYMLINKED_LOCKFILE_TARGET_DIRS='["/path/to/src"]'`。pnpm 会忽略 `pnpm-workspace.yaml` 中的该设置，因为提交该符号链接的仓库不应该是允许写入穿透它的那一方。
 
 ### lockfile.includeResolutionSettings
 

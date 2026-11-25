@@ -1,6 +1,6 @@
 ---
 title: "pnpm lane"
-headingIds: ["usage","show-lane-membership","move-packages-onto-a-lane","move-packages-back-to-the-main-lane","versions-on-a-lane","options","--filter-package_selectorgt"]
+headingIds: ["usage","show-lane-membership","move-packages-onto-a-lane","move-packages-back-to-the-main-lane","versions-on-a-lane","options","--filter-package_selector"]
 ---
 
 自 v11.13.0 起提供
@@ -65,7 +65,7 @@ pnpm lane main --filter @example/cli
 
 ## 选项
 
-### --filter <package_selector&gt;
+### --filter <package_selector>
 
 选择在 lane 之间移动的包。分配 lane 时必需。
 

@@ -1,11 +1,46 @@
 ---
 title: "工作区"
-headingIds: ["workspace-protocol-workspace","referencing-workspace-packages-through-aliases","referencing-workspace-packages-through-their-relative-path","publishing-workspace-packages","release-workflow","troubleshooting","usage-examples","configuration","linkworkspacepackages","injectworkspacepackages","dedupeinjecteddeps","syncinjecteddepsafterscripts","preferworkspacepackages","sharedworkspacelockfile","saveworkspaceprotocol","includeworkspaceroot","ignoreworkspacecycles","disallowworkspacecycles","failifnomatch"]
+headingIds: ["declaring-a-workspace", "converting-from-the-workspaces-field", "workspace-protocol-workspace", "referencing-workspace-packages-through-aliases", "referencing-workspace-packages-through-their-relative-path", "publishing-workspace-packages", "release-workflow", "troubleshooting", "workspaces-in-the-wild", "configuration", "linkworkspacepackages", "injectworkspacepackages", "dedupeinjecteddeps", "syncinjecteddepsafterscripts", "preferworkspacepackages", "sharedworkspacelockfile", "saveworkspaceprotocol", "includeworkspaceroot", "ignoreworkspacecycles", "disallowworkspacecycles", "workspaceconcurrency", "ignoreworkspacerootcheck", "failifnomatch"]
 ---
 
 pnpm 内置支持 monorepo（单体仓库，也称多包仓库、多项目仓库或单体仓库）。你可以创建一个工作区，将多个项目统一到单个仓库中。
 
 工作区的根目录必须有一个 [pnpm-workspace.yaml](/docs/settings) 文件。
+
+:::tip[提示]
+
+如果你在研究 monorepo 管理，也可以了解一下 [Bit](https://bit.dev/?utm_source=pnpm&utm_medium=workspace_page)。Bit 底层使用 pnpm，但能自动化许多在传统 pnpm/npm/Yarn 工作区中需要手动完成的事情。有一篇关于 `bit install` 的文章对此做了介绍：[用 Bit 实现无痛的 monorepo 依赖管理](https://bit.dev/blog/painless-monorepo-dependency-management-with-bit-l4f9fzyw?utm_source=pnpm&utm_medium=workspace_page)。
+
+:::
+
+## 声明工作区
+
+工作区的根目录必须有一个 [`pnpm-workspace.yaml`](/docs/settings) 文件。它的 [`packages`](/docs/settings#packages) 字段列出工作区中各个项目的目录：
+
+```yaml
+packages:
+  - packages/*
+```
+
+### 从 `workspaces` 字段转换
+
+自 v12.7.0 起提供
+
+为 npm、Yarn 或 Bun 配置的仓库，会在根 `package.json` 的 `workspaces` 字段中列出它的项目。当这样的仓库没有 `pnpm-workspace.yaml` 时，`pnpm install` 会创建一个带有相同模式的文件，并在同一次安装中链接所列出的项目：
+
+```json
+{
+  "workspaces": ["packages/*"]
+}
+```
+
+```yaml
+# 创建出的 pnpm-workspace.yaml
+packages:
+  - packages/*
+```
+
+已有的 `pnpm-workspace.yaml` 永远不会被改动，传入 `--ignore-workspace` 时也不会创建任何文件。若之后 `workspaces` 字段列出的模式与 `pnpm-workspace.yaml` 中的 `packages` 不同，pnpm 会打印一条警告，因为只有 `pnpm-workspace.yaml` 会被读取。
 
 :::tip[提示]
 
@@ -95,7 +130,7 @@ pnpm 内置支持 monorepo（单体仓库，也称多包仓库、多项目仓库
 
 如果你看到 `There are cyclic workspace dependencies` 这条消息，检查 `dependencies`、`optionalDependencies` 和 `devDependencies` 中声明的工作区依赖。
 
-## 用法示例
+## 实际使用工作区的项目
 
 以下是几个使用 pnpm 工作区功能的最受欢迎的开源项目：
 
@@ -146,6 +181,8 @@ pnpm 内置支持 monorepo（单体仓库，也称多包仓库、多项目仓库
 
 只有当包的版本满足依赖范围时才会被链接。
 
+`true` 只在工作区中某个项目直接声明该工作区项目时，才会链接它。以普通版本范围声明的传递依赖仍会从 registry 安装，无论 [`preferWorkspacePackages`](#preferworkspacepackages) 如何设置。若要把工作区项目也链接到子依赖，请设为 `deep`。
+
 ### injectWorkspacePackages
 
 - 默认值：**false**
@@ -175,7 +212,9 @@ pnpm 内置支持 monorepo（单体仓库，也称多包仓库、多项目仓库
 
 注入的工作区依赖是一组硬链接，当源发生变化时不会添加或删除文件。这会在需要构建的包中引发问题（例如 TypeScript 项目）。
 
-此设置是一组脚本名称。当在工作区包中执行其中任意脚本时，`node_modules` 内被注入的依赖也会同步。
+此设置是一组脚本名称。当在工作区包中执行其中任意脚本时，`node_modules` 内被注入的依赖也会同步。在被列出的脚本运行期间，pnpm 还会把注入的副本作为独立文件刷新，这样针对注入包的监听器就能看到每一次写入。这让该设置在 watch 模式的构建中很有用。
+
+脚本成功之后，pnpm 会为声明了 `bin` 或 `directories.bin` 的注入包刷新命令链接。
 
 ### preferWorkspacePackages
 
@@ -201,7 +240,7 @@ pnpm 内置支持 monorepo（单体仓库，也称多包仓库、多项目仓库
 
 :::note[说明]
 
-尽管所有依赖都会硬链接到根 `node_modules`，但每个包只能访问其 `package.json` 中声明的那些依赖，因此 pnpm 的严格性得以保留。这正是前面所说的符号链接带来的效果。
+尽管所有依赖都放在根虚拟存储（`node_modules/.pnpm`）中，但每个项目只会获得指向其 `package.json` 中所声明依赖的符号链接，因此 pnpm 的严格性得以保留。
 
 :::
 
@@ -246,6 +285,24 @@ pnpm 内置支持 monorepo（单体仓库，也称多包仓库、多项目仓库
 - 类型：**Boolean**
 
 设为 `true` 时，如果工作区存在循环，安装就会失败。
+
+### workspaceConcurrency
+
+- 默认值：**4 与可用 CPU 核心数中较小的一个**
+- 类型：**数字**
+
+控制同时运行多少个工作区任务。详情参见 [`--workspace-concurrency`](/docs/cli/recursive#--workspace-concurrency)。
+
+### ignoreWorkspaceRootCheck
+
+- 默认值：**false**
+- 类型：**布尔值**
+
+允许在不传递 `--ignore-workspace-root-check` 或 `-w` 的情况下向工作区根目录添加依赖。
+
+```yaml
+ignoreWorkspaceRootCheck: true
+```
 
 ### failIfNoMatch
 

@@ -5,7 +5,7 @@ headingIds: ["packages","packageconfigs","settings","dependency-resolution","nod
 
 pnpm 从命令行、环境变量和 `pnpm-workspace.yaml` 获取其配置。
 
-仅有 auth 和 registry 设置从 `.npmrc` 文件读取。所有其他设置（如 `hoistPattern`、`nodeLinker`、`shamefullyHoist` 等）必须在 `pnpm-workspace.yaml` 或全局的 `~/.config/pnpm/config.yaml` 中配置。
+只有 auth、registry、TLS、proxy 和 `local-address` 相关设置从 `.npmrc` 文件读取。所有其他设置在 `pnpm-workspace.yaml` 或[全局 `config.yaml`](/docs/configuring#global-configuration)中配置。有些设置只能配置在其中之一：定义 `node_modules` 结构的设置（如 `hoistPattern`、`publicHoistPattern`、`nodeLinker` 或 `shamefullyHoist`）只能写在 `pnpm-workspace.yaml` 中，而指明机器级状态的设置（如 `stateDir` 或 `pnpmHomeDir`）则不从 `pnpm-workspace.yaml` 中读取。
 
 `pnpm config` 命令可用于读取和编辑项目与全局配置文件的内容。
 
@@ -20,17 +20,19 @@ pnpm 从命令行、环境变量和 `pnpm-workspace.yaml` 获取其配置。
 
 :::
 
-配置文件中的值可以使用 `${NAME}` 语法包含环境变量。环境变量也可以指定默认值。使用 `${NAME-fallback}` 会在 `NAME` 未设置时返回 `fallback`。`${NAME:-fallback}` 会在 `NAME` 未设置或为空字符串时返回 `fallback`。
+配置文件中的值可以使用 `${NAME}` 语法包含环境变量。环境变量也可以指定默认值。使用 `${NAME-fallback}` 会在 `NAME` 未设置时返回 `fallback`。`${NAME:-fallback}` 会在 `NAME` 未设置或为空字符串时返回 `fallback`。自 v12.7.0 起，`${NAME?}` 在 `NAME` 未设置时会像 npm 一样展开为空字符串且不发出警告。自 v12.23.0 起，对未设置或为空且没有 fallback 的变量的引用会以 [`ERR_PNPM_CONFIG_UNRESOLVED_ENV_VAR`](/docs/errors#err_pnpm_config_unresolved_env_var) 失败。
 
 :::warning[警告]
 
-自 v11.5.3 起，在 `pnpm-workspace.yaml` 中定义 registry URL 的设置里**不会**展开环境变量：`registry`，以及 [registries](/docs/settings/dependency-resolution#registries) 和 [namedRegistries](/docs/settings/dependency-resolution#namedregistries) 的 URL 值。这些设置中包含 `${...}` 占位符的值会被忽略。在 `registries` 的 [registry 声明形式](/docs/registries) 中（自 v11.23.0 起），URL 是键而非值，同样的规则适用于键。由于 `pnpm-workspace.yaml` 会提交到仓库，在 registry URL 中展开环境变量可能会被恶意仓库利用，把环境中的机密泄露到攻击者控制的 registry。请改为在受信任的位置配置动态 registry URL：全局配置文件或 CLI 选项。
+自 v11.5.3 起，在 `pnpm-workspace.yaml` 中定义 registry URL 的设置里**不会**展开环境变量：`registry`，以及 [registries](/docs/settings/dependency-resolution#registries) 和 [namedRegistries](/docs/settings/dependency-resolution#namedregistries) 的 URL 值。这些设置中包含 `${...}` 占位符的值会让该命令失败，因为忽略该 URL 会从另一个 registry 解析包。在 `registries` 的 [registry 声明形式](/docs/registries) 中，URL 是键而非值，同样的规则适用于键。由于 `pnpm-workspace.yaml` 会提交到仓库，在 registry URL 中展开环境变量可能会被恶意仓库利用，把环境中的机密泄露到攻击者控制的 registry。请改为在受信任的位置配置动态 registry URL：全局配置文件或 CLI 选项。
+
+自 v12.7.0 起，同样的规则适用于 [`userAgent`](/docs/settings/network#useragent)：`pnpm-workspace.yaml` 中含有 `${...}` 占位符的 `userAgent` 会被忽略，因为 user agent 会随每次请求发送到所配置的 registry。
 
 :::
 
 :::note[说明]
 
-自 v11.22.0 起，项目的 `pnpm-workspace.yaml` 不能选择 pnpm 保存其凭据、其自身安装或其他机器级状态的位置：`bin`、`configDir`、`dir`、`globalBinDir`、`globalDir`、`npmrcAuthFile`、`pnpmHomeDir`、`stateDir`、`userconfig` 和 `workspaceDir` 在那里会被忽略，并发出警告。请改在[全局配置文件](/docs/cli/config)或命令行上设置它们。`cacheDir` 和 `storeDir` 不受影响。
+项目的 `pnpm-workspace.yaml` 不能选择 pnpm 保存其凭据、其自身安装或其他机器级状态的位置：`bin`、`configDir`、`dir`、`globalBinDir`、`globalDir`、`macosBackup`、`npmrcAuthFile`、`pnpmHomeDir`、`scope`、`stateDir`、`userconfig` 和 `workspaceDir` 在那里会被忽略，并发出警告。[`ci`](/docs/settings/other#ci)、[`globalShims`](/docs/settings/other#globalshims)、[`symlinkedLockfileTargetDirs`](/docs/settings/store#symlinkedlockfiletargetdirs) 与 [`tools`](/docs/settings/cli#tools) 也是如此。其中只有 `globalShims` 还可以写在 pnpm 主目录下的 `pnpm-workspace.yaml` 中。请改在[全局配置文件](/docs/configuring#global-configuration)或命令行上设置它们。`cacheDir` 和 `storeDir` 不受影响。
 
 :::
 
@@ -55,6 +57,14 @@ packages:
 ```
 
 根包始终被纳入，即使使用了自定义位置通配符。
+
+一个模式可以带 `./` 前缀，可以包含 `.` 与 `..` 段，也可以重复斜杠：`./packages/*` 与 `packages//*` 选中相同的项目，`!./packages/legacy` 排除的目录与 `!packages/legacy` 相同。`*` 永不匹配以点开头的名称，因此 `packages/*` 会跳过 `packages/.cache`；若要包含这样的目录，请显式写出它的名字。
+
+:::note[说明]
+
+pnpm 从 `pnpm-workspace.yaml` 读取工作区，而不是从根 `package.json` 的 `workspaces` 字段读取。自 v12.4.1 起，在没有 `pnpm-workspace.yaml` 的项目中，若根清单声明了非空的 `workspaces` 数组，会得到一条警告——因为这样的安装实际上不会链接任何项目。
+
+:::
 
 catalogs 也在 `pnpm-workspace.yaml` 文件中定义。详情见 [Catalogs](/docs/catalogs)。
 
@@ -180,7 +190,6 @@ packageConfigs:
 
 - [storeDir](/docs/settings/store#storedir)
 - [verifyStoreIntegrity](/docs/settings/store#verifystoreintegrity)
-- [useRunningStoreServer](/docs/settings/store#userunningstoreserver)
 - [strictStorePkgContentCheck](/docs/settings/store#strictstorepkgcontentcheck)
 - [frozenStore](/docs/settings/store#frozenstore)
 
@@ -247,7 +256,7 @@ packageConfigs:
 - [engineStrict](/docs/settings/cli#enginestrict)
 - [npmPath](/docs/settings/cli#npmpath)
 - [pmOnFail](/docs/settings/cli#pmonfail)
-- [ignoreWorkspaceRootCheck](/docs/settings/cli#ignoreworkspacerootcheck)
+- [ignoreWorkspaceRootCheck](/docs/workspaces#ignoreworkspacerootcheck)
 
 ### Node.js 设置
 

@@ -1,9 +1,21 @@
 ---
 title: "pnpm why"
-headingIds: ["options","--recursive--r","--json","--long","--parseable","--global--g","--prod--p","--dev--d","--depth-number","--only-projects","--exclude-peers","--filter-package_selector","--find-by-finder_name"]
+headingIds: ["options","--recursive--r","--json","--long","--parseable","--global--g","--ranges","--prod--p---production","--dev--d","--no-optional","--optional","--depth-number","--exclude-peers","--filter-package_selector","--find-by-finder_name"]
 ---
 
 显示所有依赖指定包的包。
+
+```bash
+pnpm why <pkg>...
+```
+
+例如：
+
+```bash
+pnpm why "@babel/*"
+```
+
+需要提供包名或 [`--find-by`](#--find-by-finder_name)。两者都没有时，命令会以 `ERR_PNPM_MISSING_PACKAGE_NAME` 失败。
 
 输出是一棵反向依赖树：被查找的包位于根部，其依赖方作为分支，一路回溯到工作区根。
 
@@ -17,7 +29,7 @@ headingIds: ["options","--recursive--r","--json","--long","--parseable","--globa
 
 ### --json
 
-以 JSON 格式显示信息。
+以 JSON 格式显示信息。依赖方节点包含 `requires` 字段，其中有声明的依赖版本范围（如果可用）。
 
 ### --long
 
@@ -29,27 +41,47 @@ headingIds: ["options","--recursive--r","--json","--long","--parseable","--globa
 
 ### --global, -g
 
-列出全局安装目录中的包，而非当前项目中的包。
+检查全局安装目录中的包，而非当前项目中的包。
 
-### --prod, -P
+### --ranges
 
-仅显示 `dependencies` 中包的依赖树。
+显示每个直接依赖方为该包声明的版本范围，以替代依赖树。声明相同范围的依赖方会列在其下，每个已安装的版本各占一节：
+
+```text
+esbuild
+  Installed: 0.28.1
+  Wanted:
+    ^0.28.0:
+      vite@6.1.0
+    ~0.28.0:
+      tsx@4.23.1
+```
+
+`package.json` 无法读取的依赖方会列在 `<unknown>` 之下。
+
+### --prod, -P, --production
+
+仅显示 `dependencies` 和 `optionalDependencies` 中包的依赖树。
 
 ### --dev, -D
 
 仅显示 `devDependencies` 中包的依赖树。
 
+### --no-optional
+
+不显示来自 `optionalDependencies` 的包。
+
+### --optional
+
+包含来自 `optionalDependencies` 的包。
+
 ### --depth <number>
 
 仅显示特定深度内的依赖。
 
-### --only-projects
-
-仅显示同时也是工作区内项目的依赖。
-
 ### --exclude-peers
 
-从结果中排除对等依赖（但对等依赖的依赖不会被忽略）。
+去掉那些仅作为已解析的对等依赖被触达的包。若某个包同时是某个项目或包的常规依赖，则会被保留。
 
 ### --filter <package_selector>
 

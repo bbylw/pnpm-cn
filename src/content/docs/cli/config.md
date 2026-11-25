@@ -9,22 +9,18 @@ headingIds: ["commands","set-key-value","get-key","delete-key","list","options",
 
 pnpm 设置分布在两类配置文件中：
 
-- **与 npm 兼容的传统 registry/认证设置** 存放在 INI 文件中，包括全局 `rc` 文件、`auth.ini` 以及本地的 `.npmrc` 文件。
-- **pnpm 设置** 存放在 YAML 文件中，包括全局 `config.yaml` 和每个项目的 `pnpm-workspace.yaml`。全局文件还可能保存 pnpm 12.1 及更高版本在 `pnpm login` 期间写入的结构化 [_auth](/docs/npmrc#_auth) 和 [registry](/docs/registries) 值。
+- **与 npm 兼容的传统 registry/认证设置** 存放在 INI 文件中，包括全局 `auth.ini` 文件以及本地的 `.npmrc` 文件。
+- **pnpm 设置** 存放在 YAML 文件中，包括全局 `config.yaml` 和每个项目的 `pnpm-workspace.yaml`。全局文件还可能保存 pnpm 12.1 及更高版本在 `pnpm login` 期间写入的结构化 [_auth](/docs/npmrc#_auth) 和 [registries](/docs/registries) 值。
 
 本地工作区配置文件位于项目根目录，名为 `pnpm-workspace.yaml`。全局 YAML 配置文件（`config.yaml`）位于：
 
-- 如果设置了 **$XDG_CONFIG_HOME** 环境变量，则为 **$XDG_CONFIG_HOME/pnpm/config.yaml**
+- 如果 **$PNPM_CONFIG_HOME** 非空，则为 **$PNPM_CONFIG_HOME/config.yaml**
+- 否则，如果设置了 **$XDG_CONFIG_HOME** 环境变量，则为 **$XDG_CONFIG_HOME/pnpm/config.yaml**
 - 在 Windows 上：**~/AppData/Local/pnpm/config/config.yaml**
 - 在 macOS 上：**~/Library/Preferences/pnpm/config.yaml**
 - 在 Linux 上：**~/.config/pnpm/config.yaml**
 
-全局 `rc` 文件（仅 registry/认证设置）位于：
-
-- 如果设置了 **$XDG_CONFIG_HOME** 环境变量，则为 **$XDG_CONFIG_HOME/pnpm/rc**
-- 在 Windows 上：**~/AppData/Local/pnpm/config/rc**
-- 在 macOS 上：**~/Library/Preferences/pnpm/rc**
-- 在 Linux 上：**~/.config/pnpm/rc**
+全局 `auth.ini` 文件位于同一目录。参见[认证文件位置](/docs/npmrc#auth-file-locations)。
 
 你还可以通过运行以下命令来获取全局配置文件的路径（自 v10.21.0 起提供）：
 
@@ -63,7 +59,7 @@ pnpm config set --location=project --json catalog '{ "react": "19" }'
 
 ### get <key>
 
-打印所提供键对应的配置值。
+打印所提供属性路径对应的配置值。字符串、数字和布尔值以纯文本打印，对象和数组以 JSON 打印，未设置的键打印为 `undefined`。使用 `--json` 时，所有值都以 JSON 打印。
 
 `key` 可以是一个简单的键：
 
@@ -96,13 +92,7 @@ pnpm config get --json catalog.react
 
 显示所有配置设置。输出为一个 JSON 对象。
 
-与认证相关的设置不会显示在输出中；使用 `pnpm config get <key>` 显式读取它们。
-
-:::note[说明]
-
-自 v11 起，`pnpm config get`（不带 `--json`）不再输出 INI 格式文本。它对对象和数组输出 JSON，对字符串、数字、布尔值和 null 输出原始字符串。`pnpm config get --json` 将所有值输出为 JSON。`pnpm config list` 始终输出一个 JSON 对象。
-
-:::
+`pnpm config list` 会遮蔽令牌、用户名、密码、TLS 私钥以及代理 URL 中的凭据。当被询问受保护的认证设置时，`pnpm config get` 会失败。
 
 ## 选项
 
@@ -110,7 +100,11 @@ pnpm config get --json catalog.react
 
 在全局配置文件中设置该配置。
 
+与 `get` 和 `list` 一起使用时，只显示全局配置，不包含项目 `pnpm-workspace.yaml` 和 `.npmrc` 中的设置。
+
 ### --location
+
+- 类型：**project**、**global**
 
 默认情况下，`--location` 设置为 `global`。
 

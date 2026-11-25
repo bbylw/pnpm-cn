@@ -3,13 +3,15 @@ title: "pnpm with"
 headingIds: ["examples","related-settings","pmonfail"]
 ---
 
-自 v11.0.0 起提供
-
 在单次调用中按指定版本（或当前正在运行的版本）运行 pnpm，忽略项目清单的 `packageManager` 和 `devEngines.packageManager` 字段。
 
 ```bash
 pnpm with <version|current> <args...>
 ```
+
+版本可以是精确版本、一个范围，或一个 dist-tag。
+
+`pnpm with` 在 Corepack 下无法使用。它会以 `ERR_PNPM_CANT_USE_WITH_IN_COREPACK` 失败。
 
 下载的 pnpm 使用与 [pnpm self-update](/docs/cli/self-update) 相同的机制安装，并缓存到全局虚拟存储中，供后续运行复用。
 

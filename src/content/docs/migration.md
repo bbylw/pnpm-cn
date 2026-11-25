@@ -9,7 +9,7 @@ pnpm v11 对读取配置的方式以及可用的设置引入了一些破坏性�
 
 ```bash
 cd /path/to/your/project
-pnpx codemod run pnpm-v10-to-v11
+pnx codemod run pnpm-v10-to-v11   # pnpx on pnpm v10
 # or
 pnpm add --global codemod
 codemod run pnpm-v10-to-v11

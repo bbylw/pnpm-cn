@@ -1,6 +1,6 @@
 ---
 title: "使用多个 registry"
-headingIds: ["routing-packages-to-a-registry","scopes","prefix","describing-the-server","servertype","supportstimefield","networkconcurrency","ecosystem","packages","tar-registries","where-the-setting-may-live","the-older-shapes"]
+headingIds: ["routing-packages-to-a-registry","scopes","prefix","describing-the-server","servertype","tar-registries","supportstimefield","networkconcurrency","ecosystem","packages","where-the-setting-may-live","the-older-shapes"]
 ---
 
 自 v11.23.0 起提供
@@ -27,9 +27,12 @@ registries:
 | **Field** | **Type** | **声明内容** |
 | --- | --- | --- |
 | [scopes](#scopes) | `string[]` | 路由到该 registry 的包 scope。 |
+| [ecosystem](#ecosystem) | `string` | 包生态系统：`npm`、`cargo` 或 `pypi`。 |
+| [packages](#packages) | `string[]` | 路由到该 registry 的 Python 包名或前缀。 |
 | [prefix](#prefix) | `string` | 该 registry 响应的裸说明符前缀。 |
-| [serverType](#servertype) | `string` | 服务器如何排布 tarball URL：`npm` 或 `artifactory`。 |
+| [serverType](#servertype) | `string` | 服务器如何排布 tarball URL：`npm`、`artifactory` 或 `pnpr`。 |
 | [supportsTimeField](#supportstimefield) | `boolean` | 服务器的简化元数据是否携带 `time` 字段。 |
+| [networkConcurrency](#networkconcurrency) | `number` | pnpm 对应该 registry 来源保持的最多并发请求数。 |
 
 其他任何字段都会被拒绝。具体来说，凭据（`_authToken`、`_auth`、`_password`、`username`、`tokenHelper`）和 TLS 材料（`ca`、`cafile`、`cert`、`certfile`、`key`、`keyfile`）会被直接拒绝而不是静默忽略。`pnpm-workspace.yaml` 会提交到仓库，因此这些内容应放在 [.npmrc](/docs/npmrc) 中（例如 `//npm.corp.example.com/:_authToken=...`）。内嵌 `user:pass@` 凭据的 URL 键出于同样的原因也会被拒绝。
 
@@ -82,6 +85,7 @@ pnpm add work:@corp/lib@^2.0.0
 | *undeclared* | 严格：只有当 tarball URL 恰好是标准 npm 布局的 URL（`<registry>/<name>/-/<scopeless-name>-<version>.tgz`）时才会被省略。除 `registry.npmjs.org` 外，所有 registry 默认都按此方式读取。 |
 | `npm` | 服务器行为类似 `registry.npmjs.org`：它既从百分号编码路径（`/@acme%2Fwidget/...`）提供带 scope 的包，也从未编码路径提供。公共 registry 的忠实镜像或缓存代理即属此类，`registry.npmjs.org` 自身内置该类型。 |
 | `artifactory` | 服务器会在带 scope 的包的 tarball 文件名中重复该 scope：`@acme/widget/-/@acme/widget-1.0.0.tgz`；而 npm 布局会去掉 scope（`@acme/widget/-/widget-1.0.0.tgz`）。 |
+| `pnpr` | 服务器在 `<registry>/<name>@<version>` 处提供某个版本的 tarball，例如 `@acme/widget@1.0.0`。除带[registry 修订版](/docs/registry-revisions)的版本外，pnpr 在 `.tgz` registry 与 [tar registry](#tar-registries) 上都使用这一布局。pnpm 还会把[发布说明](/docs/cli/publish#--release-notes-file)发送给服务器，并从服务器读取它们。 |
 
 对于 JFrog Artifactory registry，这决定了锁文件是为**每个带 scope 的包**记录特定于主机的 tarball URL，还是一个都不记录：
 
@@ -101,9 +105,16 @@ registries:
 | JFrog Artifactory | `artifactory` |
 | GitLab package registry | `artifactory`——使用相同布局，在文件名中重复 scope。 |
 | npm registry 的忠实镜像或缓存代理 | `npm` |
+| pnpr | `pnpr` |
 | Verdaccio, Sonatype Nexus, Azure Artifacts | 无需声明——它们提供的就是标准 npm 布局，严格的默认值已经能重建该布局。 |
 | GitHub Packages | 无需声明——其下载 URL 含有无法从包身份推导出的内容摘要，因此这些 URL 会保留在锁文件中。 |
 | GitHub Enterprise Server | 无需声明——它只从百分号编码路径提供带 scope 的包，严格的默认值会把这些 URL 保留在锁文件中并按原样请求。 |
+
+被声明为 `serverType: pnpr` 的 registry 还会被询问 pnpr 自己的 package document，它比 npm 的更小，只携带 pnpm 独有记录的信息：每个版本当前选中的 [registry 修订版](/docs/registry-revisions)，以及 pnpr 为每个归档文件核实到的事实，例如它是否需要构建。大型文档会省略解析时很少选中的那些版本的 manifest，而当 pnpm 真正选中某个版本时再去获取它的 manifest。pnpm 把这些文档单独存放在缓存目录的 `v12/metadata-pnpr` 中，与 npm 的文档分开。
+
+pnpr 的 package document 支持最长为 43200 分钟（30 天）的 [`minimumReleaseAge`](/docs/settings/dependency-resolution#minimumreleaseage)。若设置更长的值，pnpm 在从声明了 `serverType: pnpr` 的 registry 读取包时，会以 `ERR_PNPM_UNSUPPORTED_MINIMUM_RELEASE_AGE` 使解析失败。该窗口从当前时间往回计算，因此过去某个时刻的 [`referenceTime`](/docs/settings/dependency-resolution#referencetime) 会加上相应的滞后量。当设置了 `referenceTime` 且 `trustPolicy: no-downgrade` 时，[`trustPolicyIgnoreAfter`](/docs/settings/dependency-resolution#trustpolicyignoreafter) 窗口也按同样方式计算，而一旦达到 43200 分钟，解析就会以 `ERR_PNPM_UNSUPPORTED_TRUST_POLICY_IGNORE_AFTER` 失败。
+
+pnpr 服务器会在响应中标明自己。当一个未声明为 `serverType: pnpr` 的 registry 实际上是 pnpr 时，pnpm 会警告一次，并改从 npm 的文档安装——不使用修订版，也不用 pnpr 关于归档文件的事实。
 
 布局需要声明，不会被推断：虚拟仓库可以同时提供两种布局，取决于每个包是从上游同步而来还是在本地发布，因此不存在 pnpm 可以探测的 registry 级信号。声明它还能让错误的取值成为一个可修复的错误配置，而不是悄无声息的故障。
 
@@ -112,6 +123,30 @@ registries:
 `serverType` 是一项只有服务器运营方才能做出的声明，且锁文件依赖它：被省略的 tarball URL 会在每次安装时用声明的布局重建，包括 `--frozen-lockfile` 安装。应当声明服务器实际提供的布局，并预期声明后会出现一次性的锁文件 diff：pnpm 现在能够重建的 URL 会在下一次写入锁文件的安装中从锁文件里消失。
 
 :::
+
+### Tar registry
+
+自 v12.15.0 起提供
+
+Tar registry 以未压缩的 tar 而非 `.tgz` 提供每个包。该 tar 是所发布 `.tgz` 的 gzip 解码内容，按请求所接受的 HTTP 内容编码（zstd 或 gzip）发送。它的元数据在 `dist.integrity` 中固定 tar 的哈希，因此 registry 可以随意压缩该 tar 而不改变任何哈希。pnpr 通过 [`tarballs: tar`](https://pnpm.io/pnpr/configuration#tar-registries) 暴露了这一能力。
+
+项目通过以 URL 为键并声明其布局来使用 tar registry：
+
+```yaml
+registries:
+  https://pnpr.corp.example/npm/~zstd/:
+    scopes: ["@"]
+    serverType: pnpr
+```
+
+由服务器决定哪个基础地址提供 tar。在 pnpr 的示例中，它们位于 `/npm/~zstd/`，与常规的 `.tgz` 基础地址相邻，但 registry 也可以从其主基础地址提供 tar；参见 [pnpr 中的 tar registry](https://pnpm.io/pnpr/configuration#tar-registries)。请在任何 pnpr registry 基础地址上声明 `serverType: pnpr`，这样 pnpm 才会从 `pnpm-lock.yaml` 中省略规范的 `<name>@<version>` tarball URL。
+
+pnpm 通过解码后响应的前几个字节来区分 tar 和 `.tgz`，因此无需声明其他内容。锁文件保留其 `integrity` 字段，对来自 tar registry 的包而言，该字段保存的是 tar 的哈希。
+
+- **切换**：在 `.tgz` registry 和 tar registry 之间切换项目，会改变 registry 所提供的内容，因此记录的哈希不再匹配。切换后请运行 `pnpm install --update-checksums`。用 [`lockfile.integrityTarget: tar`](/docs/settings/store#lockfileintegritytarget) 固定 tar 的锁文件会在切换前后保留所有哈希。
+- **缺失的哈希**：尚未知晓某版本 tar 哈希的 tar registry 会省略 `dist.integrity`。此时 pnpm 会在解析期间下载该 tarball，并记录它收到的 tar 的哈希。
+- **重写 `Accept-Encoding` 的代理**（例如部署在 Worker 前面的 Cloudflare 边缘节点）可能让 zstd 无法到达 registry。此时 registry 会以 gzip 编码或未压缩方式发送 tar。两种情况下 tar 及其哈希都相同，因此安装不受影响，只是下载体积发生变化。pnpr 的 [Cloudflare 指南](https://pnpm.io/pnpr/cloudflare)介绍了它的 Worker 如何获得 zstd 支持。
+- **体积限制**：pnpm 只在解码 tarball 之后才校验其哈希，因此它会先对解码内容做体积限制。一个包的文件不得超过 [`maxTarballUnpackedSize`](/docs/settings/network#maxtarballunpackedsize)。一个 tar 的文件同样不得超过该包的 `dist.unpackedSize`。单个归档的头部和被跳过的条目不得超过 256 MiB，zstd 响应使用的窗口也不得大于 8 MiB。
 
 ### supportsTimeField
 
@@ -182,30 +217,6 @@ registries:
 省略 `packages` 同样意味着声称了默认索引，因此单个自定义 Python 索引无需任何模式，而两个都省略它的索引会因同为默认而被拒绝。一旦声明了任何 Python 索引，PyPI 就不再被隐式加入：没有索引声称的包会以 `ERR_PNPM_UNCLAIMED_PYTHON_PACKAGE` 失败，除非有索引是默认的。更改路由会使 Python 锁文件失效。
 
 含私有包和 PyPI 默认索引的示例，参见 [Python 索引](/docs/python#python-indexes)。
-
-### Tar registry
-
-自 v12.15.0 起提供
-
-Tar registry 以未压缩的 tar 而非 `.tgz` 提供每个包。该 tar 是所发布 `.tgz` 的 gzip 解码内容，按请求所接受的 HTTP 内容编码（zstd 或 gzip）发送。它的元数据在 `dist.integrity` 中固定 tar 的哈希，因此 registry 可以随意压缩该 tar 而不改变任何哈希。pnpr 通过 [`tarballs: tar`](https://pnpm.io/pnpr/configuration#tar-registries) 暴露了这一能力。
-
-项目通过以 URL 为键并声明其布局来使用 tar registry：
-
-```yaml
-registries:
-  https://pnpr.corp.example/npm/~zstd/:
-    scopes: ["@"]
-    serverType: pnpr
-```
-
-由服务器决定哪个基础地址提供 tar。在 pnpr 的示例中，它们位于 `/npm/~zstd/`，与常规的 `.tgz` 基础地址相邻，但 registry 也可以从其主基础地址提供 tar；参见 [pnpr 中的 tar registry](https://pnpm.io/pnpr/configuration#tar-registries)。请在任何 pnpr registry 基础地址上声明 `serverType: pnpr`，这样 pnpm 才会从 `pnpm-lock.yaml` 中省略规范的 `<name>@<version>` tarball URL。
-
-pnpm 通过解码后响应的前几个字节来区分 tar 和 `.tgz`，因此无需声明其他内容。锁文件保留其 `integrity` 字段，对来自 tar registry 的包而言，该字段保存的是 tar 的哈希。
-
-- **切换**：在 `.tgz` registry 和 tar registry 之间切换项目，会改变 registry 所提供的内容，因此记录的哈希不再匹配。切换后请运行 `pnpm install --update-checksums`。用 [`lockfile.integrityTarget: tar`](/docs/settings/store#lockfileintegritytarget) 固定 tar 的锁文件会在切换前后保留所有哈希。
-- **缺失的哈希**：尚未知晓某版本 tar 哈希的 tar registry 会省略 `dist.integrity`。此时 pnpm 会在解析期间下载该 tarball，并记录它收到的 tar 的哈希。
-- **重写 `Accept-Encoding` 的代理**（例如部署在 Worker 前面的 Cloudflare 边缘节点）可能让 zstd 无法到达 registry。此时 registry 会以 gzip 编码或未压缩方式发送 tar。两种情况下 tar 及其哈希都相同，因此安装不受影响，只是下载体积发生变化。pnpr 的 [Cloudflare 指南](https://pnpm.io/pnpr/cloudflare)介绍了它的 Worker 如何获得 zstd 支持。
-- **体积限制**：pnpm 只在解码 tarball 之后才校验其哈希，因此它会先对解码内容做体积限制。一个包的文件不得超过 [`maxTarballUnpackedSize`](/docs/settings/network#maxtarballunpackedsize)。一个 tar 的文件同样不得超过该包的 `dist.unpackedSize`。单个归档的头部和被跳过的条目不得超过 256 MiB，zstd 响应使用的窗口也不得大于 8 MiB。
 
 ## 设置可以存放的位置
 

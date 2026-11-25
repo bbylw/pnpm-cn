@@ -58,7 +58,7 @@ pnpm pkg delete keywords
 
 ### fix
 
-自动纠正 `package.json` 中的常见错误（例如移除非字符串的 `name` 或 `version`，删除值不是对象的依赖 / `scripts` 块，删除既不是字符串也不是对象的 `bin` 字段）。
+自动纠正 `package.json` 中的常见错误（例如移除非字符串的 `name` 或 `version`，删除值不是对象的依赖 / `scripts` 块，删除既不是字符串也不是对象的 `bin` 字段）。它还会把 `repository` 字符串转换为对象形式，并像 `npm pkg fix` 那样规范化 GitHub、GitLab 或 Bitbucket 的 URL。
 
 ```bash
 pnpm pkg fix
@@ -80,4 +80,4 @@ pnpm -r pkg set version=1.0.0
 pnpm --filter "./packages/*" pkg get name
 ```
 
-`pnpm -r pkg get` 返回一个以包名为键的 JSON 对象；`set`、`delete` 和 `fix` 会应用于每个匹配的项目。
+`pnpm -r pkg get` 返回一个以包名为键的 JSON 对象。当某个项目没有名称、当另一个被选中的项目具有相同名称，或当它的名称与另一个以目录为键报告的项目的目录键相同时，该项目以相对于工作区根目录的目录为键。`set`、`delete` 和 `fix` 会应用于每个匹配的项目。

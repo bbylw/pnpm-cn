@@ -1,6 +1,6 @@
 ---
 title: "全局包"
-headingIds: ["installing-global-packages","isolated-installations","directory-layout","listing-global-packages","managing-global-packages","binaries-location","project-aware-global-bins","how-a-version-is-chosen","trust","which-packages-participate","global-virtual-store","registering-local-packages-globally","build-script-approval"]
+headingIds: ["installing-global-packages", "isolated-installations", "directory-layout", "listing-global-packages", "managing-global-packages", "binaries-location", "project-aware-global-bins", "how-a-version-is-chosen", "runtime-download-mirrors", "nvmrc-and-node-version", "trust", "which-packages-participate", "global-virtual-store", "registering-local-packages-globally", "configuration", "build-script-approval"]
 ---
 
 全局包是通过 `pnpm add -g` 在系统范围内安装的 CLI 工具和实用程序。在 pnpm v11 中，全局包管理经过重新设计，以实现更好的隔离性和可靠性。
@@ -74,19 +74,17 @@ pnpm add -g eslint,prettier typescript
 │   ├── pnpm-lock.yaml    ← lockfile for this install group
 │   └── node_modules/
 │       ├── <pkg>/        ← top-level dep, symlinked into the global virtual store
-│       └── .pnpm/
+│       └── .pnpm/        ← the group's install state
 ├── {hash-B}              → symlink → ./{hash-B-target}/
-├── {hash-B-target}/      ← another isolated install dir
-└── store/                ← shared global virtual store
-    └── ...
+└── {hash-B-target}/      ← another isolated install dir
 ```
 
 - `{hash}` 条目是符号链接；pnpm 通过扫描它们来枚举当前生效的安装。
 - 链接目标是真实目录，它们的行为就像普通的 pnpm 项目，各自都有自己的 `package.json` 和锁文件。
-- 共享的 `store/` 目录存放[全局虚拟存储](/docs/global-virtual-store)。每个安装组的直接依赖，也就是其 `node_modules/` 根目录下的条目，都是指向该存储的符号链接，因此实际的包内容是共享的，而不是每个组各自复制一份。
+- 默认情况下，包的内容位于[全局虚拟存储](/docs/global-virtual-store)的 `{storeDir}/links` 处，在这个目录之外。每个安装组的直接依赖（也就是其 `node_modules/` 根目录下的条目）是指向该存储的符号链接，因此依赖同一个包的安装组会共享一份拷贝。若设置 `virtualStoreType: project`，每个安装组则把自己的包保留在自己的 `node_modules/.pnpm` 中。
 - bin shim 位于 `{pnpmHomeDir}/bin/`，并通过相应安装组的 `node_modules` 指向目标。
 
-当某个包被移除或其安装组被替换时，hash 符号链接会更新，成为孤儿的目标目录最终由 `pnpm store prune` 清理。
+当某个包被移除或其安装组被替换时，hash 符号链接会更新。超过五分钟的孤儿目标目录会在下一次 `pnpm add -g`、`pnpm update -g` 或 `pnpm self-update` 开始时被清除。
 
 ## 列出的全局包
 
@@ -180,6 +178,39 @@ pnpm home 内的目录会被跳过，因为全局安装不是项目。
 
 如果项目没有提供该命令，或该查找被拒绝，则运行全局安装的版本。命令绝不会仅仅因为派发未生效而失败。
 
+### 运行时下载镜像
+
+感知项目的全局运行时命令会使用[全局配置文件](/docs/cli/config)与环境设置来下载其锁定的版本。它们不会自动加载项目的 `pnpm-workspace.yaml`。项目的镜像设置对 `pnpm install` 安装的运行时依赖依然生效。
+
+显式设置 `PNPM_CONFIG_WORKSPACE_DIR` 或 `NPM_CONFIG_WORKSPACE_DIR` 环境变量，可以选择一个工作区，其 `pnpm-workspace.yaml` 能提供包括 `nodeDownloadMirrors` 在内的设置。这些变量的小写写法同样有效。
+
+例如，要为全局 `node` 命令使用 Node.js 镜像，请把下面的内容放进全局配置文件：
+
+```yaml
+nodeDownloadMirrors:
+  release: https://npmmirror.com/mirrors/node/
+```
+
+也可以改用 [`tools.node.channels.release`](/docs/settings/cli#tools) 配置。
+
+如果 `pnpm install` 打印 `pnpm: failed to prepare node@runtime:...`，请检查在项目内 `node --version` 是否以同样方式失败。通过 `node` 启动的命令可能在安装开始前准备 Node.js 时就失败。请检查全局配置和显式选定的工作区中的镜像设置，以及 `PNPM_CONFIG_TOOLS` 和 `PNPM_CONFIG_NODE_DOWNLOAD_MIRRORS` 环境变量。参见[镜像设置的优先级](/docs/settings/cli#nodedownloadmirrors)。
+
+运行时准备的失败信息会说明哪一份配置生效，包括工作区目录环境变量的覆盖。对 Node.js 而言，诊断信息还会列出需要检查的全局镜像设置与环境变量。
+
+### `.nvmrc` 与 `.node-version`
+
+自 v12.7.0 起提供
+
+`node` shim 也会从 `.node-version` 或 `.nvmrc` 文件读取 Node.js 版本，因此为 nvm、fnm 或 n 配置好的项目无需 `devEngines.runtime` 条目即可工作：
+
+```text
+22
+```
+
+以这些方式声明 Node.js 运行时的最近目录决定版本。在同一个目录内，`package.json` 优先于 `.node-version`，`.node-version` 优先于 `.nvmrc`。
+
+两个文件都接受一个版本或范围，可以带 `v` 前缀，也接受 `node`、`stable`、`lts/*` 以及 `lts/jod` 这样的 LTS 代号。注释会被忽略。只有 nvm 才能处理的值（例如 `system`、`default` 或自定义别名）会被忽略，该目录视为未锁定版本。
+
 ### 信任
 
 你 `cd` 进入的项目并不会自动被允许用自身的二进制文件取代你的全局二进制文件。
@@ -249,6 +280,12 @@ pnpm add -g .
 ```
 
 这会注册该包的 `bin` 条目，使它们可以从任何地方调用。更多细节见 [pnpm link](/docs/cli/link#add-a-binary-globally)。
+
+## 配置
+
+全局包使用[全局配置](/docs/configuring#global-configuration)。若只想为全局包改变某个设置，请在全球 `config.yaml` 的 [`globalPackagesConfig`](/docs/configuring#settings-for-global-packages) 下设置它。
+
+`pnpm add -g` 和 `pnpm update -g` 不会读取调用方项目的 `pnpm-workspace.yaml`，即使 `PNPM_CONFIG_WORKSPACE_DIR` 指向该项目也是如此。
 
 ## 构建脚本批准
 

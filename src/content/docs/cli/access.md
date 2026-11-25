@@ -1,6 +1,6 @@
 ---
 title: "pnpm access"
-headingIds: ["subcommands","list-packages","list-collaborators","get-status","set-status","set-mfa","grant","revoke","options","--registry-urlgt","--json","--otp-codegt"]
+headingIds: ["subcommands","list-packages","list-collaborators","get-status","set-status","set-mfa","grant","revoke","options","--registry-url","--json","--otp-code"]
 ---
 
 自 v11.11.0 起提供
@@ -60,6 +60,8 @@ pnpm access set status=public @myorg/pkg
 pnpm access set status=private @myorg/pkg
 ```
 
+`restricted` 可作为 `private` 的同义词使用。`pnpm access public <package>` 和 `pnpm access restricted <package>` 分别是 `set status=public` 和 `set status=private` 的简写。
+
 只有带 scope 的包可以更改可见性。不带 scope 的包始终公开，尝试更改会失败并报 `ERR_PNPM_ACCESS_SET_STATUS_UNSCOPED`。
 
 ### set mfa
@@ -93,7 +95,7 @@ pnpm access revoke @myorg:developers @myorg/pkg
 
 ## 选项
 
-### --registry <url&gt;
+### --registry <url>
 
 此操作使用的 npm registry 的基础 URL。被修改的包会遵循按 scope 及具名 registry 的配置（通过 [registries](/docs/settings/dependency-resolution#registries) 和 [namedRegistries](/docs/settings/dependency-resolution#namedregistries) 配置）。
 
@@ -101,6 +103,6 @@ pnpm access revoke @myorg:developers @myorg/pkg
 
 以 JSON 格式输出结果。适用于 `list packages`、`list collaborators` 和 `get status`。
 
-### --otp <code&gt;
+### --otp <code>
 
 当 registry 要求双因素认证时，此选项提供一次性密码。它适用于会修改状态的子命令：`set status`、`set mfa`、`grant` 和 `revoke`。

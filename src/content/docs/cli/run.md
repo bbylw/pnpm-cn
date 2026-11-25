@@ -1,11 +1,15 @@
 ---
 title: "pnpm run"
-headingIds: ["examples","running-multiple-scripts","details","environment","options","--recursive--r","--if-present","--no-bail","--parallel","--sequential--s","--stream","--aggregate-output","--resume-from-package_name","--dry-run","--json","--report-summary","--reporter-hide-prefix","--filter-package_selector","pnpm-workspaceyaml-settings","enableprepostscripts","scriptshell","shellemulator"]
+headingIds: ["examples","running-multiple-scripts","details","interrupting-a-script","environment","options","--recursive--r","--if-present","--no-bail","--parallel","--sequential--s","--workspace-concurrency","--stream","--aggregate-output","--resume-from-package_name","--dry-run","--json","--report-summary","--reporter-hide-prefix","--sort---reverse---bail","--filter-package_selector","pnpm-workspaceyaml-settings","enableprepostscripts","scriptshell","shellemulator"]
 ---
 
 别名： `run-script`
 
-运行包 manifest 文件中定义的脚本。
+运行包 manifest 文件中定义的脚本。不带脚本名时，`pnpm run` 会列出可用的脚本：
+
+```sh
+pnpm run
+```
 
 ## 示例
 
@@ -17,27 +21,35 @@ headingIds: ["examples","running-multiple-scripts","details","environment","opti
 }
 ```
 
-现在你可以用 `pnpm run watch` 运行该脚本！很简单，对吧？对于想少按键、省时间的人，另需注意：所有脚本都会被别名为 pnpm 命令，因此 `pnpm watch` 只是 `pnpm run watch` 的简写（仅限与现有 pnpm 命令不同名的脚本）。
+用 `pnpm run watch` 运行它。`pnpm watch` 是 `pnpm run watch` 的简写。该简写只对名称与 pnpm 命令不冲突的脚本有效：遇到同名的内置命令时，会运行该命令而不是同名脚本，[`pnpm pm`](/docs/cli/pm) 中列出的命令除外——它们会运行该脚本。
 
 ## 运行多个脚本
 
 你可以用正则表达式代替脚本名，同时运行多个脚本。
 
-```bash
+```sh
 pnpm run "/<regex>/"
 ```
 
 运行所有以 `watch:` 开头的脚本：
 
-```bash
-pnpm run "/^watch:.*/"
+```sh
+pnpm run "/^watch:/"
 ```
 
 选择器必须写成正则表达式字面量（即用斜杠包裹）并加上引号，以免被 shell 破坏。普通字符串始终被视为字面脚本名，名称与参数完全匹配的脚本优先于正则匹配。
 
+该模式使用 JavaScript 正则表达式语法，支持前瞻和后顾。运行除 `hello:b` 之外的每个 `hello:` 脚本：
+
+```sh
+pnpm run "/^hello:(?!b$).*$/"
+```
+
 匹配不锚定，因此 `"/build:.*/"` 也会匹配 `prebuild:web`。需要精确前缀时，用 `^` 和 `$` 锚定模式。
 
-匹配到的脚本按字典序运行，因此无论脚本在 `package.json` 中以何种顺序出现，选择结果都是确定性的。如需严格逐个运行，添加 [--sequential](#--sequential--s)。
+匹配到的脚本按字典序运行，因此无论脚本在 `package.json` 中以何种顺序出现，选择结果都是确定性的。自 v12.2.0 起，它们会并发运行，最多受 [`--workspace-concurrency`](/docs/cli/recursive#--workspace-concurrency) 限制，每个脚本的输出都会带上脚本名作为前缀。如需严格逐个运行，添加 [`--sequential`](#--sequential--s)。
+
+使用 `--no-bail` 时，某个脚本失败不会停止其他脚本：每个匹配到的脚本都会被允许执行完毕，随后命令以 `ERR_PNPM_RUN_FAILED` 退出，并按选择顺序列出失败的脚本。
 
 不支持正则表达式标志：`pnpm run "/^build:.*/i"` 会失败并报 `ERR_PNPM_UNSUPPORTED_SCRIPT_COMMAND_FORMAT` 错误。
 
@@ -53,6 +65,14 @@ pnpm run "/^watch:.*/"
 
 对于工作区，`<workspace root>/node_modules/.bin` 也会被添加到 `PATH` 中，因此只要工具安装在工作区根目录，它就可以在任意工作区包的 `scripts` 中被调用。
 
+### 中断脚本
+
+在 Unix 上，如果前台命令处理了 `SIGINT` 并成功退出，shell 会继续执行脚本的其余部分。
+
+当 shell 运行的是内建命令（如 `while` 循环）时，期间到达的单个 `SIGINT` 并不会停止脚本（[#18221](https://github.com/pnpm/pnpm/issues/18221)）。再按一次 `Ctrl+C` 即可停止它。没有终端时，请改为向 pnpm 发送 `SIGTERM`。捕获了 `SIGTERM` 的脚本会继续运行。
+
+在 Unix 上，当 Corepack 在支持 `process.execve` 的 Node.js 上运行时，监管进程可以直接向 pnpm 的 PID 发送 `SIGINT` 或 `SIGTERM`。
+
 ## 环境
 
 pnpm 会为被执行的脚本自动创建一些环境变量。你可以使用这些环境变量获取运行进程的上下文信息。
@@ -60,6 +80,16 @@ pnpm 会为被执行的脚本自动创建一些环境变量。你可以使用这
 以下是 pnpm 创建的环境变量：
 
 - **npm_command** - 包含被执行的命令名。如果执行的命令是 `pnpm run`，则该变量的值为 "run-script"。
+- **npm_lifecycle_event** - 正在运行的脚本名。
+- **npm_lifecycle_script** - 正在运行的脚本所执行的命令。
+- **npm_package_json** - 包的 `package.json` 路径。
+- **npm_package_\*** - `package.json` 中的 `name`、`version`、`config`、`engines` 和 `bin` 字段，例如 `npm_package_name` 和 `npm_package_config_port`。
+- **npm_config_user_agent** - pnpm 的 user agent。
+- **npm_execpath** - pnpm 可执行文件的路径。
+- **npm_node_execpath** 和 **NODE** - Node.js 可执行文件的路径。
+- **INIT_CWD** - 运行 pnpm 时所在的目录。
+- **PNPM_SCRIPT_SRC_DIR** - 运行脚本的包的目录。
+- **FORCE_COLOR** - 当 pnpm 自己打印脚本输出、且 pnpm 自身的输出带颜色时，设为 `1`。pnpm 使用 [`--stream`](#--stream) 或 [`--parallel`](#--parallel)，或同时运行多个脚本时，会自行打印输出。已经设置好的 `FORCE_COLOR` 会被保留。
 
 ## 选项
 
@@ -67,7 +97,7 @@ pnpm 会为被执行的脚本自动创建一些环境变量。你可以使用这
 
 以下写法都会以 `--silent` 选项运行 pnpm CLI：
 
-```bash
+```sh
 pnpm run --silent watch
 pnpm --silent run watch
 pnpm --silent watch
@@ -75,13 +105,13 @@ pnpm --silent watch
 
 命令名之后的任何参数都会追加给被执行的脚本。因此如果 `watch` 运行的是 `webpack --watch`，那么此命令：
 
-```bash
+```sh
 pnpm run watch --no-color
 ```
 
 将运行：
 
-```bash
+```sh
 webpack --watch --no-color
 ```
 
@@ -105,11 +135,9 @@ webpack --watch --no-color
 
 ### --sequential, -s
 
-自 v11.14.0 起提供
+逐个运行选中的脚本。这会将 [`--workspace-concurrency`](/docs/cli/recursive#--workspace-concurrency) 强制设为 `1`，因此 [正则选择器](#running-multiple-scripts) 匹配到的脚本绝不会重叠运行，无论是在不同工作区包之间还是在单个包内。
 
-逐个运行选中的脚本。这会将 [--workspace-concurrency](/docs/cli/recursive#--workspace-concurrency) 强制设为 `1`，因此 [正则选择器](#running-multiple-scripts) 匹配到的脚本绝不会重叠运行，无论是在不同工作区包之间还是在单个包内。
-
-```bash
+```sh
 pnpm run --sequential "/^build:.*/"
 ```
 
@@ -117,9 +145,15 @@ pnpm run --sequential "/^build:.*/"
 
 :::note[说明]
 
-对于 `pnpm run`，`-s` 是 `--sequential` 的简写。在 CLI 的其他所有位置，`-s` 仍是 `--reporter=silent` 的简写。长格式 `--silent` 在所有命令中均不受影响。
+对于 `pnpm run`，`-s` 是 `--sequential` 的简写。这也包括 `pnpm <script>` 简写，因此 `pnpm -s watch` 意为 `pnpm run --sequential watch`。在 CLI 的其他所有位置，`-s` 仍是 `--reporter=silent` 的简写。长格式 `--silent` 在所有命令中均不受影响。
 
 :::
+
+在 GitHub Actions 上，使用 `--sequential` 或 `--workspace-concurrency=1` 的递归运行会对每个脚本的输出进行分组。静默运行则省略分组标记。
+
+### --workspace-concurrency
+
+设置同时运行的最大工作区任务数。默认值以及 0 和负值的含义，参见 [`pnpm recursive --workspace-concurrency`](/docs/cli/recursive#--workspace-concurrency)。
 
 ### --stream
 
@@ -137,7 +171,7 @@ pnpm run --sequential "/^build:.*/"
 
 解析递归运行的任务图但不执行脚本。普通输出是一种稳定的拓扑顺序，并非对独立任务派发顺序的预测。
 
-```bash
+```sh
 pnpm -r run --dry-run build
 ```
 
@@ -165,17 +199,22 @@ pnpm -r run --dry-run build
       "duration": 1865.914958
     }
   }
+}
 ```
 
-`status` 的可能取值：'passed'、'queued'、'running'。
+`status` 的可能取值为 `passed`、`queued`、`running`、`skipped` 和 `failure`。失败的条目还会带有 `prefix` 和 `message` 字段。除所请求的脚本之外的任务，其键为 `<dir>#<task>`。
 
 ### --reporter-hide-prefix
 
 隐藏并行运行的子进程输出中的工作区前缀，仅打印原始输出。在 CI 上运行且输出必须为不带任何前缀的特定格式时，这会很有用（例如 [GitHub Actions 注解](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message)）。仅支持 `--reporter=append-only`。
 
+### --sort, --reverse, --bail
+
+参见 [`--[no-]sort`](/docs/cli/recursive#--no-sort)、[`--reverse`](/docs/cli/recursive#--reverse) 和 [`--[no-]bail`](/docs/cli/recursive#--no-bail)。
+
 ### --filter <package_selector>
 
-[Read more about filtering.](/docs/filtering)
+更多过滤说明见[过滤](/docs/filtering)。
 
 ## pnpm-workspace.yaml 设置
 

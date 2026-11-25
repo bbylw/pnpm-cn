@@ -1,17 +1,21 @@
 ---
 title: "pnpm fetch"
-headingIds: ["usage-scenario","options","--dev--d","--prod--p"]
+headingIds: ["workspaces","usage-scenario","options","--dev--d","--prod---production--p","--ignore-pnpmfile"]
 ---
 
-从锁文件拉取包到虚拟存储，包清单将被忽略。
+从锁文件拉取包到虚拟存储，包清单将被忽略。缺失的包清单不会被创建。
+
+`pnpm fetch` 需要 `pnpm-lock.yaml`，并且不会更新它。即使没有工作区配置和 pnpmfile，拉取也会使用锁文件中的解析设置。当项目固定了某个 pnpm 版本、而命令本应切换到该版本时，`pnpm fetch` 还会把该 pnpm 下载到存储目录，以便之后的 `pnpm install --offline` 能找到它。
+
+## 工作区
+
+当 `sharedWorkspaceLockfile: false` 时，使用 `pnpm -r fetch` 从每个所选项目的锁文件中拉取包。用 `--filter` 选择项目。工作区发现需要项目的包清单，它们的依赖字段不影响从锁文件拉取什么。
 
 ## 使用场景
 
 此命令专为改进 Docker 镜像构建而设计。
 
-你可能读过为 Node.js 应用编写 Dockerfile 的[官方指南](https://github.com/nodejs/docker-node#readme)，如果还没读过，建议先看一下。
-
-从该指南中，我们学到如何为使用 pnpm 的项目编写优化的 Dockerfile，其大致如下
+使用 pnpm 的项目，其典型的 Dockerfile 如下（另见[使用 Docker](/docs/docker)）：
 
 ```dockerfile
 FROM ghcr.io/pnpm/pnpm:12
@@ -20,7 +24,8 @@ RUN pnpm runtime set node 22 -g
 
 WORKDIR /app
 
-# Files required by pnpm install
+# Files required by pnpm install. Leave out .pnpmfile.mjs if the project has none,
+# because COPY fails on a missing source.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .pnpmfile.mjs ./
 
 # If you patched any package, include patches before install too
@@ -48,7 +53,8 @@ RUN pnpm runtime set node 22 -g
 
 WORKDIR /app
 
-# Files required by pnpm install
+# Files required by pnpm install. Leave out .pnpmfile.mjs if the project has none,
+# because COPY fails on a missing source.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .pnpmfile.mjs ./
 
 # If you patched any package, include patches before install too
@@ -69,7 +75,7 @@ EXPOSE 8080
 CMD [ "node", "server.js" ]
 ```
 
-可以看到，添加或删除子包时都必须更新 Dockerfile。
+可以看出，添加或删除子包时都必须更新 Dockerfile。
 
 `pnpm fetch` 完美解决了上述问题，它提供了仅凭锁文件和配置文件（`pnpm-workspace.yaml`）中的信息就能将包加载到虚拟存储的能力。
 
@@ -113,6 +119,10 @@ CMD [ "node", "server.js" ]
 
 仅拉取开发包
 
-### --prod, -P
+### --prod, --production, -P
 
 不拉取开发包
+
+### --ignore-pnpmfile
+
+不运行 [pnpmfile](/docs/pnpmfile) 的钩子。

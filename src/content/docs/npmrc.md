@@ -1,94 +1,71 @@
 ---
 title: "认证设置"
-headingIds: ["auth-file-locations","environment-variables-in-auth-settings","authentication-settings","url_authtoken","scope-specific-auth-tokens","urltokenhelper","_auth","certificate-settings","ca","cafile","urlcafile","urlca","cert","urlcert","urlcertfile","key","urlkey","urlkeyfile"]
+headingIds: ["quick-start", "auth-file-locations", "settings-in-npmrc-and-authini", "url_authtoken", "scope-specific-auth-tokens", "urltokenhelper", "settings-in-configyaml", "_auth", "environment-variables-in-auth-settings", "moving-a-token-out-of-the-project-npmrc", "certificate-settings", "ca", "cafile", "node_extra_ca_certs", "urlca", "urlcafile", "cert", "urlcert", "urlcertfile", "key", "urlkey", "urlkeyfile"]
 ---
 
-本页的设置包含敏感凭据。大多数设置使用 npm 兼容的 INI 文件；结构化的 [_auth](#_auth) 设置位于全局 YAML 配置中。不要把凭据文件提交到你的仓库。
+本页介绍 registry 凭据和客户端证书。这些设置含有机密信息，请不要把它们放进你的仓库。
 
-非敏感设置（代理、SSL、registry 等）参见 [Settings (pnpm-workspace.yaml)](/docs/settings)。
+其它设置（例如代理和 registry）参见 [Settings (pnpm-workspace.yaml)](/docs/settings)。
+
+## 快速开始
+
+在你的机器上，登录 registry：
+
+```sh
+pnpm login
+```
+
+pnpm 会把令牌保存在 `<pnpm config>/auth.ini` 中。
+
+在 CI 中，通过环境变量传入令牌：
+
+```sh
+export pnpm_config__auth='{"https://registry.npmjs.org":{"@":{"authToken":"${NPM_TOKEN}"}}}'
+```
 
 ## 认证文件位置
 
-pnpm 按优先级从高到低，从以下文件中读取 npm 兼容的 INI 认证设置：
+pnpm 从两类文件中读取认证设置。
 
-1. **<workspace root>/.npmrc** — 项目级认证。此文件应列入 `.gitignore`。
-2. **<pnpm config>/auth.ini** — 旧版用户级认证文件。pnpm 11 将登录令牌写入此处；pnpm 12.1 及更高版本改为把结构化的 `_auth` 写入全局 `config.yaml`，但仍会继续读取此文件。
-3. **~/.npmrc** — 作为回退读取，便于从 npm 迁移。使用 [npmrcAuthFile](/docs/settings/other#npmrcauthfile) 设置可指向其他文件。
+npm `.npmrc` 格式的 INI 文件承载[`.npmrc` 与 `auth.ini` 中的设置](#settings-in-npmrc-and-authini)和[证书设置](#certificate-settings)。如果同一个键在多个文件中被设置，则以下列表中靠前的文件生效：
 
-全局 `config.yaml` 还可承载 pnpm 结构化的 [_auth](#_auth) 设置。pnpm 12.1 及更高版本会将登录令牌写入其中。
+1. `<workspace root>/.npmrc`，项目级文件。请把它加入 `.gitignore`。
+2. `<pnpm config>/auth.ini`。`pnpm login` 和 `pnpm config set` 会把认证键写到这里。
+3. `~/.npmrc`，这样你为 npm 设置的凭据可以继续使用。要读取其它文件，请使用 [`npmrcAuthFile`](/docs/settings/other#npmrcauthfile) 设置。
+
+全局的 `<pnpm config>/config.yaml` 承载 [`_auth`](#_auth) 设置。
 
 `<pnpm config>` 目录为：
 
-- 设置了 **$XDG_CONFIG_HOME** 环境变量时：**$XDG_CONFIG_HOME/pnpm/**
+- `PNPM_CONFIG_HOME` 非空时：**$PNPM_CONFIG_HOME/**
+- 否则，若设置了 `XDG_CONFIG_HOME`：**$XDG_CONFIG_HOME/pnpm/**
 - 在 Windows 上：**~/AppData/Local/pnpm/config/**
 - 在 macOS 上：**~/Library/Preferences/pnpm/**
 - 在 Linux 上：**~/.config/pnpm/**
 
-## 认证设置中的环境变量
+## `.npmrc` 与 `auth.ini` 中的设置
 
-**用户级**认证文件（`<pnpm config>/auth.ini` 和用户的 `.npmrc`）中的值，可以用 `${NAME}` 语法引用环境变量：
-
-```ini
-//registry.npmjs.org/:_authToken=${NPM_TOKEN}
-```
-
-自 v11.5.3 起，工作区根目录的**项目级** `.npmrc` 中，以下设置**不会**展开环境变量：
-
-- registry 与代理 URL（`registry`、`@scope:registry`、代理设置）；
-- URL 作用域的键（以 `//` 开头的键）；
-- 凭据值（`_authToken`、`_auth`、`_password`、`username`、`tokenHelper`、`cert`、`key`）。
-
-只要这些位置中的任何一个含有 `${...}` 占位符，该设置就会被忽略，pnpm 会打印一条警告。项目的 `.npmrc` 随仓库一起检出，如果在其中展开环境变量，恶意仓库就能在安装期间把环境中的机密（如 CI 令牌）外传到攻击者控制的 registry（[GHSA-3qhv-2rgh-x77r](https://github.com/pnpm/pnpm/security/advisories/GHSA-3qhv-2rgh-x77r)）。
-
-如果你的项目依赖了提交在仓库中的 `.npmrc`，其中包含类似 `//registry.npmjs.org/:_authToken=${NPM_TOKEN}` 的行，则把令牌移到受信任的位置：
-
-- 在安装之前，把令牌写入用户级认证文件（例如，在某个 CI 步骤中）：
-  ```bash
-  pnpm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
-  ```
-  `pnpm config set` 默认写入全局位置（认证设置写入 `<pnpm config>/auth.ini`），而不是项目的 `.npmrc`，因此令牌绝不会进入仓库。
-- **通过环境变量设置凭据，完全不使用任何 .npmrc 文件**（自 v11.6 起）。pnpm 从 `pnpm_config_//…` 环境变量读取 URL 作用域的 registry 设置：
-  ```bash
-  env "pnpm_config_//registry.npmjs.org/:_authToken=$NPM_TOKEN" pnpm install
-  ```
-  变量名中包含 `/`、`:` 和 `.`，`export` 和 `NAME=value` 的 shell 赋值语法会以无效标识符为由拒绝它。使用 `env` 工具（如上所示）把它传给单条命令，或通过支持任意变量名的工具设置（例如你的 CI 服务商的环境变量设置，或 Node 的 `process.env`）。
-  对于提交在仓库中的 `//registry.npmjs.org/:_authToken=${NPM_TOKEN}` 行，这是最直接的免文件替代方案。由于凭据适用的 registry 编码在（受信任的）变量名中，恶意仓库无法把它重定向到其他主机。此类环境变量的值会覆盖项目的 `.npmrc`，但其本身又会被命令行选项覆盖。`tokenHelper` 设置有意不从环境变量读取。
-- 或者，保留 `${NPM_TOKEN}` 占位符行，但把它放进用户级的 `~/.npmrc`（或 [npmrcAuthFile](/docs/settings/other#npmrcauthfile) 指向的文件），而不是放在仓库里。
-- 在 GitHub Actions 中，带 `registry-url` 输入的 `actions/setup-node` 会把认证设置写入用户级 `.npmrc`（由 `NPM_CONFIG_USERCONFIG` 环境变量指向，pnpm 会遵循该变量），因此通过 `NODE_AUTH_TOKEN` 环境变量认证依然有效。
-- 如果你难以逐条修改 CI 流水线，可以在 CI 环境中设置一个环境变量（例如在组织或工作区级别），把项目的 `.npmrc` 声明为受信任：
-  ```
-  PNPM_CONFIG_NPMRC_AUTH_FILE=.npmrc
-  ```
-  这是 [npmrcAuthFile](/docs/settings/other#npmrcauthfile) 设置的环境变量形式：它让 pnpm 把项目的 `.npmrc` 作为用户级认证文件读取（相对路径基于工作目录解析），因此其中的环境变量会像以前一样展开。由于信任声明来自环境而非仓库，恶意仓库无法替你设置它。npm 风格的 `NPM_CONFIG_USERCONFIG` 变量也会作为回退被遵循。
-  :::danger[警告]
-  只在专门构建受信任仓库的环境中使用。这会对检出的仓库完全禁用此保护，包括 `tokenHelper` 只能设置在用户级配置中的限制。
-  :::
-
-同样的规则也适用于项目 `.npmrc` 中的 **registry 与代理 URL**（`registry`、`@scope:registry`、`proxy`、`https-proxy`、`http-proxy`）。如果你曾用环境变量拼出 registry URL，把该设置移到受信任的来源：你的用户级 `~/.npmrc`，或 `pnpm config set "<key>" <value>`。如果 URL 不是机密，也可以把解析后的值直接写进项目的 `.npmrc`，因为只有 `${...}` 占位符会被忽略。关于 `pnpm-workspace.yaml` 中的 registry 设置，参见 [Settings](/docs/settings/dependency-resolution#registries)。
-
-## 认证设置
+把下列设置写入[认证文件位置](#auth-file-locations)中列出的某个 INI 文件里。
 
 ### <URL>:_authToken
 
-定义访问指定 registry 时使用的认证 bearer 令牌。例如：
+访问某个 registry 所用的 bearer 令牌：
 
 ```ini
 //registry.npmjs.org/:_authToken=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
-你也可以使用环境变量。例如：
+在用户级认证文件中，该值可以引用环境变量：
 
 ```ini
 //registry.npmjs.org/:_authToken=${NPM_TOKEN}
 ```
 
-环境变量只在用户级认证文件中展开，不会在项目级 `.npmrc` 中展开。参见[认证设置中的环境变量](#environment-variables-in-auth-settings)。
+参见[认证设置中的环境变量](#environment-variables-in-auth-settings)。
 
 #### 作用域专属的认证令牌
 
-自 v11.7.0 起提供
-
-pnpm 可以为不同的包作用域使用不同的认证令牌，即使这些作用域指向同一个 registry URL。在认证键中，把包作用域追加在 registry URL 之后：
+有些 registry（例如 GitHub Packages）会为每个作用域颁发单独的令牌。把作用域放在键中 registry URL 的后面：
 
 ```ini
 @org-a:registry=https://npm.pkg.github.com/
@@ -100,17 +77,17 @@ pnpm 可以为不同的包作用域使用不同的认证令牌，即使这些作
 //npm.pkg.github.com/:_authToken=FALLBACK_TOKEN
 ```
 
-安装或发布 `@org-a/*` 时，pnpm 使用 `ORG_A_TOKEN`；对于 `@org-b/*`，使用 `ORG_B_TOKEN`。可选地，没有匹配作用域的包会回退到 registry 级令牌（即上面的 `FALLBACK_TOKEN`），前提是提供了该令牌。
+pnpm 会为 `@org-a/*` 包发送 `ORG_A_TOKEN`，为 `@org-b/*` 包发送 `ORG_B_TOKEN`。来自该 registry 的其它包会使用 `FALLBACK_TOKEN`（如果设置了的话）。
 
-在 pnpm 11 中，`pnpm login --registry=https://npm.pkg.github.com --scope=@org-a` 会把令牌写入同样的作用域专属认证键。pnpm 12.1 及更高版本改为在全局 `config.yaml` 的 `_auth` 下写入等效的作用域条目，并把该作用域加入此 registry 的全局 `registries` 声明。
-
-这对按组织或按作用域颁发令牌的 registry（如 GitHub Packages）很有用。此前，认证只按 registry URL 选择，因此共享同一 registry 的两个作用域必须共享同一个令牌。
+`pnpm login --registry=https://npm.pkg.github.com --scope=@org-a` 会把作用域专属的令牌保存到 `auth.ini`。
 
 ### <URL>:tokenHelper
 
-令牌助手（token helper）是一个输出认证令牌的可执行程序。它适用于 authToken 不是固定值、而是需要定期刷新的情形：脚本或其他工具可以用现有的刷新令牌换取新的访问令牌。
+打印令牌的可执行程序的路径。用于会过期的令牌，这样脚本可以获取一个新的令牌。
 
-助手路径的配置必须是绝对路径，不能带参数。出于安全考虑，此值只允许设置在用户级 `.npmrc` 中。否则，项目可以在其本地 `.npmrc` 中填入某个值来运行任意可执行文件。
+pnpm 会运行该程序，并把它的输出作为 `Authorization: Bearer <输出>` 发送。如果输出已经以一个单词加空格开头，例如 `Bearer abc`、`Basic abc` 或 `Token abc`，pnpm 会原样发送。
+
+该路径必须是绝对路径，且不接受参数。pnpm 只从用户级认证文件中读取 `tokenHelper`。否则，项目 `.npmrc` 就能让 pnpm 运行任意程序。环境变量同样无法设置它。
 
 为默认 registry 设置令牌助手：
 
@@ -120,26 +97,24 @@ tokenHelper=/home/ivan/token-generator
 
 为指定 registry 设置令牌助手：
 
-```
+```ini
 //registry.corp.com:tokenHelper=/home/ivan/token-generator
 ```
 
+## `config.yaml` 中的设置
+
 ### _auth
 
-自 v11.10.0 起提供
+把一个 registry 的所有令牌放在同一个值中，以 registry URL 为键。用于 CI，在某些 runner 上 `//host/:_authToken` 这样的键无法作为环境变量名。
 
-以 registry URL 为键，用单个结构化值配置 registry 认证。它是大量 `//host/:_authToken=…` 条目的替代形式，专为 CI 设计：在某些 runner 上，URL 作用域形式（其变量名包含 `/`、`:` 和 `.`）无法通过环境变量传入。
+pnpm 只从以下两处读取 `_auth`：
 
-`_auth` **仅**从以下两个受信任位置生效：
+- 全局的 `config.yaml`
+- `pnpm_config__auth` 环境变量（JSON 形式）
 
-- **全局** pnpm 配置（`config.yaml`）；
-- `pnpm_config__auth` 环境变量（用于 CI）。
+pnpm 会忽略 `pnpm-workspace.yaml` 和 `.npmrc` 中的 `_auth`。
 
-它在项目的 `pnpm-workspace.yaml` 或 `.npmrc` 中会被**忽略**，因此检出的仓库永远无法提供 registry 认证。
-
-该值以 registry URL 为键，因此每个机密都显式绑定到可能接收它的主机。registry URL 键必须使用 `http` 或 `https`，且不得包含凭据、查询字符串或片段。在每个 registry URL 内，`@` 表示 registry 级（默认）凭据，`@org` 之类的包作用域则把凭据绑定到同一主机上的该作用域。唯一支持的凭据字段是 `authToken`（对应 `_authToken` / bearer 认证）；已废弃的 `basicAuth` / `username` + `password` 形式和 `tokenHelper` 在此不被接受。
-
-在全局 `config.yaml` 中：
+在全局的 `config.yaml` 中：
 
 ```yaml
 _auth:
@@ -150,69 +125,139 @@ _auth:
       authToken: org-token
 ```
 
-等效的环境变量（一个 JSON 字符串）：
+等效的环境变量：
 
-```bash
+```sh
 export pnpm_config__auth='{"https://registry.npmjs.org":{"@":{"authToken":"npm-token"},"@org":{"authToken":"org-token"}}}'
 ```
 
-`pnpm_config__auth`（小写）和 `PNPM_CONFIG__AUTH`（全大写，某些 CI runner 采用的约定）都会被遵循。若两者都已设置，以小写为准，除非其为空，此时使用大写。
+pnpm 也会读取 `PNPM_CONFIG__AUTH`，即某些 CI runner 使用的全大写名称。如果两者都设置了，以小写的为准，除非它为空。
 
-每个条目还会推断一条受信任的 registry 路由：`@` 路由到默认 registry（`pnpm add <pkg>` 也会在那里解析），`@org` 路由到该作用域。由于凭据及其目标主机在同一个受信任的值中到达，仓库控制的配置无法把令牌重定向到其他主机。
+该值遵循以下规则：
 
-自 v12.1.0 起，`pnpm login` 以此形式写入令牌。不带作用域的登录会添加一个 `@` 凭据，而不更改机器的默认 registry。带作用域的登录会把该作用域以同一 URL 加入全局 `registries` 设置；把某个作用域登录到另一个 registry 时，其凭据和路由都会移动。`pnpm logout` 会移除 pnpm 写入 `config.yaml` 以及旧版 `auth.ini` 的凭据，但保留 registry 路由。
+- 每个顶层键都是一个 `http` 或 `https` 的 registry URL，不含凭据、查询字符串或片段。
+- 在某个 URL 下，`"@"` 存放整个 registry 的令牌，`"@org"` 存放 `@org` 作用域下包的令牌。
+- `authToken` 是唯一的凭据字段，它是一个 bearer 令牌。
+- `authToken` 可以通过 `${NAME}` 引用环境变量。
 
-`pnpm_config__auth` / `PNPM_CONFIG__AUTH` 环境变量的值可以有意地路由某个作用域或默认 registry，并覆盖仓库配置，这使 CI 可以强制使用代理。从存于全局 `config.yaml` 的 `_auth` 推断出的路由只是回退：`pnpm-workspace.yaml` 或全局配置中显式的 `registry` 或 `registries` 声明优先。存储的凭据仍会为其 URL 认证请求，只是不会把包从显式选定的 registry 重定向走。命令行 registry 参数仍是最高优先级路由。
+每个条目还会把包路由到它自己的 URL。`"@"` 让该 URL 成为默认 registry，`"@org"` 把 `@org/*` 包发送到那里。这种路由的优先级取决于条目的来源：
 
-解析是严格的：格式错误的值（无效 JSON、结构错误、registry URL 或作用域无效、不受支持的凭据字段）会立即报错失败，而不会被静默丢弃。
+1. 命令行上的 `--registry` 和 `--@scope:registry` 优先。
+2. 来自 `pnpm_config__auth` 的条目会覆盖 `registry` 和 `registries` 设置。CI 可以用它来强制使用代理 registry。
+3. 来自全局 `config.yaml` 的条目只在没有 `registry` 或 `registries` 设置选择 registry 的地方生效。令牌仍会发送到它自己的 URL。
+
+从 v12.1.0 到 v12.15.0，`pnpm login` 会把令牌保存在这里。自 v12.16.0 起，它改为把令牌保存到 `auth.ini`，并从 `_auth` 中移除被替换的令牌。`pnpm logout` 会从这两个文件中移除令牌。
+
+## 认证设置中的环境变量
+
+**用户级**认证文件（`<pnpm config>/auth.ini` 和 `~/.npmrc`）中的值可以用 `${NAME}` 引用环境变量：
+
+```ini
+//registry.npmjs.org/:_authToken=${NPM_TOKEN}
+```
+
+pnpm 不会在工作区根目录的**项目级** `.npmrc` 中展开以下设置的环境变量：
+
+- registry 与代理 URL：`registry`、`@scope:registry`、`proxy`、`https-proxy`、`http-proxy`；
+- 以 `//` 开头的键；
+- 凭据：`_authToken`、`_auth`、`_password`、`username`、`tokenHelper`、`cert`、`key`；
+- TLS 文件路径：`cafile`、`<URL>:cafile`、`<URL>:certfile`、`<URL>:keyfile`。
+
+pnpm 会忽略这类设置并打印警告。而带占位符的 `registry` 或 `@scope:registry` URL 会让命令直接失败，而不是被忽略，因为忽略它会让包从另一个 registry 解析。项目级 `.npmrc` 随仓库一起提供，恶意仓库否则可以把你的 CI 令牌发往它控制的 registry（[GHSA-3qhv-2rgh-x77r](https://github.com/pnpm/pnpm/security/advisories/GHSA-3qhv-2rgh-x77r)）。
+
+### 把令牌移出项目 .npmrc
+
+如果你的仓库提交了类似 `//registry.npmjs.org/:_authToken=${NPM_TOKEN}` 的行，请改用下面任一方式。
+
+用一个以该键命名的环境变量传入令牌：
+
+```sh
+env "pnpm_config_//registry.npmjs.org/:_authToken=$NPM_TOKEN" pnpm install
+```
+
+shell 无法 `export` 这个名字，因为它含有 `/`、`:` 和 `.`。请像上面那样使用 `env`，或者在你的 CI 服务商的设置中设置该变量。它会覆盖项目 `.npmrc`，而命令行选项又会覆盖它。
+
+或者使用 [`_auth`](#_auth)，如[快速开始](#quick-start)中所示。
+
+或者在某个 CI 步骤中把令牌保存到 `<pnpm config>/auth.ini`：
+
+```sh
+pnpm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+```
+
+或者把 `${NPM_TOKEN}` 那一行移到 `~/.npmrc`，或移到 [`npmrcAuthFile`](/docs/settings/other#npmrcauthfile) 所指明的文件中。
+
+在 GitHub Actions 中，带 `registry-url` 输入的 `actions/setup-node` 已经可以直接使用。它会写入一个用户级的 `.npmrc`，并把 `NPM_CONFIG_USERCONFIG` 指向该文件。pnpm 会读取该文件，因此 `NODE_AUTH_TOKEN` 依然有效。
+
+如果你无法修改每一条 CI 流水线，可以在 CI 环境中设置一个变量，把项目的 `.npmrc` 标记为受信任：
+
+```text
+PNPM_CONFIG_NPMRC_AUTH_FILE=.npmrc
+```
+
+这会设置 [`npmrcAuthFile`](/docs/settings/other#npmrcauthfile)。pnpm 随后会把项目的 `.npmrc` 当作用户级认证文件读取，并展开其中的变量。相对路径基于工作目录解析。仓库无法设置这个变量，因为它来自环境。当这个变量未设置时，pnpm 也会读取 npm 的 `NPM_CONFIG_USERCONFIG`。
+
+:::danger[警告]
+
+只在每一个你构建的仓库都受信任的地方使用它。它会对检出的仓库关闭这层保护，包括「只有用户级文件才能设置 `tokenHelper`」这条规则。
+
+:::
+
+同样的规则也适用于由环境变量拼出的 registry URL。请把它移到 `~/.npmrc`，或者用 `pnpm config set "<key>" <value>` 设置。如果该 URL 不是机密，也可以直接写进项目的 `.npmrc`。关于 `pnpm-workspace.yaml` 中的 registry，参见 [`registries`](/docs/settings/dependency-resolution#registries)。
 
 ## 证书设置
 
+相对 TLS 文件路径基于声明它们的文件所在目录解析。
+
+和令牌设置一样，这些设置写在 `.npmrc` 或 `auth.ini` 中。
+
 ### ca
 
-- 默认值：**npm CA 证书**
+- 默认值：**null**（系统信任库）
 - 类型：**字符串、数组或 null**
 
-对 registry 的 SSL 连接所信任的证书颁发机构签名证书。值应为 PEM 格式（即 "Base-64 encoded X.509 (.CER)"）。例如：
+信任用于 registry TLS 连接的证书颁发机构（CA）证书，格式为 PEM：
 
-```bash
+```ini
 ca="-----BEGIN CERTIFICATE-----\nXXXX\nXXXX\n-----END CERTIFICATE-----"
 ```
 
-设为 null 则只允许已知的注册机构；设为某个特定 CA 证书则只信任该特定签名机构。
+要信任多个 CA，请使用数组：
 
-可以通过指定证书数组来信任多个 CA：
-
-```bash
+```ini
 ca[]="..."
 ca[]="..."
 ```
 
-另见 [strictSsl](/docs/settings/network#strictssl) 设置。
+`ca` 或 `cafile` 会替换默认受信任的 CA。当它为 `null` 时，pnpm 信任操作系统信任库中的 CA。如果 pnpm 无法加载系统信任库，它会信任 pnpm 内置的 Mozilla CA 集合。
+
+另见 [`strictSsl`](/docs/settings/network#strictssl)。
 
 ### cafile
 
 - 默认值：**null**
 - 类型：**路径**
 
-指向某个文件的路径，该文件包含一个或多个证书颁发机构签名证书。与 `ca` 设置类似，但支持多个 CA，且 CA 信息存储在文件中，而不是通过命令行指定。
+包含一个或多个 CA 证书的文件路径。用它代替 `ca`，以便把证书保存在文件中。
 
-### <URL>:cafile
+### NODE_EXTRA_CA_CERTS
 
-定义访问指定 registry 时使用的证书颁发机构文件的路径。例如：
-
-```bash
-//registry.npmjs.org/:cafile=ca-cert.pem
-```
+以环境变量设置的、包含额外 CA 证书的 PEM 文件路径。pnpm 会把它们加入受信任的 CA：系统信任库，或已设置的 `ca` 或 `cafile`。pnpm 会忽略不存在或无法读取的文件。
 
 ### <URL>:ca
 
-自 v10.25.0 起提供
+PEM 格式的 CA 证书，仅对给定的 registry 信任：
 
-为指定 registry 定义内联的证书颁发机构证书。与全局 `ca` 设置一样，值必须是 PEM 编码，但仅适用于匹配的 registry URL。
-
-```bash
+```ini
 //registry.example.com/:ca=-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----
+```
+
+### <URL>:cafile
+
+给定的 registry 所使用的 CA 证书文件的路径：
+
+```ini
+//registry.npmjs.org/:cafile=ca-cert.pem
 ```
 
 ### cert
@@ -220,29 +265,25 @@ ca[]="..."
 - 默认值：**null**
 - 类型：**字符串**
 
-访问 registry 时传递的客户端证书。值应为 PEM 格式（即 "Base-64 encoded X.509 (.CER)"）。例如：
+发送给 registry 的客户端证书，格式为 PEM。该值是证书本身，而不是路径：
 
-```test
+```ini
 cert="-----BEGIN CERTIFICATE-----\nXXXX\nXXXX\n-----END CERTIFICATE-----"
 ```
 
-这不是证书文件的路径。
-
 ### <URL>:cert
 
-自 v10.25.0 起提供
+发送给给定 registry 的客户端证书：
 
-定义访问指定 registry 时使用的内联客户端证书。示例：
-
-```bash
+```ini
 //registry.example.com/:cert=-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----
 ```
 
 ### <URL>:certfile
 
-定义访问指定 registry 时使用的证书文件的路径。例如：
+给定 registry 所使用的客户端证书文件的路径：
 
-```bash
+```ini
 //registry.npmjs.org/:certfile=server-cert.pem
 ```
 
@@ -251,30 +292,24 @@ cert="-----BEGIN CERTIFICATE-----\nXXXX\nXXXX\n-----END CERTIFICATE-----"
 - 默认值：**null**
 - 类型：**字符串**
 
-访问 registry 时传递的客户端密钥。值应为 PEM 格式（即 "Base-64 encoded X.509 (.CER)"）。例如：
+发送给 registry 的客户端密钥，格式为 PEM。该值是密钥本身，而不是路径。要从文件读取密钥，请使用 `<URL>:keyfile`。
 
-```bash
+```ini
 key="-----BEGIN PRIVATE KEY-----\nXXXX\nXXXX\n-----END PRIVATE KEY-----"
 ```
 
-这不是密钥文件的路径。如果需要引用文件系统而不是内联密钥，使用 `<URL>&#58;keyfile`。
-
-此设置包含敏感信息。不要把它写入会提交到仓库的本地 `.npmrc` 文件。
-
 ### <URL>:key
 
-自 v10.25.0 起提供
+给定 registry 所使用的客户端密钥：
 
-为指定的 registry URL 定义内联客户端密钥。
-
-```bash
+```ini
 //registry.example.com/:key=-----BEGIN PRIVATE KEY-----...-----END PRIVATE KEY-----
 ```
 
 ### <URL>:keyfile
 
-定义访问指定 registry 时使用的客户端密钥文件的路径。例如：
+给定 registry 所使用的客户端密钥文件的路径：
 
-```bash
+```ini
 //registry.npmjs.org/:keyfile=server-key.pem
 ```

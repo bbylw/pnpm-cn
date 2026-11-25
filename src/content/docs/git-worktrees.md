@@ -1,6 +1,6 @@
 ---
 title: "pnpm + Git 工作树实现多代理开发"
-headingIds: ["what-is-a-git-worktree","why-worktrees","why-this-matters-even-more-with-ai-agents","setting-it-up","1-create-a-bare-repository","2-create-worktrees-for-each-branch","3-enable-the-global-virtual-store","4-install-dependencies-in-each-worktree","how-it-works","example-the-pnpm-monorepo-itself","tips"]
+headingIds: ["what-is-a-git-worktree", "why-worktrees", "why-this-matters-even-more-with-ai-agents", "setting-it-up", "1-create-a-bare-repository", "2-create-worktrees-for-each-branch", "3-enable-the-global-virtual-store", "4-install-dependencies-in-each-worktree", "how-it-works", "tips"]
 ---
 
 当多个 AI 代理需要同时在同一个 monorepo 上工作时，每个代理都需要一个具有完全可用的 `node_modules` 的隔离工作副本。Git 工作树（worktree）结合 pnpm 的[全局虚拟存储](/docs/global-virtual-store)让这一点变得可行：每个工作树都有自己的检出和自己的 `node_modules`，但依赖通过磁盘上单个内容寻址存储在它们之间共享。
@@ -111,34 +111,6 @@ your-monorepo/                      (bare git repo)
 - **每个工作树近乎零开销**——本地的 `node_modules` 只包含指向共享全局虚拟存储的符号链接。与 pnpm 的默认行为（它把文件从内容寻址存储硬链接到本地的 `node_modules/.pnpm` 目录）不同，全局虚拟存储意味着根本没有任何文件被复制或硬链接到工作树中。
 - **新工作树的即时安装**——包已经在全局存储中。
 - **没有冲突**——每个工作树都有自己的 `node_modules` 树，因此代理可以在不同分支上安装不同的依赖版本而互不干扰。
-
-## 示例：pnpm monorepo 本身
-
-[pnpm 仓库](https://github.com/pnpm/pnpm)使用的正是这套配置：一个裸 git 仓库加一个全局虚拟存储。它包含一些辅助脚本，让工作树管理更简单：
-
-**pnpm worktree:new <branch-name|pr-number>** — 创建一个新工作树并设置它：
-
-```bash
-# Create a worktree for a branch (creates it from main if it doesn't exist)
-pnpm worktree:new feat/my-feature
-
-# Create a worktree for a GitHub PR (fetches the PR ref automatically)
-pnpm worktree:new 10834
-```
-
-该脚本处理了一些超出普通 `git worktree add` 的事情：
-
-- PR 编号通过 `git fetch origin pull/<number>/head` 获取，因此它们对 fork 也有效。
-- 包含斜杠的分支名（例如 `feat/my-feature`）会被转换为短横线作为目录名（例如 `feat-my-feature`）。
-- `.claude` 目录从裸仓库的 git 公共目录符号链接到新工作树，因此所有工作树共享相同的 Claude Code 设置和已批准命令。
-
-此外还有一个 shell 辅助脚本 [shell/wt.sh](https://github.com/pnpm/pnpm/blob/main/shell/wt.sh)，它包装了该脚本并 `cd` 到新工作树：
-
-```bash
-# Source it in your shell config, then:
-wt feat/my-feature
-wt 10834
-```
 
 ## 提示
 

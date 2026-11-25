@@ -1,11 +1,11 @@
 ---
 title: "pnpm env <cmd>"
-headingIds: ["commands","use","add","remove-rm","list-ls","options","--global--g"]
+headingIds: ["commands", "use", "remove-rm", "list-ls", "options", "--global--g"]
 ---
 
 :::warning[已废弃]
 
-`pnpm env` 已废弃。请改用 [pnpm runtime](/docs/cli/runtime)。例如，`pnpm env use --global lts` 变为 `pnpm runtime set node lts -g`。
+`pnpm env` 已废弃。请改用 [pnpm runtime](/docs/cli/runtime)。例如，`pnpm env use --global lts` 变为 `pnpm runtime set node lts -g`，`pnpm env remove --global <version>` 变为 `pnpm remove -g node`。
 
 :::
 
@@ -19,19 +19,19 @@ headingIds: ["commands","use","add","remove-rm","list-ls","options","--global--g
 
 安装 Node.js 的 LTS 版本：
 
-```
+```sh
 pnpm env use --global lts
 ```
 
 安装 Node.js v16：
 
-```
+```sh
 pnpm env use --global 16
 ```
 
 安装 Node.js 的预发布版本：
 
-```
+```sh
 pnpm env use --global nightly
 pnpm env use --global rc
 pnpm env use --global 16.0.0-rc.0
@@ -40,24 +40,14 @@ pnpm env use --global rc/14
 
 安装 Node.js 的最新版本：
 
-```
+```sh
 pnpm env use --global latest
 ```
 
 使用其[代号](https://github.com/nodejs/Release/blob/main/CODENAMES.md)安装 Node.js 的 LTS 版本：
 
-```
+```sh
 pnpm env use --global argon
-```
-
-### add
-
-安装指定版本的 Node.js，但不将其激活为当前版本。
-
-Example:
-
-```
-pnpm env add --global lts 18 20.0.1
 ```
 
 ### remove, rm
@@ -66,35 +56,27 @@ pnpm env add --global lts 18 20.0.1
 
 用法示例：
 
-```
+```sh
 pnpm env remove --global 14.0.0
 pnpm env remove --global 14.0.0 16.2.3
 ```
 
 ### list, ls
 
-列出本地或远程可用的 Node.js 版本。
+打印 Node.js 镜像中与给定版本范围匹配的版本。不带范围时，只打印最新版本。
 
-打印本地已安装的版本：
-
-```
+```sh
 pnpm env list
 ```
 
-打印远程可用的 Node.js 版本：
+打印可用的 Node.js v16 版本：
 
-```
-pnpm env list --remote
-```
-
-打印远程可用的 Node.js v16 版本：
-
-```
-pnpm env list --remote 16
+```sh
+pnpm env list 16
 ```
 
 ## 选项
 
 ### --global, -g
 
-更改会全局生效。
+更改会全局生效。`use` 和 `remove` 需要该选项，缺少它时会以 `ERR_PNPM_NOT_IMPLEMENTED_YET` 失败。

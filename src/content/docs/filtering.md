@@ -94,6 +94,8 @@ pnpm --filter "{packages/**}[origin/master]..." <cmd>
 pnpm --filter "...{packages/**}[origin/master]..." <cmd>
 ```
 
+模式语言就是通常那套：`*` 与 `?` 在一个路径段内匹配，`**` 可跨段匹配，字符类（如 `[ab]`）匹配所列字符之一。`*` 与 `?` 都不匹配以点开头的名称，因此 `packages/*` 会跳过 `packages/.cache`。若要选中以点开头的目录，请显式写出它的名字。
+
 或者，你可以从某个目录中选择所有名称与给定模式匹配的包：
 
 ```
@@ -115,7 +117,7 @@ pnpm-workspace.yaml
 legacyDirFiltering: true
 ```
 
-此设置仅适用于你编写的那些选择器。pnpm 为自身生成的工作区根选择器——递归 `run` / `exec` / `add` / `test` 追加的 `!{<workspace-root>}`，以及 `--workspace-root` 追加的 `{<workspace-root>}`——自 v11.24.0 起始终作为 glob 匹配。按子树匹配来解读时，它们会命名根下的每个项目，因此在此设置下递归命令什么都选不到，而 `--workspace-root` 会拉入整个工作区而不是仅根目录（[#14101](https://github.com/pnpm/pnpm/issues/14101)）。
+此设置仅适用于你编写的那些选择器。pnpm 为自身生成的工作区根选择器——递归 `run` / `exec` / `add` / `test` 追加的 `!{<workspace-root>}`，以及 `--workspace-root` 追加的 `{<workspace-root>}`——始终作为 glob 匹配。
 
 ### --filter "[<since>]"
 
@@ -131,7 +133,7 @@ pnpm --filter "...[origin/master]" test
 
 如果你希望没有包匹配过滤条件时让 CLI 失败，请使用此标志。
 
-你也可以通过 [failIfNoMatch 设置](/docs/workspaces#failifnomatch)永久设置此项。
+你也可以通过 [failIfNoMatch 设置](/docs/workspaces#failifnomatch)永久设置此项。`--no-fail-if-no-match` 可以在单条命令中覆盖 `failIfNoMatch: true`。
 
 ## 排除
 
@@ -143,10 +145,16 @@ pnpm --filter "...[origin/master]" test
 pnpm --filter=!foo <cmd>
 ```
 
-而这将在不位于 `lib` 目录下的所有项目中运行命令：
+而这将在不位于 `lib` 目录及其子目录下的所有项目中运行命令：
 
 ```bash
-pnpm --filter=!./lib <cmd>
+pnpm --filter='!./lib/**' <cmd>
+```
+
+自 v12.7.0 起，选择器按给出的顺序求值，因此后面的包含可以带回收一个被前面排除掉的项目：
+
+```bash
+pnpm --filter "!./packages/**" --filter @scope/core <cmd>
 ```
 
 ## 多重性

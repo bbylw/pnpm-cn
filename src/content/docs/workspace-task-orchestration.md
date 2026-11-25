@@ -1,6 +1,6 @@
 ---
 title: "工作区任务编排"
-headingIds: ["configure-task-dependencies","projects-without-a-script","limit-concurrency-for-one-task","concurrencygroups","task-priority","pnpm-tasks-status","inspect-the-task-graph","cycles","recursive-run-options","--resume-from-package_name","--reverse","--no-bail","output","commands-that-do-not-use-tasks","other-dependency-aware-workspace-commands"]
+headingIds: ["configure-task-dependencies", "projects-without-a-script", "limit-concurrency-for-one-task", "concurrencygroups", "task-priority", "pnpm-tasks-status", "inspect-the-task-graph", "cycles", "recursive-run-options", "--resume-from-package_name", "--reverse", "--no-bail", "output", "caching-a-task", "commands-that-do-not-use-tasks", "other-dependency-aware-workspace-commands"]
 ---
 
 `pnpm -r run <script>` 会调度一个工作区任务图。一个任务是某个工作区项目中的一个脚本，标识为 `<project>#<script>`。当它所依赖的每个任务都成功完成后它就就绪，而就绪的任务在 [--workspace-concurrency](/docs/cli/recursive#--workspace-concurrency) 限制下运行。
@@ -200,6 +200,10 @@ pnpm 会反转解析后任务图中的每条边，包括用 `dependsOn` 声明�
 ### 输出
 
 当任意时刻最多只能有一个脚本在运行时——要么因为工作区并发为 `1`，要么因为图构成一条串行链——pnpm 会直接继承脚本的输出。当脚本可以重叠运行时，pnpm 会以管道方式处理它们的输出，以便为其加前缀或聚合。使用 [--stream](/docs/cli/run#--stream) 可获得即时加前缀的输出，或使用 [--aggregate-output](/docs/cli/run#--aggregate-output) 在每个任务结束后将其输出集中打印。
+
+## 缓存任务
+
+任务的 `outputs`、`inputs`、`env`、`cache` 和 `cargoTargetDir` 键只会被 [`pnpm pipeline`](/docs/cli/pipeline#caching-a-task) 读取。递归的 `pnpm run` 永远不会从缓存中恢复任务。
 
 ## 不使用 `tasks` 的命令
 

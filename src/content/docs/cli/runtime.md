@@ -1,11 +1,11 @@
 ---
 title: "pnpm runtime <cmd>"
-headingIds: ["commands","set","supported-runtimes","examples","options","--global--g"]
+headingIds: ["commands","set","supported-runtimes","examples","options","--global--g","--save-dev--d","--save-prod--p"]
 ---
 
 管理运行时。
 
-Alias: `rt`
+别名： `rt`
 
 ## 命令
 
@@ -13,9 +13,13 @@ Alias: `rt`
 
 安装指定版本的运行时。
 
-```
+```sh
 pnpm runtime set <name> <version> [-g]
 ```
+
+不带 `-g` 时，运行时会以 `<name>@runtime:<version>` 的形式添加到当前项目。默认写入 [`devEngines.runtime`](/docs/package_json#devenginesruntime)；使用 `--save-prod` 时则写入 `engines.runtime`。
+
+安装完成后，pnpm 会提示你运行 [`pnpm shim add <name>`](/docs/cli/shim)，以便直接使用该命令时命中项目的运行时。
 
 #### 支持的运行时
 
@@ -25,13 +29,13 @@ pnpm runtime set <name> <version> [-g]
 
 :::info[信息]
 
-自 v11.0.0 起，安装 Node.js 运行时（通过 `pnpm runtime set node …` 或 `node@runtime:<version>`）时，不会从 Node.js 归档中提取自带的 `npm`、`npx` 和 `corepack`。这使运行时安装期间 pnpm 需要计算哈希、写入内容寻址存储并建立链接的文件数大约减半。如果你仍需要 `npm`，用 `pnpm add -g npm` 单独安装。
+安装 Node.js 运行时（通过 `pnpm runtime set node …` 或 `node@runtime:<version>`）不会安装 Node.js 归档中自带的 `npm`、`npx` 和 `corepack`。如果你需要 `npm`，用 `pnpm add -g npm` 单独安装。
 
 :::
 
 :::info[信息]
 
-自 v11.22.0 起，解析 Node.js 版本（通过 [devEngines.runtime](/docs/package_json#devenginesruntime) 或 `runtime:` 说明符）快了很多。每个版本的发布元数据在签名验证通过后会被缓存到[缓存目录](/docs/cli/cache-path)，形如 `runtime:22.23.2` 的精确稳定版本不再下载 Node.js 发布索引。对于已获取过一次元数据的被锁定运行时，解析完全无需联网，从而消除了锁定已下载运行时的项目中首次调用 `node` 的延迟。
+Node.js 版本的发布元数据在签名验证通过后会被缓存到[缓存目录](/docs/cli/cache-path)。元数据只获取过一次的被锁定运行时，无需联网即可解析。
 
 :::
 
@@ -39,25 +43,25 @@ pnpm runtime set <name> <version> [-g]
 
 全局安装 Node.js v22：
 
-```
+```sh
 pnpm runtime set node 22 -g
 ```
 
 安装 Node.js 的 LTS 版本：
 
-```
+```sh
 pnpm runtime set node lts -g
 ```
 
-安装 Node.js 的最新版本：
+安装 Node.js 的最新稳定版本：
 
-```
+```sh
 pnpm runtime set node latest -g
 ```
 
 安装 Node.js 的预发布版本：
 
-```
+```sh
 pnpm runtime set node nightly -g
 pnpm runtime set node rc -g
 pnpm runtime set node rc/22 -g
@@ -66,19 +70,19 @@ pnpm runtime set node 22.0.0-rc.4 -g
 
 使用[代号](https://github.com/nodejs/Release/blob/main/CODENAMES.md)安装 Node.js 的 LTS 版本：
 
-```
+```sh
 pnpm runtime set node argon -g
 ```
 
 安装 Deno：
 
-```
+```sh
 pnpm runtime set deno 2 -g
 ```
 
 安装 Bun：
 
-```
+```sh
 pnpm runtime set bun latest -g
 ```
 
@@ -86,4 +90,12 @@ pnpm runtime set bun latest -g
 
 ### --global, -g
 
-全局安装运行时。
+全局安装该运行时。
+
+### --save-dev, -D
+
+将运行时保存到 `devEngines.runtime`。这是默认行为。
+
+### --save-prod, -P
+
+将运行时保存到 `engines.runtime`。

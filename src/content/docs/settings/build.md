@@ -58,8 +58,11 @@ sideEffectsCache:
 - `read` — 当缓存中存在构建结果时从缓存恢复构建。默认 **true**。
 - `write` — 将包的构建输出保存到缓存。默认 **true**。
 - `remote` — 跨机器复用构建；见下文。
+- `exclude` — 构建从不经过缓存的包；见下文。
 
 `sideEffectsCache: true` 是读取与写入的简写，也是该设置在长出远程层级之前的含义。只写不读（`read: false, write: true`）会填充一个本次运行从不消费的缓存，这正是一个为他人预热缓存的任务所想要的。
+
+自 v12.2.0 起，`--side-effects-cache` 与 `--no-side-effects-cache` 标志以及 `PNPM_CONFIG_SIDE_EFFECTS_CACHE` 只切换**本地**缓存。在 `sideEffectsCache.remote` 下声明的远程层级会保留原样，因此一次运行可以关闭本地缓存而不丢失共享的那一层。
 
 ### sideEffectsCacheReadonly
 
@@ -85,9 +88,10 @@ pnpm-workspace.yaml
 pnprServer: http://127.0.0.1:7677
 allowBuilds:
   native-addon: true
+remoteCache:
+  org: acme
 sideEffectsCache:
   remote:
-    org: acme
     packages:
       - native-addon
 ```
@@ -207,6 +211,8 @@ pnpm 会发送凭据的服务器必须使用 HTTPS 或环回地址，否则不�
 
 通过 `NODE_OPTIONS` 环境变量传递给 Node.js 的选项。这不影响 pnpm 本身如何执行，但会影响生命周期脚本如何被调用。
 
+空值（如 `--config.node-options=` 或 `PNPM_CONFIG_NODE_OPTIONS=`）会覆盖来自低优先级配置来源的值。在 `nodeOptions` 为空时，脚本会保留来自父环境或 `extraEnv` 的 `NODE_OPTIONS`。
+
 要保留现有的 `NODE_OPTIONS`，你可以在配置中使用 `${NODE_OPTIONS}` 引用现有环境变量：
 
 ```yaml
@@ -220,11 +226,15 @@ nodeOptions: "${NODE_OPTIONS:- } --experimental-vm-modules"
 
 此设置允许在运行脚本前检查依赖的状态。该检查在 `pnpm run` 和 `pnpm exec` 命令上运行。支持以下值：
 
-- `install` - 当 `node_modules` 不是最新时自动运行 install。
+- `install` - 当 `node_modules` 不是最新时自动运行 install。若该 install 失败——例如因为存储是只读的或没有网络——pnpm 会打印一条警告，并仍然运行该命令。
 - `warn` - 当 `node_modules` 不是最新时打印一条警告。
 - `prompt` - 当 `node_modules` 不是最新时提示用户是否允许运行 install。
 - `error` - 当 `node_modules` 不是最新时抛出一个错误。
 - `false` - 禁用依赖检查。
+
+仅更改 [`trustLockfile`](/docs/settings/dependency-resolution#trustlockfile) 并不会在脚本运行前触发依赖重装。当该设置关闭时，显式的 `pnpm install` 会校验锁文件。
+
+当命令带过滤时，例如 `pnpm --filter foo run build`，该检查覆盖被选中的项目以及它们所依赖的工作区项目，它所运行的 install 也以同样的方式过滤。
 
 ### strictDepBuilds
 
@@ -354,12 +364,10 @@ globalPackagesConfig:
 
 ### dangerouslyAllowAllBuilds
 
-自 v10.9.0 起提供
-
 - 默认值：**false**
 - 类型：**布尔值**
 
-设为 `true` 时，依赖的所有构建脚本（例如 `preinstall`、`install`、`postinstall`）将自动运行，无需批准。
+设为 `true` 时，依赖的所有构建脚本（例如 `preinstall`、`install`、`postinstall`）将自动运行，无需批准。构建被拒绝的包——无论是在 [`allowBuilds`](#allowbuilds) 中设为 `false`，还是在 [`permissions`](#permissions) 中设为 `build: false`——仍会被阻止，因此该设置允许除被拒绝者之外的每一个构建。与其它地方一样，一个包的 `permissions` 条目优先于它的 `allowBuilds` 条目。
 
 :::warning[警告]
 

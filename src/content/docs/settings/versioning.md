@@ -1,6 +1,6 @@
 ---
 title: "版本管理设置"
-headingIds: ["versioningfixed","versioningignore","versioningmaxbump","versioninglanes","versioningepics","versioningchangelogstorage"]
+headingIds: ["versioningfixed", "versioningignore", "versioningincludeprivatepackages", "versioningmaxbump", "versioninglanes", "versioningepics", "versioningchangelogstorage"]
 ---
 
 自 v11.13.0 起提供
@@ -39,6 +39,20 @@ pnpm-workspace.yaml
 versioning:
   ignore:
     - '@example/internal'
+```
+
+### versioning.includePrivatePackages
+
+自 v12.23.0 起提供
+
+- 默认值：**true**
+- 类型：**布尔值**
+
+为 `false` 时，[`pnpm change`](/docs/cli/change) 不会把私有包（`"private": true`）列入它提供的包之中，在命令行中点名一个私有包也会失败。已经指名私有包的变更意图依然会生效，私有包仍可作为依赖方被提升，[`pnpm lane`](/docs/cli/lane) 也仍可移动它。
+
+```yaml
+versioning:
+  includePrivatePackages: false
 ```
 
 ### versioning.maxBump

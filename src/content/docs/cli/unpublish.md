@@ -7,8 +7,8 @@ headingIds: ["examples","options","--force","--registry-url","--otp-code"]
 
 从 registry 移除一个已发布的包版本
 
-```bash
-pnpm unpublish [<pkg>[@<version>]] [--force]
+```sh
+pnpm unpublish <pkg>[@<version>] [--force]
 ```
 
 :::warning[警告]
@@ -21,34 +21,38 @@ pnpm unpublish [<pkg>[@<version>]] [--force]
 
 取消发布特定版本：
 
-```bash
+```sh
 pnpm unpublish foo@1.0.0
 ```
 
 使用 semver 说明符取消发布一个版本范围：
 
-```bash
+```sh
 pnpm unpublish "foo@<2"
 ```
 
+如果被移除的版本持有 `latest` 标签，pnpm 会把该标签移到剩余的最高稳定版本上。如果只剩下预发布版本，则会选中最高的那个预发布版本。
+
 取消发布整个包（所有版本）。需要 `--force`：
 
-```bash
+```sh
 pnpm unpublish foo --force
 ```
 
-在包目录内不带参数运行时，pnpm 会取消发布从本地 `package.json` 读取的当前包版本。
+包名是必需的。不提供包名时，命令会以 `ERR_PNPM_UNPUBLISH_REQUIRED` 失败。
 
 ## 选项
 
 ### --force
 
-当移除整个包（所有版本）而非特定版本或范围时必需
+当移除整个包（所有版本）而非特定版本或范围时必需。匹配所有已发布版本的范围，同样视为移除整个包。不加 `--force` 时，命令会以 `ERR_PNPM_UNPUBLISH_CONFIRM` 失败。
+
+如果 registry 不允许移除整个包，命令会以 `ERR_PNPM_UNPUBLISH_FORBIDDEN` 失败。请改为废弃该包。
 
 ### --registry <url>
 
-要发布到的 registry。默认为该包所配置的 registry
+要从中移除该包的 registry。默认为该包所配置的 registry
 
 ### --otp <code>
 
-当 registry 要求双因素认证时，通过此标志或 `PNPM_CONFIG_OTP` 环境变量提供一次性密码。
+当 registry 要求双因素认证时，通过此选项提供一次性密码。

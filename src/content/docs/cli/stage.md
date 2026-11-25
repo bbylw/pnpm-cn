@@ -21,7 +21,7 @@ pnpm stage <subcommand> [options]
 pnpm stage publish [<tarball>|<dir>] [--tag <tag>] [--access <public|restricted>] [options]
 ```
 
-接受与 [pnpm publish](/docs/cli/publish) 相同的参数，但把 tarball 上传到分阶段暂存，而不是提升到正式 registry。所产生的 **stage id** 会被打印出来，可用于其他子命令。
+接受与 [pnpm publish](/docs/cli/publish) 相同的参数，包括 `--ignore-scripts`、`--force`、`--batch` 以及 git 检查，但把 tarball 上传到分阶段暂存，而不是提升到正式 registry。所产生的 **stage id** 会被打印出来，可用于其他子命令。
 
 使用 `--recursive`（或 `-r`）暂存工作区中每个可发布的包
 
@@ -29,9 +29,11 @@ pnpm stage publish [<tarball>|<dir>] [--tag <tag>] [--access <public|restricted>
 
 列出所有分阶段的包版本，或列出某个特定包的分阶段版本
 
-```bash
-pnpm stage list [<package-spec>]
+```sh
+pnpm stage list [<package-name>]
 ```
+
+该参数是包名。版本说明符除 `*` 之外均会被拒绝。
 
 ### view
 
@@ -72,15 +74,19 @@ pnpm stage reject <stage-id> [--otp <otp>]
 
 下载某个分阶段的版本的 tarball 以供检查
 
-```bash
+```sh
 pnpm stage download <stage-id>
 ```
+
+tarball 会以 `<name>-<version>-<stage-id>.tgz` 写入当前目录，并打印其摘要。对于带 scope 的名字，scope 的 `@` 会被去掉，`/` 会变成 `-`。
+
+stage id 是一个带连字符的 UUID，例如 `123e4567-e89b-12d3-a456-426614174000`。
 
 ## 选项
 
 ### --registry <url>
 
-npm registry 的基础 URL。默认为所配置的默认 registry
+npm registry 的基础 URL。在包目录中管理分阶段版本时，pnpm 使用该包的发布 registry，包括它按 scope 配置的 registry。当 `stage list` 指定另一个包时，pnpm 会为那个名字选择 registry。若要在使用包所选择的非默认 registry 时提供一次性密码，请指定 `--registry`。
 
 ### --tag <tag>
 

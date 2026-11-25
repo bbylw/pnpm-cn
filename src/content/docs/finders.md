@@ -43,6 +43,7 @@ export const finders = {
 
 ```
 pnpm why --find-by=react17
+pnpm list --find-by=react17
 ```
 
 Output:

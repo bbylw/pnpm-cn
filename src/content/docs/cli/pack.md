@@ -1,15 +1,25 @@
 ---
 title: "pnpm pack"
-headingIds: ["options","--recursive--r","--out-path","--pack-destination-dir","--pack-gzip-level-level","--json","--filter-package_selector","--dry-run","--skip-manifest-obfuscation","life-cycle-scripts"]
+headingIds: ["files-included-in-the-tarball","private-workspace-dependencies","options","--recursive--r","--out-path","--pack-destination-dir","--pack-gzip-level-level","--json","--filter-package_selector","--dry-run","--ignore-pnpmfile","--ignore-scripts","--skip-manifest-obfuscation","life-cycle-scripts"]
 ---
 
 从包创建 tarball。
 
+## 包含在 tarball 中的文件
+
+使用 `package.json` 中的 `files` 字段来选择文件和目录。模式支持 extglob，例如 `lib/!(*.test.js)` 和 `@(dist|lib)`。`files` 字段会取代根目录下的 `.npmignore` 或 `.gitignore`；被选中子目录内的忽略文件仍然生效。即使父目录被排除，显式命名的文件或内部符号链接也会被包含。
+
+大括号范围会展开为各个具体值。例如，`part{1..3}.js` 匹配 `part1.js`、`part2.js` 和 `part3.js`，而 `part{a..c}.js` 匹配 `parta.js`、`partb.js` 和 `partc.js`。范围支持递减值、步长（如 `part{1..5..2}.js`）以及补零（如 `part{01..03}.js`）。步长为 0 时使用默认步进 1。像 `part{1..10..02}.js` 这样在步长中带补零的写法，也会把结果补齐到较宽端点的宽度。这些范围同样适用于 `.npmignore` 和 `.gitignore`。
+
+如果没有 `files`，pnpm 会读取 `.npmignore`，并回退到 `.gitignore`。取反的忽略模式可以重新包含默认被排除的内容，例如 `*.orig` 和 `npm-debug.log`。根目录的 lockfile 和 `.npmrc` 始终被排除。
+
+## 私有工作区依赖
+
+非 private 的包不能在 `dependencies` 中列出私有的工作区包，因为私有包永远不会被发布。打包这样的包会失败并报错 `ERR_PNPM_PRIVATE_WORKSPACE_DEPENDENCY`。可以把该私有包列在 `devDependencies` 中，在已安装的情况下把它列进 `bundleDependencies` 进行打包，或在 [`beforePacking`](/docs/pnpmfile#hooksbeforepackingpkg-pkg--promisepkg) 钩子中移除该依赖。
+
 ## 选项
 
 ### --recursive, -r
-
-自 v10.11.0 起提供
 
 打包工作区中的所有包。
 
@@ -23,29 +33,33 @@ headingIds: ["options","--recursive--r","--out-path","--pack-destination-dir","-
 
 ### --pack-gzip-level <level>
 
-指定自定义压缩级别。
+tarball 的 gzip 压缩级别，取值范围为 `0` 到 `9`。超出该范围的取值会被拒绝。
 
 ### --json
 
-以 JSON 格式输出日志。
+以 JSON 格式输出日志。每个写入的归档都带有 `integrity`（SRI 形式的 SHA-512）和以字节为单位的 `size`。dry run 不会写入归档，因此两者都不会输出。
+
+`manifest` 字段包含将要打入 tarball 的 `package.json`，其中已应用 `publishConfig` 及其他发布时的改动。运行 `pnpm pack --dry-run --json` 可以在不写入 tarball 的情况下预览它。dry run 仍会运行 `prepack` 和 `prepare`，除非传入 `--ignore-scripts`。
 
 ### --filter <package_selector>
 
-自 v10.11.0 起提供
-
-[Read more about filtering.](/docs/filtering)
+更多过滤说明见[过滤](/docs/filtering)。
 
 ### --dry-run
 
-自 v10.26.0 起提供
-
 执行正常运行的所有操作，但不实际打包 tarball。适用于验证 tarball 的内容。
+
+### --ignore-pnpmfile
+
+不加载项目的 `.pnpmfile.cjs`，因此它的钩子（包括 `beforePacking`）不会运行。
+
+### --ignore-scripts
+
+不运行 `prepack`、`prepare` 和 `postpack` 脚本。
 
 ### --skip-manifest-obfuscation
 
-自 v11.3.0 起提供
-
-在打包的 manifest 中保留原有的 `packageManager` 字段和发布生命周期脚本，而不是将其剥离。pnpm 特有的 `pnpm` 字段仍会被省略。
+在打包的 manifest 中保留原有的 `packageManager` 字段和发布生命周期脚本，而不是将其剥离。pnpm 特有的 `pnpm` 字段仍会被省略，但 `pnpm.config` 除外。
 
 ## 生命周期脚本
 

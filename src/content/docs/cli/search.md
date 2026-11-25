@@ -1,6 +1,6 @@
 ---
 title: "pnpm search"
-headingIds: ["examples","options","--json","--search-limit-number"]
+headingIds: ["examples","options","--json","--search-limit-number","--registry-url"]
 ---
 
 自 v11.0.0 起提供
@@ -31,3 +31,7 @@ pnpm search @types/node
 - 默认值：**20**
 
 显示的最大结果数
+
+### --registry <url>
+
+要搜索的 registry。默认为配置的默认 registry。

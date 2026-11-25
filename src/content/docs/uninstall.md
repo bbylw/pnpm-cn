@@ -1,6 +1,6 @@
 ---
 title: "卸载 pnpm"
-headingIds: ["removing-the-globally-installed-packages","removing-the-pnpm-cli","removing-the-global-content-addressable-store"]
+headingIds: ["removing-the-globally-installed-packages", "removing-the-pnpm-cli", "removing-the-global-content-addressable-store", "removing-the-cache-state-and-configuration"]
 ---
 
 ## 移除已安装的全局包
@@ -35,3 +35,11 @@ rm -rf "$(pnpm store path)"
 ```
 
 如果你在非主磁盘上使用过 pnpm，那么必须在每个使用过 pnpm 的磁盘上运行上述命令。pnpm 会为每个磁盘创建一个存储。
+
+## 移除缓存、状态与配置
+
+pnpm 还会写入这些目录，请一并移除：
+
+- 缓存目录，其默认位置见 [`cacheDir`](/docs/settings/other#cachedir)；
+- 状态目录，其默认位置见 [`stateDir`](/docs/settings/other#statedir)；
+- 全局配置文件所在目录，参见[全局配置](/docs/configuring#global-configuration)。

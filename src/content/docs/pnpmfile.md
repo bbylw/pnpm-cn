@@ -1,11 +1,13 @@
 ---
 title: ".pnpmfile.mjs"
-headingIds: ["hooks","tldr","hooksreadpackagepkg-context-pkg--promisepkg","arguments","usage","known-limitations","hooksupdateconfigconfig-config--promiseconfig","usage-example","hooksafterallresolvedlockfile-context-lockfile--promiselockfile","arguments-1","usage-example-1","known-limitations-1","hooksbeforepackingpkg-pkg--promisepkg","arguments-2","usage-example-2","hookspreresolutionoptions-promisevoid","arguments-3","hooksimportpackagedestinationdir-options-promisestring--undefined","arguments-4","hooksfilterlog","hooksfetchers","finders","custom-resolvers-and-fetchers","typescript-interfaces","custom-resolvers","resolver-interface","canresolvewanteddependency-boolean--promiseboolean","resolvewanteddependency-opts-resolveresult--promiseresolveresult","shouldrefreshresolutiondeppath-pkgsnapshot-boolean--promiseboolean","custom-fetchers","fetcher-interface","canfetchpkgid-resolution-boolean--promiseboolean","fetchcafs-resolution-opts-fetchers-fetchresult--customfetcherdelegation--promisefetchresult--customfetcherdelegation","delegating-to-the-built-in-fetchers","usage-examples","basic-custom-resolver","custom-resolver-and-fetcher-with-shouldrefreshresolution","basic-custom-fetcher","custom-resolution-type-with-resolver-and-fetcher","priority-and-ordering","performance-considerations","related-configuration","ignorepnpmfile","pnpmfile","globalpnpmfile"]
+headingIds: ["hooks","tldr","hooksreadpackagepkg-context-pkg--promisepkg","arguments","usage","known-limitations","hooksupdateconfigconfig-config--promiseconfig","usage-example","what-the-hook-receives","registry-routing","settings-given-on-the-command-line","which-commands-load-the-pnpmfile","hooksafterallresolvedlockfile-context-lockfile--promiselockfile","arguments-1","usage-example-1","known-limitations-1","hooksbeforepackingpkg-pkg--promisepkg","arguments-2","usage-example-2","hookspreresolutionoptions-promisevoid","arguments-3","usage-example-3","hooksimportpackagedestinationdir-options","hooksfilterlog","hooksfetchers","finders","custom-resolvers-and-fetchers","typescript-interfaces","custom-resolvers","resolver-interface","canresolvewanteddependency-boolean--promiseboolean","resolvewanteddependency-opts-resolveresult--promiseresolveresult","shouldrefreshresolutiondeppath-pkgsnapshot-boolean--promiseboolean","custom-fetchers","fetcher-interface","canfetchpkgid-resolution-boolean--promiseboolean","fetchcafs-resolution-opts-fetchers-fetchresult--customfetcherdelegation--promisefetchresult--customfetcherdelegation","delegating-to-the-built-in-fetchers","usage-examples","basic-custom-resolver","custom-resolver-and-fetcher-with-shouldrefreshresolution","basic-custom-fetcher","custom-resolution-type-with-resolver-and-fetcher","priority-and-ordering","performance-considerations","related-configuration","ignorepnpmfile","pnpmfile","globalpnpmfile"]
 ---
 
 pnpm 允许你通过特殊函数（钩子）直接介入安装过程。钩子可以在名为 `.pnpmfile.mjs`（ESM）或 `.pnpmfile.cjs`（CommonJS）的文件中声明。
 
 默认情况下，`.pnpmfile.mjs` 应与锁文件位于同一目录。例如，在共享锁文件的 [工作区](/docs/workspaces) 中，`.pnpmfile.mjs` 应位于 monorepo 的根目录。
+
+在每个项目都有自己锁文件的工作区（`sharedWorkspaceLockfile: false`）中，每个项目会先运行自身目录下 pnpmfile 的钩子，然后运行 monorepo 根目录 pnpmfile 的钩子。
 
 ## 钩子
 
@@ -14,16 +16,19 @@ pnpm 允许你通过特殊函数（钩子）直接介入安装过程。钩子可
 | **钩子函数** | **Process** | **Uses** |
 | --- | --- | --- |
 | `hooks.readPackage(pkg, context): pkg` | 在 pnpm 解析依赖的包清单之后调用 | 允许你修改某个依赖的 `package.json`。 |
+| `hooks.updateConfig(config): config` | 在 pnpm 读取配置之后调用 | 允许你修改 pnpm 的设置。 |
+| `hooks.preResolution(options, logger)` | 在依赖被解析之前调用 | 允许你在解析之前修改锁文件。 |
 | `hooks.afterAllResolved(lockfile, context): lockfile` | 在依赖解析完成之后调用。 | 允许你修改锁文件。 |
-| `hooks.beforePacking(pkg): pkg` | 在 pack/publish 过程中创建 tarball 之前调用 | 允许你自定义发布出去的 `package.json` |
+| `hooks.beforePacking(pkg, dir, context): pkg` | 在 pack/publish 过程中创建 tarball 之前调用 | 允许你自定义发布出去的 `package.json` |
 | `resolvers` | 在包解析期间调用。 | 允许你注册自定义的包解析器。 |
 | `fetchers` | 在拉取包期间调用。 | 允许你注册自定义的包拉取器。 |
+| `finders` | 由 `pnpm list` 和 `pnpm why` 通过 `--find-by` 调用。 | 允许你注册自定义的包过滤器。 |
 
 ### `hooks.readPackage(pkg, context): pkg | Promise<pkg>`
 
 允许你在解析之后、依赖解析之前修改某个依赖的 `package.json`。这些改动不会写入文件系统，但会影响锁文件中的解析结果，从而影响安装的内容。
 
-注意，如果你要修改的依赖已经被解析过，需要先删除 `pnpm-lock.yaml`。
+pnpm 会在锁文件中记录 pnpmfile 的校验和。当 pnpmfile 发生变化时，pnpm 会重新解析受影响的依赖。
 
 :::tip[提示]
 
@@ -43,7 +48,7 @@ pnpm 允许你通过特殊函数（钩子）直接介入安装过程。钩子可
 ```js
 function readPackage(pkg, context) {
   // Override the manifest of foo@1.x after downloading it from the registry
-  if (pkg.name === 'foo' && pkg.version.startsWith('1.')) {
+  if (pkg.name === 'foo' && pkg.version?.startsWith('1.')) {
     // Replace bar@x.x.x with bar@2.0.0
     pkg.dependencies = {
       ...pkg.dependencies,
@@ -53,7 +58,7 @@ function readPackage(pkg, context) {
   }
 
   // This will change any packages using baz@x.x.x to use baz@1.2.3
-  if (pkg.dependencies.baz) {
+  if (pkg.dependencies?.baz) {
     pkg.dependencies.baz = '1.2.3';
   }
 
@@ -94,6 +99,46 @@ export const hooks = {
 }
 ```
 
+#### 钩子接收到什么
+
+自 v12.4.1 起，`config` 是已解析后的配置：pnpm 将要使用的每一项设置，无论它来自何处，包括 `.npmrc`、命令行以及内置默认值。没有人设置过的设置项不会以 `null` 出现在对象中，而是直接缺失。
+
+其中两项条目用于描述 registry 路由和凭据：
+
+- `registriesByScope` 把 scope（`@acme`，主 registry 则对应 `default`）映射到该 scope 的包所使用的 registry URL。改写这个映射即可重定向这些拉取，但命令行给出的路由除外。
+- `configByUri` 把 registry URI 映射到它的凭据。
+
+#### registry 路由
+
+返回 `registriesByScope` 会替换整个路由映射。返回的映射中未列出的 scope 使用其 `default` registry；若 `default` 也被省略，则使用此前配置的主 registry。内置的 `@jsr` 路由会保留，除非显式覆盖。此钩子改变的是回退用的 registry：
+
+.pnpmfile.mjs
+
+```js
+export const hooks = {
+  updateConfig (config) {
+    return {
+      ...config,
+      registriesByScope: {
+        default: 'https://registry.example.com/',
+      },
+    }
+  },
+}
+```
+
+若要保留已有的 scope 路由，只修改其中一条路由，请在返回的映射中先展开 `...config.registriesByScope`，再进行覆盖。
+
+返回的 `registries` 键指的是 [`registries` 设置](/docs/settings/dependency-resolution#registries)，而不是路由映射。它会按 key 与已有配置合并。因此返回 `registries: { default: ... }` 会改变主 registry，同时保留来自 `.npmrc` 的 scope 路由。
+
+#### 命令行给出的设置
+
+自 v12.8.0 起，命令行给出的设置优先于钩子。钩子仍然能收到命令行的值，但 pnpm 会在钩子返回后把它放回原处，因此在钩子中修改它不会生效。这涵盖 `--registry`、`--config.@acme:registry`、`--store-dir`、`--state-dir`、`--config.<key>` 之类的覆盖，以及 `--no-optional` 这类设置开关。
+
+#### 哪些命令会加载 pnpmfile
+
+自 v12.3.0 起，`pnpm run`、`pnpm exec`、`pnpm rebuild`、脚本快捷方式（如 `pnpm test`），以及 `pnpm link`、`pnpm outdated`、`pnpm import`、`pnpm pack`、`pnpm publish` 和 `pnpm stage publish` 都会在各自开始工作之前加载 pnpmfile，因此 `updateConfig` 中的设置（如 `extraEnv` 和 `extraBinPaths`）能够传递到它们启动的进程中，钩子提供的 catalog 也能在打包时被解析。
+
 ### `hooks.afterAllResolved(lockfile, context): lockfile | Promise<lockfile>`
 
 允许你在锁文件被序列化之前修改其输出内容。
@@ -122,7 +167,7 @@ export const hooks = {
 
 没有限制：凡是能对锁文件做的修改，都可以通过此函数完成，你甚至可以扩展锁文件的功能。
 
-### `hooks.beforePacking(pkg): pkg | Promise<pkg>`
+### `hooks.beforePacking(pkg, dir, context): pkg | Promise<pkg>`
 
 自 v10.28.0 起提供
 
@@ -130,9 +175,13 @@ export const hooks = {
 
 与修改安装期间依赖解析方式的 `hooks.readPackage` 不同，`beforePacking` 只影响最终发布的 tarball 的内容。
 
+钩子收到的是 pnpm 改写工作区依赖并应用 `publishConfig` 之后的 manifest。pnpm 会校验返回的 name 和 version，并在写入 tarball 之前规范化 `bin`、`repository` 之类的字段。
+
 #### 参数
 
 - `pkg` - 将包含在发布 tarball 中的包 manifest 对象
+- `dir` - 正在被打包的项目所在目录
+- `context` - 该步骤的上下文对象。`#log(msg)` 方法允许你在该步骤中使用调试日志
 
 #### 用法示例
 
@@ -142,7 +191,7 @@ export const hooks = {
 function beforePacking(pkg) {
   // Remove development-only fields from published package
   delete pkg.devDependencies
-  delete pkg.scripts.test
+  delete pkg.scripts?.test
 
   // Add publication metadata
   pkg.publishedAt = new Date().toISOString()
@@ -166,9 +215,11 @@ export const hooks = {
 
 :::
 
-### `hooks.preResolution(options): Promise<void>`
+### `hooks.preResolution(options, logger): Promise<void>`
 
-此钩子在读取并解析项目的锁文件之后、解析依赖之前执行，允许修改锁文件对象。
+此钩子在读取并解析项目的锁文件之后、解析依赖之前执行。pnpm 会依据它对 `options.wantedLockfile` 和 `options.currentLockfile` 所做的更改继续安装。使用 `--frozen-lockfile` 时，pnpm 会用改动后的 wanted lockfile 与项目的 manifest 进行校验。
+
+只有就地修改这些对象才会生效。pnpm 会忽略钩子的返回值，也忽略赋值给 `options` 某个字段的对象。钩子抛出异常会导致安装失败，钩子把锁文件对象改成非法的锁文件结构同样会导致安装失败。
 
 #### 参数
 
@@ -179,25 +230,33 @@ export const hooks = {
 - `options.lockfileDir` - 期望锁文件所在的目录
 - `options.storeDir` - 存储目录的位置
 - `options.registries` - 从 scope 到 registry URL 的映射
+- `logger.info(msg)` 和 `logger.warn(msg)` - 以 info 或 warning 级别打印钩子中的消息
 
-### `hooks.importPackage(destinationDir, options): Promise<string | undefined>`
+#### 用法示例
 
-:::warning[自 v11.23.0 起废弃]
+.pnpmfile.mjs
 
-`importPackage` 已被废弃，将在下一个 major 版本中移除。当 pnpmfile 定义了它时，pnpm 会发出警告，且定义它会使安装退出并行包导入器，导致安装变慢。如果你依赖此钩子，请到 [#14101](https://github.com/pnpm/pnpm/issues/14101) 下留言。
+```js
+function preResolution({ wantedLockfile }, logger) {
+  // Resolve the dependencies of the root project again
+  if (wantedLockfile.importers?.['.']) {
+    delete wantedLockfile.importers['.']
+    logger.info('Dropped the locked dependencies of the root project')
+  }
+}
+
+export const hooks = {
+  preResolution
+}
+```
+
+### `hooks.importPackage(destinationDir, options)`
+
+:::danger[已在 v12.0.0 中移除]
+
+pnpm 会忽略 `importPackage` 钩子，并在 pnpmfile 定义了它时发出警告。请使用 [`packageImportMethod`](/docs/settings/node-modules#packageimportmethod) 设置来选择包写入 `node_modules` 的方式。如果你依赖此钩子，请到 [#14101](https://github.com/pnpm/pnpm/issues/14101) 下留言。
 
 :::
-
-此钩子允许你更改包写入 `node_modules` 的方式。返回值是可选的，用于说明导入依赖时使用的方法，例如克隆、硬链接。
-
-#### 参数
-
-- `destinationDir` - 包应写入的目标目录
-- `options.disableRelinkLocalDirDeps`
-- `options.filesMap`
-- `options.force`
-- `options.resolvedFrom`
-- `options.keepModulesDir`
 
 ### `hooks.filterLog(log): boolean`
 
@@ -219,27 +278,7 @@ export const hooks = {
 
 自 v10.16.0 起提供
 
-Finder 函数通过 `--find-by` 标志配合 `pnpm list` 和 `pnpm why` 使用。
-
-Example:
-
-.pnpmfile.mjs
-
-```js
-export const finders = {
-  react17: (ctx) => {
-    return ctx.readManifest().peerDependencies?.react === "^17.0.0"
-  }
-}
-```
-
-Usage:
-
-```
-pnpm why --find-by=react17
-```
-
-更多细节见 [Finders](/docs/finders)。
+pnpmfile 可以导出 `finders`，这些函数供 `pnpm list` 和 `pnpm why` 配合 `--find-by` 标志使用。更多细节见 [Finders](/docs/finders)。
 
 ## 自定义解析器与拉取器
 
@@ -374,8 +413,11 @@ interface CustomFetcher {
   - `remoteTarball` - 远程 tarball 的拉取器
   - `localTarball` - 本地 tarball 的拉取器
   - `gitHostedTarball` - GitHub/GitLab/Bitbucket tarball 的拉取器
-  - `directory` - 本地目录的拉取器
+  - `directory` - 本地目录的拉取器。如果锁文件为该包固定了归档的 integrity，它会以 `ERR_PNPM_TARBALL_INTEGRITY` 拒绝
   - `git` - git 仓库的拉取器
+  - `binary` - 运行时归档（如 Node.js）的拉取器
+
+来自内置拉取器的拉取结果必须原样返回。pnpm 会拒绝那些 `filesMap` 增加了文件、丢失了文件或内容发生变化的拉取结果，而 `manifest` 或 `requiresBuild` 的变化则会被忽略。若要安装不同的文件，请改为返回 [`{ delegate }` 信封](#delegating-to-the-built-in-fetchers)。
 
 **返回：** 拉取结果，或一个[委托信封](#delegating-to-the-built-in-fetchers)。
 
@@ -416,7 +458,7 @@ module.exports = { fetchers: [customFetcher] }
 
 :::tip[为可移植性优先使用信封]
 
-`{ delegate }` 信封是唯一在 pnpm 和 [pacquet](https://pnpm.io/blog/releases/12.0)（pnpm 的 Rust 移植版）中都能工作的委托形式。pacquet 通过 IPC 调用 pnpmfile 拉取器，此时 `cafs` 与 `fetchers` 无法存在，都会以 `null` 传入。要在任一技术栈上运行的拉取器必须返回信封，而不是调用 `fetchers.*`。
+`{ delegate }` 信封适用于所有 pnpm 版本中的任何解析结果。在 [pnpm 12](https://pnpm.io/blog/releases/12.0) 中，`cafs` 是一个句柄，用于传给内置拉取器，它带有存储目录的 `storeDir` 以及一个 `tempDir()` 方法。`fetchers` 提供 `localTarball`、`remoteTarball`、`gitHostedTarball`、`git`、`binary` 和 `directory`。
 
 :::
 
@@ -612,7 +654,7 @@ pnpmfile 将被忽略。与 `--ignore-scripts` 搭配使用，可确保安装期
 
 ### pnpmfile
 
-- 默认值：**['.pnpmfile.mjs']**
+- 默认值：**['.pnpmfile.mjs']**，若不存在 `.pnpmfile.mjs` 则为 **['.pnpmfile.cjs']**
 - 类型：**路径[]**
 - 示例：**['.pnpm/.pnpmfile.mjs']**
 

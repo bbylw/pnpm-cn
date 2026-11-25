@@ -1,6 +1,6 @@
 ---
 title: "对等依赖设置"
-headingIds: ["autoinstallpeers","optional-peer-dependencies","version-conflicts","conflict-resolution","dedupepeerdependents","projectscopedoptionalpeers","dedupepeers","addmissingpeertypes","strictpeerdependencies","resolvepeersfromworkspaceroot","peerdependencyrules","peerdependencyrulesignoremissing","peerdependencyrulesallowedversions","peerdependencyrulesallowany"]
+headingIds: ["autoinstallpeers", "optional-peer-dependencies", "version-conflicts", "conflict-resolution", "autoinstallpeersfromhighestmatch", "dedupepeerdependents", "projectscopedoptionalpeers", "dedupepeers", "addmissingpeertypes", "strictpeerdependencies", "resolvepeersfromworkspaceroot", "peerdependencyrules", "peerdependencyrulesignoremissing", "peerdependencyrulesallowedversions", "peerdependencyrulesallowany"]
 ---
 
 ### autoInstallPeers
@@ -36,12 +36,27 @@ headingIds: ["autoinstallpeers","optional-peer-dependencies","version-conflicts"
 
 出现版本冲突时，你需要自行判断该安装对等依赖的哪个版本，或更新相关依赖以统一它们的对等依赖要求。
 
+### autoInstallPeersFromHighestMatch
+
+- 默认值：**false**
+- 类型：**布尔值**
+
+设为 `true` 时，pnpm 用 `||` 合并冲突的对等依赖范围，并安装满足其中任意一个的最高版本。例如，若一个依赖要求 `react@^16.0.0`，另一个要求 `react@^17.0.0`，pnpm 会安装最高的 `react@17`。
+
+只有 semver 范围可以被合并。冲突的路径、别名或标签会让该对等依赖保持缺失。相同的非 semver 说明符会被保留。
+
 ### dedupePeerDependents
 
 - 默认值：**true**
 - 类型：**Boolean**
 
 将此设置设为 `true` 时，含有对等依赖的包会在对等依赖解析后进行去重。
+
+该设置还让 pnpm 可以用工作区其它地方已有的兼容版本来解析缺失的必需与可选对等依赖，包括其它项目的传递依赖。即使 `autoInstallPeers` 为 `false`，必需对等依赖也可以这种方式解析。以这种方式满足的必需对等依赖不会被报告为缺失。当 `autoInstallPeers: false` 时，若项目及其依赖祖先都没有声明提供方，[`pnpm peers check`](/docs/cli/peers) 会给出一条单独的提示。
+
+若要禁止这种工作区范围的对等依赖复用，请把 `autoInstallPeers` 与 `dedupePeerDependents` 都设为 `false`。当 [`resolvePeersFromWorkspaceRoot`](#resolvepeersfromworkspaceroot) 启用时，工作区根的依赖仍可提供对等依赖。
+
+解析某个包的对等依赖，并不会把该对等依赖加入你项目已声明的依赖。如果你的项目脚本会运行某个对等依赖包的可执行文件，请把该包直接声明到你项目的 `dependencies` 或 `devDependencies` 中。
 
 例如，假设有一个包含两个项目的工作区，二者的依赖中都有 `webpack`。`webpack` 的可选对等依赖中有 `esbuild`，而其中一个项目的依赖中有 `esbuild`。在这种情况下，pnpm 会将 `webpack` 的两个实例链接到 `node_modules/.pnpm` 目录：一个带 `esbuild`，另一个不带：
 
@@ -113,7 +128,7 @@ project2
 
 ### dedupePeers
 
-自 v10.33.0 起提供
+已废弃。请移除该设置。若需要不带对等依赖后缀的锁文件引用，请使用 [`lockfile.format: v13`](/docs/settings/store#lockfileformat)。
 
 - 默认值：**false**
 - 类型：**Boolean**
@@ -151,6 +166,18 @@ project2
 
 ### peerDependencyRules
 
+:::note[说明]
+
+已废弃：`peerDependencyRules` 只在解析之后抑制对等依赖警告，并不会改变 `peerDependencies`。若你想修改或移除已声明的对等依赖范围、让对等依赖解析本身也被更新，请使用带 `:peer` 的 [`overrides`](/docs/settings/dependency-resolution#overriding-peer-dependencies)：
+
+- `peerDependencyRules.ignoreMissing: ["react", "@babel/*"]` 只会让缺失对等依赖的警告静音。`overrides` 中的 `"react:peer": "-"` 与 `"@babel/*:peer": "-"` 会移除对等依赖声明及其 `peerDependenciesMeta` 条目，于是包不再从父级接收这些对等依赖。
+- `peerDependencyRules.allowedVersions: { "button@2>react": "17" }` 只改变对等依赖不匹配的报告方式，没有保持行为不变的 `overrides` 替代方案。当你想放宽已声明的对等依赖范围并改变对等依赖解析时，请在 `overrides` 中使用 `"button@2>react:peer": "16 || 17"`。
+- `peerDependencyRules.allowAny: ["@babel/*"]` 只抑制对等依赖版本不匹配的警告，并不会重写 `peerDependencies`，因此没有直接对应的 `overrides` 写法。只有当你想放宽已声明的对等依赖范围并改变对等依赖解析时，才在 `overrides` 中使用 `"@babel/*:peer": "*"`。
+
+出于向后兼容，`peerDependencyRules` 仍可继续使用。
+
+:::
+
 #### peerDependencyRules.ignoreMissing
 
 对于这些列表中提到的对等依赖，即使缺失，pnpm 也不会发出警告。
@@ -172,6 +199,8 @@ peerDependencyRules:
   - "@eslint/*"
 ```
 
+`ignoreMissing` 匹配对等依赖的包名，或一个 glob。它不支持 [`allowedVersions`](#peerdependencyrulesallowedversions) 所接受的 `parent>peer` 或 `parent@range>peer` 选择器。
+
 #### peerDependencyRules.allowedVersions
 
 对于指定范围内的对等依赖，不会打印未满足的对等依赖警告。
@@ -191,7 +220,7 @@ peerDependencyRules:
 ```yaml
 peerDependencyRules:
   allowedVersions:
-    "button@2>react": "17",
+    "button@2>react": "17"
     "card>react": "17"
 ```
 
@@ -207,3 +236,5 @@ peerDependencyRules:
 ```
 
 上述设置会屏蔽所有与 `@babel/` 包或 `eslint` 相关的对等依赖版本不匹配警告。
+
+`allowAny` 匹配对等依赖的包名，或一个 glob。它不支持 [`allowedVersions`](#peerdependencyrulesallowedversions) 所接受的 `parent>peer` 或 `parent@range>peer` 选择器。

@@ -40,8 +40,8 @@ pipelines:
 ```
 
 ```sh
-pnpm pipeline          # build、test 和 lint
-pnpm pipeline release  # 只 build
+pnpm pipeline          # build, test and lint
+pnpm pipeline release  # build only
 ```
 
 ## 一次运行做了什么
