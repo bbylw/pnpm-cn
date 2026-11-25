@@ -23,33 +23,32 @@ import CompareCell from "../components/CompareCell.astro";
   }}
 >
   <!-- ================= HERO ================= -->
-  <section class="relative overflow-hidden">
-    <div class="pointer-events-none absolute inset-x-0 -top-24 h-[420px] opacity-60" aria-hidden="true">
-      <div class="absolute left-1/2 top-0 h-[380px] w-[1100px] -translate-x-1/2 bg-[radial-gradient(55%_75%_at_50%_20%,color-mix(in_srgb,var(--color-accent-fill)_18%,transparent),transparent_70%)]"></div>
+  <section class="relative -mt-16 overflow-hidden pt-28 pb-12 sm:pt-32 lg:pt-36">
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-[520px] opacity-65" aria-hidden="true">
+      <div class="absolute left-1/2 top-0 h-[460px] w-[1200px] -translate-x-1/2 bg-[radial-gradient(55%_75%_at_50%_15%,color-mix(in_srgb,var(--color-accent-fill)_20%,transparent),transparent_72%)]"></div>
     </div>
-    <div class="relative mx-auto grid max-w-[1200px] items-center gap-12 px-4 pb-10 pt-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:pt-20">
-      <div>
-        <p class="chip tracking-[0.01em] font-sans text-[0.82rem] font-medium"><span class="h-[7px] w-[7px] rounded-full bg-accent-fill"></span>自 2016 年起，久经生产环境考验</p>
-        <h1 class="mt-5 font-display text-[clamp(2.25rem,4.9vw,3.5rem)] font-extrabold leading-[1.12] tracking-[-0.03em]">
-          <span class="block max-[420px]:whitespace-normal whitespace-nowrap">快速、<span class="mark">节省磁盘空间</span></span>
+    <div class="relative mx-auto max-w-[1200px] px-4 sm:px-6">
+      <div class="mx-auto max-w-4xl text-center">
+        <h1 class="font-display text-[clamp(2.35rem,5.8vw,4.4rem)] font-extrabold leading-[1.1] tracking-[-0.035em]">
+          <span class="block">快速、<span class="mark whitespace-nowrap">节省磁盘空间</span></span>
           <span class="block">的包管理器</span>
         </h1>
-        <p class="mt-6 max-w-xl text-[1.06rem] leading-relaxed text-muted">
-          100 个项目用同一个依赖，磁盘上只存一份。pnpm 用内容寻址存储与硬链接重写
-          node_modules 的组织方式：安装比 npm 快达 2 倍，依赖树严格可复现。
+        <p class="mx-auto mt-6 max-w-[54ch] text-[1rem] leading-relaxed text-muted">
+          100 个项目共用同一份依赖。内容寻址存储与硬链接让安装比 npm 快达 2 倍，依赖树严格可复现。
         </p>
-        <div class="mt-8 flex flex-wrap items-center gap-3">
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3.5">
           <a href="/docs/installation" class="btn btn--primary no-underline">开始使用 <Icon name="arrow-right" size="1.05em" /></a>
-          <a href="/docs/motivation" class="btn btn--ghost no-underline">为什么是 pnpm</a>
-        </div>
-        <div class="term mt-7 flex max-w-md items-center justify-between gap-3 text-[0.84rem]">
-          <code class="truncate"><span class="text-term-accent">$</span> npm i -g pnpm</code>
-          <button type="button" class="copybtn" data-copy="npm i -g pnpm" aria-label="复制安装命令">
-            <Icon name="copy" size="1em" />
-          </button>
+          <div class="term flex items-center justify-between gap-3 text-[0.875rem]">
+            <code class="truncate"><span class="text-term-accent">$</span> npm i -g pnpm</code>
+            <button type="button" class="copybtn" data-copy="npm i -g pnpm" aria-label="复制安装命令">
+              <Icon name="copy" size="1em" />
+            </button>
+          </div>
         </div>
       </div>
-      <StoreMachine />
+      <div class="mx-auto mt-12 max-w-[1040px]">
+        <StoreMachine />
+      </div>
     </div>
   </section>
 
@@ -63,10 +62,10 @@ import CompareCell from "../components/CompareCell.astro";
             <span class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-line bg-sunken text-accent" aria-hidden="true">
               <Icon name={f.icon} size="1.15rem" />
             </span>
-            <h3 class="mt-4 font-display text-[1.02rem] font-bold">{f.title}</h3>
-            <p class="mt-2 text-[0.9rem] leading-relaxed text-muted">{f.body}</p>
+            <h3 class="mt-4 font-display text-[1rem] font-bold">{f.title}</h3>
+            <p class="mt-2 text-[1rem] leading-relaxed text-muted">{f.body}</p>
             {f.href && (
-              <a href={f.href} class="mt-3 inline-flex items-center gap-1 text-[0.84rem] font-semibold text-accent no-underline opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100">
+              <a href={f.href} class="mt-3 inline-flex items-center gap-1 text-[0.875rem] font-semibold text-accent no-underline opacity-0 transition-opacity duration-200 group-hover:opacity-100 focus-visible:opacity-100">
                 深入了解 <Icon name="arrow-right" size="0.95em" />
               </a>
             )}
@@ -81,12 +80,12 @@ import CompareCell from "../components/CompareCell.astro";
     <div class="mx-auto grid max-w-[1200px] gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2">
       <div>
         <h2 class="sec-title">磁盘上只存一份</h2>
-        <p class="mt-6 text-[1.02rem] leading-relaxed text-muted">
+        <p class="mt-6 max-w-[65ch] text-[1rem] leading-relaxed text-muted">
           pnpm 使用内容寻址存储，把磁盘上所有模块目录的文件统一存放。依赖不同版本时，
           <strong class="text-ink">只有存在差异的文件</strong>会进入存储：一个 100 文件的包升级只改动
-          1 个文件，<code class="font-mono text-[0.9em] bg-sunken rounded px-1 border border-line">pnpm update</code> 就只新增 1 个文件。
+          1 个文件，<code class="font-mono text-[0.875rem] bg-sunken rounded px-1 border border-line">pnpm update</code> 就只新增 1 个文件。
         </p>
-        <p class="mt-4 text-[1.02rem] leading-relaxed text-muted">
+        <p class="mt-4 max-w-[65ch] text-[1rem] leading-relaxed text-muted">
           安装时，文件从存储的同一位置<strong class="text-ink">硬链接</strong>（或写时复制的引用链接）进入各项目的
           node_modules，不占用额外空间。你省下的磁盘与项目数、依赖数成正比。
         </p>
@@ -101,8 +100,8 @@ import CompareCell from "../components/CompareCell.astro";
                 <Icon name={s.icon} size="1.2rem" />
               </span>
               <div class="pt-1">
-                <h3 class="font-display text-[1.05rem] font-bold">{s.title}</h3>
-                <p class="mt-1.5 text-[0.93rem] leading-relaxed text-muted">{s.body}</p>
+                <h3 class="font-display text-[1rem] font-bold">{s.title}</h3>
+                <p class="mt-1.5 text-[1rem] leading-relaxed text-muted">{s.body}</p>
               </div>
             </li>
           ))
@@ -117,8 +116,8 @@ import CompareCell from "../components/CompareCell.astro";
     <div class="mt-10 grid items-start gap-10 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
       <div>
         <p class="font-display text-[clamp(3.2rem,7vw,4.6rem)] font-extrabold leading-none tracking-tight text-accent">2×</p>
-        <p class="mt-3 text-[1.02rem] font-semibold">快达 npm 与 Yarn classic 的两倍</p>
-        <p class="mt-4 text-[0.93rem] leading-relaxed text-muted">
+        <p class="mt-3 text-[1rem] font-semibold">快达 npm 与 Yarn classic 的两倍</p>
+        <p class="mt-4 text-[1rem] leading-relaxed text-muted">
           上图是在依赖众多的 alotta-files 项目上的安装基准（越小越好）：全新安装、缓存安装、
           更新依赖等场景全面领先。数据来自官方 benchmark，Node.js v24.19.0，采集于 2026-09-04。
         </p>
@@ -126,7 +125,7 @@ import CompareCell from "../components/CompareCell.astro";
       </div>
       <figure class="rv corners overflow-x-auto rounded-xl border border-line bg-white p-4 sm:p-6">
         <img src="/img/bench-alotta-files.svg" width="760" height="230" alt="alotta-files 基准测试：npm、pnpm 与 pnpm Rust 版在各场景下的安装耗时对比条形图" loading="lazy" class="h-auto w-full min-w-[560px] max-w-[820px]" />
-        <figcaption class="mt-3 text-right font-mono text-[0.72rem] text-ink/60">
+        <figcaption class="mt-3 text-right font-mono text-[0.875rem] text-ink/60">
           图源：<a class="text-ink/80 underline decoration-1 underline-offset-2" href="https://r.pnpm.io/benchmarks" rel="noopener">pnpm.io/benchmarks</a>
         </figcaption>
       </figure>
@@ -153,7 +152,7 @@ import CompareCell from "../components/CompareCell.astro";
                 <tr>
                   <td>
                     <span class="font-semibold">{r.label}</span>
-                    <span class="block text-[0.8rem] text-muted">{r.note}</span>
+                    <span class="block text-[0.875rem] text-muted">{r.note}</span>
                   </td>
                   <td class="text-center">{<CompareCell v={r.pnpm} />}</td>
                   <td class="text-center">{<CompareCell v={r.npm} />}</td>
@@ -172,11 +171,11 @@ import CompareCell from "../components/CompareCell.astro";
   <section class="mx-auto max-w-[1200px] px-4 py-20 sm:px-6">
     <blockquote class="rv relative mx-auto max-w-3xl rounded-2xl border border-line bg-raise px-8 py-10 text-center shadow-block sm:px-14">
       <span class="absolute left-6 top-4 text-accent-fill/70" aria-hidden="true"><Icon name="quotes" size="2.6rem" /></span>
-      <p class="font-display text-[1.18rem] font-semibold leading-relaxed sm:text-[1.35rem]">
+      <p class="font-display text-[1rem] font-semibold leading-relaxed sm:text-[1.15rem]">
         Microsoft 在 Rush 仓库中使用 pnpm 管理数百个项目，每天有数百个 PR，我们发现它非常快速且可靠。
       </p>
-      <footer class="mt-5 text-[0.88rem] text-muted">
-        —— <a href="https://rushjs.io/" rel="noopener" class="text-accent no-underline hover:underline">Rush 团队</a>
+      <footer class="mt-5 text-[0.875rem] text-muted">
+        <a href="https://rushjs.io/" rel="noopener" class="font-semibold text-accent no-underline hover:underline">Rush 团队</a>，Microsoft
       </footer>
     </blockquote>
   </section>
@@ -186,11 +185,11 @@ import CompareCell from "../components/CompareCell.astro";
     <div class="rounded-2xl border border-line bg-cta-bg px-6 py-12 text-cta-ink shadow-block sm:px-12">
       <div class="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_auto]">
         <div>
-          <h2 class="font-display text-[clamp(1.7rem,3.6vw,2.3rem)] font-extrabold tracking-tight">换掉你的包管理器</h2>
-          <p class="mt-3 max-w-xl text-[0.98rem] opacity-80">
+          <h2 class="font-display text-[var(--text-heading)] font-extrabold tracking-tight">换掉你的包管理器</h2>
+          <p class="mt-3 max-w-[54ch] text-[1rem] opacity-85">
             一条命令装上 pnpm，把 npm 换成 pnpm 继续干活即可：既有脚本、CI 与 node_modules 大体无缝兼容。
           </p>
-          <div class="term mt-6 flex items-center justify-between gap-3 border-white/15 text-[0.86rem] opacity-100">
+          <div class="term mt-6 flex items-center justify-between gap-3 border-white/15 text-[0.875rem] opacity-100">
             <code><span class="text-term-accent">$</span> npm i -g pnpm && pnpm install</code>
             <button type="button" class="copybtn" data-copy="npm i -g pnpm && pnpm install" aria-label="复制命令">
               <Icon name="copy" size="1em" />
@@ -204,11 +203,11 @@ import CompareCell from "../components/CompareCell.astro";
         </nav>
       </div>
     </div>
-    <ul class="mt-10 flex flex-wrap items-center gap-3">
+    <ul class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-line pt-6">
       {
         COMMUNITY.map((c) => (
           <li>
-            <a href={c.href} rel="noopener" class="chip gap-2 py-2! text-[0.8rem]! no-underline hover:border-accent-line!">
+            <a href={c.href} rel="noopener" class="inline-flex items-center gap-2 text-[0.875rem] font-medium text-muted no-underline transition-colors hover:text-ink">
               <Icon name={c.icon} size="1.05em" /> {c.label}
             </a>
           </li>

@@ -41,7 +41,7 @@ const linkable = docs.has(item.id);
           <span class="text-accent" aria-hidden="true"><Icon name="arrow-right" size="0.85em" class={active ? "" : "opacity-50"} /></span>
         </a>
       ) : (
-        <span class={`px-2 py-1 font-mono text-[0.7rem] uppercase tracking-[0.12em] ${depth ? "pl-2" : ""}`} style={`padding-left:${0.6 + depth * 0.55}rem`}>
+        <span class={`block px-2 py-1 font-display text-[0.8125rem] font-semibold text-muted ${depth ? "pl-2" : ""}`} style={`padding-left:${0.6 + depth * 0.55}rem`}>
           {item.label}
         </span>
       )}

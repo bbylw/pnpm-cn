@@ -41,6 +41,12 @@
 
   --radius-card: 10px;
   --shadow-block: 0 1px 0 rgba(27, 28, 31, 0.06), 0 12px 32px -18px rgba(27, 28, 31, 0.35);
+
+  /* 3 级正文字号规范（Hero H1 与页头品牌字标除外） */
+  --text-heading: clamp(1.6rem, 3vw, 2.1rem);
+  --text-body: 1rem;
+  --text-sm: 0.875rem;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 html[data-theme="dark"] {
@@ -87,6 +93,8 @@ html[data-theme="dark"] {
   body {
     margin: 0;
     font-family: var(--font-sans);
+    font-size: var(--text-body);
+    font-variant-numeric: tabular-nums;
     color: var(--color-ink);
     background-color: var(--color-bg);
     /* 仓库地面网格底纹：极淡 */
@@ -184,12 +192,13 @@ html[data-theme="dark"] {
     align-items: center;
     gap: 0.55em;
     font-weight: 650;
-    font-size: 0.95rem;
+    font-size: var(--text-body);
     line-height: 1;
     padding: 0.85em 1.5em;
     border-radius: 6px;
     border: 1.5px solid transparent;
-    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    transition: transform 180ms var(--ease-out), box-shadow 180ms var(--ease-out),
+      background-color 180ms var(--ease-out), border-color 180ms var(--ease-out);
     text-decoration: none;
     cursor: pointer;
   }

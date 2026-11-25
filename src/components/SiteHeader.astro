@@ -9,11 +9,18 @@ const NAV = [
   { href: "/docs/installation", label: "安装" },
 ];
 const active = Astro.url.pathname;
+const isRoot = active === "/";
 const isHome = (href: string) => (href === "/" ? active === "/" : active.startsWith(href));
 ---
 
 <header
-  class="sticky top-0 z-40 border-b border-line bg-bg/85 backdrop-blur-md supports-[backdrop-filter]:bg-bg/72"
+  id="site-header"
+  data-hero={isRoot ? "true" : "false"}
+  class={`sticky top-0 z-40 border-b transition-[background-color,border-color,backdrop-filter] duration-200 ${
+    isRoot
+      ? "border-transparent bg-transparent"
+      : "border-line bg-bg/85 backdrop-blur-md supports-[backdrop-filter]:bg-bg/72"
+  }`}
 >
   <div class="mx-auto flex h-16 max-w-[1200px] items-center gap-6 px-4 sm:px-6">
     <a href="/" class="flex items-center gap-2.5 no-underline" aria-label="pnpm 首页">
@@ -35,7 +42,7 @@ const isHome = (href: string) => (href === "/" ? active === "/" : active.startsW
           fill="var(--color-accent-fill)">pnpm</text
         >
       </svg>
-      <span class="font-display text-[1.28rem] font-extrabold tracking-tight">pnpm</span>
+      <span class="font-display text-[1.35rem] font-extrabold tracking-tight">pnpm</span>
     </a>
 
     <nav class="ml-2 hidden items-center gap-1 lg:flex" aria-label="主导航">
@@ -44,7 +51,7 @@ const isHome = (href: string) => (href === "/" ? active === "/" : active.startsW
           <a
             href={n.href}
             aria-current={isHome(n.href) ? "page" : undefined}
-            class={`rounded-md px-3 py-2 text-[0.92rem] font-medium no-underline transition-colors ${
+            class={`rounded-md px-3 py-2 text-[0.875rem] font-medium no-underline transition-colors ${
               isHome(n.href) ? "bg-sunken text-ink" : "text-muted hover:text-ink hover:bg-sunken/60"
             }`}
           >
@@ -75,7 +82,7 @@ const isHome = (href: string) => (href === "/" ? active === "/" : active.startsW
       </button>
       <a
         href="/docs/installation"
-        class="btn btn--primary px-4! py-2.5! text-[0.88rem] no-underline hidden sm:inline-flex"
+        class="btn btn--primary px-4! py-2.5! text-[0.875rem]! no-underline hidden sm:inline-flex"
       >开始使用</a>
       <button
         id="menu-toggle"
@@ -127,7 +134,7 @@ const isHome = (href: string) => (href === "/" ? active === "/" : active.startsW
 
   const menuBtn = document.getElementById("menu-toggle");
   const menu = document.getElementById("mobile-nav");
-  const header = document.querySelector("header");
+  const header = document.getElementById("site-header");
   const setOpen = (open: boolean) => {
     menu?.classList.toggle("hidden", !open);
     menuBtn?.setAttribute("aria-expanded", String(open));
@@ -144,4 +151,17 @@ const isHome = (href: string) => (href === "/" ? active === "/" : active.startsW
     const open = !(menu?.classList.contains("hidden") ?? true);
     if (open && header && e.target instanceof Node && !header.contains(e.target)) setOpen(false);
   });
+
+  if (header?.dataset.hero === "true") {
+    const syncScroll = () => {
+      const scrolled = window.scrollY > 8;
+      header.classList.toggle("border-transparent", !scrolled);
+      header.classList.toggle("bg-transparent", !scrolled);
+      header.classList.toggle("border-line", scrolled);
+      header.classList.toggle("bg-bg/85", scrolled);
+      header.classList.toggle("backdrop-blur-md", scrolled);
+    };
+    syncScroll();
+    window.addEventListener("scroll", syncScroll, { passive: true });
+  }
 </script>

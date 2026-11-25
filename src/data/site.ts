@@ -74,5 +74,5 @@ export const COMMUNITY = [
   { icon: "x-logo" as IconName, label: "X / @pnpmjs", href: "https://x.com/pnpmjs" },
   { icon: "discord-logo" as IconName, label: "Discord", href: "https://r.pnpm.io/chat" },
   { icon: "globe" as IconName, label: "官方博客", href: "https://pnpm.io/blog" },
-  { icon: "hand-thumb-up" as IconName, label: "OpenCollective 赞助", href: "https://opencollective.com/pnpm" },
+  { icon: "sparkle" as IconName, label: "OpenCollective 赞助", href: "https://opencollective.com/pnpm" },
 ];

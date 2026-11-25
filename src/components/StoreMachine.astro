@@ -24,11 +24,11 @@ const P2 = [
 
 <figure class="machine not-prose my-0" data-mode="pnpm">
   <div class="machine__bar">
-    <div class="flex items-center gap-2.5">
-      <span class="chip chip--accent">node_modules 解剖</span>
-      <span class="font-mono text-[0.78rem] text-muted">100 个项目共用同一份文件</span>
+    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <span class="font-display text-[1rem] font-bold text-ink">node_modules 解剖</span>
+      <span class="font-mono text-[0.875rem] text-muted">100 个项目共用同一份文件</span>
     </div>
-    <div role="group" aria-label="包管理器模式切换" class="flex gap-1 rounded-md border border-line bg-raise p-1">
+    <div role="group" aria-label="包管理器模式切换" class="flex gap-1 rounded-md border border-line bg-bg p-1">
       <button type="button" data-set="pnpm" aria-pressed="true" class="mtab is-on">pnpm</button>
       <button type="button" data-set="npm" aria-pressed="false" class="mtab">npm</button>
     </div>
@@ -178,13 +178,14 @@ const P2 = [
     border-bottom: 1px dashed var(--color-line-strong);
   }
   .mtab {
-    font: 600 0.82rem var(--font-mono);
+    font: 600 0.875rem var(--font-mono);
     padding: 0.4em 1em;
     border-radius: 5px;
     border: 0;
     background: transparent;
     color: var(--color-muted);
     cursor: pointer;
+    transition: background-color 180ms var(--ease-out), color 180ms var(--ease-out);
   }
   .mtab.is-on {
     background: var(--color-cta-bg);
