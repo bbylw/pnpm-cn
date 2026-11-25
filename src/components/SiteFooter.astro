@@ -1,6 +1,8 @@
 ---
 import Icon from "./Icon.astro";
+import { getPnpmVersion } from "../data/pnpm-version";
 const year = new Date().getFullYear();
+const version = await getPnpmVersion();
 ---
 
 <footer class="mt-24 border-t border-line bg-raise/60">
@@ -72,6 +74,12 @@ const year = new Date().getFullYear();
       <a class="text-accent no-underline hover:underline" href="https://github.com/pnpm/pnpm.io">pnpm.io</a>
       （MIT License），版权归 pnpm 贡献者所有。
     </p>
-    <p class="font-mono">v12.x · © {year} pnpm 中文文档社区</p>
+    <p class="font-mono">
+      <a
+        class="no-underline hover:underline"
+        href="https://www.npmjs.com/package/pnpm"
+        rel="noopener">v{version}</a
+      >{` · © ${year} pnpm 中文文档社区`}
+    </p>
   </div>
 </footer>
