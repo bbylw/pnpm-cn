@@ -1,6 +1,6 @@
 ---
 title: "工作区任务编排"
-headingIds: ["configure-task-dependencies","projects-without-a-script","limit-concurrency-for-one-task","inspect-the-task-graph","cycles","recursive-run-options","--resume-from-package_name","--reverse","--no-bail","output","commands-that-do-not-use-tasks","other-dependency-aware-workspace-commands"]
+headingIds: ["configure-task-dependencies","projects-without-a-script","limit-concurrency-for-one-task","concurrencygroups","task-priority","pnpm-tasks-status","inspect-the-task-graph","cycles","recursive-run-options","--resume-from-package_name","--reverse","--no-bail","output","commands-that-do-not-use-tasks","other-dependency-aware-workspace-commands"]
 ---
 
 `pnpm -r run <script>` 会调度一个工作区任务图。一个任务是某个工作区项目中的一个脚本，标识为 `<project>#<script>`。当它所依赖的每个任务都成功完成后它就就绪，而就绪的任务在 [--workspace-concurrency](/docs/cli/recursive#--workspace-concurrency) 限制下运行。
@@ -37,7 +37,7 @@ tasks:
 
 在 `tasks` 下没有条目的任务，默认依赖于其工作区依赖中的同名任务。例如，一个未配置的 `build` 的行为等同于 `dependsOn: ['^build']`，保留了通常的“依赖先于依赖方”行为。
 
-:::warning[warning]
+:::warning[警告]
 
 一旦某个任务在 `tasks` 下有了条目，省略 `dependsOn` 就等同于 `dependsOn: []`。如果你配置了其他字段但仍想要默认的拓扑关系，就显式声明它：
 
@@ -74,6 +74,61 @@ tasks:
 ```
 
 此限制与工作区范围的 [--workspace-concurrency](/docs/cli/recursive#--workspace-concurrency) 限制是分开的。一个正在等待其两个槽位之一的 `build` 不会占用工作区槽位，因此一个无关的就绪任务仍可运行。
+
+## 并发组
+
+自 v12.5.0 起提供
+
+先把任务分配到某个 `concurrencyGroup`，再为该组设置一个整台机器范围的限制：
+
+```yaml
+tasks:
+  test:rust:
+    concurrencyGroup: cargo
+    dependsOn: []
+concurrencyGroups:
+  cargo: 2
+```
+
+在共享同一 [`stateDir`](/docs/settings/other#statedir) 的 pnpm 进程之间（包括 `pnpm pipeline`），`cargo` 组中最多同时运行两个任务。槽位被占满时，任务会等待。同一组中的嵌套 `pnpm run` 会使用其父任务的槽位，从而避免自我等待。进程结束时（包括崩溃）槽位会被释放。
+
+更改 `stateDir` 会创建一个独立的槽位池，因此使用不同目录的进程不共享该限制。
+
+组限制是任务 `concurrency` 和 `--workspace-concurrency` 的补充。缺失或为零的组限制不会限制执行。在共享某个组的工作区中请使用相同的限制：每个进程都遵守各自配置的限制。
+
+### 任务优先级
+
+自 v12.6.0 起提供
+
+- 默认值：**0**
+- 类型：**整数**
+
+等待其[并发组](#concurrencygroups)槽位的任务按 `priority` 降序占用空闲槽位，值越高越先运行。未指定 `priority` 时默认为 `0`。因此 `priority: 10` 的任务优先级高于未配置的任务并会先运行，负优先级则排在后面。两个任务优先级相同时，按到达顺序决定。
+
+```yaml
+tasks:
+  build:critical:
+    concurrencyGroup: build
+    priority: 10
+  build:docs:
+    concurrencyGroup: build
+    priority: 1
+  build:cleanup:
+    concurrencyGroup: build
+    priority: -1
+```
+
+### `pnpm tasks status`
+
+自 v12.6.0 起提供
+
+[`pnpm tasks status`](/docs/cli/tasks) 会列出每个并发组中正在运行和等待的任务：
+
+```sh
+pnpm tasks status
+```
+
+若你的工作区有名为 `tasks` 的包脚本，该脚本优先生效。这种情况下请改用 `pnpm pm tasks status`。
 
 ## 查看任务图
 

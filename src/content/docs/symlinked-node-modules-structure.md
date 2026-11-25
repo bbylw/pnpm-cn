@@ -3,7 +3,7 @@ title: "符号链接的 `node_modules` 结构"
 headingIds: []
 ---
 
-:::info[info]
+:::info[信息]
 
 本文只描述在没有带对等依赖的包时 pnpm 的 `node_modules` 是如何组织的。对于依赖带有对等体的更复杂场景，参见[对等依赖如何解析](/docs/how-peers-are-resolved)。
 

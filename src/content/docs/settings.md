@@ -22,7 +22,7 @@ pnpm 从命令行、环境变量和 `pnpm-workspace.yaml` 获取其配置。
 
 配置文件中的值可以使用 `${NAME}` 语法包含环境变量。环境变量也可以指定默认值。使用 `${NAME-fallback}` 会在 `NAME` 未设置时返回 `fallback`。`${NAME:-fallback}` 会在 `NAME` 未设置或为空字符串时返回 `fallback`。
 
-:::warning[warning]
+:::warning[警告]
 
 自 v11.5.3 起，在 `pnpm-workspace.yaml` 中定义 registry URL 的设置里**不会**展开环境变量：`registry`，以及 [registries](/docs/settings/dependency-resolution#registries) 和 [namedRegistries](/docs/settings/dependency-resolution#namedregistries) 的 URL 值。这些设置中包含 `${...}` 占位符的值会被忽略。在 `registries` 的 [registry 声明形式](/docs/registries) 中（自 v11.23.0 起），URL 是键而非值，同样的规则适用于键。由于 `pnpm-workspace.yaml` 会提交到仓库，在 registry URL 中展开环境变量可能会被恶意仓库利用，把环境中的机密泄露到攻击者控制的 registry。请改为在受信任的位置配置动态 registry URL：全局配置文件或 CLI 选项。
 

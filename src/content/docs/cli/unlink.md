@@ -9,7 +9,7 @@ headingIds: ["options","--recursive--r","--filter-package_selector"]
 
 这类似于 `yarn unlink`，不同之处在于 pnpm 会在移除外部链接后重新安装该依赖
 
-:::info[info]
+:::info[信息]
 
 如果你想移除用 `pnpm link --global <package>` 创建的链接，应使用 `pnpm uninstall --global <package>`。`pnpm unlink` 只移除你当前目录中的链接。
 

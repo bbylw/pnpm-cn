@@ -1,6 +1,6 @@
 ---
 title: "pnx"
-headingIds: ["running-a-package-manager-or-a-runtime","options","--package-name","--allow-build","--shell-mode--c","--silent--s","security-and-trust-policies"]
+headingIds: ["running-a-package-manager-or-a-runtime","running-a-rust-release","options","--package-name","--allow-build","--shell-mode--c","--silent--s","security-and-trust-policies"]
 ---
 
 别名： `pnpm dlx`, `pnpx`
@@ -54,6 +54,18 @@ pnx yarn@yarnpkg/berry
 ```
 pnx --package npm@11 npx create-something
 ```
+
+## 运行 Rust 发布版
+
+自 v12.11.1 起提供
+
+`--package=rust@<渠道>` 会运行该 [Rust 工具链](/docs/cargo#rust-toolchain)发布版中的工具，例如 `cargo` 或 `rustc`。pnpm 会先把这个发布版安装到存储中。渠道的写法与 `rust-toolchain.toml` 一致，裸写 `rust` 表示 `stable`。
+
+```sh
+pnx --package=rust@nightly-2026-01-01 cargo build --target wasm32-unknown-unknown
+```
+
+该发布版会使用管辖当前目录的 `rust-toolchain.toml` 中的 profile、组件和目标平台，外加每个 `--target` 参数所指定的目标。
 
 ## 选项
 

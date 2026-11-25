@@ -3,7 +3,7 @@ title: "pnpm cache list-registries"
 headingIds: []
 ---
 
-:::warning[warning]
+:::warning[警告]
 
 此命令为实验性
 

@@ -1,6 +1,6 @@
 ---
 title: "pnpm add <pkg>"
-headingIds: ["tldr","supported-package-sources","adding-a-package-manager-or-a-runtime","options","--save-prod--p--p","--save-dev--d--d","--save-optional--o--o","--save-exact--e--e","--save-peer","--save-catalog","--save-catalog-name-catalog_name","--config","--ignore-workspace-root-check","--global--g","--workspace","--allow-build","--filter-package_selector","--cpuname","--osname","--libcname"]
+headingIds: ["tldr","supported-package-sources","adding-a-package-manager-or-a-runtime","adding-the-rust-toolchain","options","--save-prod--p--p","--save-dev--d--d","--save-optional--o--o","--save-exact--e--e","--save-peer","--save-catalog","--save-catalog-name-catalog_name","--config","--ignore-workspace-root-check","--global--g","--workspace","--allow-build","--filter-package_selector","--cpuname","--osname","--libcname"]
 ---
 
 安装一个包以及它所依赖的任何包。默认情况下，任何新包都作为生产依赖安装。
@@ -42,6 +42,16 @@ pnpm add yarn@4
 在全局环境下，`pnpm add -g yarn` 安装的是当前的 Yarn 系列，而不是仅支持 Classic 的 `yarn` 包；`pnpm add -g node@22` 安装的是那个 Node.js 版本，而不是一个下载版本的包装器。
 
 用于定位某个包而非请求某个已发布版本的说明符（如 `pnpm add yarn@npm:yarn@1.22.22`、`pnpm add yarn@yarnpkg/berry`），会按普通依赖安装它所指向的包。
+
+## 添加 Rust 工具链
+
+自 v12.11.0 起提供
+
+`rust` 指的是 [Rust 工具链](/docs/cargo#rust-toolchain)，而不是同名的 npm 包。版本号是 Rust 发布渠道：一个版本（`1.95.0` 或 `1.95`）、`stable`、`beta`、`nightly`，或诸如 `nightly-2026-01-01` 的带日期渠道。裸写 `rust` 表示请求 `stable`。
+
+在项目中，`pnpm add rust@1.95` 会把工具链固定在管辖该项目的 `rust-toolchain.toml` 中，即工作区内距离它最近的那个。若项目中不存在，就创建一个，并且只修改 `channel`，保留文件中的其余内容。启用 [`cargo.enabled`](/docs/cargo#cargoenabled) 时，工具链也会一并安装。`package.json` 中不会添加任何内容。
+
+`pnpm add -g rust@stable` 会全局安装该工具链。在自身 `rust-toolchain.toml` 指定了工具链的项目之外，`cargo`、`rustc` 等 Rust 命令会运行它。`pnpm update -g rust` 会安装其渠道的最新发布版，`pnpm ls -g` 会列出它，`pnpm remove -g rust` 会移除它。
 
 ## 选项
 

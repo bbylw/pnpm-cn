@@ -5,7 +5,7 @@
 # pnpm 中文文档
 
 快速、节省磁盘空间的包管理器 —— [pnpm](https://pnpm.io) 的简体中文文档站。
-本站完整翻译了 pnpm v12.x 官方文档（138 页：动机、CLI 命令参考、设置、功能、实用配方、进阶主题），
+本站完整翻译了 pnpm v12.x 官方文档（156 页：动机、CLI 命令参考、设置、功能、实用配方、进阶主题），
 配以上游基准数据与可缩放的「内容寻址存储 + 硬链接」原理图解。
 
 ## 本地开发
@@ -22,10 +22,16 @@ bun run audit      # 内容健康审计：死链/断锚点/缺失图片/残留�
 审计脚本（`scripts/audit.mjs`）在内容改动后建议跑一遍：断链、指向缺失 heading 的 `#fragment`、
 表格单元格补译的覆盖情况、标题数与 `headingIds` 的锚点漂移等都会在报告中列出。
 
+上游同步脚本（`scripts/sync-upstream.mjs`）用于比对本站与上游 `pnpm/pnpm` 的 `pnpm/docs/`：
+缺失页面、锚点不一致、正文结构漂移、README 链接差异与导航一致性都会列出。
+上游检出目录默认取本机临时克隆，也可用 `--repo <路径>` 或 `PNPM_UPSTREAM_REPO` 指定；
+`--section <文件> <标题 slug>` 可直接打印上游某个章节，便于逐节翻译回填。
+
 ## 内容来源与维护方式
 
-- 文档正文译自 [pnpm/pnpm.io](https://github.com/pnpm/pnpm.io) `docs/`（MIT License），以 `scripts/scrape.mjs`
-  抓取渲染页为骨架、按块翻译回填（`scripts/patch-language.mjs`），锚点 id 与上游保持一致，跨页链接自动指向站内。
+- 文档正文译自 [pnpm/pnpm](https://github.com/pnpm/pnpm) 的 `pnpm/docs/`（MIT License）——上游自 2026-09-29 起
+  把产品文档移入 monorepo，此前则以 `scripts/scrape.mjs` 抓取 pnpm.io 渲染页为骨架、按块翻译回填
+  （`scripts/patch-language.mjs`）。两种来源都保持锚点 id 与上游一致，跨页链接自动指向站内。
 - 术语对齐官方简体中文 README（内容寻址存储、硬链接、工作区、幽灵依赖等），见 `scripts/out/glossary.md`。
 - 基准图、赞助商 Logo 取自 pnpm.io 静态资源；更新上游文档后重跑上述脚本即可同步。
 - 如有出入，以[英文原文](https://pnpm.io)为准。

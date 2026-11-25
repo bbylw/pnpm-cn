@@ -60,7 +60,7 @@ pnpm add -g . # register foo's bins globally
 
 在 `dependencies` 中使用 `file:` 协议时，被链接的包以硬链接方式链接到你项目的 `node_modules`，你可以修改被链接包的源代码，改动会反映到你的项目中。用这种方式，pnpm 还会安装被链接包的依赖，并覆盖被链接包的 `node_modules`。
 
-:::info[info]
+:::info[信息]
 
 处理**对等依赖**时，建议使用 `file:` 协议。它能更好地从项目依赖中解析对等依赖，确保被链接的依赖正确使用主项目中指定的依赖版本，从而带来更一致、更符合预期的行为。
 

@@ -1,6 +1,6 @@
 ---
 title: "网络与请求设置"
-headingIds: ["network-settings","httpsproxy","httpproxy","noproxy","localaddress","maxsockets","strictssl","request-settings","gitshallowhosts","networkconcurrency","fetchretries","fetchretryfactor","fetchretrymintimeout","fetchretrymaxtimeout","fetchtimeout","fetchwarntimeoutms","fetchminspeedkibps"]
+headingIds: ["network-settings","httpsproxy","httpproxy","noproxy","localaddress","maxsockets","strictssl","request-settings","gitshallowhosts","networkconcurrency","fetchretries","fetchretryfactor","fetchretrymintimeout","fetchretrymaxtimeout","fetchtimeout","fetchwarntimeoutms","fetchminspeedkibps","maxtarballunpackedsize"]
 ---
 
 ## 网络设置
@@ -135,3 +135,14 @@ HTTP 请求连接并完成所等待的最长时间。这段时间应足以在合
 - 类型：**数字**
 
 如果从 registry 下载 tarball 的速度低于指定的阈值（以 KiB/s 计），则显示一条警告消息。
+
+### maxTarballUnpackedSize
+
+自 v12.15.0 起提供
+
+- 默认值：**4294967296（4 GiB）**
+- 类型：**数字**
+
+一个包的文件最多能解包到多少字节。文件总量超过该值的包会安装失败。来自 [tar registry](/docs/registries#tar-registries) 的包还要受其 `dist.unpackedSize` 的约束。
+
+pnpm 在解码 tarball 的过程中检查这一限制，早于它能校验 tarball 哈希的时刻，因此恶意 registry 无法让它写出超过这个量级的内容。

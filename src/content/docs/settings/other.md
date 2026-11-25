@@ -86,7 +86,7 @@ globalShims:
 
 标量简写会替换整个映射而不是合并：`globalShims: false` 禁用所有项目感知的 shim，`globalShims: true` 则重置为默认值。
 
-:::warning[warning]
+:::warning[警告]
 
 此设置仅从项目无法写入的位置读取：[全局配置文件](/docs/cli/config)、pnpm 主目录自身的 `pnpm-workspace.yaml`，以及 `PNPM_CONFIG_GLOBAL_SHIMS` 环境变量（一个 JSON 值），按此顺序生效。项目自己的 `pnpm-workspace.yaml` 会被忽略，否则某个仓库就能自行获得用其自身的二进制文件替代你的全局二进制文件的权利。
 

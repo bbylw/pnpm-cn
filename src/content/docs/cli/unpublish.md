@@ -11,7 +11,7 @@ headingIds: ["examples","options","--force","--registry-url","--otp-code"]
 pnpm unpublish [<pkg>[@<version>]] [--force]
 ```
 
-:::warning[warning]
+:::warning[警告]
 
 通常不建议取消发布。大多数 registry（包括公开的 npm registry）都限制何时以及如何取消发布包。尽可能优先使用 [pnpm deprecate](/docs/cli/deprecate)。
 

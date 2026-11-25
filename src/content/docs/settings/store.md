@@ -1,6 +1,6 @@
 ---
 title: "存储与锁文件设置"
-headingIds: ["store-settings","storedir","verifystoreintegrity","userunningstoreserver","strictstorepkgcontentcheck","frozenstore","lockfile-settings","lockfile","preferfrozenlockfile","lockfileincludetarballurl","gitbranchlockfile","mergegitbranchlockfilesbranchpattern","peerssuffixmaxlength"]
+headingIds: ["store-settings","storedir","verifystoreintegrity","userunningstoreserver","strictstorepkgcontentcheck","frozenstore","lockfile-settings","lockfile","preferfrozenlockfile","excludelinksfromlockfile","lockfileincludetarballurl","lockfileincluderesolutionsettings","lockfileintegritytarget","lockfileformat","reading-and-writing-the-format","gitbranchlockfile","mergegitbranchlockfilesbranchpattern","peerssuffixmaxlength"]
 ---
 
 ## 存储设置
@@ -99,12 +99,117 @@ pnpm install --frozen-store --offline --frozen-lockfile
 
 设为 `true` 且现有的 `pnpm-lock.yaml` 满足 `package.json` 的依赖声明时，会执行无头安装。无头安装会跳过所有依赖解析，因为它不需要修改锁文件。
 
+### excludeLinksFromLockfile
+
+- 默认值：**false**
+- 类型：**布尔值**
+
+设为 `true` 时，用 `link:` 协议声明的依赖不会写入 `pnpm-lock.yaml`。使用 `workspace:` 协议的依赖仍会被记录。
+
 ### lockfileIncludeTarballUrl
 
 - 默认值：**false**
 - 类型：**Boolean**
 
 在 `pnpm-lock.yaml` 的每个条目中添加指向该包 tarball 的完整 URL。
+
+### lockfile.includeResolutionSettings
+
+自 v12.10.0 起提供
+
+- 默认值：**false**
+- 类型：**布尔值**
+
+设为 `true` 时，pnpm 会把以下设置记录到 `pnpm-lock.yaml` 的 `settings` 段中：
+
+* [autoDedupe](/docs/settings/dependency-resolution#autodedupe)
+* [dedupeInjectedDeps](/docs/workspaces#dedupeinjecteddeps)
+* [dedupePeerDependents](/docs/settings/peer-dependencies#dedupepeerdependents)
+* [linkWorkspacePackages](/docs/workspaces#linkworkspacepackages)
+
+```yaml
+lockfile:
+  includeResolutionSettings: true
+```
+
+记录的值与当前设置不一致的锁文件已过期。`pnpm install` 会重新解析它，`pnpm install --frozen-lockfile` 会以 `ERR_PNPM_LOCKFILE_CONFIG_MISMATCH` 失败。开启该设置会让下一次安装重新解析一次锁文件。
+
+使用 `autoDedupe` 时，当其他内容都没有变化，安装会复用记录了 `autoDedupe: true` 的锁文件。在没有写出该锁文件的机器上也是如此，例如运行 `pnpm install --frozen-lockfile` 之后再运行 `pnpm run` 的服务器。
+
+[`v13` 格式](#lockfileformat)始终会记录这些设置。
+
+pnpm v11 以及早于 v12.10.0 的 v12 版本不保留这些设置，重写锁文件时会移除它们。pnpm v12 中早于 v12.10.0 的版本无法读取把 `lockfile` 设为对象的 `pnpm-workspace.yaml`。当项目中的所有人都使用 v12.10.0 或更高版本时再开启该设置。
+
+该设置需要本地依赖解析，因此设置 `pnpmServer` 时，非冻结的安装会失败。
+
+### lockfile.integrityTarget
+
+自 v12.15.0 起提供
+
+- 默认值：**resource**
+- 类型：**resource**、**tar**
+
+`pnpm-lock.yaml` 中每个包 tarball 的 `integrity` 固定的是哪种哈希。
+
+* `resource` 固定 tarball URL 处的文件，即大多数 registry 上的 `.tgz`。
+* `tar` 固定其内部未压缩的 tar，对 registry 包、`tarball:` URL 和 `file:` tarball 一视同仁。
+
+```yaml
+lockfile:
+  integrityTarget: tar
+```
+
+使用 `tar` 后，当 registry 重新压缩其 tarball、开始提供 [tar registry](/docs/registries#tar-registries)，或被替换成会做这两件事的镜像时，锁文件不再变化。pnpm 会通过解码并对 tar 计算哈希来校验每个下载。它记录的哈希来自与 registry 公布的 integrity 匹配的 `.tgz`，因此与该 integrity 同样可信。Git 依赖和[registry 修订版](/docs/registry-revisions)不受影响：Git 依赖固定一个 commit，修订版始终固定 tar。
+
+锁文件会在其 `settings` 中把该设置记录为 `integrityTarget: tar`。在另一种取值下解析出的锁文件已过期，`pnpm install` 会重新解析并重写所有哈希，`pnpm install --frozen-lockfile` 会以 `ERR_PNPM_LOCKFILE_CONFIG_MISMATCH` 失败。
+
+无论该设置如何，存储都会记住它解包过的每个 `.tgz` 的 tar 哈希。因此存储中已有的版本无需下载即可得知其 tar 哈希，冻结安装也能在任一哈希下找到其文件。存储尚未解包的版本会被下载一次以得知哈希，即使是 `pnpm install --lockfile-only` 也不例外；面向其他平台的可选依赖同样如此——锁文件会记录它，但本机的安装不会解包它。由没有该设置的 pnpm 版本解包的包也会被下载一次。
+
+`pnpm audit signatures` 会校验 `.tgz` 的 registry 签名，并通过存储或下载该包把它与锁文件中的 tar 哈希关联起来。
+
+v12.15.0 之前的 pnpm 版本无法从固定 tar 的锁文件安装。请在项目中的所有人都使用 v12.15.0 或更高版本后再开启该设置。由 `pnprServer` 进行的解析无法固定 tar，因此设置 `pnpmServer` 时，非冻结的安装会失败。
+
+### lockfile.format
+
+- 默认值：**v9**
+- 类型：**v9**、**v13**
+
+pnpm 写出 `pnpm-lock.yaml` 所用的格式。`v13` 是为 pnpm 13 规划的格式，仍是实验性的，在 pnpm 13 发布前可能变化。
+
+```yaml
+lockfile:
+  format: v13
+```
+
+`v13` 格式的锁文件是 JSON，以制表符缩进，每个条目后都有尾随逗号。这是合法的 YAML，因此 `pnpm-lock.yaml` 保留原名，按 YAML 读取它的工具仍可读取。它的 `lockfileVersion` 是 `13.0`，即计划默认写出该格式的 pnpm 主版本。
+
+该格式与当前格式的差异如下：
+
+- 工作区项目列在 `projects` 之下。
+- 每个包版本只有一个 `packages` 条目，没有 `snapshots` 段。该条目持有包的元数据、已解析的依赖，并在 `peerDependencies` 中为每个 peer 同时记录其声明的范围和解析到的版本。
+- 以另一个名字引用 peer 的提供方的普通依赖，仍保留在该名字的依赖映射中。
+- 由包下方的依赖（而非包本身）需要的 peer 记录为 `{version: 1.2.3, below: true}`。包标记为可选的 peer 写作 `{specifier: '*', optional: true}`。没有 `peerDependenciesMeta` 字段。
+- tarball 的 `integrity` 是条目中的一个字段。registry 包和注入的工作区包没有 `resolution` 字段。
+- 本地目录包在 `dependencies` 和 `optionalDependencies` 中记录其清单声明的依赖（经过钩子处理后）。当说明符同时就是版本时，依赖只记录其说明符；否则记录为 `{specifier: ^1.0.0, version: 1.2.3}`，当该包并非在每个 snapshot 中都链接该依赖时不带 `version`。冻结安装会把这些说明符与当前清单比较。即使锁定的版本仍然满足范围，范围变化也会使锁文件失效。从 `v9` 格式转换来的锁文件不记录说明符，并保留现有的新鲜度检查。
+- 在 `dependenciesMeta` 中标记为 `injected` 的项目依赖或本地目录包依赖带有 `injected: true`。该格式不记录其他 `dependenciesMeta` 字段。
+- 以不同 peer 依赖安装的包，在其条目下的 `snapshots` 中列出差异之处。
+- 没有外部提供方的传递 peer 通常可从依赖推断。必要时，`unboundPeerDependencies` 显式记录它们的名称，包括空列表。
+- 包之间的引用就是一个版本，不带 peer 或补丁后缀。若仅凭该版本无法说明指的是包的哪一份副本，引用会在 `with` 下按其解析时的 peer 依赖指明该副本，每行一个。空的 `with` 映射会在另一份副本绑定可选 peer 时保持它们未绑定。peer 引用在其提供方有不同 peer 绑定时，可以带自己的 `with` 映射。
+- 当版本可由说明符推出时，项目的依赖只记录其说明符：精确版本、`catalog:` 条目，或对另一工作区项目的 `workspace:` 依赖。否则在一行中记录为 `{specifier: ^1.0.0, version: 1.2.3}`。带 `with` 映射的依赖同样省略可由说明符推出的版本。
+- 被 `workspace:` 依赖链接到的项目会记录其 `name`。
+- 被打补丁的包的哈希只在 `patchedDependencies` 下记录一次。包的废弃说明不再记录。
+- `settings` 段持有锁文件从 `pnpm-workspace.yaml` 记录的一切内容：解析相关设置、`catalogs`、`overrides`、`patchedDependencies`、`ignoredOptionalDependencies` 以及两个校验和。目录条目在版本可由其说明符推出时只记录说明符。
+- 解析相关设置包含 [`lockfile.includeResolutionSettings`](#lockfileincluderesolutionsettings) 列出的那些，无论该设置如何取值。
+
+更新一个 peer 依赖时，只有记录它的那些行会变化。
+
+#### 读取和写出该格式
+
+无论该设置如何，pnpm 都能读取两种格式的锁文件。更改该设置后，常规安装会转换锁文件。`pnpm install --lockfile-only` 也会写出所选格式。没有该设置的 pnpm 版本无法读取 `v13` 格式的锁文件。该格式仍在变化，因此用该设置写出的锁文件可能需要用更新的 pnpm 重新生成。
+
+`v13` 格式会记录[解析相关设置](#lockfileincluderesolutionsettings)。对于尚未记录它们的锁文件（例如未启用 `lockfile.includeResolutionSettings` 写出的 `v9` 锁文件，或更早的 pnpm 写出的 `v13` 锁文件），下一次安装会重新解析。`pnpm install --frozen-lockfile` 在这类锁文件上会失败，直到一次常规安装记录了它们。设置 `pnpmServer` 时，非冻结的安装会失败，因为 pnpr 收不到这些设置。
+
+记录配置依赖和固定 pnpm 版本的 boot 文档跟随固定的 pnpm，而不是该设置。只要项目固定的是 pnpm 13 或更早版本，它就保持现有格式，这样该格式出现之前的 pnpm 也能读取固定版本并切换过去。固定 pnpm 14 或更高版本的项目会得到 `v13` 格式的 boot 文档。
 
 ### gitBranchLockfile
 

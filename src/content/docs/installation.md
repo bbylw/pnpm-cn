@@ -25,7 +25,7 @@ pnpm self-update latest-12
 
 ### 在 Windows 上
 
-:::warning[warning]
+:::warning[警告]
 
 有时，如果你以这种方式安装 pnpm，Windows Defender 可能会阻止我们的可执行文件。
 

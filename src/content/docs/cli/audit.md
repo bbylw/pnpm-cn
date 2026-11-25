@@ -140,7 +140,7 @@ audit:
   ignorePrune: true
 ```
 
-:::info[info]
+:::info[信息]
 
 在 v11.16.0 之前，这些设置名为 `auditLevel` 和 `auditConfig.ignoreGhsas`。已废弃的名称在下一个主版本前仍可使用；当两者都被设置时，`audit` 段优先并会打印一条警告。
 

@@ -1,6 +1,6 @@
 ---
 title: "构建设置"
-headingIds: ["ignorescripts","childconcurrency","sideeffectscache","sideeffectscachereadonly","sideeffectscacheremote","unsafeperm","nodeoptions","verifydepsbeforerun","strictdepbuilds","allowbuilds","dangerouslyallowallbuilds"]
+headingIds: ["ignorescripts","childconcurrency","sideeffectscache","sideeffectscachereadonly","sideeffectscacheremote","sideeffectscacheexclude","remotecache","authenticating-with-vercel-remote-cache","unsafeperm","nodeoptions","verifydepsbeforerun","strictdepbuilds","allowbuilds","permissions","skillsdirs","dangerouslyallowallbuilds"]
 ---
 
 ### ignoreScripts
@@ -110,6 +110,89 @@ sideEffectsCache:
 
 :::
 
+### sideEffectsCache.exclude
+
+自 v12.14.0 起提供
+
+- 默认值：**未定义**
+- 类型：**字符串[]**
+
+那些构建依赖 pnpm 无法纳入缓存键的内容的包，例如原生插件所链接的系统库。pnpm 会在每个项目中构建被列出的包，并且从不通过副作用缓存（无论是本地还是 [`remoteCache`](#remotecache) 服务器）恢复或保存其构建。在[全局虚拟存储](/docs/global-virtual-store)下，每个项目都会得到该包自己的副本，因此一个项目的构建不会影响另一个项目。
+
+```yaml
+sideEffectsCache:
+  exclude:
+    - java
+    - '@native/*'
+    - 'sharp@1.0.0 || 2.0.0'
+```
+
+只声明 `exclude` 会让 `read` 和 `write` 保持默认值，因此缓存对其他每个包仍然有效。
+
+条目使用与 [`minimumReleaseAgeExclude`](/docs/settings/dependency-resolution#minimumreleaseageexclude) 相同的模式：包名、`@scope/*` 通配符，或带一个或多个精确版本的 `name@version`。裸包名涵盖该包的所有解析结果，包括 git 和 tarball URL。`name@version` 条目只涵盖 registry 版本。
+
+依赖了被列出包的包，在全局虚拟存储下同样会获得项目专属的副本，因为它的副本链接到了被列出的包。
+
+### remoteCache
+
+自 v12.12.0 起提供
+
+- 默认值：**未定义**
+- 类型：**对象**
+
+在多台机器之间共享构建产物的服务器，以及每个共享产物签名与校验所使用的密钥。
+
+[`sideEffectsCache.remote`](#sideeffectscacheremote) 和 [`pnpm pipeline`](/docs/cli/pipeline#sharing-the-cache-between-machines) 的任务缓存都会使用它。
+
+设置 `url` 时，产物存放在支持 Turborepo Remote Cache API 的服务器上，例如 Vercel Remote Cache 或自建实现。不设置时，它们存放在 [`pnprServer`](https://pnpm.io/pnpr/install-acceleration#enabling-it) 上。
+
+```yaml
+remoteCache:
+  org: acme
+```
+
+```yaml
+remoteCache:
+  url: https://vercel.com/api
+  team: team_abc123
+  trustedKeys:
+    ci-2026: <base64 P-256 SubjectPublicKeyInfo DER public key>
+```
+
+| 字段 | 可设置的位置 | 含义 |
+| --- | --- | --- |
+| `url` | 全局配置或环境变量 | Turborepo Remote Cache 服务器的 API 基础 URL，例如 `https://vercel.com/api`。 |
+| `team` | 全局配置或环境变量 | Vercel 团队 ID（`team_...`）或团队标识。 |
+| `org` | 任意位置 | 拥有这些产物的组织。在 pnpr 服务器上，它是该服务器在 `artifacts.owners` 下声明的所有者之一。它同时是 `pnpm pipeline --report` 记录一次运行时所用的组织名。 |
+| `trustedKeys` | 全局配置或环境变量 | 产物必须由其签名的公钥，按密钥 ID 索引。 |
+| `publish` | 全局配置或环境变量 | `true` 会发布本机构建的内容：依赖构建和 `pnpm pipeline` 的任务结果。任务结果包含任务的输出文件及其捕获的终端输出。默认为 `false`。设置在 `sideEffectsCache.remote` 下时，只发布依赖构建。 |
+| `privateKey`、`keyId`、`builderId` | 全局配置或环境变量 | 签名已发布产物的密钥、消费者信任它所用的 ID，以及构建者的标签。与 `publish` 一起使用时必填。 |
+| `imageDigest`、`architectureBaseline`、`buildEnv` | 全局配置或环境变量 | 记录在已签名产物中的可选来源信息。 |
+
+每个字段也可以从环境变量读取，形式为 `PNPM_REMOTE_CACHE_` 加字段名的大写下划线形式，例如 `PNPM_REMOTE_CACHE_URL`。在那里，`trustedKeys` 和 `buildEnv` 接受 JSON 对象。环境变量优先于两个文件。设置了标记为「全局配置或环境变量」字段的 `pnpm-workspace.yaml` 会以 `ERR_PNPM_WORKSPACE_REMOTE_CACHE_TRUST` 失败。一个能够指定服务器的仓库，可能会让机器的令牌被发送到你选择的服务器。
+
+#### 使用 Vercel Remote Cache 认证
+
+`pnpm` 会把其[认证设置](/docs/npmrc)为 `url` 保存的凭据发送给服务器，就像对 registry 所做的那样。请在 Vercel 账户设置的 Tokens 中创建一个访问令牌，并限定到拥有该缓存的团队。在你自己的机器上保存它：
+
+```sh
+pnpm config set //vercel.com/api/:_authToken "$VERCEL_TOKEN"
+```
+
+在 CI 中，改为只为那一条命令通过环境变量传入：
+
+```sh
+env "pnpm_config_//vercel.com/api/:_authToken=$VERCEL_TOKEN" pnpm pipeline
+```
+
+请使用这种形式而不是 [`_auth`](/docs/npmrc#_auth)。`_auth` 条目还会把包请求路由到其 URL。
+
+`pnpm` 不会读取 `turbo login` 保存的令牌。该令牌数小时内就会过期，且只有 `turbo` 能续期。
+
+Turborepo Remote Cache 服务器会为操作系统、CPU 架构和 Node.js 主版本的每种组合保存每个包的一份构建，之后的发布会替换它。机器在满足构建的最低操作系统或 glibc 版本时恢复构建，只有在找不到可恢复的构建时才发布。请从你支持的最旧系统的机器上发布。
+
+pnpm 会发送凭据的服务器必须使用 HTTPS 或环回地址，否则不会使用远程缓存。
+
 ### unsafePerm
 
 - 默认值：以 root 运行时为 **false**，否则为 **true**
@@ -216,6 +299,59 @@ allowBuilds:
 
 :::
 
+### permissions
+
+自 v12.11.0 起提供
+
+- 类型：**对象**
+
+以包为键，规定每个依赖可以做什么。键的形式与 [`allowBuilds`](#allowbuilds) 的键相同。每个条目决定一项或多项能力：
+
+* `build`：该包可以运行其构建脚本。优先于该包的 `allowBuilds` 条目。
+* `skills`：pnpm 可以把该包携带的代理技能链接到项目的代理技能目录中。`true` 链接该包携带的所有技能，`false` 一个都不链接，技能名称列表则只链接这些技能。参见[代理技能](/docs/agent-skills)。
+
+```yaml
+permissions:
+  drizzle-kit:
+    build: true
+    skills: [guide, migrate]
+  esbuild:
+    build: true
+  some-pkg:
+    skills: false
+```
+
+`skills` 列表限定了 pnpm 只会链接该包的哪些技能，列表之外的技能不会再被提供批准。
+
+`false` 记录了一次拒绝，因此该包不会再被提供批准。这些条目由 [`pnpm approve`](/docs/cli/permissions) 写入。
+
+只有当文件中已经存在 `permissions` 设置时，构建决策才会写入 `permissions`。否则会写入 `allowBuilds`，旧版 pnpm 也能读取它。
+
+### skills.dirs
+
+自 v12.11.0 起提供
+
+- 默认值：**项目为工作区根目录下检测到的代理技能目录，全局包则为主目录下的检测结果，再加上正在运行 pnpm 的代理所在目录**
+- 类型：**字符串[]**
+
+pnpm 把已批准的[代理技能](/docs/agent-skills)链接到哪些目录。在项目中，路径相对于工作区根目录。在全局 `config.yaml` 的 `globalPackagesConfig` 中，路径相对于主目录且必须留在其内部。设置后它会替换检测到的目录，pnpm 会创建缺失的目录。首次批准技能时，`pnpm approve` 或 `pnpm approve -g` 会列出检测到的目录并询问要链接到哪些，把选中的目录记录在这里。若一个目录都不选，pnpm 会继续使用检测到的目录。
+
+```yaml
+skills:
+  dirs:
+    - .claude/skills
+```
+
+```yaml
+globalPackagesConfig:
+  skills:
+    dirs:
+      - .agents/skills
+      - .claude/skills
+```
+
+空列表会关闭代理技能功能。pnpm 不再提供批准，并删除它已链接的技能。
+
 ### dangerouslyAllowAllBuilds
 
 自 v10.9.0 起提供
@@ -225,7 +361,7 @@ allowBuilds:
 
 设为 `true` 时，依赖的所有构建脚本（例如 `preinstall`、`install`、`postinstall`）将自动运行，无需批准。
 
-:::warning[warning]
+:::warning[警告]
 
 此设置允许所有依赖——包括传递依赖——无论现在还是将来都运行安装脚本。即使你当前的依赖图看起来是安全的：
 

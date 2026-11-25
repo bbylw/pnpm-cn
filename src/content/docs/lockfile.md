@@ -1,6 +1,6 @@
 ---
 title: "读取 pnpm-lock.yaml"
-headingIds: ["which-document-you-need","the-projects-dependency-graph","everything-the-lockfile-installs","resolutions-that-carry-a-revision","why-the-env-document-comes-first","when-a-lockfile-has-two-documents","scanning-for-vulnerabilities"]
+headingIds: ["which-document-you-need","the-projects-dependency-graph","everything-the-lockfile-installs","resolutions-that-carry-a-revision","which-hash-integrity-pins","why-the-env-document-comes-first","when-a-lockfile-has-two-documents","scanning-for-vulnerabilities"]
 ---
 
 `pnpm-lock.yaml` 是一个 YAML 文件，但它并不总是**单个** YAML 文档。根据项目所用内容，pnpm 会写入一个或两个文档：
@@ -105,6 +105,17 @@ packages:
 它表示这些字节是 registry 的**替换产物**，从 registry 按 integrity 寻址的路由拉取，而不是从规范的 `name@version` URL。没有 `revision` 字段的条目就是修订号 0，即原始版本，这也是 pnpm 写过的每个条目的含义，因此尚未采用任何替换的锁文件不会有变化。参见 [registry 修订](/docs/registry-revisions)。
 
 读取 integrity 值的工具应当把 `revision` 当作普通元数据处理：`integrity` 仍然是一个标准的 Subresource Integrity 值，用于固定精确的字节。
+
+## `integrity` 固定的是哪种哈希
+
+包 tarball 条目的 `integrity` 固定的是其 tarball URL 处的资源，在 HTTP 内容解码之后。在大多数 registry 上那是 `.tgz`，在 [tar registry](/docs/registries#tar-registries) 上则是 tar。使用 [`lockfile.integrityTarget: tar`](/docs/settings/store#lockfileintegritytarget) 时，它固定每个 registry 包、`tarball:` URL 和 `file:` tarball 的未压缩 tar，锁文件也会在其 `settings` 中记录这一点：
+
+```yaml
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+  integrityTarget: tar
+```
 
 ## 为什么 env 文档排在前面
 

@@ -23,13 +23,13 @@ pnpm runtime set <name> <version> [-g]
 - `deno` - Deno
 - `bun` - Bun
 
-:::info[info]
+:::info[信息]
 
 自 v11.0.0 起，安装 Node.js 运行时（通过 `pnpm runtime set node …` 或 `node@runtime:<version>`）时，不会从 Node.js 归档中提取自带的 `npm`、`npx` 和 `corepack`。这使运行时安装期间 pnpm 需要计算哈希、写入内容寻址存储并建立链接的文件数大约减半。如果你仍需要 `npm`，用 `pnpm add -g npm` 单独安装。
 
 :::
 
-:::info[info]
+:::info[信息]
 
 自 v11.22.0 起，解析 Node.js 版本（通过 [devEngines.runtime](/docs/package_json#devenginesruntime) 或 `runtime:` 说明符）快了很多。每个版本的发布元数据在签名验证通过后会被缓存到[缓存目录](/docs/cli/cache-path)，形如 `runtime:22.23.2` 的精确稳定版本不再下载 Node.js 发布索引。对于已获取过一次元数据的被锁定运行时，解析完全无需联网，从而消除了锁定已下载运行时的项目中首次调用 `node` 的延迟。
 

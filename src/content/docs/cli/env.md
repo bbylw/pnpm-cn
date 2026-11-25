@@ -3,7 +3,7 @@ title: "pnpm env <cmd>"
 headingIds: ["commands","use","add","remove-rm","list-ls","options","--global--g"]
 ---
 
-:::warning[Deprecated]
+:::warning[已废弃]
 
 `pnpm env` 已废弃。请改用 [pnpm runtime](/docs/cli/runtime)。例如，`pnpm env use --global lts` 变为 `pnpm runtime set node lts -g`。
 

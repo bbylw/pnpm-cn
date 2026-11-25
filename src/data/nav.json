@@ -14,6 +14,10 @@
    {
     "id": "installation",
     "label": "安装"
+   },
+   {
+    "id": "webcontainers",
+    "label": "StackBlitz WebContainers"
    }
   ]
  },
@@ -28,6 +32,10 @@
    {
     "id": "configuring",
     "label": "配置"
+   },
+   {
+    "id": "config-includes",
+    "label": "拆分设置到多个文件"
    },
    {
     "id": "filtering",
@@ -112,6 +120,10 @@
     "collapsed": true,
     "children": [
      {
+      "id": "cli/edit",
+      "label": "pnpm edit <pkg>"
+     },
+     {
       "id": "cli/patch",
       "label": "pnpm patch <pkg>"
      },
@@ -153,6 +165,10 @@
      {
       "id": "cli/licenses",
       "label": "pnpm licenses"
+     },
+     {
+      "id": "cli/fund",
+      "label": "pnpm fund"
      },
      {
       "id": "cli/peers",
@@ -206,12 +222,24 @@
       "label": "pnpm start"
      },
      {
+      "id": "cli/permissions",
+      "label": "pnpm permissions"
+     },
+     {
       "id": "cli/approve-builds",
       "label": "pnpm approve-builds"
      },
      {
       "id": "cli/ignored-builds",
       "label": "pnpm ignored-builds"
+     },
+     {
+      "id": "cli/tasks",
+      "label": "pnpm tasks"
+     },
+     {
+      "id": "cli/pipeline",
+      "label": "pnpm pipeline"
      }
     ]
    },
@@ -276,6 +304,10 @@
       "label": "pnpm whoami"
      },
      {
+      "id": "cli/profile",
+      "label": "pnpm profile"
+     },
+     {
       "id": "cli/access",
       "label": "pnpm access"
      },
@@ -294,6 +326,10 @@
      {
       "id": "cli/ping",
       "label": "pnpm ping"
+     },
+     {
+      "id": "cli/token",
+      "label": "pnpm token"
      }
     ]
    },
@@ -359,6 +395,10 @@
      {
       "id": "cli/cache-path",
       "label": "pnpm cache path"
+     },
+     {
+      "id": "cli/cache-prune",
+      "label": "pnpm cache prune"
      }
     ]
    },
@@ -422,6 +462,10 @@
      {
       "id": "cli/pkg",
       "label": "pnpm pkg"
+     },
+     {
+      "id": "cli/catalog",
+      "label": "pnpm catalog"
      },
      {
       "id": "cli/repo",
@@ -529,6 +573,14 @@
     "label": "工作区任务编排"
    },
    {
+    "id": "cargo",
+    "label": "Cargo 依赖"
+   },
+   {
+    "id": "python",
+    "label": "Python 依赖"
+   },
+   {
     "id": "catalogs",
     "label": "目录（catalogs）"
    },
@@ -555,6 +607,10 @@
    {
     "id": "global-packages",
     "label": "全局包"
+   },
+   {
+    "id": "agent-skills",
+    "label": "代理技能"
    },
    {
     "id": "global-virtual-store",
@@ -605,6 +661,14 @@
    {
     "id": "podman",
     "label": "与 Podman 配合使用"
+   },
+   {
+    "id": "production",
+    "label": "生产环境"
+   },
+   {
+    "id": "only-allow-pnpm",
+    "label": "仅允许 pnpm"
    }
   ]
  },
@@ -612,6 +676,10 @@
   "id": "Advanced",
   "label": "进阶",
   "items": [
+   {
+    "id": "migration-v11",
+    "label": "从 pnpm 11 迁移"
+   },
    {
     "id": "migration",
     "label": "从 v10 迁移"
@@ -633,12 +701,20 @@
     "label": "符号链接的 `node_modules` 结构"
    },
    {
+    "id": "store-loader",
+    "label": "实验性的存储加载器"
+   },
+   {
     "id": "how-peers-are-resolved",
     "label": "对等依赖的解析方式"
    },
    {
     "id": "lockfile",
     "label": "读取 pnpm-lock.yaml"
+   },
+   {
+    "id": "lockfile-format",
+    "label": "锁文件格式"
    },
    {
     "id": "uninstall",
@@ -653,12 +729,8 @@
     "label": "常见问题"
    },
    {
-    "id": "only-allow-pnpm",
-    "label": "仅允许 pnpm"
-   },
-   {
-    "id": "production",
-    "label": "生产环境"
+    "id": "crypto-donations",
+    "label": "加密货币捐赠"
    }
   ]
  }

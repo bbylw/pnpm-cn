@@ -1,6 +1,6 @@
 ---
 title: "配置"
-headingIds: ["local-project-configuration","global-configuration","environment-variables"]
+headingIds: ["local-project-configuration","global-configuration","settings-for-global-packages","environment-variables"]
 ---
 
 pnpm 设置分为两类：
@@ -37,11 +37,31 @@ saveExact: true
 - macOS 上：**~/Library/Preferences/pnpm/rc**
 - Linux 上：**~/.config/pnpm/rc**
 
+### 全局包的设置
+
+`globalPackagesConfig` 下的设置只对作用于[全局包](/docs/global-packages)的命令生效，例如 `pnpm add -g`、`pnpm update -g` 和 `pnpm approve-builds -g`。对这些命令而言，它们会覆盖 `config.yaml` 的其余部分。环境变量和命令行选项又会覆盖它们。`globalPackagesConfig` 也可以承载通常是项目专用的设置，例如 [`permissions`](/docs/settings/build#permissions)：
+
+```yaml
+trustPolicy: no-downgrade
+globalPackagesConfig:
+  trustPolicyExclude:
+    - vercel
+  permissions:
+    esbuild:
+      build: true
+```
+
+`catalog`、`catalogs`、`overrides`、`packageExtensions` 和 `patchedDependencies` 不支持放在 `globalPackagesConfig` 下。pnpm 会忽略它们并给出警告。
+
+`globalPackagesConfig.skills.dirs` 控制已批准的全局代理技能被链接到何处。路径相对于主目录，且必须留在其内部。参见 [skills.dirs](/docs/settings/build#skillsdirs)。
+
+`pnpm login` 把 registry 令牌保存在这个 `config.yaml` 中。其他全局认证和证书设置放在同一目录下的 `auth.ini` 中。参见[认证文件位置](/docs/npmrc#auth-file-locations)。
+
 ## 环境变量
 
 名称以 `pnpm_config_`（或 `PNPM_CONFIG_`）开头的环境变量会被载入配置。它们会覆盖来自 `pnpm-workspace.yaml` 的设置，但不会覆盖 CLI 参数。
 
-:::warning[warning]
+:::warning[警告]
 
 pnpm 不再读取 `npm_config_*` 环境变量。改用 `pnpm_config_*` 环境变量（例如用 `pnpm_config_registry` 而非 `npm_config_registry`）。
 

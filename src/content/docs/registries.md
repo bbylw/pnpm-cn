@@ -1,6 +1,6 @@
 ---
 title: "使用多个 registry"
-headingIds: ["routing-packages-to-a-registry","scopes","prefix","describing-the-server","servertype","supportstimefield","where-the-setting-may-live","the-older-shapes"]
+headingIds: ["routing-packages-to-a-registry","scopes","prefix","describing-the-server","servertype","supportstimefield","networkconcurrency","ecosystem","packages","tar-registries","where-the-setting-may-live","the-older-shapes"]
 ---
 
 自 v11.23.0 起提供
@@ -127,6 +127,85 @@ registries:
 ```
 
 这是 [registrySupportsTimeField](/docs/settings/other#registrysupportstimefield) 设置的按 registry 形式。回退行为按 registry 分别决定：某个 registry 需要完整元数据，不再牵连其他 registry；而对于项目未描述的 registry，仍以 `registrySupportsTimeField` 为准。
+
+### networkConcurrency
+
+自 v12.9.0 起提供
+
+pnpm 同时发往该 registry 来源（其 scheme、主机和端口）的请求上限。适用于那些会限流或在负载下变慢的服务器，而不必降低其他每个 registry 的并发：
+
+```yaml
+registries:
+  https://npm.corp.example.com/:
+    scopes: ["@acme"]
+    networkConcurrency: 4
+```
+
+该限制适用于 URL 位于该条目来源上的每个请求，包括 registry 从同一来源提供的 tarball。通过另一个来源重定向到达该来源的请求，也计入它最终被送往的来源。请求同样计入整体的 [`networkConcurrency`](/docs/settings/network#networkconcurrency)，因此高于该值的设置没有效果。URL 共享同一来源的条目共享其中最小的限制。条目可以只设置 `networkConcurrency`，例如用于限制默认 registry 或某个提供 tarball 的主机。
+
+若发往该来源的请求超时，而发往它的其他请求仍在运行，pnpm 会像对待没有条目的来源那样，在该命令余下的时间里把它的限制降为一个请求。该值必须是正整数。与 npm 专用的字段不同，它对 Cargo 和 PyPI 条目同样适用。
+
+### ecosystem
+
+自 v12.5.0 起提供
+
+选择该 registry 提供哪种包生态系统：`npm`（默认）、`cargo` 或 `pypi`。
+
+```yaml
+registries:
+  https://internal.example/simple/:
+    ecosystem: pypi
+    packages: ["company-*"]
+  https://pypi.org/simple/:
+    ecosystem: pypi
+    packages: ["*"]
+  https://index.crates.io/:
+    ecosystem: cargo
+```
+
+自 v12.5.1 起，Python 包只从通过 [`packages`](#packages) 声称其名称的索引中解析。声明顺序没有影响，包缺失或 registry 失败也不会回退到另一个索引。（v12.5.0 则按声明顺序搜索各索引。）Cargo 只接受一个稀疏索引。没有为某个生态系统做声明时，pnpm 使用 PyPI 或 crates.io。自 v12.5.0 起，这取代了已移除的 `python.indexUrl`、`python.extraIndexUrls` 和 `cargo.indexUrl` 设置。
+
+凭据不能出现在 URL 键中。请在 [`.npmrc`](/docs/npmrc) 中配置；它们按来源匹配，对所有生态系统都适用。npm 专用的字段 `scopes`、`prefix`、`serverType` 和 `supportsTimeField` 在 Cargo 和 PyPI 条目中会被拒绝。
+
+### packages
+
+自 v12.5.1 起提供
+
+对于 `ecosystem: pypi`，表示该索引提供哪些发行版名称。设置了 `packages` 的 npm 或 Cargo 条目会被拒绝，而不是被悄悄忽略。
+
+模式可以是精确名称（如 `torch`）、名称前缀加单个 `*`（如 `company-*`），或表示默认索引的 `*`（等价于 `**`）。名称会在 Python 名称规范化之后比较：忽略大小写，连续的 `.`、`_`、`-` 折叠为 `-`，因此 `Company_Tools` 与 `company-tools` 属于同一声称。其他通配符形式（如 `company-**` 或 `@scope/*`）会被拒绝，空列表同样如此。
+
+精确名称和前缀优先于默认索引；在它们彼此之间则从不竞争，因为两个可能匹配同一名称的模式会以 `ERR_PNPM_INVALID_SETTING` 被拒绝。这既适用于不同条目之间，也适用于同一条目内部，因此声称默认索引的条目不能再声称其他内容，且只能有一个索引是默认的。
+
+声称该名称的索引同样提供直接依赖、传递依赖和隔离的构建依赖。包缺失、版本不兼容、认证错误或任何其他 registry 失败都会中止解析；pnpm 绝不会重试另一个索引。
+
+省略 `packages` 同样意味着声称了默认索引，因此单个自定义 Python 索引无需任何模式，而两个都省略它的索引会因同为默认而被拒绝。一旦声明了任何 Python 索引，PyPI 就不再被隐式加入：没有索引声称的包会以 `ERR_PNPM_UNCLAIMED_PYTHON_PACKAGE` 失败，除非有索引是默认的。更改路由会使 Python 锁文件失效。
+
+含私有包和 PyPI 默认索引的示例，参见 [Python 索引](/docs/python#python-indexes)。
+
+### Tar registry
+
+自 v12.15.0 起提供
+
+Tar registry 以未压缩的 tar 而非 `.tgz` 提供每个包。该 tar 是所发布 `.tgz` 的 gzip 解码内容，按请求所接受的 HTTP 内容编码（zstd 或 gzip）发送。它的元数据在 `dist.integrity` 中固定 tar 的哈希，因此 registry 可以随意压缩该 tar 而不改变任何哈希。pnpr 通过 [`tarballs: tar`](https://pnpm.io/pnpr/configuration#tar-registries) 暴露了这一能力。
+
+项目通过以 URL 为键并声明其布局来使用 tar registry：
+
+```yaml
+registries:
+  https://pnpr.corp.example/npm/~zstd/:
+    scopes: ["@"]
+    serverType: pnpr
+```
+
+由服务器决定哪个基础地址提供 tar。在 pnpr 的示例中，它们位于 `/npm/~zstd/`，与常规的 `.tgz` 基础地址相邻，但 registry 也可以从其主基础地址提供 tar；参见 [pnpr 中的 tar registry](https://pnpm.io/pnpr/configuration#tar-registries)。请在任何 pnpr registry 基础地址上声明 `serverType: pnpr`，这样 pnpm 才会从 `pnpm-lock.yaml` 中省略规范的 `<name>@<version>` tarball URL。
+
+pnpm 通过解码后响应的前几个字节来区分 tar 和 `.tgz`，因此无需声明其他内容。锁文件保留其 `integrity` 字段，对来自 tar registry 的包而言，该字段保存的是 tar 的哈希。
+
+- **切换**：在 `.tgz` registry 和 tar registry 之间切换项目，会改变 registry 所提供的内容，因此记录的哈希不再匹配。切换后请运行 `pnpm install --update-checksums`。用 [`lockfile.integrityTarget: tar`](/docs/settings/store#lockfileintegritytarget) 固定 tar 的锁文件会在切换前后保留所有哈希。
+- **缺失的哈希**：尚未知晓某版本 tar 哈希的 tar registry 会省略 `dist.integrity`。此时 pnpm 会在解析期间下载该 tarball，并记录它收到的 tar 的哈希。
+- **重写 `Accept-Encoding` 的代理**（例如部署在 Worker 前面的 Cloudflare 边缘节点）可能让 zstd 无法到达 registry。此时 registry 会以 gzip 编码或未压缩方式发送 tar。两种情况下 tar 及其哈希都相同，因此安装不受影响，只是下载体积发生变化。pnpr 的 [Cloudflare 指南](https://pnpm.io/pnpr/cloudflare)介绍了它的 Worker 如何获得 zstd 支持。
+- **体积限制**：pnpm 只在解码 tarball 之后才校验其哈希，因此它会先对解码内容做体积限制。一个包的文件不得超过 [`maxTarballUnpackedSize`](/docs/settings/network#maxtarballunpackedsize)。一个 tar 的文件同样不得超过该包的 `dist.unpackedSize`。单个归档的头部和被跳过的条目不得超过 256 MiB，zstd 响应使用的窗口也不得大于 8 MiB。
 
 ## 设置可以存放的位置
 

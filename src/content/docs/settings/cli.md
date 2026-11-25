@@ -1,6 +1,6 @@
 ---
 title: "CLI 与 Node.js 设置"
-headingIds: ["cli-settings","no-color","loglevel","usebetacli","recursiveinstall","enginestrict","npmpath","pmonfail","ignoreworkspacerootcheck","nodejs-settings","nodeversion","runtimeonfail","nodedownloadmirrors"]
+headingIds: ["cli-settings","no-color","loglevel","usebetacli","recursiveinstall","enginestrict","npmpath","pmonfail","ignoreworkspacerootcheck","nodejs-settings","nodeversion","runtimeonfail","nodedownloadmirrors","tools"]
 ---
 
 ## CLI 设置
@@ -154,3 +154,41 @@ nodeDownloadMirrors:
   rc: https://npmmirror.com/mirrors/node-rc/
   nightly: https://npmmirror.com/mirrors/node-nightly/
 ```
+
+### tools
+
+自 v12.5.0 起提供
+
+- 默认值：**undefined**
+- 类型：**对象**
+
+配置 pnpm 所安装程序的下载来源。可在[全局配置文件](/docs/cli/config)中用 `pnpm config set --global --json tools` 设置 `tools`，或以 JSON 形式放在 `PNPM_CONFIG_TOOLS` 中。`pnpm-workspace.yaml` 中的工具镜像会被忽略。
+
+```yaml
+tools:
+  node:
+    mirror: https://mirror.example.com/node/download
+    channels:
+      nightly: https://nightly.example.com/
+  bun:
+    mirror: https://mirror.example.com/bun
+  python:
+    mirror: https://mirror.example.com/python-build-standalone/releases
+  rust:
+    mirror: https://mirror.example.com/rust
+```
+
+`mirror` 提供该工具自身下载布局的基础 URL。只接受 `node`、`bun`、`python` 和 `rust`。Rust 镜像提供的是 `https://static.rust-lang.org` 的布局，就像 rustup 的 `RUSTUP_DIST_SERVER` 一样。只有 Node.js 支持 `channels`：渠道条目会覆盖该发布渠道的镜像，其他渠道仍使用 `mirror`。
+
+对 Node.js 而言，发布渠道会追加到 `mirror` 之后。例如 `mirror: https://mirror.example.com/node/download` 对稳定版会使用 `https://mirror.example.com/node/download/release/`。`channels` 条目则是该渠道完整的基础 URL。若要使用稳定版位于 `/node/` 下的镜像，请配置 `channels.release`：
+
+```yaml
+tools:
+  node:
+    channels:
+      release: https://npmmirror.com/mirrors/node/
+      rc: https://npmmirror.com/mirrors/node-rc/
+      nightly: https://npmmirror.com/mirrors/node-nightly/
+```
+
+`pnpm pack-app` 通过 `tools.node` 下载其内嵌的 Node.js。旧的 `node-mirror:<channel>` 设置仍可作为渠道镜像使用。

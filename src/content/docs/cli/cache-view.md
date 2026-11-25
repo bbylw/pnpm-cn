@@ -3,7 +3,7 @@ title: "pnpm cache view"
 headingIds: []
 ---
 
-:::warning[warning]
+:::warning[警告]
 
 此命令为实验性功能
 

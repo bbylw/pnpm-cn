@@ -1,6 +1,6 @@
 ---
 title: "pnpm install"
-headingIds: ["tldr","options-for-filtering-dependencies","--prod--p","--dev--d","--no-optional","--no-runtime","options","--force","--offline","--prefer-offline","--no-lockfile","--lockfile-only","--dry-run","--fix-lockfile","--update-checksums","--frozen-lockfile","--merge-git-branch-lockfiles","--reportername","--shamefully-hoist","--ignore-scripts","--filter-package_selector","--cpuname","--osname","--libcname"]
+headingIds: ["tldr","options-for-filtering-dependencies","--prod--p","--dev--d","--no-optional","--no-runtime","options","--force","--offline","--prefer-offline","--no-lockfile","--lockfile-only","--dry-run","--fix-lockfile","--update-checksums","--frozen-lockfile","--merge-git-branch-lockfiles","--reportername","--shamefully-hoist","--ignore-scripts","--frozen-store","--filter-package_selector","--cpuname","--osname","--libcname"]
 ---
 
 别名： `i`
@@ -167,6 +167,10 @@ exports.isCI = !!(
 - 类型：**布尔值**
 
 不执行项目 `package.json` 及其依赖中定义的任何脚本。
+
+### --frozen-store
+
+以只读方式打开存储并跳过所有存储写入，适用于存储位于只读文件系统上的情况。请与 `--offline --frozen-lockfile` 一起使用。`--no-frozen-store` 允许在配置开启只读存储时进行存储写入。参见 [`frozenStore`](/docs/settings/store#frozenstore)。
 
 ### --filter <package_selector>
 

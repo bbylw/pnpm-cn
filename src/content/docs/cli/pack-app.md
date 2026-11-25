@@ -5,7 +5,7 @@ headingIds: ["requirements","supported-targets","known-limitations","darwin-x64-
 
 自 v11.0.0 起提供
 
-:::warning[Experimental]
+:::warning[实验性]
 
 `pnpm pack-app` 处于实验阶段。其标志、`pnpm.app` 配置架构和输出布局可能会在未来版本中变更。
 

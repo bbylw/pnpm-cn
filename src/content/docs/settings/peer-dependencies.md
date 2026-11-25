@@ -1,6 +1,6 @@
 ---
 title: "对等依赖设置"
-headingIds: ["autoinstallpeers","version-conflicts","conflict-resolution","dedupepeerdependents","dedupepeers","strictpeerdependencies","resolvepeersfromworkspaceroot","peerdependencyrules","peerdependencyrulesignoremissing","peerdependencyrulesallowedversions","peerdependencyrulesallowany"]
+headingIds: ["autoinstallpeers","optional-peer-dependencies","version-conflicts","conflict-resolution","dedupepeerdependents","projectscopedoptionalpeers","dedupepeers","addmissingpeertypes","strictpeerdependencies","resolvepeersfromworkspaceroot","peerdependencyrules","peerdependencyrulesignoremissing","peerdependencyrulesallowedversions","peerdependencyrulesallowany"]
 ---
 
 ### autoInstallPeers
@@ -11,6 +11,22 @@ headingIds: ["autoinstallpeers","version-conflicts","conflict-resolution","dedup
 为 `true` 时，任何缺失的非可选对等依赖都会被自动安装。
 
 所选版本为满足 peer 范围的最高版本。由于自动安装的对等依赖并非项目声明的依赖，[resolutionMode](/docs/settings/other#resolutionmode) 会将其视为子依赖而非直接依赖，因此 `lowest-direct` 不会降低其版本。
+
+#### 可选对等依赖
+
+只有在满足可选对等依赖范围的某个版本已经安装时，pnpm 才会安装缺失的可选对等依赖；此时 pnpm 会把该可选对等依赖解析到那个版本。
+
+当 [`dedupePeerDependents`](#dedupepeerdependents) 为 `true` 时，该版本可以来自工作区中的任何项目，包括另一个项目的 `devDependencies`。例如，若一个项目依赖 `webpack`，另一个项目在 `devDependencies` 中有 `webpack-cli`，那么两个项目都会得到那个以 `webpack-cli` 为可选对等依赖的 `webpack` 实例。
+
+当 `dedupePeerDependents` 为 `false`，或 [`projectScopedOptionalPeers`](#projectscopedoptionalpeers) 为 `true` 时，该版本必须来自项目自身的依赖。若 [`resolvePeersFromWorkspaceRoot`](#resolvepeersfromworkspaceroot) 为 `true`，工作区根目录的依赖也算在内。
+
+若安装该版本会让项目留下未满足的对等依赖，pnpm 会跳过它。这涵盖该版本自身的 peer、pnpm 会随它安装的必需 peer，以及它们的 peer。`dedupePeerDependents` 不会通过共享另一个项目中声明它的包的实例，把被跳过的 peer 重新交给该项目。
+
+当 `autoInstallPeers` 为 `false` 且 `dedupePeerDependents` 为 `true` 时，pnpm 也会以这种方式解析可选 peer。要停止这一行为，请把两个设置都设为 `false`。
+
+为新项目选择工作区提供方时，pnpm 会优先使用锁文件中已经固定的兼容可选对等依赖版本。
+
+当你更改或移除某个直接依赖时，它之前的 peer 版本不再指导可选对等依赖的选择。未更改的依赖仍可以保留其锁定的 peer 版本。仅存在于旧锁文件中的、已被移除的提供方，不会妨碍与仍在安装的提供方去重。
 
 #### 版本冲突
 
@@ -78,6 +94,23 @@ project2
 
 在这种情况下，我们无法对 `webpack` 去重，因为 `webpack` 的对等依赖中有 `react`，而 `react` 在两个项目的上下文中分别解析为两个不同的版本。
 
+### projectScopedOptionalPeers
+
+自 v12.19.0 起提供
+
+- 默认值：**false**
+- 类型：**布尔值**
+
+为 `true` 时，只有当项目自身的依赖已经安装了某个可选对等依赖的版本时，项目才会得到它。若 [`resolvePeersFromWorkspaceRoot`](#resolvepeersfromworkspaceroot) 为 `true`，工作区根目录的依赖也算在内。只由另一个工作区项目安装的版本不计入。
+
+[`dedupePeerDependents`](#dedupepeerdependents) 对其他一切仍然有效。它依旧会跨项目对包去重，除非去重会让某个项目得到它自身依赖并未安装的可选对等依赖。必需 peer 不受影响。
+
+在 [`dedupePeerDependents`](#dedupepeerdependents) 的例子中，`project1` 会保留没有 `esbuild` 的那个 `webpack` 实例。
+
+当 `dedupePeerDependents` 为 `false` 时该设置没有作用，因为那时可选 peer 本来就只从项目自身的依赖中解析。
+
+更改该设置会改变锁文件。pnpm 在它生效期间会把它记录到锁文件的 `settings` 中，因此下一次安装会重新解析锁文件。
+
 ### dedupePeers
 
 自 v10.33.0 起提供
@@ -88,6 +121,19 @@ project2
 启用后，对等依赖后缀使用仅含版本的标识（`name@version`）而不是完整的依赖路径，从而消除像 `(foo@1.0.0(bar@2.0.0))` 这样的嵌套后缀。对于存在大量递归对等依赖的项目，这能大幅减少包实例的数量。
 
 这与 [dedupePeerDependents](#dedupepeerdependents) 不同，后者针对在不同工作区项目中拥有相同对等依赖的包进行去重。`dedupePeers` 简化的是对等依赖后缀格式本身。
+
+### addMissingPeerTypes
+
+自 v12.12.0 起提供
+
+- 默认值：**false**
+- 类型：**布尔值**
+
+为 `true` 时，某个依赖的每个对等依赖，都会让相应的 `@types` 包也成为它的可选对等依赖。对 `react` 有对等依赖的包会得到对 `@types/react` 的可选对等依赖，对 `@babel/core` 有对等依赖的包会得到 `@types/babel__core`。已经声明了该 `@types` 包的包会保留自己的声明。pnpm 不会安装工作区中无人依赖的 `@types` 包。
+
+许多包对某个库有对等依赖，却没有声明它的 `@types` 包。此时 TypeScript 会在该包自身所在位置旁边寻找类型。启用 [`enableGlobalVirtualStore`](/docs/settings/node-modules#enableglobalvirtualstore) 后，那个位置在你的项目之外，因此你项目安装的类型找不到。使用该设置时，pnpm 会像处理任何[可选对等依赖](#optional-peer-dependencies)那样，把 `@types` 包链接到每个对该库有对等依赖的包旁边。
+
+更改该设置会改变锁文件。
 
 ### strictPeerDependencies
 

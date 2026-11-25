@@ -445,6 +445,12 @@ html[data-theme="dark"] .doc-body .astro-code span {
 .admonition--caution {
   border-left-color: var(--color-accent-fill);
 }
+.admonition--warning {
+  border-left-color: var(--color-no);
+}
+.admonition--info {
+  border-left-color: var(--color-accent-line);
+}
 .admonition > :last-child {
   margin-bottom: 0;
 }

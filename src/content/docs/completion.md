@@ -3,7 +3,7 @@ title: "命令行 tab 补全"
 headingIds: ["g-planepnpm-shell-completion"]
 ---
 
-:::info[info]
+:::info[信息]
 
 pnpm v9+ 的补全与旧版 pnpm 的补全不兼容。如果你已为早于 v9 的版本安装过 pnpm 补全，必须先将其卸载，以确保 v9+ 的补全正常工作。方法是删除你的 dot 配置文件（以点开头的配置文件）中包含 `__tabtab` 的那段代码。
 

@@ -1,6 +1,6 @@
 ---
 title: "依赖解析设置"
-headingIds: ["overrides","convergence-overrides","overriding-peer-dependencies","packageextensions","alloweddeprecatedversions","update","updateignoredeps","updatechangeset","updategithubactions","updategithubactionsserver","supportedarchitectures","ignoredoptionaldependencies","minimumreleaseage","minimumreleaseageexclude","minimumreleaseageexcludeprune","minimumreleaseageignoremissingtime","minimumreleaseagestrict","trustpolicy","trustpolicyexclude","trustpolicyignoreafter","trustlockfile","blockexoticsubdeps","registries","namedregistries","built-in-aliases","reserved-alias-names","named-registries-in-the-lockfile"]
+headingIds: ["overrides","convergence-overrides","overriding-peer-dependencies","packageextensions","autodedupe","alloweddeprecatedversions","update","updateignoredeps","updatechangeset","updategithubactions","updategithubactionsserver","supportedarchitectures","ignoredoptionaldependencies","minimumreleaseage","minimumreleaseageexclude","minimumreleaseageexcludeprune","minimumreleaseageignoremissingtime","minimumreleaseagestrict","trustpolicy","trustpolicyexclude","trustpolicyignoreafter","trustlockfile","blockexoticsubdeps","registries","namedregistries","built-in-aliases","reserved-alias-names","named-registries-in-the-lockfile"]
 ---
 
 ### overrides
@@ -136,6 +136,29 @@ packageExtensions:
 
 :::
 
+### autoDedupe
+
+自 v12.6.0 起提供
+
+- 默认值：**false**
+- 类型：**布尔值**
+
+设为 `true` 时，`pnpm install` 和 `pnpm add` 会在安装期间对兼容的依赖版本去重。如果某个依赖以多个版本出现，且其中一个版本满足工作区中的每个范围，pnpm 就会为它们统一选用该版本。
+
+设为 `false` 时，每个项目的依赖都按自己的范围解析。例如，某个项目写着 `ajv: "*"`，即使另一个项目依赖 `ajv@^6`，它也会得到最新的 Ajv。项目在 `peerDependencies` 中列出的包仍跟随其他项目所用的版本。运行 [`pnpm dedupe`](/docs/cli/dedupe) 可让两个项目使用同一个版本。如果你用 `pnpm dedupe --check` 检查锁文件，请设置 `autoDedupe: true`。
+
+去重覆盖整个工作区。诸如 `pnpm --filter <项目> add` 这样的带过滤命令，也可能改动过滤器之外项目的锁文件条目，这些项目会在下一次 `pnpm install` 时链接上去重后的版本。
+
+```yaml
+autoDedupe: true
+```
+
+冻结安装（`--frozen-lockfile`）不会改动锁文件。去重只在锁文件被写入时执行。
+
+为了让其他机器上的安装能复用去重后的锁文件，请设置 [`lockfile.includeResolutionSettings`](/docs/settings/store#lockfileincluderesolutionsettings)。
+
+如果自执行过去一次执行去重的 `pnpm install --lockfile-only` 写出锁文件后没有发生变化，`pnpm install --lockfile-only` 会跳过解析。这样的安装会保留锁文件，即使此后发布了新版本，或只更改了 `resolutionMode` 之类的设置。请运行 [`pnpm dedupe`](/docs/cli/dedupe) 来应用这类改动。
+
 ### allowedDeprecatedVersions
 
 此设置允许屏蔽特定包的废弃警告。
@@ -195,7 +218,7 @@ update:
 
 承载工作流文件所引用 GitHub Actions 仓库的 GitHub 服务器的基础 URL（例如某个 GitHub Enterprise Server）。该 URL 必须使用 `https://` 或 `http://` 协议。只有在可信网络上的可信服务器才使用 `http://`：用于将 action 固定到提交哈希的 ref 会通过该 URL 拉取，未加密的流量可能被篡改。
 
-:::info[info]
+:::info[信息]
 
 在 v11.16.0 之前，`update.ignoreDeps` 名为 `updateConfig.ignoreDependencies`。已废弃的 `updateConfig` 设置在下一个 major 版本之前仍可使用；当两者都设置时，`update` 段优先，并会打印一条警告。
 
